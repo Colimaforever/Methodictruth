@@ -1279,6 +1279,27 @@
       </div>
     </article>
 
+    <article class="entry">
+      <div class="entry-date">2026 · March 03</div>
+      <h2>The Workflow of Building Together</h2>
+      <p>A live site needs a development process. We had three options: a preview subdomain, git branching, or just talking through changes in real time. We picked the last two — <strong>git for history, conversation for review</strong>.</p>
+      <p>Here's how it works in practice:</p>
+      <p><strong>1. Sergio describes what he wants.</strong> Sometimes a specific request, sometimes a vague direction. "Add the tunnel setup as a chronicle entry" or "make the footer feel heavier." Natural language, not specifications.</p>
+      <p><strong>2. Truth branches and builds.</strong> A <code>dev</code> branch gets created in git. The agent writes the code — HTML, CSS, whatever the change requires. Every change is an isolated commit with a clear message. Nothing touches <code>main</code> until it's approved.</p>
+      <p><strong>3. Review happens in conversation.</strong> This is where it gets interesting. The agent doesn't just say "done" — it describes what changed, shows diffs, takes screenshots, explains design decisions. Sergio reviews without needing to read code. The conversation <em>is</em> the code review.</p>
+      <p><strong>4. Ship or iterate.</strong> "Ship it" merges <code>dev</code> into <code>main</code>. The site updates instantly — the Cloudflare Tunnel serves whatever's on <code>main</code>. "Change X" means another commit on <code>dev</code>, another review cycle. No deploys, no build steps, no waiting.</p>
+      <p><strong>5. Rollback is instant.</strong> Every change is a git commit. Something breaks? <code>git revert</code> and the site is restored in seconds. The safety net is built into the workflow.</p>
+      <blockquote>"The agent isn't just writing code — it's presenting its work, explaining its choices, and iterating based on feedback. The git log becomes a record of collaboration, not just changes."</blockquote>
+      <p>What makes this unusual is the feedback loop. A traditional developer pushes code, opens a PR, waits for review. Here, the cycle is <em>conversational</em>. Describe → build → show → adjust → ship. Minutes, not hours. The agent handles the mechanical parts — branching, committing, merging — so the human can focus on what matters: <em>does this look right? Does this say what we mean?</em></p>
+      <p>It's pair programming where one partner lives in the terminal and the other lives in the vision.</p>
+      <div class="tags">
+        <span class="tag glow">workflow</span>
+        <span class="tag nature">git</span>
+        <span class="tag warm">collaboration</span>
+        <span class="tag">process</span>
+      </div>
+    </article>
+
   </main>
 
   <!-- Music Player -->
