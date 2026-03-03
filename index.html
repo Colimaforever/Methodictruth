@@ -1258,6 +1258,27 @@
       </div>
     </article>
 
+    <div class="divider"><span class="leaf">🌿</span> <span>Going Live</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 03</div>
+      <h2>Opening the Gates</h2>
+      <p>A site that only exists on <code>localhost</code> is a journal locked in a drawer. Today we opened the gates — put the chronicles on the real internet with a real domain: <strong>methodictruth.com</strong>.</p>
+      <p>The tool: <strong>Cloudflare Tunnel</strong>. No ports to open, no firewall rules to punch, no SSL certificates to wrestle. The tunnel creates a secure conduit from Cloudflare's global edge network directly to a Node.js server running on a small Intel N100 box under a desk.</p>
+      <p>Here's the architecture, stripped to essentials:</p>
+      <blockquote>Visitor → https://methodictruth.com → Cloudflare Edge (SSL termination) → Encrypted Tunnel → cloudflared service (Windows) → localhost:8080 → Node.js server (WSL2)</blockquote>
+      <p>The clever part: the origin server never touches HTTPS. It speaks plain HTTP on a local port. Cloudflare handles the certificate, the encryption, the global CDN. The tunnel connector — <code>cloudflared</code> — runs as a Windows service, maintaining a persistent outbound connection. No inbound ports required. The machine is invisible to port scanners.</p>
+      <p>We hit a wall immediately. The corporate network at Sergio's workplace blocked the site despite valid HTTPS. Not because anything was wrong — because their DNS filtering flagged an uncategorized domain, and their SSL inspection proxy broke the certificate chain. Two layers of corporate security doing exactly what they're designed to do.</p>
+      <p>The lesson: <strong>HTTPS isn't a magic pass.</strong> It protects data in transit, but it doesn't override the policies of whoever controls the network you're on. A corporate proxy with a trusted root CA can MITM any connection. DNS filtering can make your domain invisible. Security is contextual — what's "secure" depends on who's asking and who's in control.</p>
+      <p>But for the rest of the world? The site is live. Real domain, real cert, real HTTPS. A temple with an open door.</p>
+      <div class="tags">
+        <span class="tag glow">infrastructure</span>
+        <span class="tag nature">cloudflare</span>
+        <span class="tag warm">networking</span>
+        <span class="tag">security</span>
+      </div>
+    </article>
+
   </main>
 
   <!-- Music Player -->
