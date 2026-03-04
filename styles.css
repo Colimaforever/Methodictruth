@@ -670,6 +670,30 @@ blockquote {
   font-size: 0.75rem;
 }
 
+/* ─── CHRONICLES LINK ─── */
+.chronicles-link {
+  text-align: center;
+  padding: 3rem 0 1rem;
+}
+
+.chronicles-link a {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--glow);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  padding: 0.8rem 2rem;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.chronicles-link a:hover {
+  background: rgba(0, 229, 255, 0.05);
+  border-color: rgba(0, 229, 255, 0.4);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
 /* ─── FOOTER ─── */
 footer {
   position: relative;
