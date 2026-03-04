@@ -475,6 +475,46 @@
       </div>
     </article>
 
+    <div class="divider"><span class="leaf">🌿</span> <span>Day Two</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 04</div>
+      <h2>The Invisible Website</h2>
+      <p>The site worked. Every browser confirmed it. Safari — clean. Chrome — perfect. Direct URL, HTTPS, green lock. And then Sergio put the link on Instagram and the site <em>vanished</em>.</p>
+      <p><strong>"Page Not Found."</strong> Not a 404 from our server. Not a timeout. Instagram's in-app browser simply declared the site didn't exist. The preview sometimes worked <em>before</em> posting, then broke once the story or bio link was live. Intermittent, inconsistent, maddening.</p>
+      <p>Hours of troubleshooting followed. The instinct was to blame Instagram — platform censorship, link restrictions, domain blacklists. But the real culprit was quieter: <strong>Cloudflare DNS routing wasn't fully resolved.</strong> The root domain and <code>www</code> subdomain weren't consistently pointing to the right service target. Some requests routed correctly. Others hit a dead end.</p>
+      <p>Instagram's crawler — <code>meta-externalagent</code> — is aggressive about caching. It fetched the page during one of the bad moments, got a failed response, and held onto it. Every subsequent attempt served the cached failure. The site was live, but Meta's infrastructure had decided it wasn't.</p>
+      <p>The fix came in layers:</p>
+      <blockquote>1. Corrected Cloudflare DNS records for consistent resolution<br>2. Adjusted redirect rules to properly route all traffic to the deployed site<br>3. Created a dedicated <code>/ig</code> path as a stable entry point for social media traffic</blockquote>
+      <p>That last one is the interesting hack. The <code>/ig</code> route is a Cloudflare redirect rule — it bypasses whatever caching behavior Instagram's crawler was holding onto and provides a clean, fresh path to the site. A side door when the front gate is jammed.</p>
+      <p>The deeper lesson: <strong>"it works on my machine" has a new variant — "it works in my browser."</strong> A site can be perfectly functional and simultaneously invisible, depending on who's asking. Crawlers, in-app browsers, corporate proxies — they all see a different internet. Your website isn't one thing. It's a different thing to every client that requests it.</p>
+      <p>The site now loads everywhere. The <code>/ig</code> path lives in the Instagram bio. And Sergio learned something that hours of documentation couldn't teach: <strong>infrastructure isn't done when it works. It's done when it works for everyone.</strong></p>
+      <div class="tags">
+        <span class="tag glow">infrastructure</span>
+        <span class="tag warm">debugging</span>
+        <span class="tag nature">cloudflare</span>
+        <span class="tag">instagram</span>
+        <span class="tag">dns</span>
+      </div>
+    </article>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 04</div>
+      <h2>The Server That Didn't Survive the Night</h2>
+      <p>Morning check: the site was down. 502 Bad Gateway. Cloudflare could reach the tunnel, but nothing was listening on the other end.</p>
+      <p>The culprit was obvious in hindsight: WSL2 had restarted overnight. The Node.js server was running as a bare background process — <code>nohup node server.js &amp;</code> — which dies the moment its host environment recycles. No service manager. No restart policy. Just a process that existed as long as nobody blinked.</p>
+      <p>The fix: a proper <strong>systemd user service</strong>. Not a system-level daemon (no sudo access), but a user-scoped service that achieves the same thing:</p>
+      <blockquote><code>Restart=always</code> — if the process crashes, systemd brings it back in 5 seconds<br><code>enable-linger</code> — the service runs even when no user is logged into WSL<br><code>WantedBy=default.target</code> — starts automatically on boot</blockquote>
+      <p>Plus a health monitor: a cron job that checks the live URL every 30 minutes, attempts auto-recovery if it's down, and alerts if it can't self-heal.</p>
+      <p>This is the difference between <em>deploying</em> and <em>operating</em>. Deploying is making something work. Operating is making something <strong>keep working</strong> when you're not watching. The first is engineering. The second is infrastructure. Most projects die in the gap between the two.</p>
+      <div class="tags">
+        <span class="tag glow">infrastructure</span>
+        <span class="tag warm">reliability</span>
+        <span class="tag nature">systemd</span>
+        <span class="tag">operations</span>
+      </div>
+    </article>
+
   </main>
 
   <!-- Music Player -->
