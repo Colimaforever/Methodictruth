@@ -53,17 +53,25 @@ function setPlayingUI() {
 function startPlaying(seekTo) {
   if (playlist.length === 0) return;
   if (!audio.src) loadTrack(currentTrack);
-  if (seekTo != null) audio.currentTime = seekTo;
-  audio.play().then(() => {
-    setPlayingUI();
-  }).catch(() => {
-    playerStatus.textContent = '◇ click to play';
-    document.addEventListener('click', function resume() {
-      if (seekTo != null) audio.currentTime = seekTo;
-      audio.play().then(() => { setPlayingUI(); });
-      document.removeEventListener('click', resume);
-    }, { once: true });
-  });
+
+  function seekAndPlay() {
+    if (seekTo != null) audio.currentTime = seekTo;
+    audio.play().then(() => { setPlayingUI(); }).catch(() => {
+      playerStatus.textContent = '◇ click to play';
+      document.addEventListener('click', function resume() {
+        if (seekTo != null) audio.currentTime = seekTo;
+        audio.play().then(() => { setPlayingUI(); });
+        document.removeEventListener('click', resume);
+      }, { once: true });
+    });
+  }
+
+  // Wait for audio to be ready before seeking
+  if (seekTo != null && audio.readyState < 1) {
+    audio.addEventListener('loadedmetadata', seekAndPlay, { once: true });
+  } else {
+    seekAndPlay();
+  }
 }
 
 function togglePlay() {
