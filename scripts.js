@@ -26,14 +26,26 @@ if (saved) {
 }
 audio.loop = true;
 
-// Save state before navigating away
-window.addEventListener('beforeunload', () => {
+// Save state continuously so it's always fresh
+function saveMusicState() {
   localStorage.setItem('musicState', JSON.stringify({
     track: currentTrack,
     time: audio.currentTime,
     playing: isPlaying,
     volume: audio.volume
   }));
+}
+
+// Save on every timeupdate (~4x per second while playing)
+audio.addEventListener('timeupdate', saveMusicState);
+// Also save on pause, play, and before unload
+audio.addEventListener('pause', saveMusicState);
+audio.addEventListener('play', saveMusicState);
+window.addEventListener('beforeunload', saveMusicState);
+
+// Save state when clicking nav links (belt + suspenders)
+document.querySelectorAll('.site-nav a').forEach(link => {
+  link.addEventListener('click', saveMusicState);
 });
 
 function loadTrack(index) {
