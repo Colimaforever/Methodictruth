@@ -15,8 +15,26 @@ const playerStatus = document.getElementById('playerStatus');
 const musicPlayer = document.getElementById('musicPlayer');
 const volumeSlider = document.getElementById('volumeSlider');
 
-audio.volume = 0.4;
+// Restore state from localStorage
+const saved = JSON.parse(localStorage.getItem('musicState') || 'null');
+if (saved) {
+  currentTrack = saved.track || 0;
+  audio.volume = saved.volume != null ? saved.volume : 0.4;
+  volumeSlider.value = audio.volume * 100;
+} else {
+  audio.volume = 0.4;
+}
 audio.loop = true;
+
+// Save state before navigating away
+window.addEventListener('beforeunload', () => {
+  localStorage.setItem('musicState', JSON.stringify({
+    track: currentTrack,
+    time: audio.currentTime,
+    playing: isPlaying,
+    volume: audio.volume
+  }));
+});
 
 function loadTrack(index) {
   if (playlist.length === 0) return;
@@ -25,23 +43,24 @@ function loadTrack(index) {
   trackName.textContent = playlist[currentTrack].title;
 }
 
-function startPlaying() {
+function setPlayingUI() {
+  isPlaying = true;
+  playBtn.textContent = '❚❚';
+  playerStatus.textContent = '◈ playing';
+  musicPlayer.classList.add('playing');
+}
+
+function startPlaying(seekTo) {
   if (playlist.length === 0) return;
-  if (!audio.src) loadTrack(0);
+  if (!audio.src) loadTrack(currentTrack);
+  if (seekTo != null) audio.currentTime = seekTo;
   audio.play().then(() => {
-    isPlaying = true;
-    playBtn.textContent = '❚❚';
-    playerStatus.textContent = '◈ playing';
-    musicPlayer.classList.add('playing');
+    setPlayingUI();
   }).catch(() => {
     playerStatus.textContent = '◇ click to play';
     document.addEventListener('click', function resume() {
-      audio.play().then(() => {
-        isPlaying = true;
-        playBtn.textContent = '❚❚';
-        playerStatus.textContent = '◈ playing';
-        musicPlayer.classList.add('playing');
-      });
+      if (seekTo != null) audio.currentTime = seekTo;
+      audio.play().then(() => { setPlayingUI(); });
       document.removeEventListener('click', resume);
     }, { once: true });
   });
@@ -69,9 +88,14 @@ nextBtn.addEventListener('click', () => { loadTrack(currentTrack + 1); if (isPla
 volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value / 100; });
 audio.addEventListener('ended', () => { loadTrack(currentTrack + 1); audio.play(); });
 
+// Initialize: restore from saved state or start fresh
 if (playlist.length > 0) {
-  loadTrack(0);
-  startPlaying();
+  loadTrack(currentTrack);
+  if (saved && saved.playing) {
+    startPlaying(saved.time || 0);
+  } else if (!saved) {
+    startPlaying();
+  }
 }
 
 // ─── STARFIELD RENDERER ───
