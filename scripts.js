@@ -1,0 +1,137 @@
+// ─── MUSIC PLAYER ───
+const playlist = [
+  { title: 'Sudden Truths', src: 'audio/sudden-truths.mp3' },
+];
+
+const audio = new Audio();
+let currentTrack = 0;
+let isPlaying = false;
+
+const playBtn = document.getElementById('playBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const trackName = document.getElementById('trackName');
+const playerStatus = document.getElementById('playerStatus');
+const musicPlayer = document.getElementById('musicPlayer');
+const volumeSlider = document.getElementById('volumeSlider');
+
+audio.volume = 0.4;
+audio.loop = true;
+
+function loadTrack(index) {
+  if (playlist.length === 0) return;
+  currentTrack = ((index % playlist.length) + playlist.length) % playlist.length;
+  audio.src = playlist[currentTrack].src;
+  trackName.textContent = playlist[currentTrack].title;
+}
+
+function startPlaying() {
+  if (playlist.length === 0) return;
+  if (!audio.src) loadTrack(0);
+  audio.play().then(() => {
+    isPlaying = true;
+    playBtn.textContent = '❚❚';
+    playerStatus.textContent = '◈ playing';
+    musicPlayer.classList.add('playing');
+  }).catch(() => {
+    playerStatus.textContent = '◇ click to play';
+    document.addEventListener('click', function resume() {
+      audio.play().then(() => {
+        isPlaying = true;
+        playBtn.textContent = '❚❚';
+        playerStatus.textContent = '◈ playing';
+        musicPlayer.classList.add('playing');
+      });
+      document.removeEventListener('click', resume);
+    }, { once: true });
+  });
+}
+
+function togglePlay() {
+  if (playlist.length === 0) {
+    trackName.textContent = 'Drop mp3s in /audio';
+    return;
+  }
+  if (isPlaying) {
+    audio.pause();
+    isPlaying = false;
+    playBtn.textContent = '▷';
+    playerStatus.textContent = '◇ paused';
+    musicPlayer.classList.remove('playing');
+  } else {
+    startPlaying();
+  }
+}
+
+playBtn.addEventListener('click', togglePlay);
+prevBtn.addEventListener('click', () => { loadTrack(currentTrack - 1); if (isPlaying) audio.play(); });
+nextBtn.addEventListener('click', () => { loadTrack(currentTrack + 1); if (isPlaying) audio.play(); });
+volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value / 100; });
+audio.addEventListener('ended', () => { loadTrack(currentTrack + 1); audio.play(); });
+
+if (playlist.length > 0) {
+  loadTrack(0);
+  startPlaying();
+}
+
+// ─── STARFIELD RENDERER ───
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  initStars();
+}
+
+function initStars() {
+  stars = [];
+  const count = Math.floor((canvas.width * canvas.height) / 2000);
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 1.5 + 0.3,
+      opacity: Math.random() * 0.8 + 0.2,
+      twinkleSpeed: Math.random() * 0.02 + 0.005,
+      twinkleOffset: Math.random() * Math.PI * 2,
+      warm: Math.random() > 0.92,
+      blue: Math.random() > 0.95
+    });
+  }
+}
+
+function drawStars(time) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  stars.forEach(star => {
+    const twinkle = Math.sin(time * star.twinkleSpeed + star.twinkleOffset);
+    const opacity = star.opacity * (0.6 + twinkle * 0.4);
+    
+    if (star.warm) {
+      ctx.fillStyle = `rgba(232, 168, 124, ${opacity})`;
+    } else if (star.blue) {
+      ctx.fillStyle = `rgba(140, 180, 255, ${opacity})`;
+    } else {
+      ctx.fillStyle = `rgba(240, 232, 216, ${opacity})`;
+    }
+    
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+    ctx.fill();
+    
+    if (star.size > 1.2) {
+      ctx.fillStyle = `rgba(240, 232, 216, ${opacity * 0.15})`;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  requestAnimationFrame(drawStars);
+}
+
+window.addEventListener('resize', resize);
+resize();
+requestAnimationFrame(drawStars);
