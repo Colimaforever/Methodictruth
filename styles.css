@@ -671,6 +671,85 @@ blockquote {
 }
 
 /* ─── CHRONICLES LINK ─── */
+/* ─── TIMELINE ─── */
+.timeline {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timeline-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  padding: 1.2rem 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  border-left: 1px solid rgba(0, 229, 255, 0.1);
+  margin-left: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.timeline-entry:hover {
+  background: rgba(0, 229, 255, 0.03);
+  border-left-color: rgba(0, 229, 255, 0.3);
+}
+
+.timeline-marker {
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 229, 255, 0.3);
+  background: var(--bg);
+  margin-top: 4px;
+  margin-left: -22px;
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-marker.active {
+  background: rgba(0, 229, 255, 0.4);
+  border-color: var(--glow);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.timeline-day {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--glow);
+  letter-spacing: 0.08em;
+}
+
+.timeline-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(232, 168, 124, 0.5);
+  letter-spacing: 0.05em;
+}
+
+.timeline-summary {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  color: rgba(210, 200, 180, 0.6);
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+
+.timeline-entry:hover .timeline-day {
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
 .chronicles-link {
   text-align: center;
   padding: 3rem 0 1rem;
