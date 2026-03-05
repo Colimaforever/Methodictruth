@@ -48,16 +48,9 @@ window.addEventListener('pagehide', saveMusicState);
 // iOS: visibilitychange as another safety net
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveMusicState(); });
 
-// Save state when clicking nav links — critical for iOS where beforeunload is unreliable
+// Save state when clicking nav links
 document.querySelectorAll('.site-nav a').forEach(link => {
-  link.addEventListener('click', (e) => {
-    saveMusicState();
-    // Small delay to ensure save completes before navigation
-    if (isPlaying) {
-      e.preventDefault();
-      setTimeout(() => { window.location.href = link.href; }, 50);
-    }
-  });
+  link.addEventListener('click', saveMusicState);
 });
 
 function loadTrack(index) {
@@ -204,3 +197,129 @@ function drawStars(time) {
 window.addEventListener('resize', resize);
 resize();
 requestAnimationFrame(drawStars);
+
+// ─── SPA ROUTER — Keep audio alive across navigation ───
+(function() {
+  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html'];
+
+  function isInternalLink(href) {
+    try {
+      const url = new URL(href, window.location.origin);
+      if (url.origin !== window.location.origin) return false;
+      const path = url.pathname.split('/').pop() || 'index.html';
+      return INTERNAL_PAGES.includes(path);
+    } catch { return false; }
+  }
+
+  function getPageName(href) {
+    try {
+      const url = new URL(href, window.location.origin);
+      return url.pathname.split('/').pop() || 'index.html';
+    } catch { return null; }
+  }
+
+  async function navigateTo(href, pushState) {
+    const pageName = getPageName(href);
+    if (!pageName) return;
+
+    try {
+      const resp = await fetch(href);
+      if (!resp.ok) { window.location.href = href; return; }
+      const html = await resp.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      // Swap title
+      document.title = doc.title;
+
+      // Swap header or page-header
+      const newHeader = doc.querySelector('header') || doc.querySelector('.page-header');
+      const oldHeader = document.querySelector('header') || document.querySelector('.page-header');
+      if (newHeader && oldHeader) {
+        oldHeader.replaceWith(newHeader.cloneNode(true));
+      } else if (newHeader && !oldHeader) {
+        // Current page has no header but new one does — insert before main
+        const main = document.querySelector('main');
+        if (main) main.before(newHeader.cloneNode(true));
+      } else if (!newHeader && oldHeader) {
+        // New page has no separate header
+        const newPH = doc.querySelector('.page-header');
+        if (newPH) oldHeader.replaceWith(newPH.cloneNode(true));
+        else oldHeader.remove();
+      }
+
+      // Swap main content
+      const newMain = doc.querySelector('main');
+      const oldMain = document.querySelector('main');
+      if (newMain && oldMain) {
+        oldMain.replaceWith(newMain.cloneNode(true));
+      }
+
+      // Swap chat orb/float if present
+      const newOrb = doc.querySelector('.chat-orb');
+      const newFloat = doc.querySelector('.chat-float');
+      const oldOrb = document.querySelector('.chat-orb');
+      const oldFloat = document.querySelector('.chat-float');
+      if (newOrb && !oldOrb) document.body.appendChild(newOrb.cloneNode(true));
+      if (!newOrb && oldOrb) oldOrb.remove();
+      if (newFloat && !oldFloat) document.body.appendChild(newFloat.cloneNode(true));
+      if (!newFloat && oldFloat) oldFloat.remove();
+
+      // Update active nav link
+      document.querySelectorAll('.site-nav a').forEach(a => {
+        const linkPage = getPageName(a.href);
+        a.classList.toggle('active', linkPage === pageName);
+      });
+
+      // Execute page-specific inline scripts from new page
+      const newScripts = doc.querySelectorAll('main ~ script, .chat-float ~ script');
+      newScripts.forEach(s => {
+        // Skip scripts.js and lib scripts — those are already loaded
+        if (s.src) return;
+        try {
+          const fn = new Function(s.textContent);
+          fn();
+        } catch (e) { console.warn('SPA script exec:', e); }
+      });
+
+      // Re-bind SPA nav links on new content
+      bindNavLinks();
+
+      // Push state
+      if (pushState !== false) {
+        history.pushState({ page: pageName }, '', href);
+      }
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+
+    } catch (err) {
+      console.warn('SPA nav failed, falling back:', err);
+      window.location.href = href;
+    }
+  }
+
+  function bindNavLinks() {
+    document.querySelectorAll('.site-nav a').forEach(link => {
+      // Remove old listeners by cloning
+      if (link.dataset.spabound) return;
+      link.dataset.spabound = '1';
+      link.addEventListener('click', (e) => {
+        if (!isInternalLink(link.href)) return;
+        e.preventDefault();
+        navigateTo(link.href, true);
+      });
+    });
+  }
+
+  // Handle back/forward
+  window.addEventListener('popstate', (e) => {
+    navigateTo(window.location.href, false);
+  });
+
+  // Initial bind
+  bindNavLinks();
+
+  // Set initial history state
+  history.replaceState({ page: getPageName(window.location.href) }, '', window.location.href);
+})();
