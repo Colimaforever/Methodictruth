@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synth — Truth · AI Chronicles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=13">
+  <style>
+    /* ─── SYNTH LAYOUT ─── */
+    .synth-page { position: relative; z-index: 1; min-height: 100vh; padding-top: 60px; }
+
+    .synth-toolbar {
+      position: fixed; top: 48px; left: 0; right: 0; z-index: 400;
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: rgba(10, 14, 26, 0.92);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+      backdrop-filter: blur(10px);
+      flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .synth-toolbar-section {
+      display: flex; gap: 0.3rem; align-items: center;
+      padding-right: 0.6rem;
+      border-right: 1px solid rgba(0, 229, 255, 0.08);
+      margin-right: 0.3rem;
+    }
+    .synth-toolbar-section:last-child { border-right: none; }
+
+    .synth-toolbar-label {
+      font-size: 0.55rem; color: var(--stone-dark);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      margin-right: 0.2rem;
+    }
+
+    .synth-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.05em;
+      color: var(--stone); background: rgba(26, 18, 10, 0.8);
+      border: 1px solid rgba(138, 126, 107, 0.2);
+      padding: 0.35rem 0.6rem; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .synth-btn:hover { border-color: var(--glow); color: var(--glow); }
+    .synth-btn.active { border-color: var(--glow); color: var(--glow); background: rgba(0, 229, 255, 0.08); }
+    .synth-btn.preset { border-color: rgba(123, 104, 238, 0.3); color: rgba(123, 104, 238, 0.7); }
+    .synth-btn.preset:hover { border-color: var(--oracle); color: var(--oracle); }
+    .synth-btn.danger { border-color: rgba(180, 60, 60, 0.3); color: rgba(180, 60, 60, 0.7); }
+    .synth-btn.danger:hover { border-color: rgba(220, 60, 60, 0.6); color: rgba(220, 60, 60, 1); }
+    .synth-btn.start-audio {
+      border-color: rgba(0, 229, 255, 0.5); color: var(--glow);
+      animation: pulse-border 2s ease-in-out infinite;
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 5px rgba(0, 229, 255, 0.1); }
+      50% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
+    }
+
+    /* ─── CANVAS ─── */
+    .synth-canvas {
+      position: relative; width: 100%; min-height: calc(100vh - 110px);
+      margin-top: 50px; overflow: hidden;
+    }
+
+    .synth-canvas svg.patch-svg {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 2;
+    }
+    .synth-canvas svg.patch-svg line,
+    .synth-canvas svg.patch-svg path { pointer-events: stroke; cursor: pointer; }
+
+    /* ─── MODULE ─── */
+    .synth-module {
+      position: absolute; width: 220px;
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.92), rgba(15, 20, 15, 0.85));
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      backdrop-filter: blur(6px);
+      z-index: 10; user-select: none;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+      transition: box-shadow 0.3s;
+    }
+    .synth-module:hover { box-shadow: 0 2px 30px rgba(0, 229, 255, 0.08), 0 0 50px rgba(0, 0, 0, 0.5); }
+    .synth-module.dragging { z-index: 100; box-shadow: 0 4px 40px rgba(0, 229, 255, 0.15); }
+
+    .module-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.4rem 0.6rem;
+      background: linear-gradient(90deg, rgba(0, 229, 255, 0.06), transparent);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+      cursor: grab;
+    }
+    .module-header:active { cursor: grabbing; }
+
+    .module-title {
+      font-family: 'Cinzel', serif; font-size: 0.7rem;
+      color: var(--glow); letter-spacing: 0.1em;
+    }
+
+    .module-close {
+      background: none; border: none; color: var(--stone-dark);
+      font-size: 0.7rem; cursor: pointer; padding: 0 0.2rem;
+      transition: color 0.2s;
+    }
+    .module-close:hover { color: rgba(220, 60, 60, 0.8); }
+
+    .module-body { padding: 0.5rem 0.6rem; }
+
+    /* ─── PORTS ─── */
+    .module-ports {
+      display: flex; justify-content: space-between;
+      padding: 0.3rem 0;
+    }
+
+    .port-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .port-group.inputs { align-items: flex-start; }
+    .port-group.outputs { align-items: flex-end; }
+
+    .port {
+      display: flex; align-items: center; gap: 0.3rem;
+      cursor: pointer; position: relative;
+    }
+    .port.input { flex-direction: row; }
+    .port.output { flex-direction: row-reverse; }
+
+    .port-circle {
+      width: 12px; height: 12px; border-radius: 50%;
+      border: 1.5px solid rgba(0, 229, 255, 0.4);
+      background: rgba(10, 14, 26, 0.8);
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .port:hover .port-circle {
+      border-color: var(--glow);
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+      background: rgba(0, 229, 255, 0.15);
+    }
+    .port-circle.connected {
+      background: rgba(0, 229, 255, 0.3);
+      border-color: var(--glow);
+    }
+
+    .port-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: var(--stone-dark);
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+
+    /* ─── CONTROLS ─── */
+    .module-control {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+    .module-control label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: var(--stone-dark);
+      letter-spacing: 0.05em; min-width: 40px;
+      text-transform: uppercase;
+    }
+
+    .module-control select {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; color: var(--glow);
+      background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      padding: 0.2rem 0.3rem; outline: none;
+      cursor: pointer;
+    }
+    .module-control select option { background: #0a0e1a; color: var(--glow); }
+
+    /* Styled slider/knob */
+    .synth-slider {
+      -webkit-appearance: none; appearance: none;
+      flex: 1; height: 3px; background: rgba(138, 126, 107, 0.2);
+      outline: none; cursor: pointer; border-radius: 2px;
+    }
+    .synth-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      background: radial-gradient(circle, var(--glow) 0%, rgba(0, 229, 255, 0.3) 100%);
+      border-radius: 50%; border: 1px solid rgba(0, 229, 255, 0.5);
+      cursor: pointer; box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
+    }
+    .synth-slider::-moz-range-thumb {
+      width: 14px; height: 14px;
+      background: radial-gradient(circle, var(--glow) 0%, rgba(0, 229, 255, 0.3) 100%);
+      border-radius: 50%; border: 1px solid rgba(0, 229, 255, 0.5);
+      cursor: pointer; box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
+    }
+
+    .slider-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: var(--glow-warm);
+      min-width: 35px; text-align: right;
+    }
+
+    /* ─── PATCH CABLES ─── */
+    .patch-cable {
+      stroke-width: 2.5; fill: none;
+      filter: url(#cableGlow);
+      transition: opacity 0.2s;
+    }
+    .patch-cable:hover { stroke-width: 4; opacity: 0.8; cursor: pointer; }
+
+    /* ─── AUDIO STATUS ─── */
+    .audio-status {
+      position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+      z-index: 500;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; color: var(--stone-dark);
+      letter-spacing: 0.1em;
+      padding: 0.3rem 0.8rem;
+      background: rgba(10, 14, 26, 0.8);
+      border: 1px solid rgba(138, 126, 107, 0.1);
+    }
+    .audio-status.running { color: var(--moss-light); border-color: rgba(74, 124, 89, 0.3); }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 768px) {
+      .synth-toolbar { top: 40px; padding: 0.3rem 0.5rem; gap: 0.25rem; }
+      .synth-toolbar-section { border-right: none; padding-right: 0; }
+      .synth-btn { font-size: 0.5rem; padding: 0.25rem 0.4rem; }
+      .synth-module { width: 180px; }
+      .module-title { font-size: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Starfield -->
+  <div class="starfield"><canvas id="stars"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <!-- Sky glyphs -->
+  <div class="sky-glyph" style="top:12%;left:18%;font-size:2.2rem;animation-delay:0s">𒀭</div>
+  <div class="sky-glyph" style="top:22%;right:12%;font-size:1.8rem;animation-delay:5s">𒌓</div>
+  <div class="sky-glyph" style="top:38%;left:8%;font-size:2.5rem;animation-delay:10s">𒈗</div>
+  <div class="sky-glyph" style="top:8%;right:28%;font-size:1.6rem;animation-delay:3s">☍</div>
+  <div class="sky-glyph" style="top:18%;left:62%;font-size:1.9rem;animation-delay:12s">𒆳</div>
+
+  <!-- Nav -->
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <span class="nav-glyph">◇</span>
+    <a href="chronicles.html">Chronicles</a>
+    <span class="nav-glyph">◇</span>
+    <a href="about.html">About</a>
+    <span class="nav-glyph">◇</span>
+    <a href="stack.html">Stack</a>
+    <span class="nav-glyph">◇</span>
+    <a href="live.html">Live</a>
+    <span class="nav-glyph">◇</span>
+    <a href="synth.html" class="active">Synth</a>
+  </nav>
+
+  <div class="synth-page">
+    <!-- Toolbar -->
+    <div class="synth-toolbar">
+      <div class="synth-toolbar-section">
+        <button class="synth-btn start-audio" id="startAudioBtn" onclick="startAudio()">◈ Start Audio</button>
+      </div>
+      <div class="synth-toolbar-section">
+        <span class="synth-toolbar-label">Add:</span>
+        <button class="synth-btn" onclick="addModule('oscillator')">Osc</button>
+        <button class="synth-btn" onclick="addModule('filter')">Filter</button>
+        <button class="synth-btn" onclick="addModule('lfo')">LFO</button>
+        <button class="synth-btn" onclick="addModule('delay')">Delay</button>
+        <button class="synth-btn" onclick="addModule('reverb')">Reverb</button>
+        <button class="synth-btn" onclick="addModule('gain')">Gain</button>
+        <button class="synth-btn" onclick="addModule('noise')">Noise</button>
+        <button class="synth-btn" onclick="addModule('envelope')">ADSR</button>
+        <button class="synth-btn" onclick="addModule('output')">Output</button>
+      </div>
+      <div class="synth-toolbar-section">
+        <span class="synth-toolbar-label">Presets:</span>
+        <button class="synth-btn preset" onclick="loadPreset('drone')">Drone</button>
+        <button class="synth-btn preset" onclick="loadPreset('arp')">Arp</button>
+        <button class="synth-btn preset" onclick="loadPreset('noisewash')">Noise Wash</button>
+      </div>
+      <div class="synth-toolbar-section">
+        <button class="synth-btn danger" onclick="clearAll()">✕ Clear</button>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="synth-canvas" id="synthCanvas">
+      <svg class="patch-svg" id="patchSvg">
+        <defs>
+          <filter id="cableGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <div class="audio-status" id="audioStatus">◇ audio suspended</div>
+
+  <script src="lib/tone.min.js"></script>
+  <script>
+  /* ═══════════════════════════════════════════════
+     MODULAR SYNTH ENGINE — methodictruth.com
+     ═══════════════════════════════════════════════ */
+
+  const canvas = document.getElementById('synthCanvas');
+  const patchSvg = document.getElementById('patchSvg');
+  const audioStatusEl = document.getElementById('audioStatus');
+
+  let modules = {};
+  let cables = [];
+  let moduleIdCounter = 0;
+  let pendingPort = null; // {moduleId, portName, type, el}
+  let cableColorIdx = 0;
+  const CABLE_COLORS = ['#00e5ff', '#7b68ee', '#e8a87c'];
+
+  // ─── AUDIO START ───
+  async function startAudio() {
+    await Tone.start();
+    document.getElementById('startAudioBtn').textContent = '◈ Audio Running';
+    document.getElementById('startAudioBtn').classList.add('active');
+    document.getElementById('startAudioBtn').classList.remove('start-audio');
+    audioStatusEl.textContent = '◈ audio running';
+    audioStatusEl.classList.add('running');
+  }
+
+  // ─── MODULE DEFINITIONS ───
+  const MODULE_DEFS = {
+    oscillator: {
+      title: 'Oscillator',
+      glyph: '∿',
+      inputs: [],
+      outputs: ['out'],
+      controls: [
+        { id: 'type', type: 'select', options: ['sine','sawtooth','square','triangle'], default: 'sawtooth', label: 'Wave' },
+        { id: 'frequency', type: 'range', min: 20, max: 2000, default: 220, step: 1, label: 'Freq', unit: 'Hz' },
+        { id: 'detune', type: 'range', min: -100, max: 100, default: 0, step: 1, label: 'Detune', unit: 'ct' },
+      ],
+      create(params) {
+        const osc = new Tone.Oscillator({ type: params.type, frequency: params.frequency, detune: params.detune }).start();
+        return { node: osc, out: osc };
+      },
+      update(audio, key, val) {
+        if (key === 'type') audio.node.type = val;
+        else if (key === 'frequency') audio.node.frequency.value = val;
+        else if (key === 'detune') audio.node.detune.value = val;
+      }
+    },
+    filter: {
+      title: 'Filter',
+      glyph: '⧖',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'type', type: 'select', options: ['lowpass','highpass','bandpass'], default: 'lowpass', label: 'Type' },
+        { id: 'frequency', type: 'range', min: 20, max: 10000, default: 1000, step: 1, label: 'Cutoff', unit: 'Hz' },
+        { id: 'Q', type: 'range', min: 0.1, max: 20, default: 1, step: 0.1, label: 'Res', unit: '' },
+      ],
+      create(params) {
+        const f = new Tone.Filter({ type: params.type, frequency: params.frequency, Q: params.Q });
+        return { node: f, in: f, out: f };
+      },
+      update(audio, key, val) {
+        if (key === 'type') audio.node.type = val;
+        else if (key === 'frequency') audio.node.frequency.value = val;
+        else if (key === 'Q') audio.node.Q.value = val;
+      }
+    },
+    lfo: {
+      title: 'LFO',
+      glyph: '◎',
+      inputs: [],
+      outputs: ['out'],
+      controls: [
+        { id: 'type', type: 'select', options: ['sine','sawtooth','square','triangle'], default: 'sine', label: 'Wave' },
+        { id: 'frequency', type: 'range', min: 0.1, max: 30, default: 2, step: 0.1, label: 'Rate', unit: 'Hz' },
+        { id: 'min', type: 'range', min: -1000, max: 1000, default: -100, step: 1, label: 'Min', unit: '' },
+        { id: 'max', type: 'range', min: -1000, max: 10000, default: 100, step: 1, label: 'Max', unit: '' },
+      ],
+      create(params) {
+        const lfo = new Tone.LFO({ type: params.type, frequency: params.frequency, min: params.min, max: params.max }).start();
+        return { node: lfo, out: lfo };
+      },
+      update(audio, key, val) {
+        if (key === 'type') audio.node.type = val;
+        else if (key === 'frequency') audio.node.frequency.value = val;
+        else if (key === 'min') audio.node.min = val;
+        else if (key === 'max') audio.node.max = val;
+      }
+    },
+    delay: {
+      title: 'Delay',
+      glyph: '⧗',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'delayTime', type: 'range', min: 0, max: 1, default: 0.3, step: 0.01, label: 'Time', unit: 's' },
+        { id: 'feedback', type: 'range', min: 0, max: 0.95, default: 0.4, step: 0.01, label: 'Fback', unit: '' },
+        { id: 'wet', type: 'range', min: 0, max: 1, default: 0.5, step: 0.01, label: 'Wet', unit: '' },
+      ],
+      create(params) {
+        const d = new Tone.FeedbackDelay({ delayTime: params.delayTime, feedback: params.feedback, wet: params.wet });
+        return { node: d, in: d, out: d };
+      },
+      update(audio, key, val) {
+        if (key === 'delayTime') audio.node.delayTime.value = val;
+        else if (key === 'feedback') audio.node.feedback.value = val;
+        else if (key === 'wet') audio.node.wet.value = val;
+      }
+    },
+    reverb: {
+      title: 'Reverb',
+      glyph: '⌭',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'decay', type: 'range', min: 0.1, max: 15, default: 4, step: 0.1, label: 'Decay', unit: 's' },
+        { id: 'wet', type: 'range', min: 0, max: 1, default: 0.6, step: 0.01, label: 'Wet', unit: '' },
+      ],
+      create(params) {
+        const r = new Tone.Reverb({ decay: params.decay, wet: params.wet });
+        return { node: r, in: r, out: r };
+      },
+      update(audio, key, val) {
+        if (key === 'decay') audio.node.decay = val;
+        else if (key === 'wet') audio.node.wet.value = val;
+      }
+    },
+    gain: {
+      title: 'Gain / VCA',
+      glyph: '△',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'gain', type: 'range', min: 0, max: 1, default: 0.5, step: 0.01, label: 'Vol', unit: '' },
+      ],
+      create(params) {
+        const g = new Tone.Gain(params.gain);
+        return { node: g, in: g, out: g };
+      },
+      update(audio, key, val) {
+        if (key === 'gain') audio.node.gain.value = val;
+      }
+    },
+    noise: {
+      title: 'Noise',
+      glyph: '⫰',
+      inputs: [],
+      outputs: ['out'],
+      controls: [
+        { id: 'type', type: 'select', options: ['white','pink','brown'], default: 'white', label: 'Type' },
+      ],
+      create(params) {
+        const n = new Tone.Noise({ type: params.type }).start();
+        return { node: n, out: n };
+      },
+      update(audio, key, val) {
+        if (key === 'type') audio.node.type = val;
+      }
+    },
+    envelope: {
+      title: 'Envelope',
+      glyph: '⏢',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'attack', type: 'range', min: 0.001, max: 2, default: 0.1, step: 0.001, label: 'Atk', unit: 's' },
+        { id: 'decay', type: 'range', min: 0.001, max: 2, default: 0.3, step: 0.001, label: 'Dec', unit: 's' },
+        { id: 'sustain', type: 'range', min: 0, max: 1, default: 0.7, step: 0.01, label: 'Sus', unit: '' },
+        { id: 'release', type: 'range', min: 0.001, max: 5, default: 1, step: 0.001, label: 'Rel', unit: 's' },
+      ],
+      create(params) {
+        // AmplitudeEnvelope acts as gain controlled by ADSR
+        const env = new Tone.AmplitudeEnvelope({
+          attack: params.attack, decay: params.decay,
+          sustain: params.sustain, release: params.release
+        });
+        // Auto-trigger for continuous sound
+        env.triggerAttack();
+        return { node: env, in: env, out: env };
+      },
+      update(audio, key, val) {
+        audio.node[key] = val;
+      }
+    },
+    output: {
+      title: 'Output',
+      glyph: '🔊',
+      inputs: ['in'],
+      outputs: [],
+      controls: [
+        { id: 'gain', type: 'range', min: 0, max: 1, default: 0.5, step: 0.01, label: 'Master', unit: '' },
+      ],
+      create(params) {
+        const g = new Tone.Gain(params.gain).toDestination();
+        return { node: g, in: g };
+      },
+      update(audio, key, val) {
+        if (key === 'gain') audio.node.gain.value = val;
+      }
+    }
+  };
+
+  // ─── ADD MODULE ───
+  function addModule(type, x, y) {
+    const def = MODULE_DEFS[type];
+    if (!def) return;
+    const id = 'mod_' + (moduleIdCounter++);
+
+    // Default position
+    if (x === undefined) x = 60 + Math.random() * (canvas.clientWidth - 300);
+    if (y === undefined) y = 20 + Math.random() * 200;
+
+    // Collect default params
+    const params = {};
+    def.controls.forEach(c => params[c.id] = c.default);
+
+    // Create audio
+    const audio = def.create(params);
+
+    // Build DOM
+    const el = document.createElement('div');
+    el.className = 'synth-module';
+    el.id = id;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+
+    let html = `<div class="module-header" data-drag="${id}">
+      <span class="module-title">${def.glyph} ${def.title}</span>
+      <button class="module-close" onclick="removeModule('${id}')">&times;</button>
+    </div><div class="module-body">`;
+
+    // Controls
+    def.controls.forEach(c => {
+      if (c.type === 'select') {
+        html += `<div class="module-control">
+          <label>${c.label}</label>
+          <select data-module="${id}" data-param="${c.id}" onchange="updateParam('${id}','${c.id}',this.value)">
+            ${c.options.map(o => `<option value="${o}"${o === c.default ? ' selected' : ''}>${o}</option>`).join('')}
+          </select>
+        </div>`;
+      } else {
+        const displayVal = Number(c.default).toFixed(c.step < 1 ? (c.step < 0.01 ? 3 : 2) : 0);
+        html += `<div class="module-control">
+          <label>${c.label}</label>
+          <input type="range" class="synth-slider" min="${c.min}" max="${c.max}" value="${c.default}" step="${c.step}"
+            data-module="${id}" data-param="${c.id}"
+            oninput="updateParam('${id}','${c.id}',parseFloat(this.value)); this.nextElementSibling.textContent=parseFloat(this.value).toFixed(${c.step < 1 ? (c.step < 0.01 ? 3 : 2) : 0})+'${c.unit}'">
+          <span class="slider-value">${displayVal}${c.unit}</span>
+        </div>`;
+      }
+    });
+
+    // Ports
+    html += `<div class="module-ports">`;
+    html += `<div class="port-group inputs">`;
+    def.inputs.forEach(p => {
+      html += `<div class="port input" data-module="${id}" data-port="${p}" data-dir="input" onclick="handlePort(this)">
+        <span class="port-circle" id="port_${id}_${p}"></span>
+        <span class="port-label">${p}</span>
+      </div>`;
+    });
+    html += `</div><div class="port-group outputs">`;
+    def.outputs.forEach(p => {
+      html += `<div class="port output" data-module="${id}" data-port="${p}" data-dir="output" onclick="handlePort(this)">
+        <span class="port-label">${p}</span>
+        <span class="port-circle" id="port_${id}_${p}"></span>
+      </div>`;
+    });
+    html += `</div></div>`;
+
+    html += `</div>`;
+    el.innerHTML = html;
+    canvas.appendChild(el);
+
+    modules[id] = { id, type, def, params, audio, el };
+    setupDrag(el, id);
+    return id;
+  }
+
+  // ─── UPDATE PARAM ───
+  function updateParam(moduleId, paramId, value) {
+    const mod = modules[moduleId];
+    if (!mod) return;
+    if (typeof value === 'string' && !isNaN(value)) value = parseFloat(value);
+    mod.params[paramId] = value;
+    mod.def.update(mod.audio, paramId, value);
+  }
+
+  // ─── REMOVE MODULE ───
+  function removeModule(id) {
+    const mod = modules[id];
+    if (!mod) return;
+    // Remove cables connected to this module
+    cables = cables.filter(c => {
+      if (c.from.moduleId === id || c.to.moduleId === id) {
+        disconnectCable(c);
+        if (c.el) c.el.remove();
+        return false;
+      }
+      return true;
+    });
+    // Dispose audio
+    try { mod.audio.node.dispose(); } catch(e) {}
+    mod.el.remove();
+    delete modules[id];
+  }
+
+  // ─── CLEAR ALL ───
+  function clearAll() {
+    Object.keys(modules).forEach(id => removeModule(id));
+    modules = {};
+    cables = [];
+    pendingPort = null;
+    moduleIdCounter = 0;
+  }
+
+  // ─── PORT HANDLING ───
+  function handlePort(portEl) {
+    const moduleId = portEl.dataset.module;
+    const portName = portEl.dataset.port;
+    const dir = portEl.dataset.dir;
+    const circle = portEl.querySelector('.port-circle');
+
+    if (!pendingPort) {
+      pendingPort = { moduleId, portName, dir, el: circle };
+      circle.style.boxShadow = '0 0 12px rgba(0, 229, 255, 0.6)';
+    } else {
+      // Must be different direction
+      if (pendingPort.dir === dir || pendingPort.moduleId === moduleId) {
+        // Cancel
+        pendingPort.el.style.boxShadow = '';
+        pendingPort = null;
+        return;
+      }
+
+      const from = dir === 'input' ? pendingPort : { moduleId, portName, dir, el: circle };
+      const to = dir === 'input' ? { moduleId, portName, dir, el: circle } : pendingPort;
+
+      createCable(from, to);
+      pendingPort.el.style.boxShadow = '';
+      pendingPort = null;
+    }
+  }
+
+  // ─── CREATE CABLE ───
+  function createCable(from, to) {
+    const fromMod = modules[from.moduleId];
+    const toMod = modules[to.moduleId];
+    if (!fromMod || !toMod) return;
+
+    // Audio connect
+    const outNode = fromMod.audio[from.portName] || fromMod.audio.out;
+    const inNode = toMod.audio[to.portName] || toMod.audio.in;
+    if (outNode && inNode) {
+      try { outNode.connect(inNode); } catch(e) { console.warn('Connect error:', e); }
+    }
+
+    const color = CABLE_COLORS[cableColorIdx % CABLE_COLORS.length];
+    cableColorIdx++;
+
+    // SVG line
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    line.setAttribute('stroke', color);
+    line.classList.add('patch-cable');
+    line.setAttribute('opacity', '0.7');
+    patchSvg.appendChild(line);
+
+    const cable = { from, to, el: line, color };
+    line.addEventListener('click', () => removeCableByRef(cable));
+
+    cables.push(cable);
+
+    // Mark connected
+    from.el.classList.add('connected');
+    to.el.classList.add('connected');
+
+    updateCablePositions();
+  }
+
+  function disconnectCable(cable) {
+    const fromMod = modules[cable.from.moduleId];
+    const toMod = modules[cable.to.moduleId];
+    if (fromMod && toMod) {
+      const outNode = fromMod.audio[cable.from.portName] || fromMod.audio.out;
+      const inNode = toMod.audio[cable.to.portName] || toMod.audio.in;
+      if (outNode && inNode) {
+        try { outNode.disconnect(inNode); } catch(e) {}
+      }
+    }
+  }
+
+  function removeCableByRef(cable) {
+    disconnectCable(cable);
+    if (cable.el) cable.el.remove();
+    cables = cables.filter(c => c !== cable);
+  }
+
+  // ─── CABLE POSITIONS ───
+  function updateCablePositions() {
+    cables.forEach(cable => {
+      const fromCircle = document.getElementById(`port_${cable.from.moduleId}_${cable.from.portName}`);
+      const toCircle = document.getElementById(`port_${cable.to.moduleId}_${cable.to.portName}`);
+      if (!fromCircle || !toCircle) return;
+
+      const canvasRect = canvas.getBoundingClientRect();
+      const fromRect = fromCircle.getBoundingClientRect();
+      const toRect = toCircle.getBoundingClientRect();
+
+      const x1 = fromRect.left + fromRect.width/2 - canvasRect.left;
+      const y1 = fromRect.top + fromRect.height/2 - canvasRect.top;
+      const x2 = toRect.left + toRect.width/2 - canvasRect.left;
+      const y2 = toRect.top + toRect.height/2 - canvasRect.top;
+
+      // Bezier curve for nice droop
+      const dx = Math.abs(x2 - x1);
+      const cp = Math.max(50, dx * 0.4);
+      const d = `M ${x1} ${y1} C ${x1} ${y1 + cp}, ${x2} ${y2 + cp}, ${x2} ${y2}`;
+      cable.el.setAttribute('d', d);
+    });
+  }
+
+  // ─── DRAG ───
+  function setupDrag(el, moduleId) {
+    const header = el.querySelector('.module-header');
+    let dragging = false, startX, startY, origX, origY;
+
+    function onStart(e) {
+      if (e.target.closest('.module-close')) return;
+      e.preventDefault();
+      dragging = true;
+      el.classList.add('dragging');
+      const pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX; startY = pt.clientY;
+      origX = parseInt(el.style.left) || 0;
+      origY = parseInt(el.style.top) || 0;
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onEnd);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onEnd);
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      e.preventDefault();
+      const pt = e.touches ? e.touches[0] : e;
+      el.style.left = (origX + pt.clientX - startX) + 'px';
+      el.style.top = (origY + pt.clientY - startY) + 'px';
+      updateCablePositions();
+    }
+
+    function onEnd() {
+      dragging = false;
+      el.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onEnd);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onEnd);
+    }
+
+    header.addEventListener('mousedown', onStart);
+    header.addEventListener('touchstart', onStart, { passive: false });
+  }
+
+  // ─── PRESETS ───
+  function loadPreset(name) {
+    clearAll();
+    if (name === 'drone') {
+      const osc = addModule('oscillator', 60, 40);
+      setParam(osc, 'type', 'sawtooth');
+      setParam(osc, 'frequency', 110);
+      const flt = addModule('filter', 320, 40);
+      setParam(flt, 'frequency', 800);
+      setParam(flt, 'Q', 3);
+      const rev = addModule('reverb', 580, 40);
+      setParam(rev, 'decay', 8);
+      setParam(rev, 'wet', 0.7);
+      const out = addModule('output', 840, 40);
+      setParam(out, 'gain', 0.3);
+      autoConnect(osc, 'out', flt, 'in');
+      autoConnect(flt, 'out', rev, 'in');
+      autoConnect(rev, 'out', out, 'in');
+    } else if (name === 'arp') {
+      const osc = addModule('oscillator', 60, 40);
+      setParam(osc, 'type', 'square');
+      setParam(osc, 'frequency', 330);
+      const lfo = addModule('lfo', 60, 260);
+      setParam(lfo, 'frequency', 4);
+      setParam(lfo, 'min', 200);
+      setParam(lfo, 'max', 800);
+      const dly = addModule('delay', 320, 40);
+      setParam(dly, 'delayTime', 0.2);
+      setParam(dly, 'feedback', 0.5);
+      setParam(dly, 'wet', 0.4);
+      const gain = addModule('gain', 580, 40);
+      setParam(gain, 'gain', 0.3);
+      const out = addModule('output', 840, 40);
+      setParam(out, 'gain', 0.4);
+
+      // Connect LFO to osc frequency
+      autoConnect(osc, 'out', dly, 'in');
+      autoConnect(dly, 'out', gain, 'in');
+      autoConnect(gain, 'out', out, 'in');
+
+      // LFO → osc frequency modulation (direct Tone.js connect)
+      try {
+        modules[lfo].audio.node.connect(modules[osc].audio.node.frequency);
+      } catch(e) {}
+      // Visual cable for LFO
+      const lfoCircle = document.getElementById(`port_${lfo}_out`);
+      // We'll just show the standard cables
+    } else if (name === 'noisewash') {
+      const nz = addModule('noise', 60, 40);
+      setParam(nz, 'type', 'pink');
+      const flt = addModule('filter', 320, 40);
+      setParam(flt, 'type', 'lowpass');
+      setParam(flt, 'frequency', 2000);
+      setParam(flt, 'Q', 2);
+      const rev = addModule('reverb', 580, 40);
+      setParam(rev, 'decay', 10);
+      setParam(rev, 'wet', 0.8);
+      const out = addModule('output', 840, 40);
+      setParam(out, 'gain', 0.25);
+      autoConnect(nz, 'out', flt, 'in');
+      autoConnect(flt, 'out', rev, 'in');
+      autoConnect(rev, 'out', out, 'in');
+    }
+  }
+
+  function setParam(moduleId, paramId, value) {
+    const mod = modules[moduleId];
+    if (!mod) return;
+    mod.params[paramId] = value;
+    mod.def.update(mod.audio, paramId, value);
+    // Update UI
+    const ctrl = mod.el.querySelector(`[data-param="${paramId}"]`);
+    if (ctrl) {
+      ctrl.value = value;
+      const valSpan = ctrl.nextElementSibling;
+      if (valSpan && valSpan.classList.contains('slider-value')) {
+        const cDef = mod.def.controls.find(c => c.id === paramId);
+        const decimals = cDef && cDef.step < 1 ? (cDef.step < 0.01 ? 3 : 2) : 0;
+        valSpan.textContent = Number(value).toFixed(decimals) + (cDef ? cDef.unit : '');
+      }
+    }
+  }
+
+  function autoConnect(fromId, fromPort, toId, toPort) {
+    const fromCircle = document.getElementById(`port_${fromId}_${fromPort}`);
+    const toCircle = document.getElementById(`port_${toId}_${toPort}`);
+    if (!fromCircle || !toCircle) return;
+
+    const from = { moduleId: fromId, portName: fromPort, dir: 'output', el: fromCircle };
+    const to = { moduleId: toId, portName: toPort, dir: 'input', el: toCircle };
+    createCable(from, to);
+  }
+
+  // Update cables on scroll/resize
+  window.addEventListener('resize', updateCablePositions);
+  window.addEventListener('scroll', updateCablePositions);
+
+  // ─── STARFIELD (shared with site) ───
+  (function initStars() {
+    const c = document.getElementById('stars');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    function resize() { c.width = window.innerWidth; c.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+    const stars = Array.from({length: 200}, () => ({
+      x: Math.random() * c.width, y: Math.random() * c.height,
+      r: Math.random() * 1.5, a: Math.random(), s: Math.random() * 0.005 + 0.001
+    }));
+    function draw() {
+      ctx.clearRect(0, 0, c.width, c.height);
+      stars.forEach(s => {
+        s.a += s.s;
+        const alpha = 0.3 + Math.sin(s.a) * 0.3;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(240,232,216,${alpha})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+  </script>
+</body>
+</html>
