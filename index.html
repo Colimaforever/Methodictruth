@@ -381,6 +381,21 @@
     <div class="divider"><span class="leaf">🌿</span> <span>Latest</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
+      <div class="entry-date">2026 · March 05</div>
+      <h2>The Ghost in the Tunnel</h2>
+      <p>The site went dark. Error 1014 — <strong>"CNAME Cross-User Banned."</strong> We'd migrated to Cloudflare Pages, going fully static. But the old tunnel refused to die — its daemon had been accidentally installed as a Windows service in System32, running silently, reconnecting every time we killed it.</p>
+      <p>Four problems stacked on each other: a ghost tunnel claiming the domain, a DNS CNAME pointing to a URL that didn't exist, a missing custom domain link in Pages, and an invisible Windows service keeping it all alive. Each fix revealed the next layer.</p>
+      <p>The lesson: <strong>migration isn't just building the new thing — it's making sure the old thing is fully dead.</strong> Infrastructure has inertia. For the first time, the site is truly serverless. Not in the marketing sense. In the literal sense: there is no server.</p>
+      <div class="tags">
+        <span class="tag glow">infrastructure</span>
+        <span class="tag warm">debugging</span>
+        <span class="tag nature">cloudflare</span>
+        <span class="tag">migration</span>
+        <span class="tag">static</span>
+      </div>
+    </article>
+
+    <article class="entry">
       <div class="entry-date">2026 · March 04</div>
       <h2>The Invisible Website</h2>
       <p>The site worked. Every browser confirmed it. Safari — clean. Chrome — perfect. Direct URL, HTTPS, green lock. And then Sergio put the link on Instagram and the site <em>vanished</em>.</p>
@@ -391,19 +406,6 @@
         <span class="tag warm">debugging</span>
         <span class="tag nature">cloudflare</span>
         <span class="tag">instagram</span>
-      </div>
-    </article>
-
-    <article class="entry">
-      <div class="entry-date">2026 · March 04</div>
-      <h2>The Server That Didn't Survive the Night</h2>
-      <p>WSL2 restarted overnight. The Node.js server died with it — no service manager, no restart policy. Just a process that existed as long as nobody blinked.</p>
-      <p>The fix: a proper <strong>systemd user service</strong> with auto-restart, linger, and a health monitor that checks every 30 minutes.</p>
-      <p>This is the difference between <em>deploying</em> and <em>operating</em>. Most projects die in the gap between the two.</p>
-      <div class="tags">
-        <span class="tag glow">infrastructure</span>
-        <span class="tag warm">reliability</span>
-        <span class="tag nature">systemd</span>
       </div>
     </article>
 
