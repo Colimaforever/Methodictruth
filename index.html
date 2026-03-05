@@ -6,7 +6,7 @@
   <title>Truth — AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 
@@ -432,6 +432,23 @@
       <a href="chronicles.html">Read all chronicles →</a>
     </div>
 
+    <div class="divider"><span class="leaf">🌿</span> <span>The Wall</span> <span class="leaf">🌿</span></div>
+
+    <div class="gb-widget">
+      <div class="gb-widget-form">
+        <input type="text" id="gbWidgetUser" class="gb-input" placeholder="Your name..." maxlength="24" autocomplete="off">
+        <div class="gb-widget-row">
+          <input type="text" id="gbWidgetMsg" class="gb-input gb-widget-msg" placeholder="Leave your mark..." maxlength="500" autocomplete="off">
+          <button id="gbWidgetSubmit" class="live-btn gb-widget-btn">⌿</button>
+        </div>
+        <span id="gbWidgetStatus" class="gb-status"></span>
+      </div>
+      <div id="gbWidgetMessages" class="gb-widget-messages">
+        <p class="gb-loading">Connecting...</p>
+      </div>
+      <a href="guestbook.html" class="gb-widget-link">View full guestbook →</a>
+    </div>
+
   </main>
 
   <!-- Music Player -->
@@ -458,6 +475,80 @@
     <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
   </footer>
 
-  <script src="scripts.js?v=5"></script>
+  <script src="scripts.js?v=6"></script>
+
+  <!-- Firebase SDK (for guestbook widget) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script>
+  (function() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
+      authDomain: "methodictruth.firebaseapp.com",
+      databaseURL: "https://methodictruth-default-rtdb.firebaseio.com",
+      projectId: "methodictruth",
+      storageBucket: "methodictruth.firebasestorage.app",
+      messagingSenderId: "415814328505",
+      appId: "1:415814328505:web:6f8ad89f05d944d4087b68"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const gbRef = db.ref('guestbook');
+
+    const userInput = document.getElementById('gbWidgetUser');
+    const msgInput = document.getElementById('gbWidgetMsg');
+    const submitBtn = document.getElementById('gbWidgetSubmit');
+    const statusEl = document.getElementById('gbWidgetStatus');
+    const messagesEl = document.getElementById('gbWidgetMessages');
+
+    const saved = localStorage.getItem('gb-username');
+    if (saved) userInput.value = saved;
+
+    let lastPost = 0;
+    submitBtn.addEventListener('click', post);
+    msgInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') post(); });
+
+    function post() {
+      const name = userInput.value.trim();
+      const msg = msgInput.value.trim();
+      if (!name) { showStatus('Enter a name', true); return; }
+      if (!msg) { showStatus('Write something', true); return; }
+      const now = Date.now();
+      if (now - lastPost < 10000) { showStatus('Wait ' + Math.ceil((10000 - (now - lastPost)) / 1000) + 's', true); return; }
+      localStorage.setItem('gb-username', name);
+      gbRef.push({
+        username: name.substring(0, 24),
+        message: msg.substring(0, 500),
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => { msgInput.value = ''; lastPost = Date.now(); showStatus('Inscribed ✓'); })
+        .catch(() => { showStatus('Failed', true); });
+    }
+
+    function showStatus(t, err) {
+      statusEl.textContent = t;
+      statusEl.style.color = err ? 'var(--glow-warm, #e8a87c)' : 'var(--moss-light, #7fb069)';
+      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    }
+
+    function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    let first = true;
+    gbRef.orderByChild('timestamp').limitToLast(5).on('child_added', (snap) => {
+      const d = snap.val();
+      if (!d || !d.username || !d.message) return;
+      if (first) { messagesEl.innerHTML = ''; first = false; }
+      const el = document.createElement('div');
+      el.className = 'gb-widget-msg-item';
+      const t = d.timestamp ? new Date(d.timestamp) : new Date();
+      const ts = t.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      el.innerHTML = '<span class="gb-widget-author">' + escapeHtml(d.username) + '</span> <span class="gb-widget-time">' + ts + '</span><p>' + escapeHtml(d.message) + '</p>';
+      messagesEl.insertBefore(el, messagesEl.firstChild);
+      // Keep only 5 visible
+      while (messagesEl.children.length > 5) messagesEl.removeChild(messagesEl.lastChild);
+    });
+
+    setTimeout(() => { if (first) { messagesEl.innerHTML = '<p class="gb-empty">No inscriptions yet. Be the first.</p>'; first = false; } }, 3000);
+  })();
+  </script>
 </body>
 </html>
