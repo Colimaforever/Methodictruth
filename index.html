@@ -6,7 +6,7 @@
   <title>Truth — AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body>
 
@@ -431,24 +431,41 @@
       <a href="chronicles.html">Read all chronicles →</a>
     </div>
 
-    <div class="divider"><span class="leaf">🌿</span> <span>The Wall</span> <span class="leaf">🌿</span></div>
-
-    <div class="gb-widget">
-      <div class="gb-widget-form">
-        <input type="text" id="gbWidgetUser" class="gb-input" placeholder="Your name..." maxlength="24" autocomplete="off">
-        <div class="gb-widget-row">
-          <input type="text" id="gbWidgetMsg" class="gb-input gb-widget-msg" placeholder="Leave your mark..." maxlength="500" autocomplete="off">
-          <button id="gbWidgetSubmit" class="live-btn gb-widget-btn">⌿</button>
-        </div>
-        <span id="gbWidgetStatus" class="gb-status"></span>
-      </div>
-      <div id="gbWidgetMessages" class="gb-widget-messages">
-        <p class="gb-loading">Connecting...</p>
-      </div>
-      <a href="guestbook.html" class="gb-widget-link">View full guestbook →</a>
-    </div>
-
   </main>
+
+  <!-- Floating Chat / Guestbook -->
+  <div class="chat-orb" id="chatOrb" title="The Wall — Leave your mark">
+    <svg viewBox="0 0 40 40" width="40" height="40">
+      <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(123,104,238,0.4)" stroke-width="0.8"/>
+      <circle cx="20" cy="20" r="12" fill="none" stroke="rgba(0,229,255,0.3)" stroke-width="0.5"/>
+      <polygon points="20,8 28,28 12,28" fill="none" stroke="rgba(232,168,124,0.35)" stroke-width="0.6"/>
+      <polygon points="20,32 12,12 28,12" fill="none" stroke="rgba(123,104,238,0.25)" stroke-width="0.6"/>
+      <circle cx="20" cy="20" r="3" fill="rgba(0,229,255,0.5)">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+    <span class="chat-orb-label">𒀭</span>
+  </div>
+
+  <div class="chat-float" id="chatFloat">
+    <div class="chat-float-header" id="chatFloatHeader">
+      <span class="chat-float-title">⌿ The Wall</span>
+      <span class="chat-float-count" id="chatMsgCount"></span>
+      <button class="chat-float-close" id="chatClose">✕</button>
+    </div>
+    <div class="chat-float-messages" id="gbWidgetMessages">
+      <p class="gb-loading">Connecting...</p>
+    </div>
+    <div class="chat-float-form">
+      <input type="text" id="gbWidgetUser" class="chat-float-input" placeholder="Name..." maxlength="24" autocomplete="off">
+      <div class="chat-float-send-row">
+        <input type="text" id="gbWidgetMsg" class="chat-float-input chat-float-msg" placeholder="Inscribe..." maxlength="500" autocomplete="off">
+        <button id="gbWidgetSubmit" class="chat-float-send">⌿</button>
+      </div>
+      <span id="gbWidgetStatus" class="gb-status"></span>
+    </div>
+    <a href="guestbook.html" class="chat-float-fulllink">View full wall →</a>
+  </div>
 
   <!-- Music Player -->
   <div class="music-player" id="musicPlayer">
@@ -547,6 +564,35 @@
     });
 
     setTimeout(() => { if (first) { messagesEl.innerHTML = '<p class="gb-empty">No inscriptions yet. Be the first.</p>'; first = false; } }, 3000);
+
+    // Float toggle
+    const orb = document.getElementById('chatOrb');
+    const panel = document.getElementById('chatFloat');
+    const closeBtn = document.getElementById('chatClose');
+    const countEl = document.getElementById('chatMsgCount');
+    let msgCount = 0;
+    let isOpen = false;
+
+    orb.addEventListener('click', () => {
+      isOpen = !isOpen;
+      panel.classList.toggle('open', isOpen);
+      orb.classList.toggle('hidden', isOpen);
+      if (isOpen) { orb.classList.remove('has-new'); msgCount = 0; }
+    });
+    closeBtn.addEventListener('click', () => {
+      isOpen = false;
+      panel.classList.remove('open');
+      orb.classList.remove('hidden');
+    });
+
+    // Notify on new messages when closed
+    const origInsert = messagesEl.insertBefore.bind(messagesEl);
+    const _observer = new MutationObserver(() => {
+      if (!isOpen) {
+        orb.classList.add('has-new');
+      }
+    });
+    _observer.observe(messagesEl, { childList: true });
   })();
   </script>
 </body>
