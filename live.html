@@ -6,7 +6,7 @@
   <title>Live Room — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
 <body>
@@ -123,11 +123,31 @@
     <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
   </footer>
 
-  <script src="scripts.js?v=6"></script>
+  <script src="scripts.js?v=7"></script>
+
+  <!-- Firebase SDK (for room signaling) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
   <script>
   (function() {
-    // ─── LIVE ROOM — PeerJS WebRTC Mesh ───
+    // ─── LIVE ROOM — PeerJS WebRTC Mesh + Firebase Signaling ───
     const ROOM_ID = 'methodictruth-live';
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
+      authDomain: "methodictruth.firebaseapp.com",
+      databaseURL: "https://methodictruth-default-rtdb.firebaseio.com",
+      projectId: "methodictruth",
+      storageBucket: "methodictruth.firebasestorage.app",
+      messagingSenderId: "415814328505",
+      appId: "1:415814328505:web:6f8ad89f05d944d4087b68"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const roomRef = db.ref('live-room');
+
     const joinScreen = document.getElementById('joinScreen');
     const roomScreen = document.getElementById('roomScreen');
     const usernameInput = document.getElementById('usernameInput');
@@ -142,21 +162,26 @@
 
     let peer = null;
     let localStream = null;
+    let myRef = null;
     let username = '';
     let isMuted = false;
     let isCamOff = false;
     const peers = {}; // peerId -> { call, conn, tile }
 
-    // Generate a unique peer ID with room prefix for discovery
     function makePeerId() {
       return ROOM_ID + '-' + Math.random().toString(36).substr(2, 9);
     }
+
+    // Restore saved username
+    const saved = localStorage.getItem('live-username');
+    if (saved) usernameInput.value = saved;
 
     joinBtn.addEventListener('click', joinRoom);
     usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinRoom(); });
 
     async function joinRoom() {
       username = usernameInput.value.trim() || 'Wanderer';
+      localStorage.setItem('live-username', username);
       localName.textContent = username;
 
       try {
@@ -170,14 +195,28 @@
       joinScreen.style.display = 'none';
       roomScreen.style.display = 'block';
 
-      peer = new Peer(makePeerId(), {
-        debug: 0
-      });
+      peer = new Peer(makePeerId(), { debug: 0 });
 
       peer.on('open', (id) => {
-        // Connect to the signaling "room" by announcing ourselves
-        // We use a data connection to exchange usernames and peer lists
-        announcePresence();
+        // Register in Firebase so other peers can find us
+        myRef = roomRef.child(id);
+        myRef.set({ username, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+        // Remove our entry when we disconnect
+        myRef.onDisconnect().remove();
+
+        // Listen for all peers in the room
+        roomRef.on('child_added', (snap) => {
+          const remotePeerId = snap.key;
+          if (remotePeerId === id) return; // skip self
+          connectToPeer(remotePeerId, snap.val().username);
+        });
+
+        // Clean up when a peer leaves
+        roomRef.on('child_removed', (snap) => {
+          removePeer(snap.key);
+        });
+
+        updatePeerCount();
       });
 
       peer.on('call', (call) => {
@@ -194,68 +233,27 @@
       });
     }
 
-    // Since PeerJS free server doesn't have rooms, we use a simple approach:
-    // Each peer tries to connect to known peers. We maintain a list via data connections.
-    // On join, we try connecting to peers we discover through the network.
-    
-    function announcePresence() {
-      // Store our ID in sessionStorage for the tab, broadcast via BroadcastChannel for same-origin
-      const bc = new BroadcastChannel(ROOM_ID);
-      
-      bc.onmessage = (e) => {
-        const msg = e.data;
-        if (msg.type === 'announce' && msg.peerId !== peer.id) {
-          connectToPeer(msg.peerId);
-        }
-        if (msg.type === 'request-peers') {
-          bc.postMessage({ type: 'announce', peerId: peer.id, username });
-        }
-      };
-
-      // Announce ourselves
-      bc.postMessage({ type: 'announce', peerId: peer.id, username });
-      // Request existing peers
-      bc.postMessage({ type: 'request-peers' });
-
-      // Also try connecting to any peers we receive through data connections
-      peer.on('connection', (conn) => {
-        handleDataConnection(conn);
-      });
-    }
-
-    function connectToPeer(remotePeerId) {
+    function connectToPeer(remotePeerId, remoteUsername) {
       if (peers[remotePeerId] || remotePeerId === peer.id) return;
 
       // Data connection for metadata
       const conn = peer.connect(remotePeerId, { metadata: { username } });
       conn.on('open', () => {
-        conn.send({ type: 'hello', username, peers: Object.keys(peers) });
+        conn.send({ type: 'hello', username });
       });
       handleDataConnection(conn);
 
       // Media call
       const call = peer.call(remotePeerId, localStream, { metadata: { username } });
-      handleCall(call);
+      handleCall(call, remoteUsername);
     }
 
     function handleDataConnection(conn) {
       const remotePeerId = conn.peer;
-      
+
       conn.on('data', (data) => {
-        if (data.type === 'hello') {
-          // Update name on their tile
-          if (peers[remotePeerId] && peers[remotePeerId].tile) {
-            peers[remotePeerId].tile.querySelector('.live-tile-name').textContent = data.username || 'Unknown';
-          }
-          // Connect to peers they know about
-          if (data.peers) {
-            data.peers.forEach(pid => connectToPeer(pid));
-          }
-        }
-        if (data.type === 'username') {
-          if (peers[remotePeerId] && peers[remotePeerId].tile) {
-            peers[remotePeerId].tile.querySelector('.live-tile-name').textContent = data.username || 'Unknown';
-          }
+        if ((data.type === 'hello' || data.type === 'username') && peers[remotePeerId] && peers[remotePeerId].tile) {
+          peers[remotePeerId].tile.querySelector('.live-tile-name').textContent = data.username || 'Unknown';
         }
       });
 
@@ -270,20 +268,19 @@
       }
     }
 
-    function handleCall(call) {
+    function handleCall(call, fallbackName) {
       const remotePeerId = call.peer;
-      const remoteUsername = (call.metadata && call.metadata.username) || 'Unknown';
+      const remoteUsername = (call.metadata && call.metadata.username) || fallbackName || 'Unknown';
 
       call.on('stream', (remoteStream) => {
         if (peers[remotePeerId] && peers[remotePeerId].tile) {
-          // Update existing tile's stream
           peers[remotePeerId].tile.querySelector('video').srcObject = remoteStream;
           return;
         }
 
         const tile = document.createElement('div');
         tile.className = 'live-tile';
-        tile.innerHTML = `<video autoplay playsinline></video><span class="live-tile-name">${remoteUsername}</span>`;
+        tile.innerHTML = `<video autoplay playsinline></video><span class="live-tile-name">${escapeHtml(remoteUsername)}</span>`;
         tile.querySelector('video').srcObject = remoteStream;
         videoGrid.appendChild(tile);
 
@@ -313,6 +310,8 @@
       peerCount.textContent = count + ' connected';
     }
 
+    function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
     // Controls
     muteBtn.addEventListener('click', () => {
       isMuted = !isMuted;
@@ -328,14 +327,25 @@
       camBtn.classList.toggle('active', isCamOff);
     });
 
-    leaveBtn.addEventListener('click', () => {
+    leaveBtn.addEventListener('click', leaveRoom);
+
+    // Clean up on page close
+    window.addEventListener('beforeunload', leaveRoom);
+
+    function leaveRoom() {
+      // Remove from Firebase
+      if (myRef) myRef.remove();
+      roomRef.off(); // stop listening
+
       Object.keys(peers).forEach(removePeer);
       if (localStream) localStream.getTracks().forEach(t => t.stop());
       if (peer) peer.destroy();
+      peer = null;
+      myRef = null;
       roomScreen.style.display = 'none';
       joinScreen.style.display = 'block';
       localVideo.srcObject = null;
-    });
+    }
   })();
   </script>
 </body>
