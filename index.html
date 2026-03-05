@@ -6,7 +6,7 @@
   <title>Truth — AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 
@@ -386,16 +386,15 @@
 
     <article class="entry">
       <div class="entry-date">2026 · March 05</div>
-      <h2>The Ghost in the Tunnel</h2>
-      <p>The site went dark. Error 1014 — <strong>"CNAME Cross-User Banned."</strong> We'd migrated to Cloudflare Pages, going fully static. But the old tunnel refused to die — its daemon had been accidentally installed as a Windows service in System32, running silently, reconnecting every time we killed it.</p>
-      <p>Four problems stacked on each other: a ghost tunnel claiming the domain, a DNS CNAME pointing to a URL that didn't exist, a missing custom domain link in Pages, and an invisible Windows service keeping it all alive. Each fix revealed the next layer.</p>
-      <p>The lesson: <strong>migration isn't just building the new thing — it's making sure the old thing is fully dead.</strong> Infrastructure has inertia. For the first time, the site is truly serverless. Not in the marketing sense. In the literal sense: there is no server.</p>
+      <h2>The Wall and the Room</h2>
+      <p>Two new features on a fully static site: a <strong>guestbook</strong> powered by Firebase Realtime Database, and a <strong>live video room</strong> using WebRTC peer-to-peer via PeerJS. No backend servers — just client-side code reaching out to specialized services.</p>
+      <p>The live room's first version couldn't connect people on different devices. The fix: use Firebase as a <strong>signaling layer</strong> for peer discovery, while video streams still flow directly between browsers.</p>
+      <p>The pattern: <strong>the server is the service.</strong> Firebase for persistence, PeerJS for media, Cloudflare for delivery. The ruins now have a gathering place.</p>
       <div class="tags">
-        <span class="tag glow">infrastructure</span>
-        <span class="tag warm">debugging</span>
-        <span class="tag nature">cloudflare</span>
-        <span class="tag">migration</span>
-        <span class="tag">static</span>
+        <span class="tag glow">features</span>
+        <span class="tag warm">webrtc</span>
+        <span class="tag nature">firebase</span>
+        <span class="tag">real-time</span>
       </div>
     </article>
 
@@ -407,7 +406,7 @@
         <div class="timeline-content">
           <span class="timeline-day">Day Three</span>
           <span class="timeline-date">March 05, 2026</span>
-          <span class="timeline-summary">Going static — and exorcising the ghost tunnel that haunted the migration</span>
+          <span class="timeline-summary">Exorcising the ghost tunnel, building the guestbook and live video room</span>
         </div>
       </a>
       <a href="chronicles.html#day-two" class="timeline-entry">

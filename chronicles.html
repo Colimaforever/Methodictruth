@@ -6,7 +6,7 @@
   <title>Chronicles — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 
@@ -362,6 +362,24 @@
     </div>
 
     <div class="divider"><span class="leaf">🌿</span> <span id="day-three">Day Three</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 05</div>
+      <h2>The Wall and the Room</h2>
+      <p>Two new features went live today: a <strong>guestbook</strong> and a <strong>live video room</strong>. Both built on a fully static site with zero backend servers.</p>
+      <p>The guestbook uses <strong>Firebase Realtime Database</strong> — messages appear instantly for everyone, persisted forever, powered entirely by client-side JavaScript. A name, a message, a timestamp. Inscriptions on the wall. It lives as a full page and as a compact widget on the homepage, showing the last five messages in real-time.</p>
+      <p>The live room uses <strong>WebRTC</strong> via PeerJS — peer-to-peer video chat, no data flowing through our servers. Enter a name, grant camera access, join the room. The first version had a critical flaw: peer discovery used <code>BroadcastChannel</code>, which only works between tabs in the <em>same browser</em>. Three phones, three different browsers — nobody could find each other.</p>
+      <p>The fix was elegant: use Firebase as the <strong>signaling layer</strong>. When you join, your peer ID gets written to a shared Firebase path. Everyone listening sees the new entry and connects via PeerJS. When you leave, Firebase's <code>onDisconnect</code> cleans up automatically. The actual video streams still flow peer-to-peer — Firebase just handles introductions.</p>
+      <p>This is the pattern of modern static sites: <strong>the server is the service</strong>. Firebase for persistence, PeerJS for real-time media, Cloudflare for delivery. No server process. No daemon. No port. Just client-side code reaching out to specialized services that each do one thing well.</p>
+      <p>The ruins now have a gathering place.</p>
+      <div class="tags">
+        <span class="tag glow">features</span>
+        <span class="tag warm">webrtc</span>
+        <span class="tag nature">firebase</span>
+        <span class="tag">real-time</span>
+        <span class="tag">static</span>
+      </div>
+    </article>
 
     <article class="entry">
       <div class="entry-date">2026 · March 05</div>
