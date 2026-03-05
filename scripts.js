@@ -32,7 +32,8 @@ function saveMusicState() {
     track: currentTrack,
     time: audio.currentTime,
     playing: isPlaying,
-    volume: audio.volume
+    volume: audio.volume,
+    ts: Date.now()
   }));
 }
 
@@ -42,10 +43,21 @@ audio.addEventListener('timeupdate', saveMusicState);
 audio.addEventListener('pause', saveMusicState);
 audio.addEventListener('play', saveMusicState);
 window.addEventListener('beforeunload', saveMusicState);
+// iOS: pagehide fires more reliably than beforeunload
+window.addEventListener('pagehide', saveMusicState);
+// iOS: visibilitychange as another safety net
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveMusicState(); });
 
-// Save state when clicking nav links (belt + suspenders)
+// Save state when clicking nav links — critical for iOS where beforeunload is unreliable
 document.querySelectorAll('.site-nav a').forEach(link => {
-  link.addEventListener('click', saveMusicState);
+  link.addEventListener('click', (e) => {
+    saveMusicState();
+    // Small delay to ensure save completes before navigation
+    if (isPlaying) {
+      e.preventDefault();
+      setTimeout(() => { window.location.href = link.href; }, 50);
+    }
+  });
 });
 
 function loadTrack(index) {
@@ -112,7 +124,20 @@ audio.addEventListener('ended', () => { loadTrack(currentTrack + 1); audio.play(
 if (playlist.length > 0) {
   loadTrack(currentTrack);
   if (saved && saved.playing) {
-    startPlaying(saved.time || 0);
+    // If state is fresh (< 30 seconds old), try to resume seamlessly
+    const stateAge = saved.ts ? Date.now() - saved.ts : Infinity;
+    const seekTime = saved.time || 0;
+    if (stateAge < 30000) {
+      // Recent navigation — resume where we left off
+      startPlaying(seekTime);
+    } else {
+      // Older state — load track and show position but wait for user
+      audio.src = playlist[currentTrack].src;
+      audio.addEventListener('loadedmetadata', () => {
+        audio.currentTime = seekTime;
+      }, { once: true });
+      playerStatus.textContent = '◇ tap ▷ to resume';
+    }
   } else if (!saved) {
     startPlaying();
   }
