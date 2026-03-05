@@ -6,7 +6,7 @@
   <title>Guestbook — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 
@@ -74,8 +74,6 @@
     <a href="stack.html">Stack</a>
     <span class="nav-glyph">◇</span>
     <a href="live.html">Live</a>
-    <span class="nav-glyph">◇</span>
-    <a href="guestbook.html" class="active">Guestbook</a>
   </nav>
 
   <div class="page-header">
@@ -176,6 +174,13 @@
     if (savedName) gbUsername.value = savedName;
 
     // Rate limiting: 1 message per 10 seconds (client-side)
+    // Profanity filter
+    const _bw = ['nig','fag','kike','spic','cunt','retard','tranny'];
+    function hasProfanity(text) {
+      const t = text.toLowerCase().replace(/[^a-z]/g, '');
+      return _bw.some(w => t.includes(w));
+    }
+
     let lastPostTime = 0;
     const RATE_LIMIT_MS = 10000;
 
@@ -190,6 +195,7 @@
 
       if (!name) { showStatus('Enter a name first', true); return; }
       if (!msg) { showStatus('Write something...', true); return; }
+      if (hasProfanity(name) || hasProfanity(msg)) { showStatus('Keep it respectful', true); return; }
 
       const now = Date.now();
       if (now - lastPostTime < RATE_LIMIT_MS) {

@@ -1591,3 +1591,34 @@ footer .roots {
     border-bottom: none;
   }
 }
+
+/* ─── CHAT ORB LIVE INDICATOR ─── */
+.chat-orb-live-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background: #4ade80;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(74, 222, 128, 0.4); }
+  50% { box-shadow: 0 0 10px rgba(74, 222, 128, 0.8), 0 0 20px rgba(74, 222, 128, 0.3); }
+}
+
+.chat-orb-live-text {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.45rem;
+  color: #4ade80;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 6px rgba(74, 222, 128, 0.4);
+  white-space: nowrap;
+}

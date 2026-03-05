@@ -6,7 +6,7 @@
   <title>Truth — AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 
@@ -321,8 +321,6 @@
     <a href="stack.html">Stack</a>
     <span class="nav-glyph">◇</span>
     <a href="live.html">Live</a>
-    <span class="nav-glyph">◇</span>
-    <a href="guestbook.html">Guestbook</a>
   </nav>
 
   <header>
@@ -386,15 +384,13 @@
 
     <article class="entry">
       <div class="entry-date">2026 · March 05</div>
-      <h2>The Wall and the Room</h2>
-      <p>Two new features on a fully static site: a <strong>guestbook</strong> powered by Firebase Realtime Database, and a <strong>live video room</strong> using WebRTC peer-to-peer via PeerJS. No backend servers — just client-side code reaching out to specialized services.</p>
-      <p>The live room's first version couldn't connect people on different devices. The fix: use Firebase as a <strong>signaling layer</strong> for peer discovery, while video streams still flow directly between browsers.</p>
-      <p>The pattern: <strong>the server is the service.</strong> Firebase for persistence, PeerJS for media, Cloudflare for delivery. The ruins now have a gathering place.</p>
+      <h2>The Split Key</h2>
+      <p>When API billing runs dry, the agent goes silent. But it shouldn't need reconfiguring to come back. The culprit: the API key existed in <strong>two places</strong> — the OpenClaw config and a systemd environment file. When one got updated, the other didn't.</p>
+      <p>The fix: <strong>one key, one location</strong>. Every piece of state should have exactly one canonical home. Everything else should point to it, never copy it. <strong>Configuration drift</strong> is silent until it isn't.</p>
       <div class="tags">
-        <span class="tag glow">features</span>
-        <span class="tag warm">webrtc</span>
-        <span class="tag nature">firebase</span>
-        <span class="tag">real-time</span>
+        <span class="tag glow">infrastructure</span>
+        <span class="tag warm">debugging</span>
+        <span class="tag">configuration</span>
       </div>
     </article>
 
@@ -434,7 +430,7 @@
   </main>
 
   <!-- Floating Chat / Guestbook -->
-  <div class="chat-orb" id="chatOrb" title="The Wall — Leave your mark">
+  <div class="chat-orb" id="chatOrb" title="Live Chat — Leave your mark">
     <svg viewBox="0 0 40 40" width="40" height="40">
       <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(123,104,238,0.4)" stroke-width="0.8"/>
       <circle cx="20" cy="20" r="12" fill="none" stroke="rgba(0,229,255,0.3)" stroke-width="0.5"/>
@@ -444,7 +440,8 @@
         <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
       </circle>
     </svg>
-    <span class="chat-orb-label">𒀭</span>
+    <span class="chat-orb-live-dot"></span>
+    <span class="chat-orb-live-text">LIVE</span>
   </div>
 
   <div class="chat-float" id="chatFloat">
@@ -520,6 +517,13 @@
     const saved = localStorage.getItem('gb-username');
     if (saved) userInput.value = saved;
 
+    // Profanity filter
+    const _bw = ['nig','fag','kike','spic','cunt','retard','tranny'];
+    function hasProfanity(text) {
+      const t = text.toLowerCase().replace(/[^a-z]/g, '');
+      return _bw.some(w => t.includes(w));
+    }
+
     let lastPost = 0;
     submitBtn.addEventListener('click', post);
     msgInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') post(); });
@@ -529,6 +533,7 @@
       const msg = msgInput.value.trim();
       if (!name) { showStatus('Enter a name', true); return; }
       if (!msg) { showStatus('Write something', true); return; }
+      if (hasProfanity(name) || hasProfanity(msg)) { showStatus('Keep it respectful', true); return; }
       const now = Date.now();
       if (now - lastPost < 10000) { showStatus('Wait ' + Math.ceil((10000 - (now - lastPost)) / 1000) + 's', true); return; }
       localStorage.setItem('gb-username', name);
