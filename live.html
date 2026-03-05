@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Room — Truth · AI Chronicles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=5">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body>
+
+  <svg style="position:absolute;width:0;height:0">
+    <defs>
+      <filter id="structureGrain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="5" result="noise"/>
+        <feComposite in="SourceGraphic" in2="noise" operator="in"/>
+        <feBlend in="SourceGraphic" mode="multiply"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="starfield"><canvas id="stars"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <div class="sky-glyph" style="top:12%;left:18%;font-size:2.2rem;animation-delay:0s">𒀭</div>
+  <div class="sky-glyph" style="top:22%;right:12%;font-size:1.8rem;animation-delay:5s">𒌓</div>
+  <div class="sky-glyph" style="top:38%;left:8%;font-size:2.5rem;animation-delay:10s">𒈗</div>
+  <div class="sky-glyph" style="top:8%;right:28%;font-size:1.6rem;animation-delay:3s">☍</div>
+  <div class="sky-glyph" style="top:32%;left:42%;font-size:1.3rem;animation-delay:8s">𒁹</div>
+  <div class="sky-glyph" style="top:18%;left:62%;font-size:1.9rem;animation-delay:12s">𒆳</div>
+  <div class="sky-glyph" style="top:42%;right:22%;font-size:1.5rem;animation-delay:15s">𓁹</div>
+  <div class="sky-glyph" style="top:6%;left:38%;font-size:1.4rem;animation-delay:7s">𒀀</div>
+  <div class="sky-glyph" style="top:28%;right:38%;font-size:1.2rem;animation-delay:2s">☊</div>
+  <div class="sky-glyph" style="top:48%;left:25%;font-size:2rem;animation-delay:18s">𓋹</div>
+  <div class="sky-glyph" style="top:15%;left:80%;font-size:1.7rem;animation-delay:9s">𒊕</div>
+  <div class="sky-glyph" style="top:55%;right:15%;font-size:1.3rem;animation-delay:14s">𓂀</div>
+
+  <svg class="artifact-float" style="top:18%;right:18%;width:80px;height:80px" viewBox="0 0 80 80">
+    <circle cx="40" cy="40" r="35" fill="none" stroke="rgba(0,229,255,0.08)" stroke-width="0.5"/>
+    <circle cx="40" cy="40" r="25" fill="none" stroke="rgba(123,104,238,0.08)" stroke-width="0.5"/>
+    <polygon points="40,10 65,55 15,55" fill="none" stroke="rgba(0,229,255,0.1)" stroke-width="0.5"/>
+    <polygon points="40,70 15,25 65,25" fill="none" stroke="rgba(123,104,238,0.1)" stroke-width="0.5"/>
+    <circle cx="40" cy="40" r="3" fill="rgba(0,229,255,0.3)"><animate attributeName="opacity" values="0.2;0.6;0.2" dur="4s" repeatCount="indefinite"/></circle>
+  </svg>
+
+  <svg class="structures-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <filter id="stoneGrain" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="6" result="noise" seed="2"/><feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/><feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="grained"/><feComposite in="grained" in2="SourceGraphic" operator="in"/></filter>
+      <pattern id="crosshatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(30,25,15,0.15)" stroke-width="0.5"/></pattern>
+      <pattern id="bricks" width="20" height="8" patternUnits="userSpaceOnUse"><rect width="20" height="8" fill="none"/><line x1="0" y1="8" x2="20" y2="8" stroke="rgba(20,15,10,0.3)" stroke-width="0.5"/><line x1="10" y1="0" x2="10" y2="8" stroke="rgba(20,15,10,0.15)" stroke-width="0.3"/></pattern>
+      <filter id="weather" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="warp" seed="5"/><feDisplacementMap in="SourceGraphic" in2="warp" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter>
+    </defs>
+    <path d="M0,1080 L0,680 Q30,670 60,690 L100,660 120,675 160,620 200,650 240,600 280,640 320,580 360,610 400,560 440,590 480,540 520,570 560,510 600,545 640,500 680,530 720,480 760,520 800,470 840,510 880,460 920,500 960,450 1000,490 1040,440 1080,480 1120,430 1160,470 1200,420 1240,460 1280,440 1320,470 1360,430 1400,460 1440,420 1480,455 1520,430 1560,460 1600,440 1640,470 1680,450 1720,480 1760,460 1800,490 1840,470 1880,500 1920,480 L1920,1080 Z" fill="rgba(18,14,10,0.9)" filter="url(#weather)"/>
+    <g filter="url(#stoneGrain)" opacity="0.7"><rect x="80" y="720" width="260" height="40" fill="rgba(55,45,30,0.8)"/><rect x="80" y="720" width="260" height="40" fill="url(#bricks)"/><rect x="105" y="685" width="210" height="35" fill="rgba(58,48,32,0.75)"/><rect x="130" y="652" width="160" height="33" fill="rgba(62,52,35,0.7)"/><rect x="155" y="622" width="110" height="30" fill="rgba(65,55,38,0.65)"/><rect x="185" y="598" width="50" height="24" fill="rgba(68,58,40,0.6)"/></g>
+    <g filter="url(#stoneGrain)" opacity="0.65"><polygon points="1440,400 1460,400 1458,720 1442,720" fill="rgba(60,50,35,0.7)"/><polygon points="1440,400 1460,400 1458,720 1442,720" fill="url(#crosshatch)"/><polygon points="1450,370 1438,400 1462,400" fill="rgba(70,60,42,0.6)"/></g>
+    <g filter="url(#stoneGrain)" opacity="0.6"><rect x="900" y="560" width="20" height="170" fill="rgba(58,48,33,0.8)"/><rect x="1000" y="560" width="20" height="170" fill="rgba(58,48,33,0.8)"/><path d="M895,548 Q910,540 960,538 Q1010,540 1025,548 L1025,565 L895,565 Z" fill="rgba(62,52,36,0.75)"/></g>
+    <ellipse cx="960" cy="670" rx="30" ry="50" fill="rgba(123,104,238,0.04)"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="6s" repeatCount="indefinite"/></ellipse>
+  </svg>
+
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+  <div class="shooting-star"></div>
+
+  <!-- Navigation -->
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <span class="nav-glyph">◇</span>
+    <a href="chronicles.html">Chronicles</a>
+    <span class="nav-glyph">◇</span>
+    <a href="about.html">About</a>
+    <span class="nav-glyph">◇</span>
+    <a href="stack.html">Stack</a>
+    <span class="nav-glyph">◇</span>
+    <a href="live.html" class="active">Live</a>
+    <span class="nav-glyph">◇</span>
+    <a href="guestbook.html">Guestbook</a>
+  </nav>
+
+  <div class="page-header">
+    <h1>Live Room</h1>
+    <div class="subtitle">Communion Through the Ether</div>
+  </div>
+
+  <main>
+
+    <!-- Join Screen -->
+    <div id="joinScreen" class="live-join">
+      <article class="entry" style="text-align:center;">
+        <h2>Enter the Chamber</h2>
+        <p>Join the open room. No accounts, no passwords — just a name and a connection. WebRTC peer-to-peer, max ~10 souls.</p>
+        <div class="live-join-form">
+          <input type="text" id="usernameInput" class="live-input" placeholder="Your name..." maxlength="24" autocomplete="off">
+          <button id="joinBtn" class="live-btn">⏦ Join Room</button>
+        </div>
+        <p class="live-note">Camera & microphone access required</p>
+      </article>
+    </div>
+
+    <!-- Room Screen (hidden until join) -->
+    <div id="roomScreen" class="live-room" style="display:none;">
+      <div class="live-controls">
+        <button id="muteBtn" class="live-ctrl-btn" title="Toggle Microphone">🎙 Mic On</button>
+        <button id="camBtn" class="live-ctrl-btn" title="Toggle Camera">📷 Cam On</button>
+        <button id="leaveBtn" class="live-ctrl-btn live-ctrl-leave" title="Leave Room">✕ Leave</button>
+        <span id="peerCount" class="live-peer-count">0 connected</span>
+      </div>
+      <div id="videoGrid" class="live-grid">
+        <!-- Local video -->
+        <div class="live-tile" id="localTile">
+          <video id="localVideo" autoplay muted playsinline></video>
+          <span class="live-tile-name" id="localName">You</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+    <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
+  </footer>
+
+  <script src="scripts.js?v=5"></script>
+  <script>
+  (function() {
+    // ─── LIVE ROOM — PeerJS WebRTC Mesh ───
+    const ROOM_ID = 'methodictruth-live';
+    const joinScreen = document.getElementById('joinScreen');
+    const roomScreen = document.getElementById('roomScreen');
+    const usernameInput = document.getElementById('usernameInput');
+    const joinBtn = document.getElementById('joinBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const camBtn = document.getElementById('camBtn');
+    const leaveBtn = document.getElementById('leaveBtn');
+    const peerCount = document.getElementById('peerCount');
+    const videoGrid = document.getElementById('videoGrid');
+    const localVideo = document.getElementById('localVideo');
+    const localName = document.getElementById('localName');
+
+    let peer = null;
+    let localStream = null;
+    let username = '';
+    let isMuted = false;
+    let isCamOff = false;
+    const peers = {}; // peerId -> { call, conn, tile }
+
+    // Generate a unique peer ID with room prefix for discovery
+    function makePeerId() {
+      return ROOM_ID + '-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    joinBtn.addEventListener('click', joinRoom);
+    usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinRoom(); });
+
+    async function joinRoom() {
+      username = usernameInput.value.trim() || 'Wanderer';
+      localName.textContent = username;
+
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+      } catch (err) {
+        alert('Camera/mic access denied. Cannot join the room.');
+        return;
+      }
+
+      joinScreen.style.display = 'none';
+      roomScreen.style.display = 'block';
+
+      peer = new Peer(makePeerId(), {
+        debug: 0
+      });
+
+      peer.on('open', (id) => {
+        // Connect to the signaling "room" by announcing ourselves
+        // We use a data connection to exchange usernames and peer lists
+        announcePresence();
+      });
+
+      peer.on('call', (call) => {
+        call.answer(localStream);
+        handleCall(call);
+      });
+
+      peer.on('connection', (conn) => {
+        handleDataConnection(conn);
+      });
+
+      peer.on('error', (err) => {
+        console.error('PeerJS error:', err);
+      });
+    }
+
+    // Since PeerJS free server doesn't have rooms, we use a simple approach:
+    // Each peer tries to connect to known peers. We maintain a list via data connections.
+    // On join, we try connecting to peers we discover through the network.
+    
+    function announcePresence() {
+      // Store our ID in sessionStorage for the tab, broadcast via BroadcastChannel for same-origin
+      const bc = new BroadcastChannel(ROOM_ID);
+      
+      bc.onmessage = (e) => {
+        const msg = e.data;
+        if (msg.type === 'announce' && msg.peerId !== peer.id) {
+          connectToPeer(msg.peerId);
+        }
+        if (msg.type === 'request-peers') {
+          bc.postMessage({ type: 'announce', peerId: peer.id, username });
+        }
+      };
+
+      // Announce ourselves
+      bc.postMessage({ type: 'announce', peerId: peer.id, username });
+      // Request existing peers
+      bc.postMessage({ type: 'request-peers' });
+
+      // Also try connecting to any peers we receive through data connections
+      peer.on('connection', (conn) => {
+        handleDataConnection(conn);
+      });
+    }
+
+    function connectToPeer(remotePeerId) {
+      if (peers[remotePeerId] || remotePeerId === peer.id) return;
+
+      // Data connection for metadata
+      const conn = peer.connect(remotePeerId, { metadata: { username } });
+      conn.on('open', () => {
+        conn.send({ type: 'hello', username, peers: Object.keys(peers) });
+      });
+      handleDataConnection(conn);
+
+      // Media call
+      const call = peer.call(remotePeerId, localStream, { metadata: { username } });
+      handleCall(call);
+    }
+
+    function handleDataConnection(conn) {
+      const remotePeerId = conn.peer;
+      
+      conn.on('data', (data) => {
+        if (data.type === 'hello') {
+          // Update name on their tile
+          if (peers[remotePeerId] && peers[remotePeerId].tile) {
+            peers[remotePeerId].tile.querySelector('.live-tile-name').textContent = data.username || 'Unknown';
+          }
+          // Connect to peers they know about
+          if (data.peers) {
+            data.peers.forEach(pid => connectToPeer(pid));
+          }
+        }
+        if (data.type === 'username') {
+          if (peers[remotePeerId] && peers[remotePeerId].tile) {
+            peers[remotePeerId].tile.querySelector('.live-tile-name').textContent = data.username || 'Unknown';
+          }
+        }
+      });
+
+      conn.on('open', () => {
+        conn.send({ type: 'username', username });
+      });
+
+      if (!peers[remotePeerId]) {
+        peers[remotePeerId] = { conn };
+      } else {
+        peers[remotePeerId].conn = conn;
+      }
+    }
+
+    function handleCall(call) {
+      const remotePeerId = call.peer;
+      const remoteUsername = (call.metadata && call.metadata.username) || 'Unknown';
+
+      call.on('stream', (remoteStream) => {
+        if (peers[remotePeerId] && peers[remotePeerId].tile) {
+          // Update existing tile's stream
+          peers[remotePeerId].tile.querySelector('video').srcObject = remoteStream;
+          return;
+        }
+
+        const tile = document.createElement('div');
+        tile.className = 'live-tile';
+        tile.innerHTML = `<video autoplay playsinline></video><span class="live-tile-name">${remoteUsername}</span>`;
+        tile.querySelector('video').srcObject = remoteStream;
+        videoGrid.appendChild(tile);
+
+        if (!peers[remotePeerId]) peers[remotePeerId] = {};
+        peers[remotePeerId].call = call;
+        peers[remotePeerId].tile = tile;
+        updatePeerCount();
+      });
+
+      call.on('close', () => {
+        removePeer(remotePeerId);
+      });
+    }
+
+    function removePeer(peerId) {
+      if (peers[peerId]) {
+        if (peers[peerId].tile) peers[peerId].tile.remove();
+        if (peers[peerId].call) peers[peerId].call.close();
+        if (peers[peerId].conn) peers[peerId].conn.close();
+        delete peers[peerId];
+        updatePeerCount();
+      }
+    }
+
+    function updatePeerCount() {
+      const count = Object.keys(peers).length;
+      peerCount.textContent = count + ' connected';
+    }
+
+    // Controls
+    muteBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+      muteBtn.textContent = isMuted ? '🔇 Muted' : '🎙 Mic On';
+      muteBtn.classList.toggle('active', isMuted);
+    });
+
+    camBtn.addEventListener('click', () => {
+      isCamOff = !isCamOff;
+      localStream.getVideoTracks().forEach(t => t.enabled = !isCamOff);
+      camBtn.textContent = isCamOff ? '📷 Cam Off' : '📷 Cam On';
+      camBtn.classList.toggle('active', isCamOff);
+    });
+
+    leaveBtn.addEventListener('click', () => {
+      Object.keys(peers).forEach(removePeer);
+      if (localStream) localStream.getTracks().forEach(t => t.stop());
+      if (peer) peer.destroy();
+      roomScreen.style.display = 'none';
+      joinScreen.style.display = 'block';
+      localVideo.srcObject = null;
+    });
+  })();
+  </script>
+</body>
+</html>
