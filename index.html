@@ -6,7 +6,7 @@
   <title>Truth — AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
 
@@ -431,6 +431,32 @@
 
   </main>
 
+  <!-- AI News Feed -->
+  <div class="news-orb" id="newsOrb" title="AI News Feed">
+    <svg viewBox="0 0 40 40" width="40" height="40">
+      <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(232,168,124,0.4)" stroke-width="0.8"/>
+      <circle cx="20" cy="20" r="12" fill="none" stroke="rgba(255,180,80,0.3)" stroke-width="0.5"/>
+      <polygon points="20,8 28,28 12,28" fill="none" stroke="rgba(232,168,124,0.35)" stroke-width="0.6"/>
+      <circle cx="20" cy="20" r="3" fill="rgba(255,180,80,0.5)">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+    <span class="news-orb-label">AI</span>
+  </div>
+
+  <div class="news-float" id="newsFloat">
+    <div class="news-float-header">
+      <span class="news-float-title">𒀭 AI Dispatches</span>
+      <button class="news-float-close" id="newsClose">✕</button>
+    </div>
+    <div class="news-float-items" id="newsItems">
+      <p class="news-loading">Scrying the feeds...</p>
+    </div>
+    <div class="news-float-footer">
+      <span class="news-float-updated" id="newsUpdated"></span>
+    </div>
+  </div>
+
   <!-- Floating Chat / Guestbook -->
   <div class="chat-orb" id="chatOrb" title="Live Chat — Leave your mark">
     <svg viewBox="0 0 40 40" width="40" height="40">
@@ -490,7 +516,98 @@
     <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
   </footer>
 
-  <script src="scripts.js?v=13"></script>
+  <script src="scripts.js?v=14"></script>
+
+  <!-- AI News Feed Script -->
+  <script>
+  (function() {
+    const FEEDS = [
+      { name: 'MIT Tech Review', url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed' },
+      { name: 'The Verge AI', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml' },
+      { name: 'Google AI', url: 'https://blog.google/technology/ai/rss/' },
+      { name: 'ArXiv cs.AI', url: 'http://arxiv.org/rss/cs.AI' }
+    ];
+    const CACHE_KEY = 'ai-news-cache';
+    const CACHE_TTL = 30 * 60 * 1000; // 30 min
+    const MAX_ITEMS = 8;
+
+    const orb = document.getElementById('newsOrb');
+    const panel = document.getElementById('newsFloat');
+    const closeBtn = document.getElementById('newsClose');
+    const itemsEl = document.getElementById('newsItems');
+    const updatedEl = document.getElementById('newsUpdated');
+    let isOpen = false;
+
+    orb.addEventListener('click', () => {
+      isOpen = !isOpen;
+      panel.classList.toggle('open', isOpen);
+      orb.classList.toggle('hidden', isOpen);
+    });
+    closeBtn.addEventListener('click', () => {
+      isOpen = false;
+      panel.classList.remove('open');
+      orb.classList.remove('hidden');
+    });
+
+    function timeAgo(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      return Math.floor(hrs / 24) + 'd ago';
+    }
+
+    function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function renderItems(items) {
+      if (!items.length) { itemsEl.innerHTML = '<p class="news-loading">Feeds unavailable</p>'; return; }
+      itemsEl.innerHTML = items.slice(0, MAX_ITEMS).map(i =>
+        '<a class="news-item" href="' + escHtml(i.link) + '" target="_blank" rel="noopener">' +
+        '<span class="news-source">' + escHtml(i.source) + '</span>' +
+        '<span class="news-title">' + escHtml(i.title) + '</span>' +
+        '<span class="news-time">' + timeAgo(i.pubDate) + '</span>' +
+        '</a>'
+      ).join('');
+      updatedEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function fetchFeed(feed) {
+      try {
+        const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
+        const d = await r.json();
+        if (d.status !== 'ok') return [];
+        return (d.items || []).map(item => ({
+          title: item.title,
+          link: item.link,
+          pubDate: item.pubDate,
+          source: feed.name
+        }));
+      } catch(e) { return []; }
+    }
+
+    async function loadFeeds() {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        try {
+          const c = JSON.parse(cached);
+          if (Date.now() - c.ts < CACHE_TTL) { renderItems(c.items); return; }
+        } catch(e) {}
+      }
+      try {
+        const results = await Promise.all(FEEDS.map(fetchFeed));
+        const all = results.flat().sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items: all.slice(0, MAX_ITEMS) }));
+        renderItems(all);
+      } catch(e) {
+        itemsEl.innerHTML = '<p class="news-loading">Feeds unavailable</p>';
+      }
+    }
+
+    loadFeeds();
+    setInterval(loadFeeds, CACHE_TTL);
+  })();
+  </script>
 
   <!-- Firebase SDK (for guestbook widget) -->
   <script src="lib/firebase-app-compat.js"></script>

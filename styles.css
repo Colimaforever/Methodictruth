@@ -1622,3 +1622,206 @@ footer .roots {
   text-shadow: 0 0 6px rgba(74, 222, 128, 0.4);
   white-space: nowrap;
 }
+
+/* ─── AI NEWS FEED ORB + PANEL ─── */
+.news-orb {
+  position: fixed;
+  bottom: 6rem;
+  right: 2rem;
+  z-index: 998;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(18, 14, 10, 0.85);
+  border: 1px solid rgba(232, 168, 124, 0.25);
+  border-radius: 50%;
+  backdrop-filter: blur(8px);
+  transition: all 0.4s ease;
+  animation: news-breathe 4s ease-in-out infinite;
+}
+
+@keyframes news-breathe {
+  0%, 100% { box-shadow: 0 0 12px rgba(232, 168, 124, 0.1), 0 0 4px rgba(255, 180, 80, 0.05); }
+  50% { box-shadow: 0 0 20px rgba(232, 168, 124, 0.2), 0 0 8px rgba(255, 180, 80, 0.1); }
+}
+
+.news-orb:hover {
+  border-color: rgba(232, 168, 124, 0.5);
+  transform: scale(1.08);
+}
+
+.news-orb.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.5);
+}
+
+.news-orb svg { position: absolute; }
+
+.news-orb-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  color: rgba(255, 180, 80, 0.6);
+  letter-spacing: 0.15em;
+  z-index: 1;
+  margin-top: 32px;
+  position: absolute;
+}
+
+/* News Panel */
+.news-float {
+  position: fixed;
+  bottom: 6rem;
+  right: 2rem;
+  z-index: 999;
+  width: 320px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(14, 10, 8, 0.94);
+  border: 1px solid rgba(232, 168, 124, 0.2);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(232, 168, 124, 0.05);
+}
+
+.news-float.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.news-float-header {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid rgba(232, 168, 124, 0.15);
+  background: linear-gradient(135deg, rgba(232, 168, 124, 0.06), rgba(255, 180, 80, 0.03));
+}
+
+.news-float-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: rgba(232, 168, 124, 0.7);
+  letter-spacing: 0.15em;
+  flex: 1;
+}
+
+.news-float-close {
+  background: none;
+  border: none;
+  color: var(--stone-dark);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  opacity: 0.5;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.news-float-close:hover {
+  opacity: 1;
+  color: rgba(180, 60, 60, 0.8);
+}
+
+.news-float-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.news-float-items::-webkit-scrollbar { width: 3px; }
+.news-float-items::-webkit-scrollbar-track { background: transparent; }
+.news-float-items::-webkit-scrollbar-thumb { background: rgba(232, 168, 124, 0.15); border-radius: 2px; }
+
+.news-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid rgba(232, 168, 124, 0.06);
+  border-left: 2px solid rgba(232, 168, 124, 0.1);
+  padding-left: 0.6rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.news-item:hover {
+  border-left-color: rgba(255, 180, 80, 0.4);
+  background: rgba(232, 168, 124, 0.03);
+}
+
+.news-source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  color: rgba(255, 180, 80, 0.5);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.news-title {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.85rem;
+  color: var(--parchment);
+  line-height: 1.3;
+}
+
+.news-item:hover .news-title {
+  color: rgba(255, 180, 80, 0.9);
+  text-shadow: 0 0 8px rgba(232, 168, 124, 0.15);
+}
+
+.news-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem;
+  color: var(--stone-dark);
+  letter-spacing: 0.05em;
+}
+
+.news-loading {
+  text-align: center;
+  font-style: italic;
+  color: var(--stone-dark);
+  padding: 2rem 0;
+  font-size: 0.85rem;
+}
+
+.news-float-footer {
+  padding: 0.4rem 0.8rem;
+  border-top: 1px solid rgba(232, 168, 124, 0.08);
+}
+
+.news-float-updated {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem;
+  color: var(--stone-dark);
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 600px) {
+  .news-orb {
+    bottom: 5rem;
+    right: 1rem;
+    width: 48px;
+    height: 48px;
+  }
+  .news-orb svg { width: 34px; height: 34px; }
+  .news-float {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+}
