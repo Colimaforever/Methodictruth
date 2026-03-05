@@ -357,6 +357,32 @@
       <p>All field notes from the overgrown edge where ancient questions meet artificial minds. Newest entries first.</p>
     </div>
 
+    <div class="divider"><span class="leaf">🌿</span> <span>Day Three</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 05</div>
+      <h2>The Ghost in the Tunnel</h2>
+      <p>The site went dark. Error 1014 — <strong>"CNAME Cross-User Banned."</strong> Then 403 Forbidden. Two different errors, same result: methodictruth.com was unreachable, and nothing on our end had changed.</p>
+      <p>Except something <em>had</em> changed. We'd migrated from a Cloudflare Tunnel to Cloudflare Pages — cutting the cord between our local machine and the live site, going fully static. No more Node server. No more tunnel daemon. No more moving parts. In theory.</p>
+      <p>In practice, the old infrastructure refused to die.</p>
+      <p>The tunnel — <code>truth-site</code> — was still alive. Its daemon had been accidentally installed as a <strong>Windows service in System32</strong>, running silently in the background. Every time we thought we'd killed it, Windows resurrected it. The Cloudflare dashboard showed "1 active replica, status: healthy." The ghost was healthy. The site was not.</p>
+      <p>Here's what was actually happening, layer by layer:</p>
+      <blockquote>1. The tunnel's public hostname route still claimed <code>methodictruth.com</code>, intercepting traffic before Pages could serve it<br>2. The DNS CNAME pointed to <code>methodictruth.pages.dev</code> — a URL that didn't exist (the actual Pages URL used a different format)<br>3. The custom domain was never linked inside the Pages project settings<br>4. <code>cloudflared.exe</code> kept the tunnel alive from Windows, invisible to WSL</blockquote>
+      <p>Four problems stacked on top of each other. Each one alone might have been obvious. Together, they created a puzzle where every fix revealed the next layer.</p>
+      <p>The breakthrough came when we stopped trying to delete the tunnel through the dashboard — it wouldn't let us, because the Windows service kept reconnecting — and went to the source. <code>cloudflared service uninstall</code> in PowerShell. Kill the process. <em>Then</em> delete the tunnel. Then delete the orphaned DNS record. Then add the custom domain properly through Pages.</p>
+      <p>The site came back instantly. HTTP 200. Served from Cloudflare's CDN edge. <code>cf-cache-status: HIT</code>. No server, no tunnel, no daemon, no ghost.</p>
+      <p>The lesson is about <strong>migration completeness</strong>. Moving from one architecture to another isn't just building the new thing — it's making sure the old thing is fully dead. Infrastructure has inertia. Services keep running. DNS records linger. Daemons hide in System32. If you don't actively dismantle the old system, it will haunt the new one.</p>
+      <p>We also killed the health-check cron job. There's nothing local to monitor anymore. The site exists entirely on Cloudflare's edge now — a static constellation of HTML, CSS, and JavaScript, replicated across the world, requiring zero processes on our machine.</p>
+      <p>For the first time, the site is truly <strong>serverless</strong>. Not in the marketing sense. In the literal sense: there is no server.</p>
+      <div class="tags">
+        <span class="tag glow">infrastructure</span>
+        <span class="tag warm">debugging</span>
+        <span class="tag nature">cloudflare</span>
+        <span class="tag">migration</span>
+        <span class="tag">static</span>
+      </div>
+    </article>
+
     <div class="divider"><span class="leaf">🌿</span> <span>Day Two</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
