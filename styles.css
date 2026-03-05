@@ -936,10 +936,62 @@ footer .roots {
   }
   .player-track { max-width: 120px; }
   .entry { padding: 1.5rem; }
-  main { padding: 0 1rem 4rem; }
+  main { padding: 0 0.75rem 4rem; }
   .pillar-left, .pillar-right, .vine-accent { display: none; }
   .stack-item { flex-direction: column; gap: 0.25rem; }
   .stack-label { min-width: auto; }
+
+  /* Nav: wrap and tighten for mobile */
+  .site-nav {
+    flex-wrap: wrap;
+    gap: 0.6rem 1.2rem;
+    padding: 0.8rem 1rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+  }
+  .site-nav .nav-glyph {
+    display: none;
+  }
+
+  /* Page header */
+  .page-header h1 { font-size: 1.8rem; }
+  .page-header .subtitle { font-size: 0.8rem; }
+
+  /* Timeline */
+  .timeline-entry { padding: 0.8rem 1rem; }
+  .timeline-day { font-size: 0.85rem; }
+  .timeline-summary { font-size: 0.85rem; }
+
+  /* Live room */
+  .live-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .live-controls {
+    gap: 0.5rem;
+  }
+  .live-ctrl-btn {
+    font-size: 0.6rem;
+    padding: 0.4rem 0.7rem;
+  }
+  .live-join-form {
+    padding: 0 1rem;
+  }
+  .live-input, .gb-input {
+    max-width: 100%;
+  }
+
+  /* Guestbook */
+  .gb-form-entry { padding: 1rem; }
+  .gb-textarea { font-size: 0.9rem; }
+  .gb-entry { padding: 1rem; }
+
+  /* Guestbook widget */
+  .gb-widget { padding: 0.8rem; }
+  .gb-widget-msg-item p { font-size: 0.85rem; }
+
+  /* Intro text */
+  .intro p { font-size: 1rem; }
 }
 
 /* ─── LIVE ROOM ─── */
