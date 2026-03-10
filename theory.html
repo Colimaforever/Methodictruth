@@ -6,7 +6,7 @@
   <title>Theory — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20">
+  <link rel="stylesheet" href="styles.css?v=22">
   <style>
     /* ─── THEORY PAGE ─── */
     .theory-page { position: relative; z-index: 1; min-height: 100vh; padding-bottom: 4rem; }
@@ -33,6 +33,7 @@
       padding-right: 2.5rem;
     }
     .theory-select option { background: #0a0e1a; color: var(--parchment); }
+    .theory-select optgroup { background: #0a0e1a; color: rgba(0,229,255,0.6); font-style: normal; font-size: 0.7rem; letter-spacing: 0.08em; }
     .theory-select:focus { border-color: var(--glow); box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); }
 
     /* ─── SCALE DISPLAY ─── */
@@ -234,7 +235,7 @@
     }
     .modes-toggle-icon.open { transform: rotate(180deg); }
     .modes-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-    .modes-body.open { max-height: 600px; }
+    .modes-body.open { max-height: 900px; }
     .modes-desc {
       font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem;
       color: var(--stone); margin: 1rem 0; line-height: 1.6;
@@ -356,6 +357,42 @@
         </div>
       </div>
 
+      <!-- MAQAM INFO -->
+      <div class="modes-section maqam-section" style="margin-bottom:1rem;">
+        <div class="modes-header" id="maqamHeader">
+          <div class="modes-title">Maqam &amp; Middle Eastern Scales</div>
+          <span class="modes-toggle-icon" id="maqamIcon">▾</span>
+        </div>
+        <div class="modes-body" id="maqamBody" style="max-height:0;">
+          <p class="modes-desc">
+            <strong>Maqam</strong> (Arabic: مقام) is a system of melodic modes used in Arabic, Turkish, and Azerbaijani music.
+            Unlike Western scales which define a static set of notes, maqam emphasizes melodic movement — specific patterns of ascent
+            and descent, characteristic phrases, and microtonal inflections that give each maqam its distinctive emotional character.
+          </p>
+          <p class="modes-desc" style="margin-top:0;">
+            <em>Mugham</em> (Azerbaijani), <em>Makam</em> (Turkish), <em>Maqam</em> (Arabic) — different traditions, shared roots.
+          </p>
+          <p class="modes-desc" style="margin-top:0;opacity:0.7;font-size:0.85rem;">
+            ⚠ Some maqam scales use quarter tones (halfway between Western semitones). The versions here are approximated to
+            12-tone equal temperament for piano and guitar. True maqam performance uses microtonal inflections that can't be
+            fully captured on fretted instruments.
+          </p>
+          <table class="modes-table">
+            <thead><tr><th>Scale</th><th>Character</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td class="mode-name">Hijaz</td><td>Exotic, yearning, devotional</td><td>1 ♭2 3 4 5 ♭6 ♭7</td></tr>
+              <tr><td class="mode-name">Rast</td><td>Stately, foundational — the "major" of maqam</td><td>1 2 ↓♭3 4 5 6 ↓♭7 (approx.)</td></tr>
+              <tr><td class="mode-name">Bayati</td><td>Tender, melancholic, meditative</td><td>1 ↓♭2 ♭3 4 5 ♭6 ♭7 (approx.)</td></tr>
+              <tr><td class="mode-name">Chahargah</td><td>Dramatic, fiery, intense</td><td>1 2 ♭3 ♯4 5 ♭6 7</td></tr>
+              <tr><td class="mode-name">Nikriz</td><td>Mysterious, wandering, dark</td><td>1 2 ♭3 ♯4 5 6 ♭7</td></tr>
+              <tr><td class="mode-name">Phrygian Dominant</td><td>Spanish/flamenco flavor (= Hijaz)</td><td>1 ♭2 3 4 5 ♭6 ♭7</td></tr>
+              <tr><td class="mode-name">Double Harmonic Major</td><td>Byzantine, cinematic grandeur</td><td>1 ♭2 3 4 5 ♭6 7</td></tr>
+              <tr><td class="mode-name">Hungarian Minor</td><td>Dark, ornate, Eastern European</td><td>1 2 ♭3 ♯4 5 ♭6 7</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- MODES -->
       <div class="modes-section">
         <div class="modes-header" id="modesHeader">
@@ -415,6 +452,19 @@
     'Pentatonic Minor':     [0,3,5,7,10],
     'Blues':                 [0,3,5,6,7,10],
   };
+
+  // Middle Eastern / Maqam scales
+  const MAQAM_SCALES = {
+    'Hijaz':                  [0,1,4,5,7,8,10],
+    'Rast (approx.)':         [0,2,3,5,7,9,10],
+    'Bayati (approx.)':       [0,1,3,5,7,8,10],
+    'Chahargah':              [0,2,3,6,7,8,11],
+    'Nikriz':                 [0,2,3,6,7,9,10],
+    'Phrygian Dominant':      [0,1,4,5,7,8,10],
+    'Double Harmonic Major':  [0,1,4,5,7,8,11],
+    'Hungarian Minor':        [0,2,3,6,7,8,11],
+  };
+  Object.assign(SCALES, MAQAM_SCALES);
 
   // Interval labels between consecutive notes
   function getIntervalLabels(intervals) {
@@ -701,11 +751,24 @@
     opt.value = i; opt.textContent = n;
     rootSelect.appendChild(opt);
   });
-  Object.keys(SCALES).forEach(name => {
+  // Western scales optgroup
+  const westernGroup = document.createElement('optgroup');
+  westernGroup.label = 'Western Scales';
+  Object.keys(SCALES).filter(n => !MAQAM_SCALES[n]).forEach(name => {
     const opt = document.createElement('option');
     opt.value = name; opt.textContent = name;
-    scaleSelect.appendChild(opt);
+    westernGroup.appendChild(opt);
   });
+  scaleSelect.appendChild(westernGroup);
+  // Maqam scales optgroup
+  const maqamGroup = document.createElement('optgroup');
+  maqamGroup.label = 'Middle Eastern / Maqam';
+  Object.keys(MAQAM_SCALES).forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    maqamGroup.appendChild(opt);
+  });
+  scaleSelect.appendChild(maqamGroup);
 
   rootSelect.addEventListener('change', () => { currentRoot = parseInt(rootSelect.value); selectedChord = null; update(); });
   scaleSelect.addEventListener('change', () => { currentScale = scaleSelect.value; selectedChord = null; update(); });
@@ -735,6 +798,12 @@
   document.getElementById('modesHeader').addEventListener('click', () => {
     document.getElementById('modesBody').classList.toggle('open');
     document.getElementById('modesIcon').classList.toggle('open');
+  });
+
+  // Maqam info toggle
+  document.getElementById('maqamHeader').addEventListener('click', () => {
+    document.getElementById('maqamBody').classList.toggle('open');
+    document.getElementById('maqamIcon').classList.toggle('open');
   });
 
   // ═══════════════════════════════════════════════════════════
