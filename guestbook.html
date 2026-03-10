@@ -6,7 +6,7 @@
   <title>Guestbook — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=28">
+  <link rel="stylesheet" href="styles.css?v=29">
 </head>
 <body>
 
@@ -69,17 +69,25 @@
     <div class="nav-links" id="navLinks">
       <a href="index.html">Home</a>
       <a href="chronicles.html">Chronicles</a>
-      <a href="about.html">About</a>
-      <a href="stack.html">Stack</a>
-      <a href="architecture.html">Architecture</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth.html">Synth</a>
+          <a href="theory.html">Theory</a>
+          <a href="signal.html">Signal</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="topology.html">Topology</a>
+          <a href="architecture.html">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
       <a href="live.html">Live</a>
-      <a href="synth.html">Synth</a>
-      <a href="theory.html">Theory</a>
-      <a href="signal.html">Signal</a>
-      <a href="topology.html">Topology</a>
-      <a href="songwriter.html">Songwriter</a>
-      <a href="topology.html">Topology</a>
-      <a href="songwriter.html">Songwriter</a>
+      <a href="about.html">About</a>
     </div>
   </nav>
 
@@ -123,7 +131,7 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=28"></script>
+  <script src="scripts.js?v=29"></script>
 
   <!-- Firebase SDK -->
   <script src="lib/firebase-app-compat.js"></script>

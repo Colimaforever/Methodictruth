@@ -602,6 +602,18 @@ if (navToggle && navLinks) {
       navToggle.textContent = '☰';
     });
   });
+  // Dropdown toggle on mobile (tap)
+  navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dropdown = btn.closest('.nav-dropdown');
+      // Close other dropdowns
+      navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => {
+        if (d !== dropdown) d.classList.remove('open');
+      });
+      dropdown.classList.toggle('open');
+    });
+  });
 }
 
 // ─── SPA ROUTER — Keep audio alive across navigation ───
