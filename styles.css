@@ -797,6 +797,26 @@ footer .roots {
   letter-spacing: 0.3em;
 }
 
+footer .donate-link {
+  display: inline-block;
+  margin-top: 1.2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--stone-dark);
+  text-decoration: none;
+  padding: 0.4rem 1.2rem;
+  border: 1px solid rgba(138, 126, 107, 0.2);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+footer .donate-link:hover {
+  color: var(--amber);
+  border-color: rgba(255, 191, 0, 0.4);
+  box-shadow: 0 0 12px rgba(255, 191, 0, 0.1);
+}
+
 /* ─── MUSIC PLAYER ─── */
 .music-player {
   position: fixed;
