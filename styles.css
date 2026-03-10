@@ -143,17 +143,39 @@ body::after {
   left: 0;
   right: 0;
   z-index: 500;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2.5rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(to bottom, rgba(10, 14, 26, 0.85) 0%, rgba(10, 14, 26, 0.4) 70%, transparent 100%);
+  padding: 0.8rem 1.5rem;
+  background: rgba(10, 14, 26, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(138, 126, 107, 0.08);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
+}
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: 1px solid rgba(138, 126, 107, 0.2);
+  color: var(--stone-dark);
+  font-size: 1.2rem;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.nav-toggle:hover {
+  color: var(--glow);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
 }
 
 .site-nav a {
@@ -519,6 +541,60 @@ main {
   color: var(--stone);
   max-width: 600px;
   margin: 0 auto;
+}
+
+/* ─── EXPLORE GRID ─── */
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+}
+
+.explore-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 0.5rem;
+  background: rgba(26, 18, 10, 0.6);
+  border: 1px solid rgba(138, 126, 107, 0.12);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.explore-card:hover {
+  border-color: rgba(0, 229, 255, 0.3);
+  background: rgba(26, 18, 10, 0.85);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 229, 255, 0.08);
+}
+
+.explore-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.explore-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--parchment);
+}
+
+.explore-desc {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.75rem;
+  color: var(--stone-dark);
+  text-align: center;
+}
+
+.entry-compact p {
+  margin: 0.5rem 0;
 }
 
 /* ─── ENTRY CARDS ─── */
@@ -961,16 +1037,36 @@ footer .donate-link:hover {
   .stack-item { flex-direction: column; gap: 0.25rem; }
   .stack-label { min-width: auto; }
 
-  /* Nav: wrap and tighten for mobile */
+  /* Nav: hamburger on mobile */
+  .nav-toggle {
+    display: block;
+  }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1rem 0 0.5rem;
+  }
+  .nav-links.open {
+    display: flex;
+  }
   .site-nav {
-    flex-wrap: wrap;
-    gap: 0.6rem 1.2rem;
-    padding: 0.8rem 1rem;
+    padding: 0.6rem 1rem;
     font-size: 0.6rem;
     letter-spacing: 0.2em;
   }
-  .site-nav .nav-glyph {
-    display: none;
+
+  /* Explore grid: 2 columns on mobile */
+  .explore-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+    padding: 0 0.75rem;
+  }
+  .explore-card {
+    padding: 0.8rem 0.4rem;
+  }
+  .explore-icon {
+    font-size: 1.2rem;
   }
 
   /* Page header */

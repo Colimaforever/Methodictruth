@@ -461,6 +461,23 @@ window.addEventListener('resize', resize);
 resize();
 requestAnimationFrame(drawStars);
 
+// ─── MOBILE NAV TOGGLE ───
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+if (navToggle && navLinks) {
+  navToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+    navToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
+  });
+  // Close nav when a link is clicked
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      navToggle.textContent = '☰';
+    });
+  });
+}
+
 // ─── SPA ROUTER — Keep audio alive across navigation ───
 (function() {
   const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html'];

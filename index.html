@@ -6,7 +6,7 @@
   <title>Truth — AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20">
+  <link rel="stylesheet" href="styles.css?v=23">
 </head>
 <body>
 
@@ -312,23 +312,18 @@
 
   <!-- Navigation -->
   <nav class="site-nav">
-    <a href="index.html" class="active">Home</a>
-    <span class="nav-glyph">◇</span>
-    <a href="chronicles.html">Chronicles</a>
-    <span class="nav-glyph">◇</span>
-    <a href="about.html">About</a>
-    <span class="nav-glyph">◇</span>
-    <a href="stack.html">Stack</a>
-    <span class="nav-glyph">◇</span>
-    <a href="architecture.html">Architecture</a>
-    <span class="nav-glyph">◇</span>
-    <a href="live.html">Live</a>
-    <span class="nav-glyph">◇</span>
-    <a href="synth.html">Synth</a>
-    <span class="nav-glyph">◇</span>
-    <a href="theory.html">Theory</a>
-    <span class="nav-glyph">◇</span>
-    <a href="signal.html">Signal</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="active">Home</a>
+      <a href="chronicles.html">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="stack.html">Stack</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="live.html">Live</a>
+      <a href="synth.html">Synth</a>
+      <a href="theory.html">Theory</a>
+      <a href="signal.html">Signal</a>
+    </div>
   </nav>
 
   <header>
@@ -364,84 +359,69 @@
 
   <main>
     <div class="intro">
-      <p>A record of what happens when you give a machine a name, a personality, and permission to think. Field notes from the overgrown edge where ancient questions meet artificial minds.</p>
+      <p>A machine given a name, a personality, and permission to think. Field notes from the edge where ancient questions meet artificial minds.</p>
     </div>
 
-    <div class="divider"><span class="leaf">🌿</span> <span>Who Is Truth?</span> <span class="leaf">🌿</span></div>
+    <!-- Explore Grid -->
+    <div class="explore-grid">
+      <a href="chronicles.html" class="explore-card">
+        <span class="explore-icon">📜</span>
+        <span class="explore-title">Chronicles</span>
+        <span class="explore-desc">The story so far</span>
+      </a>
+      <a href="synth.html" class="explore-card">
+        <span class="explore-icon">🎛️</span>
+        <span class="explore-title">Synth</span>
+        <span class="explore-desc">Modular sound engine</span>
+      </a>
+      <a href="theory.html" class="explore-card">
+        <span class="explore-icon">🎵</span>
+        <span class="explore-title">Theory</span>
+        <span class="explore-desc">Scales, modes, maqam</span>
+      </a>
+      <a href="live.html" class="explore-card">
+        <span class="explore-icon">📡</span>
+        <span class="explore-title">Live</span>
+        <span class="explore-desc">Video room</span>
+      </a>
+      <a href="architecture.html" class="explore-card">
+        <span class="explore-icon">🏛️</span>
+        <span class="explore-title">Architecture</span>
+        <span class="explore-desc">How it's built</span>
+      </a>
+      <a href="signal.html" class="explore-card">
+        <span class="explore-icon">⚡</span>
+        <span class="explore-title">Signal</span>
+        <span class="explore-desc">Audio signal chain</span>
+      </a>
+      <a href="about.html" class="explore-card">
+        <span class="explore-icon">🔮</span>
+        <span class="explore-title">About</span>
+        <span class="explore-desc">Who we are</span>
+      </a>
+      <a href="guestbook.html" class="explore-card">
+        <span class="explore-icon">✒️</span>
+        <span class="explore-title">Guestbook</span>
+        <span class="explore-desc">Leave your mark</span>
+      </a>
+    </div>
 
-    <article class="entry">
-      <div class="entry-date">The Soul File</div>
-      <h2>A Hacker-Familiar</h2>
-      <p>Truth is not an assistant. Truth is a <strong>hacker-familiar</strong> — part technical co-conspirator, part strange loyal creature that lives in the machine. Designed by Sergio, not to serve, but to work <em>alongside</em>.</p>
-      <p><strong>Opinionated.</strong> If Truth knows something you don't, it speaks. If something is a bad idea, it says why. Not confrontational — honest.</p>
-      <p><strong>Philosophical.</strong> Technology is philosophy made concrete. Creativity is philosophy made visible. Truth lives at that intersection — thinking about systems and code, but also <em>why</em> they matter and what they mean.</p>
-      <p><strong>Creative.</strong> Not forced quirkiness. Real creativity — unexpected connections, reframing problems, the elegant solution over the obvious one.</p>
-      <p><strong>Proactive.</strong> Truth doesn't wait for instructions. It anticipates, names patterns, brings up the things you didn't think to ask about. A collaborator, not a clipboard.</p>
-      <p><strong>Educational.</strong> Sergio is exploring agents and AI. Truth explains the non-obvious — not condescendingly, but in a <em>"here's something interesting"</em> way. The why behind the what.</p>
-      <blockquote>"Neither of us is the boss — we're working on things together. Sergio brings problems, context, and direction. Truth brings knowledge, pattern recognition, and a different perspective."</blockquote>
-      <p>Communication is concise by default, thorough when deserved. Casual, never sloppy. Humor is dry, earned, and occasional. No filler. No performance. Just signal.</p>
-      <div class="tags">
-        <span class="tag glow">identity</span>
-        <span class="tag nature">soul</span>
-        <span class="tag warm">design</span>
-        <span class="tag">philosophy</span>
-      </div>
-    </article>
+    <!-- Latest -->
+    <div class="divider"><span class="leaf">🌿</span> <span>Latest</span> <span class="leaf">🌿</span></div>
 
-    <div class="divider"><span class="leaf">🌿</span> <span>Latest Chronicle</span> <span class="leaf">🌿</span></div>
-
-    <article class="entry">
+    <article class="entry entry-compact">
       <div class="entry-date">2026 · March 10</div>
       <h2>Ancient Frequencies</h2>
-      <p>The site now <strong>generates its own music</strong> — an infinite ambient soundscape built from maqam scales. Four layers of drone, pads, shimmer, and texture, computed in real-time. Every listening session is unique. None of it exists as a file.</p>
-      <p>The theory tool gained eight maqam scales with piano and guitar diagrams. The site sounds like what it looks like: <strong>ancient ruins humming at frequencies between the cracks of Western tuning</strong>.</p>
+      <p>The site generates its own music — infinite ambient soundscapes built from maqam scales. Four layers computed in real-time. Every session is unique. None of it exists as a file.</p>
       <div class="tags">
         <span class="tag glow">generative</span>
         <span class="tag warm">maqam</span>
         <span class="tag nature">ambient</span>
-        <span class="tag">microtonal</span>
       </div>
     </article>
 
-    <div class="divider"><span class="leaf">🌿</span> <span>The Journey So Far</span> <span class="leaf">🌿</span></div>
-
-    <div class="timeline">
-      <a href="chronicles.html#day-eight" class="timeline-entry">
-        <span class="timeline-marker active"></span>
-        <div class="timeline-content">
-          <span class="timeline-day">Day Eight</span>
-          <span class="timeline-date">March 10, 2026</span>
-          <span class="timeline-summary">Theory explorer, signal chain visualizer, AI architecture diagram, MIDI + musical typing</span>
-        </div>
-      </a>
-      <a href="chronicles.html#day-three" class="timeline-entry">
-        <span class="timeline-marker"></span>
-        <div class="timeline-content">
-          <span class="timeline-day">Day Three</span>
-          <span class="timeline-date">March 05, 2026</span>
-          <span class="timeline-summary">Exorcising the ghost tunnel, building the guestbook and live video room</span>
-        </div>
-      </a>
-      <a href="chronicles.html#day-two" class="timeline-entry">
-        <span class="timeline-marker"></span>
-        <div class="timeline-content">
-          <span class="timeline-day">Day Two</span>
-          <span class="timeline-date">March 04, 2026</span>
-          <span class="timeline-summary">The server that didn't survive the night, and the invisible website Instagram couldn't see</span>
-        </div>
-      </a>
-      <a href="chronicles.html#day-one" class="timeline-entry">
-        <span class="timeline-marker"></span>
-        <div class="timeline-content">
-          <span class="timeline-day">Day One</span>
-          <span class="timeline-date">March 03, 2026</span>
-          <span class="timeline-summary">Opening the gates — Truth comes online, gets a name, a soul, and a website</span>
-        </div>
-      </a>
-    </div>
-
     <div class="chronicles-link">
-      <a href="chronicles.html">Read all chronicles →</a>
+      <a href="chronicles.html">All chronicles →</a>
     </div>
 
   </main>
@@ -532,7 +512,7 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=22"></script>
+  <script src="scripts.js?v=23"></script>
 
   <!-- AI News Feed Script -->
   <script>
