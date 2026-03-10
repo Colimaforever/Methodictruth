@@ -338,7 +338,7 @@ async function startGenerativeEngine() {
   eng.masterGain.gain.rampTo(audio.volume || 0.4, 5);
 
   Tone.Transport.start();
-  if (oscCanvas && !oscCtx) { oscCtx = oscCanvas.getContext('2d'); drawOscilloscope(); }
+  if (bgOsc && !bgOscCtx) { bgOscCtx = bgOsc.getContext('2d'); resizeBgOsc(); drawBgOscilloscope(); }
 }
 
 function switchMaqam(index) {
@@ -424,58 +424,63 @@ if (saved && saved.generative && saved.playing) {
   }
 }
 
-// ─── OSCILLOSCOPE ───
-const oscCanvas = document.getElementById('oscilloscope');
-let oscCtx, analyser, audioCtx, audioSource, oscConnected = false;
+// ─── BACKGROUND OSCILLOSCOPE ───
+const bgOsc = document.getElementById('bgOscilloscope');
+let bgOscCtx, bgAnalyser, bgAudioCtx, bgAudioSource, bgOscConnected = false;
 
-function initOscilloscope() {
-  if (oscConnected || !oscCanvas) return;
-  oscCtx = oscCanvas.getContext('2d');
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 256;
-  audioSource = audioCtx.createMediaElementSource(audio);
-  audioSource.connect(analyser);
-  analyser.connect(audioCtx.destination);
-  oscConnected = true;
-  drawOscilloscope();
+function resizeBgOsc() {
+  if (!bgOsc) return;
+  bgOsc.width = window.innerWidth;
+  bgOsc.height = Math.floor(window.innerHeight * 0.3);
+}
+if (bgOsc) {
+  resizeBgOsc();
+  window.addEventListener('resize', resizeBgOsc);
 }
 
-function drawOscilloscope() {
-  if (!oscCanvas) return;
-  requestAnimationFrame(drawOscilloscope);
-  const ctx = oscCtx;
-  const w = oscCanvas.width;
-  const h = oscCanvas.height;
+function initBgOscilloscope() {
+  if (bgOscConnected || !bgOsc) return;
+  bgOscCtx = bgOsc.getContext('2d');
+  bgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  bgAnalyser = bgAudioCtx.createAnalyser();
+  bgAnalyser.fftSize = 512;
+  bgAnalyser.smoothingTimeConstant = 0.85;
+  bgAudioSource = bgAudioCtx.createMediaElementSource(audio);
+  bgAudioSource.connect(bgAnalyser);
+  bgAnalyser.connect(bgAudioCtx.destination);
+  bgOscConnected = true;
+  drawBgOscilloscope();
+}
+
+function drawBgOscilloscope() {
+  if (!bgOsc) return;
+  requestAnimationFrame(drawBgOscilloscope);
+  const ctx = bgOscCtx;
+  const w = bgOsc.width;
+  const h = bgOsc.height;
   ctx.clearRect(0, 0, w, h);
 
-  // Draw center line
-  ctx.strokeStyle = 'rgba(0, 229, 255, 0.08)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, h / 2);
-  ctx.lineTo(w, h / 2);
-  ctx.stroke();
+  let dataArray, color1, color2;
 
-  if (!analyser && !genEngine) return;
-
-  let dataArray;
   if (genActive && genEngine && genEngine.analyser) {
-    // Tone.js generative engine
     dataArray = genEngine.analyser.getValue();
-    ctx.strokeStyle = 'rgba(138, 43, 226, 0.8)';
-    ctx.shadowColor = 'rgba(138, 43, 226, 0.5)';
-  } else if (analyser && oscConnected) {
-    dataArray = new Float32Array(analyser.frequencyBinCount);
-    analyser.getFloatTimeDomainData(dataArray);
-    ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)';
-    ctx.shadowColor = 'rgba(0, 229, 255, 0.5)';
+    color1 = 'rgba(138, 43, 226, 0.6)';
+    color2 = 'rgba(138, 43, 226, 0.15)';
+  } else if (bgAnalyser && bgOscConnected) {
+    dataArray = new Float32Array(bgAnalyser.frequencyBinCount);
+    bgAnalyser.getFloatTimeDomainData(dataArray);
+    color1 = 'rgba(0, 229, 255, 0.6)';
+    color2 = 'rgba(0, 229, 255, 0.15)';
   } else {
     return;
   }
 
-  ctx.shadowBlur = 4;
-  ctx.lineWidth = 1.5;
+  // Fill gradient beneath waveform
+  const gradient = ctx.createLinearGradient(0, 0, 0, h);
+  gradient.addColorStop(0, color2);
+  gradient.addColorStop(1, 'transparent');
+
+  // Main waveform
   ctx.beginPath();
   const sliceWidth = w / dataArray.length;
   let x = 0;
@@ -486,6 +491,28 @@ function drawOscilloscope() {
     else ctx.lineTo(x, y);
     x += sliceWidth;
   }
+
+  // Fill beneath
+  ctx.lineTo(w, h);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Stroke the waveform line
+  ctx.beginPath();
+  x = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    const v = dataArray[i];
+    const y = (1 - v) * h / 2;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+    x += sliceWidth;
+  }
+  ctx.strokeStyle = color1;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = color1;
+  ctx.shadowBlur = 8;
   ctx.stroke();
   ctx.shadowBlur = 0;
 }
@@ -493,8 +520,8 @@ function drawOscilloscope() {
 // Hook into play events to init oscilloscope
 const origStartPlaying = startPlaying;
 startPlaying = function(seekTo) {
-  initOscilloscope();
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  initBgOscilloscope();
+  if (bgAudioCtx && bgAudioCtx.state === 'suspended') bgAudioCtx.resume();
   return origStartPlaying(seekTo);
 };
 
