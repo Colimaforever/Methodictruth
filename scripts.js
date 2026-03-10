@@ -250,6 +250,8 @@ async function startGenerativeEngine() {
 
   // Master chain
   eng.masterGain = new Tone.Gain(audio.volume).toDestination();
+  eng.analyser = new Tone.Waveform(256);
+  eng.masterGain.connect(eng.analyser);
   eng.compressor = new Tone.Compressor(-20, 4).connect(eng.masterGain);
   eng.reverb = new Tone.Reverb({ decay: 8, wet: 0.7 });
   await eng.reverb.generate();
@@ -336,6 +338,7 @@ async function startGenerativeEngine() {
   eng.masterGain.gain.rampTo(audio.volume || 0.4, 5);
 
   Tone.Transport.start();
+  if (oscCanvas && !oscCtx) { oscCtx = oscCanvas.getContext('2d'); drawOscilloscope(); }
 }
 
 function switchMaqam(index) {
@@ -385,6 +388,7 @@ function stopGenerativeEngine() {
   });
   if (genEngine.padLoop) genEngine.padLoop.dispose();
   if (genEngine.shimmerLoop) genEngine.shimmerLoop.dispose();
+  if (genEngine.analyser) genEngine.analyser.dispose();
   genEngine = null;
   genActive = false;
 }
@@ -419,6 +423,80 @@ if (saved && saved.generative && saved.playing) {
     startPlaying();
   }
 }
+
+// ─── OSCILLOSCOPE ───
+const oscCanvas = document.getElementById('oscilloscope');
+let oscCtx, analyser, audioCtx, audioSource, oscConnected = false;
+
+function initOscilloscope() {
+  if (oscConnected || !oscCanvas) return;
+  oscCtx = oscCanvas.getContext('2d');
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 256;
+  audioSource = audioCtx.createMediaElementSource(audio);
+  audioSource.connect(analyser);
+  analyser.connect(audioCtx.destination);
+  oscConnected = true;
+  drawOscilloscope();
+}
+
+function drawOscilloscope() {
+  if (!oscCanvas) return;
+  requestAnimationFrame(drawOscilloscope);
+  const ctx = oscCtx;
+  const w = oscCanvas.width;
+  const h = oscCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // Draw center line
+  ctx.strokeStyle = 'rgba(0, 229, 255, 0.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, h / 2);
+  ctx.lineTo(w, h / 2);
+  ctx.stroke();
+
+  if (!analyser && !genEngine) return;
+
+  let dataArray;
+  if (genActive && genEngine && genEngine.analyser) {
+    // Tone.js generative engine
+    dataArray = genEngine.analyser.getValue();
+    ctx.strokeStyle = 'rgba(138, 43, 226, 0.8)';
+    ctx.shadowColor = 'rgba(138, 43, 226, 0.5)';
+  } else if (analyser && oscConnected) {
+    dataArray = new Float32Array(analyser.frequencyBinCount);
+    analyser.getFloatTimeDomainData(dataArray);
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)';
+    ctx.shadowColor = 'rgba(0, 229, 255, 0.5)';
+  } else {
+    return;
+  }
+
+  ctx.shadowBlur = 4;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  const sliceWidth = w / dataArray.length;
+  let x = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    const v = dataArray[i];
+    const y = (1 - v) * h / 2;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+    x += sliceWidth;
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+// Hook into play events to init oscilloscope
+const origStartPlaying = startPlaying;
+startPlaying = function(seekTo) {
+  initOscilloscope();
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  return origStartPlaying(seekTo);
+};
 
 // ─── STARFIELD RENDERER ───
 const canvas = document.getElementById('stars');
