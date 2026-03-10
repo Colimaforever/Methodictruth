@@ -223,6 +223,63 @@
       .synth-module { width: 180px; }
       .module-title { font-size: 0.6rem; }
     }
+
+    /* ─── KNOWLEDGE BASE PANEL ─── */
+    .kb-toggle {
+      position: fixed; bottom: 5rem; right: 1.2rem; z-index: 600;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(10, 14, 26, 0.92); border: 1px solid rgba(0, 229, 255, 0.3);
+      color: var(--glow); font-size: 1.3rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s;
+    }
+    .kb-toggle:hover { border-color: var(--glow); box-shadow: 0 0 20px rgba(0,229,255,0.2); }
+
+    .kb-panel {
+      position: fixed; bottom: 5rem; right: 1.2rem; z-index: 590;
+      width: 380px; max-height: 70vh;
+      background: rgba(10, 14, 26, 0.96);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+      overflow-y: auto; display: none;
+      padding: 1rem 1.2rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,229,255,0.2) transparent;
+    }
+    .kb-panel.open { display: block; }
+    .kb-panel h3 {
+      font-family: 'Cinzel', serif; font-size: 0.85rem;
+      color: var(--glow); letter-spacing: 0.1em;
+      margin: 1rem 0 0.4rem 0; border-bottom: 1px solid rgba(0,229,255,0.1);
+      padding-bottom: 0.3rem;
+    }
+    .kb-panel h3:first-child { margin-top: 0; }
+    .kb-panel dt {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      color: var(--glow-warm); margin-top: 0.5rem;
+    }
+    .kb-panel dd {
+      font-family: 'EB Garamond', serif; font-size: 0.85rem;
+      color: var(--stone); margin: 0.1rem 0 0 0.8rem; line-height: 1.45;
+    }
+    .kb-panel p, .kb-panel li {
+      font-family: 'EB Garamond', serif; font-size: 0.85rem;
+      color: var(--stone); line-height: 1.45;
+    }
+    .kb-panel ul { margin: 0.3rem 0; padding-left: 1.2rem; }
+    .kb-panel li { margin-bottom: 0.2rem; }
+    .kb-panel code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      color: var(--glow); background: rgba(0,229,255,0.06);
+      padding: 0.1rem 0.3rem; border-radius: 2px;
+    }
+    @media (max-width: 768px) {
+      .kb-panel { width: calc(100vw - 2rem); right: 1rem; max-height: 60vh; }
+      .kb-toggle { bottom: 4.5rem; right: 0.8rem; }
+    }
   </style>
 </head>
 <body>
@@ -316,6 +373,47 @@
   </div>
 
   <div class="audio-status" id="audioStatus">◇ audio suspended</div>
+
+  <!-- Knowledge Base -->
+  <button class="kb-toggle" id="kbToggle" title="Synth Guide">📖</button>
+  <div class="kb-panel" id="kbPanel">
+    <h3>📖 Synth Guide</h3>
+
+    <h3>Modules</h3>
+    <dl>
+      <dt>Oscillator</dt>
+      <dd><code>sine</code> = pure/smooth · <code>saw</code> = bright/buzzy · <code>square</code> = hollow/retro · <code>triangle</code> = soft/mellow</dd>
+      <dt>Filter</dt>
+      <dd><code>LP</code> cuts highs (warmth) · <code>HP</code> cuts lows (thin/bright) · <code>BP</code> isolates a band. Cutoff = where it cuts, Resonance = emphasis at cutoff.</dd>
+      <dt>LFO</dt>
+      <dd>Slow modulation for movement. Rate = speed, Depth = intensity. Route to pitch = vibrato, filter = wah, volume = tremolo.</dd>
+      <dt>Envelope (ADSR)</dt>
+      <dd>Attack = fade-in time · Decay = drop after peak · Sustain = held level · Release = fade after note off.</dd>
+      <dt>Delay</dt>
+      <dd>Echo effect. Time = gap between repeats · Feedback = how many repeats · Mix = dry/wet balance.</dd>
+      <dt>Reverb</dt>
+      <dd>Room simulation. Size = room size · Damping = high-freq absorption · Mix = how much reverb.</dd>
+      <dt>Gain</dt>
+      <dd>Volume control — use to balance levels between modules.</dd>
+      <dt>Noise</dt>
+      <dd><code>white</code> = all freqs equal (hiss) · <code>pink</code> = bass-heavy (wind) · <code>brown</code> = deep rumble.</dd>
+    </dl>
+
+    <h3>Patching Tips</h3>
+    <ul>
+      <li><strong>Basic synth:</strong> Oscillator → Filter → Gain → Output</li>
+      <li><strong>Add movement:</strong> LFO → Filter cutoff</li>
+      <li><strong>Add space:</strong> Output → Delay → Reverb</li>
+      <li><strong>Thick sound:</strong> Two oscillators slightly detuned</li>
+    </ul>
+
+    <h3>Sound Design Recipes</h3>
+    <ul>
+      <li><strong>Warm pad:</strong> Saw osc → LP filter (low cutoff, med resonance) → slow LFO on filter → long attack/release</li>
+      <li><strong>Bass:</strong> Square osc → LP filter → short attack, med sustain</li>
+      <li><strong>Lead:</strong> Saw osc → BP filter (high resonance) → short attack, med release</li>
+    </ul>
+  </div>
 
   <script src="lib/tone.min.js"></script>
   <script>
@@ -1156,6 +1254,12 @@
   // Init
   buildPiano();
   initMIDI();
+
+  // ─── KNOWLEDGE BASE TOGGLE ───
+  document.getElementById('kbToggle').addEventListener('click', () => {
+    const panel = document.getElementById('kbPanel');
+    panel.classList.toggle('open');
+  });
 
   // ─── STARFIELD (shared with site) ───
   (function initStars() {

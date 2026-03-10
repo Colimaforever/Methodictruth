@@ -339,6 +339,63 @@
       .signal-toolbar { gap: 0.3rem; padding: 0.4rem 0.5rem; }
       .sig-btn { font-size: 0.5rem; padding: 0.25rem 0.4rem; }
     }
+
+    /* ─── KNOWLEDGE BASE PANEL ─── */
+    .kb-toggle {
+      position: fixed; bottom: 5rem; right: 1.2rem; z-index: 600;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(10, 14, 26, 0.92); border: 1px solid rgba(0, 229, 255, 0.3);
+      color: var(--glow); font-size: 1.3rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s;
+    }
+    .kb-toggle:hover { border-color: var(--glow); box-shadow: 0 0 20px rgba(0,229,255,0.2); }
+
+    .kb-panel {
+      position: fixed; bottom: 5rem; right: 1.2rem; z-index: 590;
+      width: 380px; max-height: 70vh;
+      background: rgba(10, 14, 26, 0.96);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+      overflow-y: auto; display: none;
+      padding: 1rem 1.2rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,229,255,0.2) transparent;
+    }
+    .kb-panel.open { display: block; }
+    .kb-panel h3 {
+      font-family: 'Cinzel', serif; font-size: 0.85rem;
+      color: var(--glow); letter-spacing: 0.1em;
+      margin: 1rem 0 0.4rem 0; border-bottom: 1px solid rgba(0,229,255,0.1);
+      padding-bottom: 0.3rem;
+    }
+    .kb-panel h3:first-child { margin-top: 0; }
+    .kb-panel dt {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      color: var(--glow-warm); margin-top: 0.5rem;
+    }
+    .kb-panel dd {
+      font-family: 'EB Garamond', serif; font-size: 0.85rem;
+      color: var(--stone); margin: 0.1rem 0 0 0.8rem; line-height: 1.45;
+    }
+    .kb-panel p, .kb-panel li {
+      font-family: 'EB Garamond', serif; font-size: 0.85rem;
+      color: var(--stone); line-height: 1.45;
+    }
+    .kb-panel ul, .kb-panel ol { margin: 0.3rem 0; padding-left: 1.2rem; }
+    .kb-panel li { margin-bottom: 0.2rem; }
+    .kb-panel code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      color: var(--glow); background: rgba(0,229,255,0.06);
+      padding: 0.1rem 0.3rem; border-radius: 2px;
+    }
+    @media (max-width: 768px) {
+      .kb-panel { width: calc(100vw - 2rem); right: 1rem; max-height: 60vh; }
+      .kb-toggle { bottom: 4.5rem; right: 0.8rem; }
+    }
   </style>
 </head>
 <body>
@@ -419,6 +476,45 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Knowledge Base -->
+  <button class="kb-toggle" id="kbToggle" title="Signal Guide">📖</button>
+  <div class="kb-panel" id="kbPanel">
+    <h3>📖 Signal Guide</h3>
+
+    <h3>Signal Flow Basics</h3>
+    <ul>
+      <li>Audio flows from <strong>source → processing → output</strong></li>
+      <li>Order matters: EQ before compression sounds different than compression before EQ</li>
+      <li><strong>Gain staging:</strong> keep levels consistent through the chain to avoid distortion</li>
+    </ul>
+
+    <h3>Common Effects</h3>
+    <dl>
+      <dt>EQ</dt>
+      <dd>Boost/cut frequency ranges — <code>low</code> = bass, <code>mid</code> = body, <code>high</code> = presence/air.</dd>
+      <dt>Compressor</dt>
+      <dd>Reduces dynamic range. Threshold = where it kicks in · Ratio = how much · Attack/Release = speed.</dd>
+      <dt>Distortion / Overdrive</dt>
+      <dd>Adds harmonics — warmth to grit depending on amount.</dd>
+      <dt>Chorus</dt>
+      <dd>Duplicates signal with slight pitch/time variation — thickens sound.</dd>
+      <dt>Phaser / Flanger</dt>
+      <dd>Comb filtering effects — swooshy/jet sounds.</dd>
+    </dl>
+
+    <h3>Typical Signal Chain Order</h3>
+    <ol>
+      <li>Tuner</li>
+      <li>Wah / Filter</li>
+      <li>Compressor</li>
+      <li>Overdrive / Distortion</li>
+      <li>EQ</li>
+      <li>Modulation (chorus / phaser)</li>
+      <li>Delay</li>
+      <li>Reverb</li>
+    </ol>
   </div>
 
   <footer>
@@ -1105,6 +1201,11 @@
       if (chain.includes('eq')) drawEQCurve('eq');
       if (isPlaying) { stop(); play(); }
     });
+  });
+
+  // ─── KNOWLEDGE BASE TOGGLE ───
+  document.getElementById('kbToggle').addEventListener('click', () => {
+    document.getElementById('kbPanel').classList.toggle('open');
   });
 
   // ─── INIT ───
