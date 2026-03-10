@@ -1857,6 +1857,13 @@ footer .roots {
   border-top: 1px solid rgba(0, 229, 255, 0.12);
   backdrop-filter: blur(12px);
   padding: 0.4rem 0.5rem 0.5rem;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.piano-container.minimized {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .piano-info {

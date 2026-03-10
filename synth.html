@@ -6,7 +6,7 @@
   <title>Synth — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=16">
+  <link rel="stylesheet" href="styles.css?v=17">
   <style>
     /* ─── SYNTH LAYOUT ─── */
     .synth-page { position: relative; z-index: 1; min-height: 100vh; padding-top: 60px; }
@@ -279,7 +279,7 @@
         <button class="synth-btn preset" onclick="loadPreset('noisewash')">Noise Wash</button>
       </div>
       <div class="synth-toolbar-section">
-        <button class="synth-btn" id="kbToggleBtn" onclick="toggleKeyboard()">⌨ Keyboard</button>
+        <button class="synth-btn" id="kbToggleBtn" onclick="toggleKeyboard()">⌨ Minimize</button>
         <span class="midi-badge" id="midiBadge">MIDI: None</span>
       </div>
       <div class="synth-toolbar-section">
@@ -301,7 +301,7 @@
   </div>
 
   <!-- Musical Typing Piano Keyboard -->
-  <div class="piano-container" id="pianoContainer" style="display:none;">
+  <div class="piano-container" id="pianoContainer">
     <div class="piano-info">
       <span class="piano-info-item" id="pianoOctave">Oct: 4</span>
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
@@ -1033,9 +1033,8 @@
   // ─── MUSICAL TYPING ───
   function toggleKeyboard() {
     const btn = document.getElementById('kbToggleBtn');
-    const showing = pianoContainer.style.display !== 'none';
-    pianoContainer.style.display = showing ? 'none' : 'flex';
-    btn.classList.toggle('active', !showing);
+    const minimized = pianoContainer.classList.toggle('minimized');
+    btn.textContent = minimized ? '⌨ Keyboard' : '⌨ Minimize';
   }
 
   document.addEventListener('keydown', (e) => {
