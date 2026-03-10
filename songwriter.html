@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Song Arrangement Workbench · Truth</title>
+<link rel="stylesheet" href="styles.css?v=23">
+<style>
+/* ── Songwriter Workbench ── */
+.sw-page { max-width: 960px; margin: 0 auto; padding: 1rem; }
+.sw-page h1 { font-family: 'Cinzel', serif; color: var(--glow, #d4a574); text-align: center; margin: 1.5rem 0 0.5rem; font-size: 1.8rem; }
+.sw-page h2 { font-family: 'Cinzel', serif; color: var(--parchment, #e8dcc8); font-size: 1.2rem; margin: 1.5rem 0 0.75rem; }
+.sw-page h3 { font-family: 'Cinzel', serif; color: var(--glow, #d4a574); font-size: 1rem; margin: 0.75rem 0 0.5rem; }
+.sw-subtitle { text-align: center; color: var(--stone-dark, #888); font-family: 'EB Garamond', serif; margin-bottom: 1.5rem; font-size: 1.05rem; }
+
+/* Palette */
+.sw-palette { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+.sw-palette button {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+  padding: 0.4rem 0.7rem; border: 1px solid var(--stone-dark, #555);
+  background: var(--sky-deep, #1a1a2e); color: var(--parchment, #e8dcc8);
+  border-radius: 4px; cursor: pointer; min-height: 44px; min-width: 44px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.sw-palette button:hover, .sw-palette button:active { border-color: var(--glow, #d4a574); background: #2a2a3e; }
+
+/* Templates */
+.sw-templates { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+.sw-templates button {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+  padding: 0.35rem 0.6rem; border: 1px solid var(--amber, #b8860b);
+  background: transparent; color: var(--amber, #b8860b);
+  border-radius: 4px; cursor: pointer; min-height: 44px;
+  transition: background 0.2s;
+}
+.sw-templates button:hover { background: rgba(184,134,11,0.15); }
+.sw-templates button .tmpl-example { display: block; font-size: 0.6rem; opacity: 0.6; margin-top: 2px; }
+
+/* Energy Canvas */
+#energyCanvas { width: 100%; height: 120px; border: 1px solid var(--stone-dark, #555); border-radius: 6px; margin-bottom: 1rem; background: rgba(0,0,0,0.3); }
+
+/* Timeline */
+.sw-timeline { min-height: 80px; margin-bottom: 1rem; }
+.sw-empty { text-align: center; padding: 2rem; color: var(--stone-dark, #888); font-family: 'EB Garamond', serif; font-style: italic; border: 1px dashed var(--stone-dark, #555); border-radius: 8px; }
+
+/* Cards */
+.sw-card {
+  border: 1px solid var(--stone-dark, #555); border-radius: 8px;
+  margin-bottom: 0.5rem; overflow: hidden; cursor: grab;
+  transition: border-color 0.2s, box-shadow 0.2s; background: var(--sky-deep, #1a1a2e);
+}
+.sw-card.dragging { opacity: 0.5; }
+.sw-card.drag-over { border-color: var(--glow, #d4a574); box-shadow: 0 0 8px rgba(212,165,116,0.3); }
+.sw-card-header {
+  display: flex; align-items: center; padding: 0.6rem 0.8rem; min-height: 44px; user-select: none;
+}
+.sw-card-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 0.6rem; flex-shrink: 0; }
+.sw-card-label { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--parchment, #e8dcc8); flex: 1; }
+.sw-card-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--stone-dark, #888); margin-right: 0.5rem; }
+.sw-card-expand { background: none; border: none; color: var(--stone-dark, #888); font-size: 1.1rem; cursor: pointer; padding: 0.3rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+.sw-card-del { background: none; border: none; color: #944; font-size: 1rem; cursor: pointer; padding: 0.3rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+.sw-card-del:hover { color: #f66; }
+.sw-card-body { display: none; padding: 0.6rem 0.8rem; border-top: 1px solid var(--stone-dark, #444); }
+.sw-card.expanded .sw-card-body { display: block; }
+.sw-card-body label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark, #aaa); display: block; margin: 0.4rem 0 0.2rem; }
+.sw-card-body textarea, .sw-card-body input[type="text"], .sw-card-body input[type="number"] {
+  width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid var(--stone-dark, #555);
+  color: var(--parchment, #e8dcc8); font-family: 'EB Garamond', serif; font-size: 0.9rem;
+  padding: 0.4rem; border-radius: 4px; resize: vertical;
+}
+.sw-card-body textarea { min-height: 60px; }
+.sw-card-body input[type="range"] { width: 100%; accent-color: var(--glow, #d4a574); }
+.sw-range-row { display: flex; align-items: center; gap: 0.5rem; }
+.sw-range-val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--glow, #d4a574); min-width: 1.5em; }
+.sw-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+/* Color coding */
+.sw-type-intro .sw-card-dot, .sw-type-outro .sw-card-dot { background: var(--stone-dark, #888); }
+.sw-type-verse .sw-card-dot { background: var(--moss, #5a7a5a); }
+.sw-type-pre-chorus .sw-card-dot { background: #7a8a5a; }
+.sw-type-chorus .sw-card-dot { background: #5ac8c8; }
+.sw-type-post-chorus .sw-card-dot { background: #4ab8b8; }
+.sw-type-bridge .sw-card-dot { background: #9a6ac8; }
+.sw-type-breakdown .sw-card-dot { background: #c86a6a; }
+.sw-type-interlude .sw-card-dot { background: #6a8ac8; }
+.sw-type-hook .sw-card-dot { background: var(--glow, #d4a574); }
+.sw-type-drop .sw-card-dot { background: #e85050; }
+.sw-type-ad-lib .sw-card-dot { background: #c8b86a; }
+
+.sw-type-intro, .sw-type-outro { border-left: 3px solid var(--stone-dark, #888); }
+.sw-type-verse { border-left: 3px solid var(--moss, #5a7a5a); }
+.sw-type-pre-chorus { border-left: 3px solid #7a8a5a; }
+.sw-type-chorus { border-left: 3px solid #5ac8c8; }
+.sw-type-post-chorus { border-left: 3px solid #4ab8b8; }
+.sw-type-bridge { border-left: 3px solid #9a6ac8; }
+.sw-type-breakdown { border-left: 3px solid #c86a6a; }
+.sw-type-interlude { border-left: 3px solid #6a8ac8; }
+.sw-type-hook { border-left: 3px solid var(--glow, #d4a574); }
+.sw-type-drop { border-left: 3px solid #e85050; }
+.sw-type-ad-lib { border-left: 3px solid #c8b86a; }
+
+/* Actions bar */
+.sw-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.sw-actions button {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+  padding: 0.5rem 1rem; border: 1px solid var(--glow, #d4a574);
+  background: transparent; color: var(--glow, #d4a574);
+  border-radius: 4px; cursor: pointer; min-height: 44px;
+  transition: background 0.2s;
+}
+.sw-actions button:hover { background: rgba(212,165,116,0.15); }
+
+/* Collapsible panels */
+.sw-panel { border: 1px solid var(--stone-dark, #444); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
+.sw-panel-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 0.7rem 1rem; background: rgba(0,0,0,0.2); border: none;
+  color: var(--parchment, #e8dcc8); font-family: 'Cinzel', serif; font-size: 1rem;
+  cursor: pointer; min-height: 44px; text-align: left;
+}
+.sw-panel-toggle:hover { background: rgba(0,0,0,0.35); }
+.sw-panel-toggle .arrow { transition: transform 0.2s; }
+.sw-panel.open .sw-panel-toggle .arrow { transform: rotate(90deg); }
+.sw-panel-content { display: none; padding: 1rem; font-family: 'EB Garamond', serif; color: var(--parchment, #e8dcc8); line-height: 1.6; font-size: 0.95rem; }
+.sw-panel.open .sw-panel-content { display: block; }
+
+/* Reference items */
+.sw-ref-item { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--stone-dark, #333); }
+.sw-ref-item:last-child { border-bottom: none; margin-bottom: 0; }
+.sw-ref-item h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--glow, #d4a574); margin: 0 0 0.3rem; }
+.sw-ref-item p { margin: 0.2rem 0; }
+.sw-ref-item .tip { color: var(--moss, #7a9a7a); }
+.sw-ref-item .mistake { color: #c87a7a; }
+
+/* Quotes */
+.sw-quote { margin-bottom: 0.75rem; padding-left: 1rem; border-left: 2px solid var(--glow, #d4a574); }
+.sw-quote p { margin: 0; font-style: italic; }
+.sw-quote cite { font-size: 0.85rem; color: var(--stone-dark, #aaa); font-style: normal; }
+
+/* Lyric tools */
+.sw-chord-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+.sw-chord-table th, .sw-chord-table td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--stone-dark, #333); font-size: 0.9rem; }
+.sw-chord-table th { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--glow, #d4a574); }
+
+@media (max-width: 600px) {
+  .sw-field-row { grid-template-columns: 1fr; }
+  .sw-page h1 { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html">Home</a>
+    <a href="chronicles.html">Chronicles</a>
+    <a href="about.html">About</a>
+    <a href="stack.html">Stack</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="live.html">Live</a>
+    <a href="synth.html">Synth</a>
+    <a href="theory.html">Theory</a>
+    <a href="signal.html">Signal</a>
+    <a href="topology.html">Topology</a>
+    <a href="songwriter.html" class="active">Songwriter</a>
+  </div>
+</nav>
+
+<main class="sw-page">
+  <h1>🎵 Song Arrangement Workbench</h1>
+  <p class="sw-subtitle">Plan your song's architecture — section by section, energy curve to lyrics</p>
+
+  <!-- Templates -->
+  <h2>⚡ Structure Templates</h2>
+  <div class="sw-templates" id="templates"></div>
+
+  <!-- Palette -->
+  <h2>🧱 Add Sections</h2>
+  <div class="sw-palette" id="palette"></div>
+
+  <!-- Energy Curve -->
+  <h2>📈 Energy Arc</h2>
+  <canvas id="energyCanvas"></canvas>
+
+  <!-- Timeline -->
+  <h2>🎼 Arrangement</h2>
+  <div class="sw-timeline" id="timeline">
+    <div class="sw-empty">Click a section above to start building your arrangement</div>
+  </div>
+
+  <!-- Actions -->
+  <div class="sw-actions">
+    <button onclick="SW.save()">💾 Save</button>
+    <button onclick="SW.exportMD()">📄 Export MD</button>
+    <button onclick="SW.clearAll()">🗑 Clear</button>
+  </div>
+
+  <!-- Section Reference Guide -->
+  <div class="sw-panel" id="panelRef">
+    <button class="sw-panel-toggle" onclick="togglePanel('panelRef')">📖 Section Reference Guide <span class="arrow">▸</span></button>
+    <div class="sw-panel-content" id="refContent"></div>
+  </div>
+
+  <!-- Songwriter Wisdom -->
+  <div class="sw-panel" id="panelWisdom">
+    <button class="sw-panel-toggle" onclick="togglePanel('panelWisdom')">💡 Songwriter Wisdom <span class="arrow">▸</span></button>
+    <div class="sw-panel-content" id="wisdomContent"></div>
+  </div>
+
+  <!-- Lyric Tools -->
+  <div class="sw-panel" id="panelLyric">
+    <button class="sw-panel-toggle" onclick="togglePanel('panelLyric')">✍️ Lyric Tools <span class="arrow">▸</span></button>
+    <div class="sw-panel-content" id="lyricContent"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+  <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
+  <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+</footer>
+
+<script src="scripts.js?v=23"></script>
+<script>
+(function(){
+const SECTION_TYPES = [
+  {id:'intro',label:'Intro'},{id:'verse',label:'Verse'},{id:'pre-chorus',label:'Pre-Chorus'},
+  {id:'chorus',label:'Chorus'},{id:'post-chorus',label:'Post-Chorus'},{id:'bridge',label:'Bridge'},
+  {id:'breakdown',label:'Breakdown'},{id:'interlude',label:'Interlude'},{id:'outro',label:'Outro'},
+  {id:'hook',label:'Hook'},{id:'drop',label:'Drop'},{id:'ad-lib',label:'Ad-lib'}
+];
+
+const TEMPLATES = [
+  {name:'Pop ABABCB',example:'e.g. "Shape of You"',sections:['intro','verse','chorus','verse','chorus','bridge','chorus','outro']},
+  {name:'AABA',example:'e.g. "Over the Rainbow"',sections:['verse','verse','bridge','verse']},
+  {name:'Verse-Chorus',example:'e.g. "Smells Like Teen Spirit"',sections:['intro','verse','chorus','verse','chorus','verse','chorus','outro']},
+  {name:'Hip-Hop',example:'e.g. "HUMBLE."',sections:['intro','verse','hook','verse','hook','verse','hook','outro']},
+  {name:'EDM/Drop',example:'e.g. "Levels"',sections:['intro','breakdown','drop','breakdown','drop','outro']},
+  {name:'Progressive',example:'e.g. "Bohemian Rhapsody"',sections:['intro','verse','verse','bridge','interlude','verse','chorus','breakdown','chorus','outro']}
+];
+
+const REFERENCE = {
+  'intro':{desc:'Sets the mood and draws the listener in.',length:'4–8 bars',tips:'Use a signature riff, ambient texture, or stripped-back version of the chorus.',mistakes:'Making it too long — listeners skip after 15 seconds.'},
+  'verse':{desc:'Tells the story, develops the narrative. Each verse adds new information.',length:'8–16 bars',tips:'Keep melody consistent across verses; change lyrics. Build tension toward the chorus.',mistakes:'Too many words crammed in. Let the melody breathe.'},
+  'pre-chorus':{desc:'Builds anticipation before the chorus. Creates harmonic/melodic lift.',length:'4–8 bars',tips:'Use rising melody or chord progression. Change the rhythm from the verse.',mistakes:'Making it feel like another verse instead of a transition.'},
+  'chorus':{desc:'The emotional peak and most memorable part. Contains the hook/title.',length:'8–16 bars',tips:'Simplify. The chorus should be singable on first listen. Wider vocal range than verse.',mistakes:'Too complex or wordy. If people can\'t sing along, rethink it.'},
+  'post-chorus':{desc:'Extends the chorus energy with a catchy instrumental or vocal hook.',length:'4–8 bars',tips:'Think "na na na" or a signature synth riff. Pure ear candy.',mistakes:'Overshadowing the actual chorus.'},
+  'bridge':{desc:'Contrast section that breaks the verse-chorus cycle. New perspective.',length:'4–8 bars',tips:'Change key, rhythm, or perspective. This is your "plot twist."',mistakes:'Going too far from the song\'s identity. It should contrast but still belong.'},
+  'breakdown':{desc:'Strips the arrangement down to create tension before a build.',length:'4–16 bars',tips:'Remove elements gradually. Use silence as a tool.',mistakes:'Making it too long without payoff.'},
+  'interlude':{desc:'Instrumental passage between sections for breathing room.',length:'4–8 bars',tips:'Let the music speak. Good spot for a solo or atmospheric moment.',mistakes:'Filler that doesn\'t serve the emotional arc.'},
+  'outro':{desc:'Brings the song to a close. Resolution or fade.',length:'4–16 bars',tips:'Callback to intro, fade out, or definitive ending. Leave them wanting more.',mistakes:'Dragging on. Know when the song is done.'},
+  'hook':{desc:'The catchiest melodic/lyrical phrase. Can appear in chorus or standalone.',length:'2–4 bars',tips:'Repetition is your friend. Pentatonic melodies stick.',mistakes:'Burying it in the mix or overcomplicating it.'},
+  'drop':{desc:'EDM/electronic climax where the full beat kicks in after a build.',length:'8–16 bars',tips:'Maximum contrast with the build. Sidechain compression, layered synths.',mistakes:'No dynamic contrast — the drop should feel like release.'},
+  'ad-lib':{desc:'Improvised vocal additions that add texture and personality.',length:'Variable',tips:'Less is more. Strategic ad-libs > constant noise.',mistakes:'Distracting from the main vocal.'}
+};
+
+const WISDOM = [
+  {author:'Max Martin',quote:'Melodic math — if it doesn\'t feel inevitable, it\'s not done yet.'},
+  {author:'Max Martin',quote:'The chorus should hit you like you\'ve always known it.'},
+  {author:'Paul McCartney',quote:'I wake up with a melody in my head and I try to find what it is. That\'s the magic part.'},
+  {author:'Paul McCartney',quote:'Take a sad song and make it better. That\'s always been the formula.'},
+  {author:'Dolly Parton',quote:'Find out who you are and do it on purpose.'},
+  {author:'Dolly Parton',quote:'I\'ve written over 3,000 songs. The secret is: you just don\'t stop.'},
+  {author:'Kendrick Lamar',quote:'I write to understand myself. The listener just gets to witness it.'},
+  {author:'Kendrick Lamar',quote:'Every verse should feel like it costs you something.'},
+  {author:'Joni Mitchell',quote:'The trick is to keep exploring and not bail out, even when you\'re lost.'},
+  {author:'Joni Mitchell',quote:'I write from a place that has no rules.'},
+  {author:'Rick Rubin',quote:'The best art divides the audience. If everyone likes it, it\'s probably not that interesting.'},
+  {author:'Rick Rubin',quote:'Reduce until you can\'t reduce anymore. What\'s left is the song.'},
+  {author:'Quincy Jones',quote:'Every note has to earn its place. Not a single extra.'},
+  {author:'Quincy Jones',quote:'God walks out of the room when you\'re thinking about money.'}
+];
+
+let sections = [];
+let dragIdx = null;
+
+// Build palette
+const paletteEl = document.getElementById('palette');
+SECTION_TYPES.forEach(t => {
+  const b = document.createElement('button');
+  b.textContent = t.label;
+  b.onclick = () => addSection(t.id);
+  paletteEl.appendChild(b);
+});
+
+// Build templates
+const tmplEl = document.getElementById('templates');
+TEMPLATES.forEach(t => {
+  const b = document.createElement('button');
+  b.innerHTML = t.name + '<span class="tmpl-example">' + t.example + '</span>';
+  b.onclick = () => { if(!sections.length || confirm('Replace current arrangement?')){ sections = t.sections.map(s => makeSection(s)); render(); } };
+  tmplEl.appendChild(b);
+});
+
+// Build reference
+const refEl = document.getElementById('refContent');
+Object.entries(REFERENCE).forEach(([id, r]) => {
+  const label = SECTION_TYPES.find(t=>t.id===id)?.label||id;
+  refEl.innerHTML += `<div class="sw-ref-item"><h4>${label}</h4><p>${r.desc}</p><p><strong>Length:</strong> ${r.length}</p><p class="tip">💡 ${r.tips}</p><p class="mistake">⚠️ ${r.mistakes}</p></div>`;
+});
+
+// Build wisdom
+const wisdomEl = document.getElementById('wisdomContent');
+WISDOM.forEach(w => {
+  wisdomEl.innerHTML += `<div class="sw-quote"><p>"${w.quote}"</p><cite>— ${w.author}</cite></div>`;
+});
+
+// Build lyric tools
+document.getElementById('lyricContent').innerHTML = `
+<h3>Rhyme Schemes</h3>
+<div class="sw-ref-item"><h4>AABB (Couplet)</h4><p>"I walk the line / I keep my eyes wide open all the time"</p></div>
+<div class="sw-ref-item"><h4>ABAB (Alternate)</h4><p>Lines 1&3 rhyme, lines 2&4 rhyme. Creates forward momentum.</p></div>
+<div class="sw-ref-item"><h4>ABCB (Common/Ballad)</h4><p>Only lines 2&4 rhyme. Feels natural, conversational. Most pop/folk uses this.</p></div>
+<div class="sw-ref-item"><h4>Slant Rhyme</h4><p>Near-rhymes: "home/gone", "love/move". Adds sophistication, avoids predictability.</p></div>
+<div class="sw-ref-item"><h4>Internal Rhyme</h4><p>Rhymes within a line: "I bring the <em>fire</em> to <em>inspire</em> the <em>choir</em>"</p></div>
+
+<h3>Chord Progressions by Genre</h3>
+<table class="sw-chord-table">
+<tr><th>Genre</th><th>Progression</th><th>Feel</th></tr>
+<tr><td>Pop</td><td>I – V – vi – IV</td><td>Anthemic, universal</td></tr>
+<tr><td>Pop Alt</td><td>vi – IV – I – V</td><td>Melancholy but hopeful</td></tr>
+<tr><td>Jazz</td><td>ii – V – I</td><td>Sophisticated resolution</td></tr>
+<tr><td>Blues</td><td>I – IV – V</td><td>Raw, foundational</td></tr>
+<tr><td>R&B</td><td>I – vi – IV – V</td><td>Smooth, classic doo-wop</td></tr>
+<tr><td>EDM</td><td>vi – IV – I – V</td><td>Driving, emotional</td></tr>
+<tr><td>Folk</td><td>I – IV – V – IV</td><td>Simple, warm</td></tr>
+<tr><td>Neo-Soul</td><td>IVmaj7 – iii7 – vi7 – ii7</td><td>Lush, floating</td></tr>
+</table>
+
+<h3>Lyrical Devices</h3>
+<div class="sw-ref-item"><h4>Metaphor</h4><p>"You are my sunshine" — direct comparison without like/as.</p></div>
+<div class="sw-ref-item"><h4>Simile</h4><p>"Like a rolling stone" — comparison using like/as.</p></div>
+<div class="sw-ref-item"><h4>Personification</h4><p>"The night whispered secrets" — giving human traits to non-human things.</p></div>
+<div class="sw-ref-item"><h4>Alliteration</h4><p>"Black bird, bye bye" — repeating consonant sounds.</p></div>
+<div class="sw-ref-item"><h4>Anaphora</h4><p>"Every breath you take / Every move you make" — repeating the opening phrase.</p></div>
+<div class="sw-ref-item"><h4>Contrast/Juxtaposition</h4><p>"Hello darkness, my old friend" — pairing opposites for tension.</p></div>
+`;
+
+function makeSection(typeId) {
+  return { id: crypto.randomUUID(), type: typeId, lyrics:'', mood:5, key:'', tempo:'', instruments:'', bars:'8', notes:'', expanded:false };
+}
+
+function addSection(typeId) {
+  sections.push(makeSection(typeId));
+  render();
+}
+
+function render() {
+  const tl = document.getElementById('timeline');
+  if (!sections.length) { tl.innerHTML = '<div class="sw-empty">Click a section above to start building your arrangement</div>'; drawEnergy(); return; }
+  tl.innerHTML = '';
+  sections.forEach((s, i) => {
+    const label = SECTION_TYPES.find(t=>t.id===s.type)?.label||s.type;
+    const card = document.createElement('div');
+    card.className = 'sw-card sw-type-' + s.type + (s.expanded?' expanded':'');
+    card.draggable = true;
+    card.dataset.idx = i;
+    card.innerHTML = `
+      <div class="sw-card-header">
+        <div class="sw-card-dot"></div>
+        <span class="sw-card-num">#${i+1}</span>
+        <span class="sw-card-label">${label}</span>
+        <button class="sw-card-expand" title="Expand">${s.expanded?'▾':'▸'}</button>
+        <button class="sw-card-del" title="Delete">✕</button>
+      </div>
+      <div class="sw-card-body">
+        <label>Lyrics / Ideas</label>
+        <textarea data-field="lyrics">${esc(s.lyrics)}</textarea>
+        <label>Mood / Energy</label>
+        <div class="sw-range-row">
+          <input type="range" min="1" max="10" value="${s.mood}" data-field="mood">
+          <span class="sw-range-val">${s.mood}</span>
+        </div>
+        <div class="sw-field-row">
+          <div><label>Key</label><input type="text" data-field="key" value="${esc(s.key)}" placeholder="e.g. C minor"></div>
+          <div><label>Tempo</label><input type="text" data-field="tempo" value="${esc(s.tempo)}" placeholder="e.g. 120 BPM"></div>
+        </div>
+        <div class="sw-field-row">
+          <div><label>Instrumentation</label><input type="text" data-field="instruments" value="${esc(s.instruments)}" placeholder="e.g. piano, strings"></div>
+          <div><label>Duration (bars)</label><input type="number" data-field="bars" value="${s.bars}" min="1" max="64"></div>
+        </div>
+        <label>Notes</label>
+        <textarea data-field="notes">${esc(s.notes)}</textarea>
+      </div>`;
+
+    // Events
+    card.querySelector('.sw-card-expand').onclick = (e) => { e.stopPropagation(); s.expanded=!s.expanded; render(); };
+    card.querySelector('.sw-card-del').onclick = (e) => { e.stopPropagation(); sections.splice(i,1); render(); };
+    card.querySelectorAll('[data-field]').forEach(el => {
+      el.addEventListener('input', () => {
+        const f = el.dataset.field;
+        s[f] = f==='mood'? +el.value : el.value;
+        if(f==='mood') { el.parentElement.querySelector('.sw-range-val').textContent=el.value; drawEnergy(); }
+      });
+    });
+
+    // Drag
+    card.addEventListener('dragstart', e => { dragIdx=i; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    card.addEventListener('dragend', () => { card.classList.remove('dragging'); dragIdx=null; });
+    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => { e.preventDefault(); card.classList.remove('drag-over'); if(dragIdx!==null&&dragIdx!==i){ const item=sections.splice(dragIdx,1)[0]; sections.splice(i,0,item); render(); }});
+
+    // Touch drag
+    let touchY=0, touchClone=null;
+    card.addEventListener('touchstart', e => {
+      if(e.target.closest('.sw-card-body')) return;
+      touchY = e.touches[0].clientY; dragIdx = i;
+    }, {passive:true});
+    card.addEventListener('touchmove', e => {
+      if(dragIdx===null || e.target.closest('.sw-card-body')) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const els = document.elementsFromPoint(touch.clientX, touch.clientY);
+      const target = els.find(el => el.classList?.contains('sw-card') && el !== card);
+      tl.querySelectorAll('.sw-card').forEach(c=>c.classList.remove('drag-over'));
+      if(target) target.classList.add('drag-over');
+    }, {passive:false});
+    card.addEventListener('touchend', e => {
+      if(dragIdx===null) return;
+      const touch = e.changedTouches[0];
+      const els = document.elementsFromPoint(touch.clientX, touch.clientY);
+      const target = els.find(el => el.classList?.contains('sw-card') && el !== card);
+      tl.querySelectorAll('.sw-card').forEach(c=>c.classList.remove('drag-over'));
+      if(target) { const ti = +target.dataset.idx; const item=sections.splice(dragIdx,1)[0]; sections.splice(ti,0,item); render(); }
+      dragIdx=null;
+    });
+
+    tl.appendChild(card);
+  });
+  drawEnergy();
+}
+
+function drawEnergy() {
+  const canvas = document.getElementById('energyCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * 2;
+  canvas.height = canvas.offsetHeight * 2;
+  ctx.scale(2,2);
+  const w = canvas.offsetWidth, h = canvas.offsetHeight;
+  ctx.clearRect(0,0,w,h);
+  if(sections.length < 2) { ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='14px EB Garamond'; ctx.textAlign='center'; ctx.fillText('Add 2+ sections to see energy arc',w/2,h/2); return; }
+  const pad = 30;
+  const pw = w - pad*2, ph = h - pad*2;
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.08)';
+  ctx.lineWidth=0.5;
+  for(let i=1;i<=10;i++){ const y=pad+ph-(i/10)*ph; ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(pad+pw,y);ctx.stroke(); }
+
+  // Curve
+  const pts = sections.map((s,i) => ({ x: pad + (i/(sections.length-1))*pw, y: pad + ph - ((s.mood-1)/9)*ph }));
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for(let i=1;i<pts.length;i++){
+    const prev=pts[i-1], curr=pts[i];
+    const cpx1=prev.x+(curr.x-prev.x)*0.4, cpx2=prev.x+(curr.x-prev.x)*0.6;
+    ctx.bezierCurveTo(cpx1,prev.y,cpx2,curr.y,curr.x,curr.y);
+  }
+  ctx.strokeStyle='rgba(212,165,116,0.9)'; ctx.lineWidth=2.5; ctx.stroke();
+
+  // Fill
+  ctx.lineTo(pts[pts.length-1].x, pad+ph); ctx.lineTo(pts[0].x, pad+ph); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,pad,0,pad+ph);
+  grad.addColorStop(0,'rgba(212,165,116,0.3)'); grad.addColorStop(1,'rgba(212,165,116,0.02)');
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Dots + labels
+  pts.forEach((p,i) => {
+    ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2);
+    ctx.fillStyle='var(--glow,#d4a574)'; ctx.fillStyle='#d4a574'; ctx.fill();
+    const label = SECTION_TYPES.find(t=>t.id===sections[i].type)?.label||'';
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText(label.substring(0,6), p.x, pad+ph+12);
+  });
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function togglePanel(id) { document.getElementById(id).classList.toggle('open'); }
+window.togglePanel = togglePanel;
+
+// Save/Load/Export
+const SW = {
+  save() { localStorage.setItem('sw-sections', JSON.stringify(sections)); alert('Saved!'); },
+  load() { try { const d = JSON.parse(localStorage.getItem('sw-sections')); if(d&&d.length){ sections=d; render(); } } catch(e){} },
+  clearAll() { if(confirm('Clear entire arrangement?')){ sections=[]; render(); localStorage.removeItem('sw-sections'); } },
+  exportMD() {
+    if(!sections.length){ alert('Nothing to export'); return; }
+    let md = '# Song Arrangement\n\n';
+    sections.forEach((s,i) => {
+      const label = SECTION_TYPES.find(t=>t.id===s.type)?.label||s.type;
+      md += `## ${i+1}. ${label}\n`;
+      md += `- **Energy:** ${s.mood}/10\n`;
+      if(s.key) md += `- **Key:** ${s.key}\n`;
+      if(s.tempo) md += `- **Tempo:** ${s.tempo}\n`;
+      if(s.bars) md += `- **Bars:** ${s.bars}\n`;
+      if(s.instruments) md += `- **Instruments:** ${s.instruments}\n`;
+      if(s.lyrics) md += `\n### Lyrics/Ideas\n${s.lyrics}\n`;
+      if(s.notes) md += `\n### Notes\n${s.notes}\n`;
+      md += '\n';
+    });
+    const blob = new Blob([md],{type:'text/markdown'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='arrangement.md'; a.click();
+  }
+};
+window.SW = SW;
+
+// Auto-load
+SW.load();
+window.addEventListener('resize', drawEnergy);
+})();
+</script>
+</body>
+</html>
