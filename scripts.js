@@ -148,8 +148,15 @@ function maqamFreq(scale, degree, octave) {
 }
 
 function handleTrackEnded() {
-  // Instead of looping, start generative engine
-  startGenerativeEngine();
+  // Flow: Tchekad (0) → generative → Sudden Truths (1)
+  if (currentTrack === 0) {
+    // After first track, start generative engine
+    startGenerativeEngine();
+  } else {
+    // After last track, loop back to beginning
+    loadTrack(0);
+    startPlaying();
+  }
 }
 
 function handlePrev() {
@@ -158,10 +165,14 @@ function handlePrev() {
       currentMaqamIndex--;
       if (genEngine) switchMaqam(currentMaqamIndex);
     } else {
+      // Back to Tchekad
       stopGenerativeEngine();
       loadTrack(0);
       startPlaying();
     }
+  } else if (currentTrack === playlist.length - 1) {
+    // From Sudden Truths, go back to generative
+    startGenerativeEngine();
   } else {
     loadTrack(currentTrack - 1);
     if (isPlaying) audio.play();
@@ -170,13 +181,22 @@ function handlePrev() {
 
 function handleNext() {
   if (genActive) {
-    currentMaqamIndex = (currentMaqamIndex + 1) % maqamScales.length;
-    if (genEngine) switchMaqam(currentMaqamIndex);
-  } else if (!genActive && currentTrack === playlist.length - 1) {
+    if (currentMaqamIndex < maqamScales.length - 1) {
+      currentMaqamIndex++;
+      if (genEngine) switchMaqam(currentMaqamIndex);
+    } else {
+      // Done with generative — play Sudden Truths (last track)
+      stopGenerativeEngine();
+      loadTrack(playlist.length - 1);
+      startPlaying();
+    }
+  } else if (currentTrack === 0) {
+    // After Tchekad, go to generative
     startGenerativeEngine();
   } else {
-    loadTrack(currentTrack + 1);
-    if (isPlaying) audio.play();
+    // After Sudden Truths, loop back
+    loadTrack(0);
+    if (isPlaying) startPlaying();
   }
 }
 
