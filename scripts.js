@@ -1,5 +1,6 @@
 // ─── MUSIC PLAYER ───
 const playlist = [
+  { title: 'Moqaddameh: Tchekad', src: 'audio/moqaddameh-tchekad.mp3' },
   { title: 'Sudden Truths', src: 'audio/sudden-truths.mp3' },
 ];
 
