@@ -369,17 +369,25 @@ function stopGenerativeEngine() {
 }
 
 // Initialize: restore from saved state or start fresh
-if (playlist.length > 0) {
+if (saved && saved.generative && saved.playing) {
+  // Was in generative mode — restore it
+  const stateAge = saved.ts ? Date.now() - saved.ts : Infinity;
+  if (stateAge < 30000) {
+    currentMaqamIndex = saved.maqamIndex || 0;
+    startGenerativeEngine();
+  } else {
+    // Stale — show resume prompt
+    loadTrack(currentTrack);
+    playerStatus.textContent = '◇ tap ▷ to resume';
+  }
+} else if (playlist.length > 0) {
   loadTrack(currentTrack);
   if (saved && saved.playing) {
-    // If state is fresh (< 30 seconds old), try to resume seamlessly
     const stateAge = saved.ts ? Date.now() - saved.ts : Infinity;
     const seekTime = saved.time || 0;
     if (stateAge < 30000) {
-      // Recent navigation — resume where we left off
       startPlaying(seekTime);
     } else {
-      // Older state — load track and show position but wait for user
       audio.src = playlist[currentTrack].src;
       audio.addEventListener('loadedmetadata', () => {
         audio.currentTime = seekTime;
@@ -474,6 +482,7 @@ requestAnimationFrame(drawStars);
   }
 
   async function navigateTo(href, pushState) {
+    saveMusicState();
     const pageName = getPageName(href);
     if (!pageName) return;
 
@@ -555,12 +564,11 @@ requestAnimationFrame(drawStars);
   }
 
   function bindNavLinks() {
-    document.querySelectorAll('.site-nav a').forEach(link => {
-      // Remove old listeners by cloning
+    document.querySelectorAll('a[href]').forEach(link => {
       if (link.dataset.spabound) return;
+      if (!isInternalLink(link.href)) return;
       link.dataset.spabound = '1';
       link.addEventListener('click', (e) => {
-        if (!isInternalLink(link.href)) return;
         e.preventDefault();
         navigateTo(link.href, true);
       });
