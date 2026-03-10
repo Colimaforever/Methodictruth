@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signal Chain — Truth · AI Chronicles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20">
+  <style>
+    /* ─── SIGNAL CHAIN PAGE ─── */
+    .signal-page { position: relative; z-index: 1; min-height: 100vh; padding-top: 60px; }
+
+    .signal-toolbar {
+      position: fixed; top: 48px; left: 0; right: 0; z-index: 400;
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(10, 14, 26, 0.92);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+      backdrop-filter: blur(10px);
+      flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .signal-toolbar-section {
+      display: flex; gap: 0.3rem; align-items: center;
+      padding-right: 0.6rem;
+      border-right: 1px solid rgba(0, 229, 255, 0.08);
+      margin-right: 0.3rem;
+    }
+    .signal-toolbar-section:last-child { border-right: none; margin-right: 0; }
+
+    .signal-toolbar-label {
+      font-size: 0.55rem; color: var(--stone-dark);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      margin-right: 0.2rem;
+    }
+
+    .sig-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.05em;
+      color: var(--stone); background: rgba(26, 18, 10, 0.8);
+      border: 1px solid rgba(138, 126, 107, 0.2);
+      padding: 0.35rem 0.6rem; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .sig-btn:hover { border-color: var(--glow); color: var(--glow); }
+    .sig-btn.active { border-color: var(--glow); color: var(--glow); background: rgba(0, 229, 255, 0.08); }
+    .sig-btn.preset { border-color: rgba(123, 104, 238, 0.3); color: rgba(123, 104, 238, 0.7); }
+    .sig-btn.preset:hover, .sig-btn.preset.active { border-color: var(--oracle); color: var(--oracle); background: rgba(123,104,238,0.08); }
+    .sig-btn.play { border-color: rgba(74, 222, 128, 0.5); color: #4ade80; }
+    .sig-btn.play:hover { background: rgba(74, 222, 128, 0.1); }
+    .sig-btn.play.active { background: rgba(74, 222, 128, 0.15); box-shadow: 0 0 10px rgba(74,222,128,0.2); }
+    .sig-btn.stop { border-color: rgba(180, 60, 60, 0.4); color: rgba(180, 60, 60, 0.8); }
+    .sig-btn.stop:hover { border-color: rgba(220, 60, 60, 0.6); color: rgba(220, 60, 60, 1); }
+    .sig-btn.ab-dry.active { border-color: var(--glow-warm); color: var(--glow-warm); background: rgba(232,168,124,0.08); }
+    .sig-btn.ab-wet.active { border-color: var(--glow); color: var(--glow); background: rgba(0,229,255,0.08); }
+
+    .sig-select {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; color: var(--stone);
+      background: rgba(26, 18, 10, 0.8);
+      border: 1px solid rgba(138, 126, 107, 0.2);
+      padding: 0.35rem 0.5rem; cursor: pointer;
+      outline: none;
+    }
+    .sig-select option { background: #0a0e1a; color: var(--stone); }
+
+    /* ─── CHAIN AREA ─── */
+    .signal-chain-area {
+      margin-top: 50px;
+      padding: 1.5rem 1rem;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .signal-flow-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .signal-chain {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      min-width: max-content;
+      position: relative;
+      z-index: 1;
+      padding: 0.5rem 0;
+    }
+
+    /* ─── SIGNAL BLOCK ─── */
+    .signal-block {
+      width: 180px;
+      min-height: 200px;
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.92), rgba(15, 20, 15, 0.85));
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      backdrop-filter: blur(6px);
+      padding: 0.8rem;
+      position: relative;
+      cursor: grab;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+    .signal-block:hover { border-color: rgba(0, 229, 255, 0.3); box-shadow: 0 0 20px rgba(0,229,255,0.06); }
+    .signal-block.bypassed {
+      opacity: 0.4;
+      border-style: dashed;
+      border-color: rgba(138, 126, 107, 0.2);
+    }
+    .signal-block.bypassed:hover { opacity: 0.6; }
+    .signal-block.dragging { opacity: 0.7; cursor: grabbing; z-index: 10; }
+    .signal-block.drag-over { border-color: var(--oracle); box-shadow: 0 0 20px rgba(123,104,238,0.2); }
+
+    .signal-block-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.08);
+    }
+
+    .signal-block-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      color: var(--glow);
+      letter-spacing: 0.1em;
+    }
+
+    .signal-block-bypass {
+      width: 16px; height: 16px;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      border-radius: 50%;
+      background: rgba(0, 229, 255, 0.15);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .signal-block-bypass::after {
+      content: ''; position: absolute;
+      top: 3px; left: 3px; right: 3px; bottom: 3px;
+      border-radius: 50%;
+      background: var(--glow);
+      transition: opacity 0.2s;
+    }
+    .signal-block-bypass.off { border-color: rgba(138,126,107,0.3); background: transparent; }
+    .signal-block-bypass.off::after { opacity: 0; }
+
+    /* ─── CONTROLS ─── */
+    .sig-control {
+      margin-bottom: 0.5rem;
+    }
+    .sig-control-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--stone-dark);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.15rem;
+      display: flex; justify-content: space-between;
+    }
+    .sig-control-value {
+      color: var(--glow);
+      font-size: 0.5rem;
+    }
+    .sig-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 3px;
+      background: rgba(138, 126, 107, 0.2);
+      outline: none; cursor: pointer;
+      border-radius: 2px;
+    }
+    .sig-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 10px; height: 10px;
+      background: var(--glow); border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(0,229,255,0.4);
+    }
+    .sig-slider::-moz-range-thumb {
+      width: 10px; height: 10px;
+      background: var(--glow); border-radius: 50%;
+      border: none; cursor: pointer;
+    }
+
+    /* ─── VU METER ─── */
+    .vu-meter {
+      width: 100%; height: 8px;
+      background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.15);
+      margin-top: 0.3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .vu-meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4ade80, #facc15 60%, #ef4444 90%);
+      width: 0%;
+      transition: width 0.05s;
+    }
+
+    /* ─── MINI WAVEFORM ─── */
+    .mini-waveform {
+      width: 100%; height: 40px;
+      border: 1px solid rgba(0, 229, 255, 0.08);
+      background: rgba(10, 14, 26, 0.4);
+      margin-top: 0.3rem;
+    }
+
+    /* ─── EQ CURVE ─── */
+    .eq-curve {
+      width: 100%; height: 50px;
+      border: 1px solid rgba(0, 229, 255, 0.08);
+      background: rgba(10, 14, 26, 0.4);
+      margin-top: 0.3rem;
+    }
+
+    /* ─── GR METER ─── */
+    .gr-meter {
+      width: 100%; height: 8px;
+      background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.15);
+      margin-top: 0.3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .gr-meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--oracle), rgba(180,60,60,0.8));
+      width: 0%;
+      transition: width 0.05s;
+      float: right;
+    }
+
+    /* ─── CONNECTOR ARROW ─── */
+    .signal-connector {
+      display: flex; align-items: center; justify-content: center;
+      width: 30px; min-height: 200px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .signal-connector::before {
+      content: '';
+      width: 100%; height: 2px;
+      background: rgba(0, 229, 255, 0.2);
+      position: absolute;
+      top: 50%;
+    }
+    .signal-connector .flow-dot {
+      width: 6px; height: 6px;
+      background: var(--glow);
+      border-radius: 50%;
+      position: absolute;
+      opacity: 0;
+      box-shadow: 0 0 6px rgba(0,229,255,0.6);
+    }
+
+    /* ─── BOTTOM DISPLAY ─── */
+    .signal-display {
+      padding: 1rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .signal-scope {
+      flex: 1;
+      min-width: 300px;
+      max-width: 600px;
+      height: 180px;
+      border: 1px solid rgba(0, 229, 255, 0.12);
+      background: rgba(10, 14, 26, 0.6);
+      position: relative;
+    }
+    .signal-scope-label {
+      position: absolute;
+      top: 0.3rem; left: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--stone-dark);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ─── STEREO METER ─── */
+    .stereo-meter {
+      display: flex; gap: 3px;
+      justify-content: center;
+      margin-top: 0.3rem;
+    }
+    .stereo-bar {
+      width: 6px;
+      background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.1);
+      height: 50px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stereo-bar-fill {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, #4ade80, #facc15 60%, #ef4444 90%);
+      height: 0%;
+      transition: height 0.05s;
+    }
+
+    /* ─── FLOW ANIMATION ─── */
+    @keyframes flowPulse {
+      0% { left: -10px; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { left: calc(100% + 10px); opacity: 0; }
+    }
+
+    .flow-active .flow-dot {
+      animation: flowPulse 1.2s linear infinite;
+    }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 768px) {
+      .signal-chain-area { padding: 1rem 0.5rem; }
+      .signal-chain {
+        flex-direction: column;
+        align-items: center;
+        min-width: auto;
+      }
+      .signal-block { width: 90%; max-width: 300px; min-height: auto; }
+      .signal-connector {
+        width: 2px; min-height: 20px; height: 20px;
+      }
+      .signal-connector::before {
+        width: 2px; height: 100%;
+        top: 0; left: 50%;
+      }
+      .signal-scope { min-width: 200px; height: 140px; }
+      .signal-toolbar { gap: 0.3rem; padding: 0.4rem 0.5rem; }
+      .sig-btn { font-size: 0.5rem; padding: 0.25rem 0.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <span class="nav-glyph">◇</span>
+    <a href="chronicles.html">Chronicles</a>
+    <span class="nav-glyph">◇</span>
+    <a href="about.html">About</a>
+    <span class="nav-glyph">◇</span>
+    <a href="stack.html">Stack</a>
+    <span class="nav-glyph">◇</span>
+    <a href="live.html">Live</a>
+    <span class="nav-glyph">◇</span>
+    <a href="synth.html">Synth</a>
+    <span class="nav-glyph">◇</span>
+    <a href="theory.html">Theory</a>
+    <span class="nav-glyph">◇</span>
+    <a href="signal.html" class="active">Signal</a>
+  </nav>
+
+  <div class="signal-page">
+
+    <!-- Toolbar -->
+    <div class="signal-toolbar">
+      <div class="signal-toolbar-section">
+        <span class="signal-toolbar-label">Source</span>
+        <select id="sourceSelect" class="sig-select">
+          <option value="sine">Sine</option>
+          <option value="sawtooth">Sawtooth</option>
+          <option value="square">Square</option>
+          <option value="triangle">Triangle</option>
+          <option value="noise">White Noise</option>
+          <option value="fatsaw" selected>Fat Saw (Vocal-ish)</option>
+          <option value="drums">Drum Pattern</option>
+        </select>
+      </div>
+      <div class="signal-toolbar-section">
+        <button id="playBtn" class="sig-btn play">▶ Play</button>
+        <button id="stopBtn" class="sig-btn stop">■ Stop</button>
+      </div>
+      <div class="signal-toolbar-section">
+        <span class="signal-toolbar-label">Preset</span>
+        <button class="sig-btn preset" data-preset="vocal">Vocal</button>
+        <button class="sig-btn preset" data-preset="guitar">Guitar</button>
+        <button class="sig-btn preset" data-preset="master">Master</button>
+        <button class="sig-btn preset" data-preset="lofi">Lo-Fi</button>
+      </div>
+      <div class="signal-toolbar-section">
+        <span class="signal-toolbar-label">A/B</span>
+        <button id="abDry" class="sig-btn ab-dry">Dry</button>
+        <button id="abWet" class="sig-btn ab-wet active">Wet</button>
+      </div>
+    </div>
+
+    <!-- Signal Chain -->
+    <div class="signal-chain-area">
+      <div class="signal-chain" id="signalChain">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Bottom Displays -->
+    <div class="signal-display">
+      <div class="signal-scope">
+        <span class="signal-scope-label">Input Waveform</span>
+        <canvas id="scopeInput" style="width:100%;height:100%"></canvas>
+      </div>
+      <div class="signal-scope">
+        <span class="signal-scope-label">Output Waveform</span>
+        <canvas id="scopeOutput" style="width:100%;height:100%"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p class="roots">⌿ ⌿ ⌿</p>
+    <p>Truth · AI Chronicles</p>
+  </footer>
+
+  <script src="scripts.js?v=20"></script>
+  <script src="lib/tone.min.js"></script>
+  <script>
+(function() {
+  'use strict';
+
+  // ─── STAGE DEFINITIONS ───
+  const STAGES = {
+    source: {
+      title: 'Source', fixed: true, controls: [],
+      hasVU: true
+    },
+    preamp: {
+      title: 'Preamp', controls: [
+        { id: 'gain', label: 'Gain', min: 0, max: 24, step: 0.5, default: 6, unit: 'dB' },
+        { id: 'drive', label: 'Drive', min: 0, max: 100, step: 1, default: 20, unit: '%' }
+      ],
+      hasVU: true
+    },
+    eq: {
+      title: 'EQ', controls: [
+        { id: 'low', label: 'Low', min: -12, max: 12, step: 0.5, default: 0, unit: 'dB' },
+        { id: 'mid', label: 'Mid', min: -12, max: 12, step: 0.5, default: 0, unit: 'dB' },
+        { id: 'high', label: 'High', min: -12, max: 12, step: 0.5, default: 0, unit: 'dB' }
+      ],
+      hasEQ: true
+    },
+    compressor: {
+      title: 'Compressor', controls: [
+        { id: 'threshold', label: 'Thresh', min: -60, max: 0, step: 1, default: -24, unit: 'dB' },
+        { id: 'ratio', label: 'Ratio', min: 1, max: 20, step: 0.5, default: 4, unit: ':1' },
+        { id: 'attack', label: 'Attack', min: 0, max: 500, step: 5, default: 20, unit: 'ms' },
+        { id: 'release', label: 'Release', min: 10, max: 1000, step: 10, default: 250, unit: 'ms' }
+      ],
+      hasGR: true
+    },
+    reverb: {
+      title: 'Reverb', controls: [
+        { id: 'decay', label: 'Decay', min: 0.1, max: 10, step: 0.1, default: 2.5, unit: 's' },
+        { id: 'wet', label: 'Wet', min: 0, max: 100, step: 1, default: 30, unit: '%' }
+      ]
+    },
+    delay: {
+      title: 'Delay', controls: [
+        { id: 'time', label: 'Time', min: 0.01, max: 1, step: 0.01, default: 0.3, unit: 's' },
+        { id: 'feedback', label: 'Feedback', min: 0, max: 90, step: 1, default: 40, unit: '%' },
+        { id: 'wet', label: 'Wet', min: 0, max: 100, step: 1, default: 25, unit: '%' }
+      ]
+    },
+    chorus: {
+      title: 'Chorus', controls: [
+        { id: 'rate', label: 'Rate', min: 0.1, max: 10, step: 0.1, default: 1.5, unit: 'Hz' },
+        { id: 'depth', label: 'Depth', min: 0, max: 1, step: 0.01, default: 0.7, unit: '' },
+        { id: 'wet', label: 'Wet', min: 0, max: 100, step: 1, default: 50, unit: '%' }
+      ]
+    },
+    limiter: {
+      title: 'Limiter', controls: [
+        { id: 'threshold', label: 'Ceiling', min: -12, max: 0, step: 0.5, default: -1, unit: 'dB' }
+      ],
+      hasGR: true
+    },
+    output: {
+      title: 'Output', fixed: true, controls: [
+        { id: 'volume', label: 'Volume', min: -60, max: 6, step: 0.5, default: 0, unit: 'dB' },
+        { id: 'pan', label: 'Pan', min: -1, max: 1, step: 0.01, default: 0, unit: '' }
+      ],
+      hasVU: true, hasStereo: true
+    }
+  };
+
+  const PRESETS = {
+    vocal: {
+      chain: ['source','preamp','eq','compressor','reverb','limiter','output'],
+      values: { preamp: {gain:8,drive:15}, eq: {low:-2,mid:3,high:1}, compressor: {threshold:-20,ratio:4,attack:10,release:200}, reverb: {decay:1.8,wet:20}, limiter: {threshold:-1} },
+      source: 'fatsaw'
+    },
+    guitar: {
+      chain: ['source','preamp','eq','chorus','delay','output'],
+      values: { preamp: {gain:12,drive:55}, eq: {low:2,mid:4,high:-1}, chorus: {rate:2,depth:0.5,wet:40}, delay: {time:0.35,feedback:35,wet:30} },
+      source: 'sawtooth'
+    },
+    master: {
+      chain: ['source','eq','compressor','limiter','output'],
+      values: { eq: {low:1,mid:0,high:0.5}, compressor: {threshold:-18,ratio:2,attack:30,release:300}, limiter: {threshold:-0.5} },
+      source: 'fatsaw'
+    },
+    lofi: {
+      chain: ['source','preamp','eq','chorus','reverb','output'],
+      values: { preamp: {gain:18,drive:80}, eq: {low:3,mid:-2,high:-8}, chorus: {rate:0.8,depth:0.9,wet:60}, reverb: {decay:3,wet:45} },
+      source: 'sawtooth'
+    }
+  };
+
+  // ─── STATE ───
+  let chain = ['source','preamp','eq','compressor','reverb','limiter','output'];
+  let stageStates = {}; // { stageName: { bypassed, values } }
+  let isPlaying = false;
+  let isDry = false;
+  let toneStarted = false;
+
+  // Tone.js nodes
+  let toneNodes = {};
+  let sourceNode = null;
+  let inputAnalyser = null;
+  let outputAnalyser = null;
+  let noiseNode = null;
+  let drumLoop = null;
+
+  function initStageStates() {
+    for (const [key, stage] of Object.entries(STAGES)) {
+      stageStates[key] = {
+        bypassed: false,
+        values: {}
+      };
+      for (const c of stage.controls) {
+        stageStates[key].values[c.id] = c.default;
+      }
+    }
+  }
+  initStageStates();
+
+  // ─── BUILD UI ───
+  function buildChain() {
+    const container = document.getElementById('signalChain');
+    container.innerHTML = '';
+    chain.forEach((stageKey, idx) => {
+      if (idx > 0) {
+        const conn = document.createElement('div');
+        conn.className = 'signal-connector' + (isPlaying ? ' flow-active' : '');
+        conn.innerHTML = '<div class="flow-dot"></div>';
+        container.appendChild(conn);
+      }
+      const stage = STAGES[stageKey];
+      const state = stageStates[stageKey];
+      const block = document.createElement('div');
+      block.className = 'signal-block' + (state.bypassed ? ' bypassed' : '');
+      block.dataset.stage = stageKey;
+      if (!stage.fixed) {
+        block.draggable = true;
+        block.addEventListener('dragstart', onDragStart);
+        block.addEventListener('dragover', onDragOver);
+        block.addEventListener('drop', onDrop);
+        block.addEventListener('dragend', onDragEnd);
+        block.addEventListener('dragleave', onDragLeave);
+      }
+
+      let html = `<div class="signal-block-header">
+        <span class="signal-block-title">${stage.title}</span>`;
+      if (!stage.fixed) {
+        html += `<div class="signal-block-bypass ${state.bypassed ? 'off' : ''}" data-stage="${stageKey}" title="Bypass"></div>`;
+      }
+      html += '</div>';
+
+      for (const c of stage.controls) {
+        const val = state.values[c.id];
+        html += `<div class="sig-control">
+          <div class="sig-control-label"><span>${c.label}</span><span class="sig-control-value" id="val-${stageKey}-${c.id}">${val}${c.unit}</span></div>
+          <input type="range" class="sig-slider" id="ctrl-${stageKey}-${c.id}" min="${c.min}" max="${c.max}" step="${c.step}" value="${val}" data-stage="${stageKey}" data-param="${c.id}" data-unit="${c.unit}">
+        </div>`;
+      }
+
+      if (stage.hasVU) {
+        html += `<div class="vu-meter"><div class="vu-meter-fill" id="vu-${stageKey}"></div></div>`;
+      }
+      if (stage.hasEQ) {
+        html += `<canvas class="eq-curve" id="eq-curve-${stageKey}" width="160" height="50"></canvas>`;
+      }
+      if (stage.hasGR) {
+        html += `<div class="sig-control-label" style="margin-top:0.3rem"><span>GR</span></div><div class="gr-meter"><div class="gr-meter-fill" id="gr-${stageKey}"></div></div>`;
+      }
+      if (stage.hasStereo) {
+        html += `<div class="stereo-meter"><div class="stereo-bar"><div class="stereo-bar-fill" id="stereo-l"></div></div><div class="stereo-bar"><div class="stereo-bar-fill" id="stereo-r"></div></div></div>`;
+      }
+
+      block.innerHTML = html;
+      container.appendChild(block);
+    });
+
+    // Attach slider events
+    container.querySelectorAll('.sig-slider').forEach(s => {
+      s.addEventListener('input', onSliderChange);
+    });
+    container.querySelectorAll('.signal-block-bypass').forEach(b => {
+      b.addEventListener('click', onBypassToggle);
+    });
+  }
+
+  // ─── DRAG & DROP REORDER ───
+  let dragStage = null;
+  function onDragStart(e) {
+    dragStage = e.currentTarget.dataset.stage;
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragOver(e) {
+    e.preventDefault();
+    const target = e.currentTarget;
+    if (target.dataset.stage && target.dataset.stage !== dragStage && !STAGES[target.dataset.stage].fixed) {
+      target.classList.add('drag-over');
+    }
+  }
+  function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+  function onDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  }
+  function onDrop(e) {
+    e.preventDefault();
+    const target = e.currentTarget.dataset.stage;
+    if (!target || target === dragStage || STAGES[target].fixed) return;
+    const fromIdx = chain.indexOf(dragStage);
+    const toIdx = chain.indexOf(target);
+    if (fromIdx < 0 || toIdx < 0) return;
+    chain.splice(fromIdx, 1);
+    chain.splice(toIdx, 0, dragStage);
+    buildChain();
+    if (isPlaying) rebuildAudioChain();
+  }
+
+  // ─── SLIDER / BYPASS ───
+  function onSliderChange(e) {
+    const stage = e.target.dataset.stage;
+    const param = e.target.dataset.param;
+    const unit = e.target.dataset.unit;
+    const val = parseFloat(e.target.value);
+    stageStates[stage].values[param] = val;
+    document.getElementById(`val-${stage}-${param}`).textContent = val + unit;
+    if (isPlaying) applyParam(stage, param, val);
+    if (STAGES[stage].hasEQ) drawEQCurve(stage);
+  }
+
+  function onBypassToggle(e) {
+    const stage = e.currentTarget.dataset.stage;
+    stageStates[stage].bypassed = !stageStates[stage].bypassed;
+    e.currentTarget.classList.toggle('off');
+    e.currentTarget.closest('.signal-block').classList.toggle('bypassed');
+    if (isPlaying) rebuildAudioChain();
+  }
+
+  // ─── TONE.JS AUDIO ───
+  async function ensureTone() {
+    if (!toneStarted) {
+      await Tone.start();
+      toneStarted = true;
+    }
+  }
+
+  function createSource() {
+    disposeSource();
+    const type = document.getElementById('sourceSelect').value;
+    if (type === 'noise') {
+      noiseNode = new Tone.Noise('white');
+      noiseNode.volume.value = -10;
+      return noiseNode;
+    } else if (type === 'drums') {
+      // Simple drum pattern using membrane synth
+      const kick = new Tone.MembraneSynth({ volume: -6 });
+      const hat = new Tone.MetalSynth({ volume: -12, envelope: { decay: 0.05, release: 0.05 } });
+      drumLoop = new Tone.Loop(time => {
+        kick.triggerAttackRelease('C1', '8n', time);
+      }, '4n');
+      const hatLoop = new Tone.Loop(time => {
+        hat.triggerAttackRelease('16n', time);
+      }, '8n');
+      // We'll connect kick as source; return a gain node that both route through
+      const drumBus = new Tone.Gain(1);
+      kick.connect(drumBus);
+      hat.connect(drumBus);
+      drumLoop.start(0);
+      hatLoop.start(0);
+      sourceNode = drumBus;
+      sourceNode._kick = kick;
+      sourceNode._hat = hat;
+      sourceNode._hatLoop = hatLoop;
+      sourceNode._drumLoop = drumLoop;
+      return drumBus;
+    } else if (type === 'fatsaw') {
+      const synth = new Tone.FatOscillator({ type: 'sawtooth', spread: 20, count: 3, frequency: 220 });
+      synth.volume.value = -10;
+      return synth;
+    } else {
+      const osc = new Tone.Oscillator({ type: type, frequency: 220 });
+      osc.volume.value = -10;
+      return osc;
+    }
+  }
+
+  function disposeSource() {
+    if (sourceNode) {
+      try {
+        if (sourceNode._kick) { sourceNode._kick.dispose(); sourceNode._hat.dispose(); sourceNode._drumLoop.dispose(); sourceNode._hatLoop.dispose(); }
+        sourceNode.dispose();
+      } catch(e) {}
+      sourceNode = null;
+    }
+    if (noiseNode) { try { noiseNode.dispose(); } catch(e) {} noiseNode = null; }
+    if (drumLoop) { try { drumLoop.dispose(); } catch(e) {} drumLoop = null; }
+  }
+
+  function disposeNodes() {
+    for (const key in toneNodes) {
+      try { toneNodes[key].dispose(); } catch(e) {}
+    }
+    toneNodes = {};
+    if (inputAnalyser) { try { inputAnalyser.dispose(); } catch(e) {} inputAnalyser = null; }
+    if (outputAnalyser) { try { outputAnalyser.dispose(); } catch(e) {} outputAnalyser = null; }
+  }
+
+  function createProcessorNode(stageKey) {
+    const vals = stageStates[stageKey].values;
+    switch(stageKey) {
+      case 'preamp': {
+        // Gain + Distortion
+        const gain = new Tone.Gain(Math.pow(10, (vals.gain || 0) / 20));
+        const dist = new Tone.Distortion((vals.drive || 0) / 100);
+        dist.wet.value = Math.min((vals.drive || 0) / 100, 1);
+        gain.connect(dist);
+        dist._gainNode = gain;
+        return { input: gain, output: dist, nodes: [gain, dist] };
+      }
+      case 'eq': {
+        const low = new Tone.Filter({ frequency: 320, type: 'lowshelf', gain: vals.low || 0 });
+        const mid = new Tone.Filter({ frequency: 1000, type: 'peaking', gain: vals.mid || 0, Q: 1 });
+        const high = new Tone.Filter({ frequency: 3200, type: 'highshelf', gain: vals.high || 0 });
+        low.connect(mid); mid.connect(high);
+        return { input: low, output: high, nodes: [low, mid, high] };
+      }
+      case 'compressor': {
+        const comp = new Tone.Compressor({
+          threshold: vals.threshold || -24,
+          ratio: vals.ratio || 4,
+          attack: (vals.attack || 20) / 1000,
+          release: (vals.release || 250) / 1000
+        });
+        return { input: comp, output: comp, nodes: [comp] };
+      }
+      case 'reverb': {
+        const rev = new Tone.Reverb({ decay: vals.decay || 2.5 });
+        rev.wet.value = (vals.wet || 30) / 100;
+        return { input: rev, output: rev, nodes: [rev] };
+      }
+      case 'delay': {
+        const del = new Tone.FeedbackDelay({
+          delayTime: vals.time || 0.3,
+          feedback: (vals.feedback || 40) / 100,
+          wet: (vals.wet || 25) / 100
+        });
+        return { input: del, output: del, nodes: [del] };
+      }
+      case 'chorus': {
+        const ch = new Tone.Chorus({
+          frequency: vals.rate || 1.5,
+          depth: vals.depth || 0.7,
+          wet: (vals.wet || 50) / 100
+        });
+        ch.start();
+        return { input: ch, output: ch, nodes: [ch] };
+      }
+      case 'limiter': {
+        const lim = new Tone.Limiter(vals.threshold || -1);
+        return { input: lim, output: lim, nodes: [lim] };
+      }
+      case 'output': {
+        const vol = new Tone.Volume(vals.volume || 0);
+        const pan = new Tone.Panner(vals.pan || 0);
+        vol.connect(pan);
+        return { input: vol, output: pan, nodes: [vol, pan] };
+      }
+      default:
+        const g = new Tone.Gain(1);
+        return { input: g, output: g, nodes: [g] };
+    }
+  }
+
+  function rebuildAudioChain() {
+    const wasPlaying = isPlaying;
+    disposeNodes();
+
+    // Input analyser
+    inputAnalyser = new Tone.Analyser('waveform', 1024);
+    outputAnalyser = new Tone.Analyser('waveform', 1024);
+
+    // Build chain
+    const activeStages = isDry ? ['source', 'output'] : chain.filter(s => s === 'source' || s === 'output' || !stageStates[s].bypassed);
+
+    let prevOutput = null;
+    for (const stageKey of activeStages) {
+      if (stageKey === 'source') {
+        // Source connects to input analyser
+        if (sourceNode) {
+          sourceNode.connect(inputAnalyser);
+          prevOutput = sourceNode;
+        }
+        continue;
+      }
+      const proc = createProcessorNode(stageKey);
+      toneNodes[stageKey] = proc;
+      if (prevOutput) prevOutput.connect(proc.input);
+      prevOutput = proc.output;
+    }
+
+    if (prevOutput) {
+      prevOutput.connect(outputAnalyser);
+      prevOutput.connect(Tone.getDestination());
+    }
+  }
+
+  function applyParam(stage, param, val) {
+    const proc = toneNodes[stage];
+    if (!proc) return;
+    switch(stage) {
+      case 'preamp':
+        if (param === 'gain') proc.nodes[0].gain.value = Math.pow(10, val / 20);
+        if (param === 'drive') { proc.nodes[1].distortion = val / 100; proc.nodes[1].wet.value = Math.min(val/100, 1); }
+        break;
+      case 'eq':
+        if (param === 'low') proc.nodes[0].gain.value = val;
+        if (param === 'mid') proc.nodes[1].gain.value = val;
+        if (param === 'high') proc.nodes[2].gain.value = val;
+        break;
+      case 'compressor':
+        if (param === 'threshold') proc.nodes[0].threshold.value = val;
+        if (param === 'ratio') proc.nodes[0].ratio.value = val;
+        if (param === 'attack') proc.nodes[0].attack.value = val / 1000;
+        if (param === 'release') proc.nodes[0].release.value = val / 1000;
+        break;
+      case 'reverb':
+        if (param === 'wet') proc.nodes[0].wet.value = val / 100;
+        break;
+      case 'delay':
+        if (param === 'time') proc.nodes[0].delayTime.value = val;
+        if (param === 'feedback') proc.nodes[0].feedback.value = val / 100;
+        if (param === 'wet') proc.nodes[0].wet.value = val / 100;
+        break;
+      case 'chorus':
+        if (param === 'rate') proc.nodes[0].frequency.value = val;
+        if (param === 'depth') proc.nodes[0].depth = val;
+        if (param === 'wet') proc.nodes[0].wet.value = val / 100;
+        break;
+      case 'limiter':
+        if (param === 'threshold') proc.nodes[0].threshold.value = val;
+        break;
+      case 'output':
+        if (param === 'volume') proc.nodes[0].volume.value = val;
+        if (param === 'pan') proc.nodes[1].pan.value = val;
+        break;
+    }
+  }
+
+  async function play() {
+    await ensureTone();
+    if (isPlaying) return;
+    sourceNode = createSource();
+    rebuildAudioChain();
+
+    const type = document.getElementById('sourceSelect').value;
+    if (type === 'drums') {
+      Tone.getTransport().start();
+    } else if (sourceNode.start) {
+      sourceNode.start();
+    }
+
+    isPlaying = true;
+    document.getElementById('playBtn').classList.add('active');
+    // Update flow connectors
+    document.querySelectorAll('.signal-connector').forEach(c => c.classList.add('flow-active'));
+    startVisuals();
+  }
+
+  function stop() {
+    if (!isPlaying) return;
+    isPlaying = false;
+    document.getElementById('playBtn').classList.remove('active');
+
+    const type = document.getElementById('sourceSelect').value;
+    if (type === 'drums') {
+      Tone.getTransport().stop();
+    }
+
+    disposeSource();
+    disposeNodes();
+    document.querySelectorAll('.signal-connector').forEach(c => c.classList.remove('flow-active'));
+    stopVisuals();
+  }
+
+  // ─── VISUALIZATIONS ───
+  let animFrame = null;
+
+  function startVisuals() {
+    drawFrame();
+  }
+
+  function stopVisuals() {
+    if (animFrame) cancelAnimationFrame(animFrame);
+    animFrame = null;
+    // Clear canvases
+    clearCanvas('scopeInput');
+    clearCanvas('scopeOutput');
+  }
+
+  function clearCanvas(id) {
+    const c = document.getElementById(id);
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+  }
+
+  function drawWaveform(canvasId, analyser) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || !analyser) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.clientWidth * (window.devicePixelRatio || 1);
+    canvas.height = canvas.clientHeight * (window.devicePixelRatio || 1);
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const data = analyser.getValue();
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i < data.length; i++) {
+      const x = (i / data.length) * w;
+      const y = ((data[i] + 1) / 2) * h;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Center line
+    ctx.strokeStyle = 'rgba(138, 126, 107, 0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, h/2);
+    ctx.lineTo(w, h/2);
+    ctx.stroke();
+  }
+
+  function drawEQCurve(stageKey) {
+    const canvas = document.getElementById(`eq-curve-${stageKey}`);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const vals = stageStates[stageKey].values;
+    const low = vals.low || 0, mid = vals.mid || 0, high = vals.high || 0;
+
+    // Draw simple 3-band curve
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+
+    const center = h / 2;
+    const scale = h / 30; // ±12dB fills most of canvas
+
+    const points = [
+      { x: 0, y: center - low * scale },
+      { x: w * 0.15, y: center - low * scale },
+      { x: w * 0.35, y: center - (low + mid) / 2 * scale },
+      { x: w * 0.5, y: center - mid * scale },
+      { x: w * 0.65, y: center - (mid + high) / 2 * scale },
+      { x: w * 0.85, y: center - high * scale },
+      { x: w, y: center - high * scale }
+    ];
+
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      const prev = points[i-1];
+      const cp1x = (prev.x + points[i].x) / 2;
+      ctx.quadraticCurveTo(cp1x, prev.y, points[i].x, points[i].y);
+    }
+    ctx.stroke();
+
+    // Center line
+    ctx.strokeStyle = 'rgba(138, 126, 107, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, center);
+    ctx.lineTo(w, center);
+    ctx.stroke();
+  }
+
+  function updateMeters() {
+    // VU meters based on analyser RMS
+    if (inputAnalyser) {
+      const data = inputAnalyser.getValue();
+      const rms = Math.sqrt(data.reduce((s, v) => s + v*v, 0) / data.length);
+      const db = 20 * Math.log10(Math.max(rms, 0.0001));
+      const pct = Math.max(0, Math.min(100, (db + 60) / 60 * 100));
+      const vuSource = document.getElementById('vu-source');
+      if (vuSource) vuSource.style.width = pct + '%';
+      const vuPreamp = document.getElementById('vu-preamp');
+      if (vuPreamp) vuPreamp.style.width = Math.min(100, pct * 1.2) + '%';
+    }
+    if (outputAnalyser) {
+      const data = outputAnalyser.getValue();
+      const rms = Math.sqrt(data.reduce((s, v) => s + v*v, 0) / data.length);
+      const db = 20 * Math.log10(Math.max(rms, 0.0001));
+      const pct = Math.max(0, Math.min(100, (db + 60) / 60 * 100));
+      const vuOut = document.getElementById('vu-output');
+      if (vuOut) vuOut.style.width = pct + '%';
+      // Stereo bars
+      const sl = document.getElementById('stereo-l');
+      const sr = document.getElementById('stereo-r');
+      if (sl) sl.style.height = pct + '%';
+      if (sr) sr.style.height = Math.max(0, pct - 3 + Math.random() * 6) + '%';
+    }
+
+    // GR meters
+    if (toneNodes.compressor) {
+      const comp = toneNodes.compressor.nodes[0];
+      const gr = Math.abs(comp.reduction || 0);
+      const grPct = Math.min(100, gr / 30 * 100);
+      const grEl = document.getElementById('gr-compressor');
+      if (grEl) grEl.style.width = grPct + '%';
+    }
+    if (toneNodes.limiter) {
+      const lim = toneNodes.limiter.nodes[0];
+      const gr = Math.abs(lim.reduction || 0);
+      const grPct = Math.min(100, gr / 12 * 100);
+      const grEl = document.getElementById('gr-limiter');
+      if (grEl) grEl.style.width = grPct + '%';
+    }
+  }
+
+  function drawFrame() {
+    if (!isPlaying) return;
+    drawWaveform('scopeInput', inputAnalyser);
+    drawWaveform('scopeOutput', outputAnalyser);
+    updateMeters();
+    animFrame = requestAnimationFrame(drawFrame);
+  }
+
+  // ─── EVENT HANDLERS ───
+  document.getElementById('playBtn').addEventListener('click', play);
+  document.getElementById('stopBtn').addEventListener('click', stop);
+
+  document.getElementById('sourceSelect').addEventListener('change', () => {
+    if (isPlaying) { stop(); play(); }
+  });
+
+  document.getElementById('abDry').addEventListener('click', () => {
+    isDry = true;
+    document.getElementById('abDry').classList.add('active');
+    document.getElementById('abWet').classList.remove('active');
+    if (isPlaying) rebuildAudioChain();
+  });
+
+  document.getElementById('abWet').addEventListener('click', () => {
+    isDry = false;
+    document.getElementById('abWet').classList.add('active');
+    document.getElementById('abDry').classList.remove('active');
+    if (isPlaying) rebuildAudioChain();
+  });
+
+  // Preset buttons
+  document.querySelectorAll('.sig-btn.preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preset = PRESETS[btn.dataset.preset];
+      if (!preset) return;
+      chain = [...preset.chain];
+      document.getElementById('sourceSelect').value = preset.source || 'sine';
+      // Apply values
+      initStageStates();
+      for (const [stage, vals] of Object.entries(preset.values)) {
+        for (const [param, val] of Object.entries(vals)) {
+          stageStates[stage].values[param] = val;
+        }
+      }
+      // Highlight active preset
+      document.querySelectorAll('.sig-btn.preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      buildChain();
+      // Draw EQ if present
+      if (chain.includes('eq')) drawEQCurve('eq');
+      if (isPlaying) { stop(); play(); }
+    });
+  });
+
+  // ─── INIT ───
+  buildChain();
+  // Draw initial EQ curve
+  if (chain.includes('eq')) setTimeout(() => drawEQCurve('eq'), 100);
+
+})();
+  </script>
+</body>
+</html>
