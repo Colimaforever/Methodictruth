@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theory — Truth · AI Chronicles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=18">
+  <style>
+    /* ─── THEORY PAGE ─── */
+    .theory-page { position: relative; z-index: 1; min-height: 100vh; padding-bottom: 4rem; }
+
+    /* ─── SELECTORS ─── */
+    .theory-selectors {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .theory-select-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .theory-select-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      color: var(--stone-dark); letter-spacing: 0.15em; text-transform: uppercase;
+    }
+    .theory-select {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+      color: var(--parchment); background: rgba(10, 14, 26, 0.8);
+      border: 1px solid rgba(0, 229, 255, 0.2); padding: 0.6rem 1rem;
+      outline: none; cursor: pointer; letter-spacing: 0.05em;
+      transition: border-color 0.3s; min-width: 180px;
+      -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300e5ff' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.8rem center;
+      padding-right: 2.5rem;
+    }
+    .theory-select option { background: #0a0e1a; color: var(--parchment); }
+    .theory-select:focus { border-color: var(--glow); box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); }
+
+    /* ─── SCALE DISPLAY ─── */
+    .scale-display {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(0, 229, 255, 0.12); padding: 1.5rem 2rem;
+      margin-bottom: 2rem; text-align: center;
+    }
+    .scale-title {
+      font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--parchment);
+      letter-spacing: 0.08em; margin-bottom: 1rem;
+    }
+    .scale-notes {
+      display: flex; justify-content: center; gap: 0.3rem; flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .scale-note {
+      display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+      padding: 0.5rem 0.8rem; border: 1px solid rgba(0, 229, 255, 0.1);
+      background: rgba(0, 229, 255, 0.03); min-width: 48px; transition: all 0.2s;
+    }
+    .scale-note.root { border-color: rgba(0, 229, 255, 0.4); background: rgba(0, 229, 255, 0.08);
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.15); }
+    .scale-note-name {
+      font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--parchment);
+    }
+    .scale-note-degree {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      color: var(--glow); letter-spacing: 0.1em; opacity: 0.7;
+    }
+    .scale-intervals {
+      display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
+    }
+    .scale-interval {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      color: var(--glow-warm); letter-spacing: 0.05em; padding: 0.2rem 0.6rem;
+      opacity: 0.6;
+    }
+    .scale-interval::before { content: ''; }
+
+    /* ─── CHORD TOGGLE ─── */
+    .chord-toggle {
+      display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem;
+    }
+    .chord-toggle-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+      color: var(--stone); background: rgba(26, 18, 10, 0.8);
+      border: 1px solid rgba(138, 126, 107, 0.2); padding: 0.4rem 1.2rem;
+      cursor: pointer; letter-spacing: 0.08em; transition: all 0.2s;
+    }
+    .chord-toggle-btn:hover { border-color: var(--glow); color: var(--glow); }
+    .chord-toggle-btn.active { border-color: var(--glow); color: var(--glow); background: rgba(0, 229, 255, 0.08); }
+
+    /* ─── CHORD GRID ─── */
+    .chord-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .chord-card {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(138, 126, 107, 0.15); padding: 1.2rem 0.8rem;
+      text-align: center; cursor: pointer; transition: all 0.3s; position: relative;
+    }
+    .chord-card:hover {
+      border-color: rgba(0, 229, 255, 0.3);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.08);
+    }
+    .chord-card.active {
+      border-color: rgba(0, 229, 255, 0.5);
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.15), 0 0 50px rgba(0, 229, 255, 0.05);
+    }
+    .chord-card-numeral {
+      font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--parchment);
+      letter-spacing: 0.05em; margin-bottom: 0.3rem;
+    }
+    .chord-card-name {
+      font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--glow);
+      margin-bottom: 0.3rem;
+    }
+    .chord-card-quality {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--stone-dark); letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .chord-card-notes {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      color: var(--glow-warm); letter-spacing: 0.05em; opacity: 0.7;
+    }
+
+    /* ─── DIAGRAMS CONTAINER ─── */
+    .diagrams-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem;
+    }
+
+    /* ─── PIANO (THEORY) ─── */
+    .theory-piano-wrap {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(0, 229, 255, 0.1); padding: 1.2rem;
+    }
+    .theory-piano-title {
+      font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--parchment);
+      letter-spacing: 0.1em; text-align: center; margin-bottom: 0.8rem;
+    }
+    .theory-piano {
+      display: flex; position: relative; height: 120px; justify-content: center;
+      overflow-x: auto;
+    }
+    .tp-key {
+      position: relative; display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 0.3rem; user-select: none; transition: background 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    .tp-key.white {
+      width: 30px; height: 120px; background: rgba(200, 195, 180, 0.12);
+      border: 1px solid rgba(138, 126, 107, 0.2); border-radius: 0 0 3px 3px;
+      margin-right: 1px; z-index: 1;
+    }
+    .tp-key.black {
+      width: 20px; height: 75px; background: rgba(10, 14, 26, 0.9);
+      border: 1px solid rgba(138, 126, 107, 0.25); border-radius: 0 0 2px 2px;
+      margin-left: -11px; margin-right: -11px; z-index: 2;
+    }
+    .tp-key.scale-note { border-color: rgba(0, 229, 255, 0.3); }
+    .tp-key.white.scale-note { background: rgba(0, 229, 255, 0.08); }
+    .tp-key.black.scale-note { background: rgba(0, 229, 255, 0.2); }
+    /* chord highlight colors */
+    .tp-key.chord-root { background: rgba(0, 229, 255, 0.3) !important;
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.4); border-color: rgba(0, 229, 255, 0.6) !important; }
+    .tp-key.chord-third { background: rgba(123, 104, 238, 0.3) !important;
+      box-shadow: 0 0 12px rgba(123, 104, 238, 0.4); border-color: rgba(123, 104, 238, 0.6) !important; }
+    .tp-key.chord-fifth { background: rgba(232, 168, 124, 0.3) !important;
+      box-shadow: 0 0 12px rgba(232, 168, 124, 0.4); border-color: rgba(232, 168, 124, 0.6) !important; }
+    .tp-key.chord-seventh { background: rgba(255, 220, 120, 0.25) !important;
+      box-shadow: 0 0 12px rgba(255, 220, 120, 0.35); border-color: rgba(255, 220, 120, 0.5) !important; }
+    .tp-key-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.4rem;
+      color: var(--stone-dark); pointer-events: none;
+    }
+    .tp-key.black .tp-key-label { color: rgba(138, 126, 107, 0.5); font-size: 0.35rem; }
+    .tp-key-finger {
+      position: absolute; top: 4px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: var(--glow); pointer-events: none; font-weight: bold;
+    }
+    .piano-legend {
+      display: flex; justify-content: center; gap: 1rem; margin-top: 0.6rem; flex-wrap: wrap;
+    }
+    .piano-legend-item {
+      display: flex; align-items: center; gap: 0.3rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.5rem;
+      color: var(--stone-dark); letter-spacing: 0.05em;
+    }
+    .piano-legend-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    /* ─── GUITAR DIAGRAM ─── */
+    .theory-guitar-wrap {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(0, 229, 255, 0.1); padding: 1.2rem;
+    }
+    .theory-guitar-title {
+      font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--parchment);
+      letter-spacing: 0.1em; text-align: center; margin-bottom: 0.5rem;
+    }
+    .guitar-voicing-tabs {
+      display: flex; justify-content: center; gap: 0.4rem; margin-bottom: 0.8rem;
+    }
+    .guitar-voicing-tab {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      color: var(--stone-dark); background: none;
+      border: 1px solid rgba(138, 126, 107, 0.15); padding: 0.25rem 0.7rem;
+      cursor: pointer; letter-spacing: 0.08em; transition: all 0.2s;
+    }
+    .guitar-voicing-tab:hover { border-color: var(--glow); color: var(--glow); }
+    .guitar-voicing-tab.active { border-color: var(--glow); color: var(--glow); background: rgba(0, 229, 255, 0.06); }
+    .guitar-diagram-container { display: flex; justify-content: center; min-height: 180px; align-items: center; }
+    .guitar-placeholder {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+      color: var(--stone-dark); letter-spacing: 0.1em; text-align: center;
+    }
+
+    /* ─── MODES SECTION ─── */
+    .modes-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(123, 104, 238, 0.12); padding: 1.5rem 2rem;
+      margin-top: 1rem;
+    }
+    .modes-header {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none;
+    }
+    .modes-title {
+      font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--parchment);
+      letter-spacing: 0.08em;
+    }
+    .modes-toggle-icon {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+      color: var(--oracle); transition: transform 0.3s;
+    }
+    .modes-toggle-icon.open { transform: rotate(180deg); }
+    .modes-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+    .modes-body.open { max-height: 600px; }
+    .modes-desc {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem;
+      color: var(--stone); margin: 1rem 0; line-height: 1.6;
+    }
+    .modes-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .modes-table th {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      color: var(--glow); letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.5rem; text-align: left; border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+    }
+    .modes-table td {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+      color: var(--stone); padding: 0.5rem; border-bottom: 1px solid rgba(138, 126, 107, 0.08);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .modes-table td:hover { color: var(--glow); background: rgba(0, 229, 255, 0.03); }
+    .modes-table .mode-name { font-family: 'Cinzel', serif; color: var(--parchment); font-size: 0.8rem; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .diagrams-row { grid-template-columns: 1fr; }
+      .chord-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.6rem; }
+      .chord-card { padding: 0.8rem 0.5rem; }
+      .chord-card-numeral { font-size: 0.9rem; }
+      .chord-card-name { font-size: 0.75rem; }
+      .scale-note { padding: 0.4rem 0.5rem; min-width: 38px; }
+      .theory-piano { height: 100px; }
+      .tp-key.white { width: 24px; height: 100px; }
+      .tp-key.black { width: 16px; height: 62px; margin-left: -9px; margin-right: -9px; }
+      .modes-section { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <a href="index.html">Home</a>
+    <span class="nav-glyph">◇</span>
+    <a href="chronicles.html">Chronicles</a>
+    <span class="nav-glyph">◇</span>
+    <a href="about.html">About</a>
+    <span class="nav-glyph">◇</span>
+    <a href="stack.html">Stack</a>
+    <span class="nav-glyph">◇</span>
+    <a href="live.html">Live</a>
+    <span class="nav-glyph">◇</span>
+    <a href="synth.html">Synth</a>
+    <span class="nav-glyph">◇</span>
+    <a href="theory.html" class="active">Theory</a>
+  </nav>
+
+  <div class="theory-page">
+    <div class="page-header">
+      <h1>Scale &amp; Chord Explorer</h1>
+      <div class="subtitle">Music Theory Reference</div>
+    </div>
+
+    <main style="max-width:1000px">
+      <!-- SELECTORS -->
+      <div class="theory-selectors">
+        <div class="theory-select-group">
+          <span class="theory-select-label">Root Note</span>
+          <select id="rootSelect" class="theory-select"></select>
+        </div>
+        <div class="theory-select-group">
+          <span class="theory-select-label">Scale Type</span>
+          <select id="scaleSelect" class="theory-select"></select>
+        </div>
+      </div>
+
+      <!-- SCALE DISPLAY -->
+      <div class="scale-display">
+        <div class="scale-title" id="scaleTitle">C Major</div>
+        <div class="scale-notes" id="scaleNotes"></div>
+        <div class="scale-intervals" id="scaleIntervals"></div>
+      </div>
+
+      <!-- CHORD TOGGLE -->
+      <div class="chord-toggle">
+        <button class="chord-toggle-btn active" data-mode="triads">Triads</button>
+        <button class="chord-toggle-btn" data-mode="sevenths">7th Chords</button>
+      </div>
+
+      <!-- CHORD GRID -->
+      <div class="chord-grid" id="chordGrid"></div>
+
+      <!-- DIAGRAMS -->
+      <div class="diagrams-row">
+        <div class="theory-piano-wrap">
+          <div class="theory-piano-title">Piano Voicing</div>
+          <div class="theory-piano" id="theoryPiano"></div>
+          <div class="piano-legend">
+            <div class="piano-legend-item"><div class="piano-legend-dot" style="background:rgba(0,229,255,0.6)"></div>Root</div>
+            <div class="piano-legend-item"><div class="piano-legend-dot" style="background:rgba(123,104,238,0.6)"></div>3rd</div>
+            <div class="piano-legend-item"><div class="piano-legend-dot" style="background:rgba(232,168,124,0.6)"></div>5th</div>
+            <div class="piano-legend-item"><div class="piano-legend-dot" style="background:rgba(255,220,120,0.5)"></div>7th</div>
+          </div>
+        </div>
+        <div class="theory-guitar-wrap">
+          <div class="theory-guitar-title" id="guitarTitle">Guitar Voicing</div>
+          <div class="guitar-voicing-tabs" id="guitarTabs">
+            <button class="guitar-voicing-tab active" data-voicing="0">Open</button>
+            <button class="guitar-voicing-tab" data-voicing="1">Barre</button>
+            <button class="guitar-voicing-tab" data-voicing="2">Jazz</button>
+          </div>
+          <div class="guitar-diagram-container" id="guitarDiagram">
+            <div class="guitar-placeholder">Click a chord to see guitar voicing</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODES -->
+      <div class="modes-section">
+        <div class="modes-header" id="modesHeader">
+          <div class="modes-title">Modes Reference</div>
+          <span class="modes-toggle-icon" id="modesIcon">▾</span>
+        </div>
+        <div class="modes-body" id="modesBody">
+          <p class="modes-desc">
+            Modes are the same set of notes as the parent major scale, but starting from a different degree.
+            Each mode has its own unique intervallic character and emotional quality.
+          </p>
+          <table class="modes-table" id="modesTable"></table>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p class="roots">⌿ ⌿ ⌿</p>
+      <p>TRUTH · MMXXVI</p>
+    </footer>
+  </div>
+
+  <script>
+  // ═══════════════════════════════════════════════════════════
+  // MUSIC THEORY ENGINE
+  // ═══════════════════════════════════════════════════════════
+
+  const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const NOTE_NAMES_FLAT = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+  // Use flats for certain keys
+  const FLAT_KEYS = new Set(['F','Bb','Eb','Ab','Db','Gb']);
+
+  function noteIndex(n) {
+    let i = NOTES.indexOf(n);
+    if (i === -1) i = NOTE_NAMES_FLAT.indexOf(n);
+    return i;
+  }
+
+  function noteName(idx, useFlats) {
+    idx = ((idx % 12) + 12) % 12;
+    return useFlats ? NOTE_NAMES_FLAT[idx] : NOTES[idx];
+  }
+
+  // Scale definitions as semitone intervals from root
+  const SCALES = {
+    'Major (Ionian)':       [0,2,4,5,7,9,11],
+    'Natural Minor (Aeolian)': [0,2,3,5,7,8,10],
+    'Dorian':               [0,2,3,5,7,9,10],
+    'Phrygian':             [0,1,3,5,7,8,10],
+    'Lydian':               [0,2,4,6,7,9,11],
+    'Mixolydian':           [0,2,4,5,7,9,10],
+    'Locrian':              [0,1,3,5,6,8,10],
+    'Harmonic Minor':       [0,2,3,5,7,8,11],
+    'Melodic Minor':        [0,2,3,5,7,9,11],
+    'Pentatonic Major':     [0,2,4,7,9],
+    'Pentatonic Minor':     [0,3,5,7,10],
+    'Blues':                 [0,3,5,6,7,10],
+  };
+
+  // Interval labels between consecutive notes
+  function getIntervalLabels(intervals) {
+    const labels = [];
+    for (let i = 0; i < intervals.length - 1; i++) {
+      const diff = intervals[i+1] - intervals[i];
+      if (diff === 1) labels.push('H');
+      else if (diff === 2) labels.push('W');
+      else if (diff === 3) labels.push('W+H');
+      else labels.push(diff + 'H');
+    }
+    // wrap-around
+    const wrap = 12 - intervals[intervals.length - 1] + intervals[0];
+    if (wrap === 1) labels.push('H');
+    else if (wrap === 2) labels.push('W');
+    else if (wrap === 3) labels.push('W+H');
+    else labels.push(wrap + 'H');
+    return labels;
+  }
+
+  // Chord quality from intervals (semitones from root)
+  function chordQuality(intervals) {
+    const s = intervals.join(',');
+    if (s === '0,4,7') return { quality: 'Major', symbol: '' };
+    if (s === '0,3,7') return { quality: 'minor', symbol: 'm' };
+    if (s === '0,3,6') return { quality: 'diminished', symbol: '°' };
+    if (s === '0,4,8') return { quality: 'augmented', symbol: '+' };
+    if (s === '0,4,7,11') return { quality: 'Major 7', symbol: 'maj7' };
+    if (s === '0,3,7,10') return { quality: 'minor 7', symbol: 'm7' };
+    if (s === '0,4,7,10') return { quality: 'Dominant 7', symbol: '7' };
+    if (s === '0,3,6,10') return { quality: 'half-dim 7', symbol: 'ø7' };
+    if (s === '0,3,6,9') return { quality: 'diminished 7', symbol: '°7' };
+    if (s === '0,4,8,11') return { quality: 'aug maj7', symbol: '+maj7' };
+    if (s === '0,3,7,11') return { quality: 'min maj7', symbol: 'mM7' };
+    return { quality: 'other', symbol: '?' };
+  }
+
+  // Roman numerals
+  const ROMAN_UPPER = ['I','II','III','IV','V','VI','VII'];
+  const ROMAN_LOWER = ['i','ii','iii','iv','v','vi','vii'];
+
+  function romanNumeral(degree, quality) {
+    const isMajor = quality === 'Major' || quality === 'Major 7' || quality === 'Dominant 7' || quality === 'augmented' || quality === 'aug maj7';
+    const rom = isMajor ? ROMAN_UPPER[degree] : ROMAN_LOWER[degree];
+    return rom;
+  }
+
+  function buildDiatonicChords(scaleIntervals, rootIdx, useFlats, useSeventh) {
+    const len = scaleIntervals.length;
+    if (len < 7) return []; // pentatonic/blues: build what we can
+    const chords = [];
+    for (let deg = 0; deg < Math.min(len, 7); deg++) {
+      const chordIntervals = [0];
+      // stack thirds: skip one scale degree
+      const third = scaleIntervals[(deg + 2) % len] - scaleIntervals[deg];
+      const thirdSemi = ((third % 12) + 12) % 12;
+      chordIntervals.push(thirdSemi);
+      const fifth = scaleIntervals[(deg + 4) % len] - scaleIntervals[deg];
+      const fifthSemi = ((fifth % 12) + 12) % 12;
+      chordIntervals.push(fifthSemi);
+      if (useSeventh && len >= 7) {
+        const sev = scaleIntervals[(deg + 6) % len] - scaleIntervals[deg];
+        const sevSemi = ((sev % 12) + 12) % 12;
+        chordIntervals.push(sevSemi);
+      }
+      const q = chordQuality(chordIntervals);
+      const notes = chordIntervals.map(i => noteName(rootIdx + scaleIntervals[deg] + i, useFlats));
+      const roman = romanNumeral(deg, q.quality);
+      chords.push({
+        degree: deg,
+        roman: roman,
+        symbol: q.symbol,
+        quality: q.quality,
+        notes: notes,
+        chordIntervals: chordIntervals,
+        rootNote: noteName(rootIdx + scaleIntervals[deg], useFlats),
+        rootMidi: rootIdx + scaleIntervals[deg],
+      });
+    }
+    return chords;
+  }
+
+  // Pentatonic/blues: build triads from available notes
+  function buildPentatonicChords(scaleIntervals, rootIdx, useFlats, useSeventh) {
+    // For pentatonic/blues, we show the chords you can build from available notes
+    const scaleNotes = scaleIntervals.map(i => (rootIdx + i) % 12);
+    const chords = [];
+    for (let i = 0; i < scaleIntervals.length; i++) {
+      const root = (rootIdx + scaleIntervals[i]) % 12;
+      // Try to find a third and fifth from scale notes
+      let third = -1, fifth = -1, seventh = -1;
+      for (const n of scaleNotes) {
+        const diff = ((n - root) % 12 + 12) % 12;
+        if (diff === 3 || diff === 4) third = diff;
+        if (diff === 7) fifth = 7;
+        if (diff === 6) { if (fifth < 0) fifth = 6; }
+      }
+      if (third < 0 || fifth < 0) continue;
+      const ci = [0, third, fifth];
+      if (useSeventh) {
+        for (const n of scaleNotes) {
+          const diff = ((n - root) % 12 + 12) % 12;
+          if (diff === 10 || diff === 11) { seventh = diff; break; }
+        }
+        if (seventh > 0) ci.push(seventh);
+      }
+      const q = chordQuality(ci);
+      const notes = ci.map(iv => noteName(root + iv, useFlats));
+      chords.push({
+        degree: i,
+        roman: (q.quality === 'Major' || q.quality === 'Dominant 7') ? ROMAN_UPPER[chords.length] || (chords.length+1)+'' : ROMAN_LOWER[chords.length] || (chords.length+1)+'',
+        symbol: q.symbol,
+        quality: q.quality,
+        notes: notes,
+        chordIntervals: ci,
+        rootNote: noteName(root, useFlats),
+        rootMidi: root,
+      });
+    }
+    return chords;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // GUITAR VOICING ENGINE
+  // ═══════════════════════════════════════════════════════════
+  const GUITAR_TUNING = [40, 45, 50, 55, 59, 64]; // E2 A2 D3 G3 B3 E4 (MIDI)
+
+  function findGuitarVoicings(chordNotes, type) {
+    // chordNotes = array of note indices (0-11)
+    const noteSet = new Set(chordNotes);
+    const root = chordNotes[0];
+    const voicings = [];
+
+    // Try different starting frets
+    const startFrets = type === 0 ? [0] : type === 1 ? [1,2,3,4,5,6,7] : [3,4,5,6,7,8,9];
+    const maxSpan = type === 2 ? 4 : 4;
+
+    for (const baseFret of startFrets) {
+      // Try to find a playable voicing
+      const frets = []; // per string: -1=muted, 0+=fret
+      const fingers = [];
+      let valid = true;
+      let hasRoot = false;
+      let minFret = 99, maxFret = 0;
+
+      for (let s = 0; s < 6; s++) {
+        let bestFret = -1;
+        for (let f = baseFret; f <= baseFret + maxSpan; f++) {
+          const pitch = (GUITAR_TUNING[s] + f) % 12;
+          if (noteSet.has(pitch)) {
+            if (bestFret < 0 || (s < 3 && pitch === root)) bestFret = f;
+            else if (bestFret < 0) bestFret = f;
+          }
+        }
+        // Also check open string
+        if (baseFret > 0) {
+          const openPitch = GUITAR_TUNING[s] % 12;
+          if (noteSet.has(openPitch) && bestFret < 0) bestFret = 0;
+        }
+        frets.push(bestFret);
+        if (bestFret >= 0) {
+          if (bestFret > 0) { minFret = Math.min(minFret, bestFret); maxFret = Math.max(maxFret, bestFret); }
+          if ((GUITAR_TUNING[s] + bestFret) % 12 === root) hasRoot = true;
+        }
+      }
+
+      // Check span
+      if (maxFret - minFret > maxSpan) continue;
+      // Need at least 4 strings
+      const playable = frets.filter(f => f >= 0).length;
+      if (playable < 4) continue;
+      if (!hasRoot) continue;
+
+      // Assign finger numbers
+      const fretted = frets.map((f, i) => ({ fret: f, string: i })).filter(x => x.fret > 0).sort((a, b) => a.fret - b.fret);
+      const fingerMap = new Array(6).fill(0);
+      let fingerNum = 1;
+      let lastFret = -1;
+      // Barre detection
+      const fretCounts = {};
+      fretted.forEach(x => { fretCounts[x.fret] = (fretCounts[x.fret] || 0) + 1; });
+      const barreFret = Object.entries(fretCounts).find(([f, c]) => c >= 2)?.[0];
+
+      for (const x of fretted) {
+        if (barreFret && x.fret == barreFret) {
+          fingerMap[x.string] = 1;
+        } else {
+          fingerNum = fingerNum <= 1 ? 2 : fingerNum + 1;
+          if (fingerNum > 4) fingerNum = 4;
+          fingerMap[x.string] = Math.min(fingerNum, 4);
+        }
+      }
+
+      voicings.push({ frets, fingers: fingerMap, baseFret: minFret > 2 ? minFret : 0 });
+      if (voicings.length >= 3) break;
+    }
+
+    // If we didn't find enough, return what we have
+    return voicings.length > 0 ? voicings : [{ frets: [-1,-1,-1,-1,-1,-1], fingers: [0,0,0,0,0,0], baseFret: 0 }];
+  }
+
+  function renderGuitarSVG(voicing, chordName) {
+    const { frets, fingers, baseFret } = voicing;
+    const numFrets = 5;
+    const startFret = baseFret > 0 ? baseFret : 1;
+    const w = 140, h = 180;
+    const left = 35, top = 30, stringSpacing = 18, fretSpacing = 28;
+    const right = left + 5 * stringSpacing;
+
+    let svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+
+    // Nut or fret number
+    if (startFret <= 1) {
+      svg += `<line x1="${left}" y1="${top}" x2="${right}" y2="${top}" stroke="rgba(196,183,153,0.6)" stroke-width="3"/>`;
+    } else {
+      svg += `<text x="${left - 8}" y="${top + fretSpacing * 0.7}" fill="rgba(0,229,255,0.6)" font-family="JetBrains Mono" font-size="9" text-anchor="end">${startFret}</text>`;
+      svg += `<line x1="${left}" y1="${top}" x2="${right}" y2="${top}" stroke="rgba(196,183,153,0.2)" stroke-width="1"/>`;
+    }
+
+    // Fret lines
+    for (let f = 1; f <= numFrets; f++) {
+      const y = top + f * fretSpacing;
+      svg += `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="rgba(196,183,153,0.15)" stroke-width="1"/>`;
+    }
+
+    // String lines
+    for (let s = 0; s < 6; s++) {
+      const x = left + s * stringSpacing;
+      svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${top + numFrets * fretSpacing}" stroke="rgba(196,183,153,0.25)" stroke-width="${s < 3 ? 1.5 : 1}"/>`;
+    }
+
+    // Dots and markers
+    const colors = ['rgba(0,229,255,0.7)', 'rgba(123,104,238,0.7)', 'rgba(232,168,124,0.7)', 'rgba(255,220,120,0.6)'];
+    for (let s = 0; s < 6; s++) {
+      const x = left + s * stringSpacing;
+      if (frets[s] < 0) {
+        // Muted
+        svg += `<text x="${x}" y="${top - 8}" fill="rgba(196,183,153,0.4)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">×</text>`;
+      } else if (frets[s] === 0) {
+        // Open
+        svg += `<circle cx="${x}" cy="${top - 10}" r="4" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="1"/>`;
+      } else {
+        const displayFret = frets[s] - startFret + 1;
+        if (displayFret >= 1 && displayFret <= numFrets) {
+          const y = top + (displayFret - 0.5) * fretSpacing;
+          svg += `<circle cx="${x}" cy="${y}" r="7" fill="rgba(0,229,255,0.25)" stroke="rgba(0,229,255,0.6)" stroke-width="1">`;
+          svg += `</circle>`;
+          // glow
+          svg += `<circle cx="${x}" cy="${y}" r="7" fill="none" stroke="rgba(0,229,255,0.15)" stroke-width="3" opacity="0.5"/>`;
+          if (fingers[s] > 0) {
+            svg += `<text x="${x}" y="${y + 3}" fill="rgba(240,232,216,0.9)" font-family="JetBrains Mono" font-size="8" text-anchor="middle" font-weight="bold">${fingers[s]}</text>`;
+          }
+        }
+      }
+    }
+
+    // String labels at bottom
+    const stringNames = ['E','A','D','G','B','E'];
+    for (let s = 0; s < 6; s++) {
+      const x = left + s * stringSpacing;
+      svg += `<text x="${x}" y="${top + numFrets * fretSpacing + 15}" fill="rgba(196,183,153,0.3)" font-family="JetBrains Mono" font-size="7" text-anchor="middle">${stringNames[s]}</text>`;
+    }
+
+    svg += `</svg>`;
+    return svg;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // STATE & UI
+  // ═══════════════════════════════════════════════════════════
+  let currentRoot = 0; // C
+  let currentScale = 'Major (Ionian)';
+  let chordMode = 'triads';
+  let selectedChord = null;
+  let currentVoicingIdx = 0;
+  let currentVoicings = [];
+
+  const rootSelect = document.getElementById('rootSelect');
+  const scaleSelect = document.getElementById('scaleSelect');
+
+  // Populate selectors
+  NOTES.forEach((n, i) => {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = n;
+    rootSelect.appendChild(opt);
+  });
+  Object.keys(SCALES).forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    scaleSelect.appendChild(opt);
+  });
+
+  rootSelect.addEventListener('change', () => { currentRoot = parseInt(rootSelect.value); selectedChord = null; update(); });
+  scaleSelect.addEventListener('change', () => { currentScale = scaleSelect.value; selectedChord = null; update(); });
+
+  // Chord toggle
+  document.querySelectorAll('.chord-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.chord-toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      chordMode = btn.dataset.mode;
+      selectedChord = null;
+      update();
+    });
+  });
+
+  // Guitar voicing tabs
+  document.getElementById('guitarTabs').addEventListener('click', e => {
+    const tab = e.target.closest('.guitar-voicing-tab');
+    if (!tab) return;
+    document.querySelectorAll('.guitar-voicing-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentVoicingIdx = parseInt(tab.dataset.voicing);
+    renderGuitar();
+  });
+
+  // Modes toggle
+  document.getElementById('modesHeader').addEventListener('click', () => {
+    document.getElementById('modesBody').classList.toggle('open');
+    document.getElementById('modesIcon').classList.toggle('open');
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════════════
+  function update() {
+    const useFlats = FLAT_KEYS.has(NOTES[currentRoot]) || FLAT_KEYS.has(NOTE_NAMES_FLAT[currentRoot]);
+    const scaleIntervals = SCALES[currentScale];
+    const scaleNoteIndices = scaleIntervals.map(i => (currentRoot + i) % 12);
+    const scaleNoteNames = scaleIntervals.map(i => noteName(currentRoot + i, useFlats));
+
+    // Scale title
+    document.getElementById('scaleTitle').textContent = noteName(currentRoot, useFlats) + ' ' + currentScale;
+
+    // Scale notes
+    const notesDiv = document.getElementById('scaleNotes');
+    notesDiv.innerHTML = '';
+    scaleNoteNames.forEach((n, i) => {
+      const el = document.createElement('div');
+      el.className = 'scale-note' + (i === 0 ? ' root' : '');
+      el.innerHTML = `<span class="scale-note-name">${n}</span><span class="scale-note-degree">${i + 1}</span>`;
+      notesDiv.appendChild(el);
+    });
+
+    // Intervals
+    const intervalsDiv = document.getElementById('scaleIntervals');
+    const intervalLabels = getIntervalLabels(scaleIntervals);
+    intervalsDiv.innerHTML = intervalLabels.map(l => `<span class="scale-interval">${l}</span>`).join('');
+
+    // Chords
+    const useSeventh = chordMode === 'sevenths';
+    let chords;
+    if (scaleIntervals.length < 7) {
+      chords = buildPentatonicChords(scaleIntervals, currentRoot, useFlats, useSeventh);
+    } else {
+      chords = buildDiatonicChords(scaleIntervals, currentRoot, useFlats, useSeventh);
+    }
+
+    const grid = document.getElementById('chordGrid');
+    grid.innerHTML = '';
+    chords.forEach((chord, i) => {
+      const card = document.createElement('div');
+      card.className = 'chord-card' + (selectedChord === i ? ' active' : '');
+      card.innerHTML = `
+        <div class="chord-card-numeral">${chord.roman}${chord.symbol}</div>
+        <div class="chord-card-name">${chord.rootNote}${chord.symbol}</div>
+        <div class="chord-card-quality">${chord.quality}</div>
+        <div class="chord-card-notes">${chord.notes.join(' · ')}</div>
+      `;
+      card.addEventListener('click', () => {
+        selectedChord = i;
+        currentVoicingIdx = 0;
+        document.querySelectorAll('.guitar-voicing-tab').forEach((t, ti) => t.classList.toggle('active', ti === 0));
+        update();
+      });
+      grid.appendChild(card);
+    });
+
+    // Piano
+    renderPiano(scaleNoteIndices, chords);
+
+    // Guitar
+    if (selectedChord !== null && chords[selectedChord]) {
+      const chord = chords[selectedChord];
+      const chordNoteIndices = chord.chordIntervals.map(i => (chord.rootMidi + i) % 12);
+      currentVoicings = [
+        findGuitarVoicings(chordNoteIndices, 0)[0],
+        findGuitarVoicings(chordNoteIndices, 1)[0],
+        findGuitarVoicings(chordNoteIndices, 2)[0],
+      ];
+      document.getElementById('guitarTitle').textContent = chord.rootNote + chord.symbol + ' — Guitar';
+      renderGuitar();
+    } else {
+      document.getElementById('guitarTitle').textContent = 'Guitar Voicing';
+      document.getElementById('guitarDiagram').innerHTML = '<div class="guitar-placeholder">Click a chord to see guitar voicing</div>';
+    }
+
+    // Modes
+    renderModes(useFlats);
+  }
+
+  function renderPiano(scaleNotes, chords) {
+    const piano = document.getElementById('theoryPiano');
+    piano.innerHTML = '';
+    const useFlats = FLAT_KEYS.has(NOTES[currentRoot]);
+
+    // Build 2 octaves starting from C
+    const whiteNotes = [0,2,4,5,7,9,11]; // C D E F G A B
+    const blackNotes = [1,3,6,8,10]; // C# D# F# G# A#
+
+    // Determine chord note roles if a chord is selected
+    let chordRoles = {};
+    if (selectedChord !== null && chords[selectedChord]) {
+      const chord = chords[selectedChord];
+      chord.chordIntervals.forEach((interval, idx) => {
+        const noteIdx = (chord.rootMidi + interval) % 12;
+        if (idx === 0) chordRoles[noteIdx] = 'chord-root';
+        else if (idx === 1) chordRoles[noteIdx] = 'chord-third';
+        else if (idx === 2) chordRoles[noteIdx] = 'chord-fifth';
+        else if (idx === 3) chordRoles[noteIdx] = 'chord-seventh';
+      });
+    }
+
+    // Finger numbers for chord voicing (simple: 1=thumb on root going up)
+    const fingerNums = { 'chord-root': '1', 'chord-third': '2', 'chord-fifth': '3', 'chord-seventh': '5' };
+
+    for (let octave = 0; octave < 2; octave++) {
+      for (let i = 0; i < 12; i++) {
+        const noteIdx = i;
+        const isBlack = blackNotes.includes(i);
+        const isWhite = whiteNotes.includes(i);
+        if (!isWhite && !isBlack) continue;
+
+        const key = document.createElement('div');
+        key.className = 'tp-key ' + (isBlack ? 'black' : 'white');
+
+        const isInScale = scaleNotes.includes(noteIdx);
+        if (isInScale && !chordRoles[noteIdx]) key.classList.add('scale-note');
+        if (chordRoles[noteIdx]) key.classList.add(chordRoles[noteIdx]);
+
+        const label = document.createElement('span');
+        label.className = 'tp-key-label';
+        label.textContent = noteName(noteIdx, useFlats);
+        key.appendChild(label);
+
+        if (chordRoles[noteIdx] && octave === 0) {
+          const finger = document.createElement('span');
+          finger.className = 'tp-key-finger';
+          finger.textContent = fingerNums[chordRoles[noteIdx]] || '';
+          key.appendChild(finger);
+        }
+
+        piano.appendChild(key);
+      }
+    }
+  }
+
+  function renderGuitar() {
+    const container = document.getElementById('guitarDiagram');
+    if (!currentVoicings || !currentVoicings[currentVoicingIdx]) {
+      container.innerHTML = '<div class="guitar-placeholder">No voicing found</div>';
+      return;
+    }
+    container.innerHTML = renderGuitarSVG(currentVoicings[currentVoicingIdx]);
+  }
+
+  function renderModes(useFlats) {
+    const table = document.getElementById('modesTable');
+    const modeNames = ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian'];
+    const majorIntervals = SCALES['Major (Ionian)'];
+    // Get the parent major key for current root
+    const rootName = noteName(currentRoot, useFlats);
+
+    table.innerHTML = `
+      <thead><tr>
+        <th>Degree</th><th>Mode</th><th>Root</th><th>Character</th>
+      </tr></thead>
+      <tbody>${modeNames.map((mode, i) => {
+        const modeRoot = noteName(currentRoot + majorIntervals[i], useFlats);
+        const chars = ['Bright, happy', 'Smooth, jazzy', 'Dark, exotic', 'Dreamy, floating', 'Bluesy, dominant', 'Sad, natural', 'Tense, unstable'];
+        return `<tr data-mode="${mode}" data-degree="${i}">
+          <td>${i + 1}</td>
+          <td class="mode-name">${mode}</td>
+          <td>${modeRoot}</td>
+          <td>${chars[i]}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    `;
+
+    // Click to select mode
+    table.querySelectorAll('tr[data-mode]').forEach(row => {
+      row.addEventListener('click', () => {
+        const modeMap = {
+          'Ionian': 'Major (Ionian)', 'Dorian': 'Dorian', 'Phrygian': 'Phrygian',
+          'Lydian': 'Lydian', 'Mixolydian': 'Mixolydian', 'Aeolian': 'Natural Minor (Aeolian)',
+          'Locrian': 'Locrian'
+        };
+        const degree = parseInt(row.dataset.degree);
+        const newRoot = (currentRoot + SCALES['Major (Ionian)'][degree]) % 12;
+        const modeName = modeMap[row.dataset.mode];
+        if (modeName) {
+          rootSelect.value = newRoot;
+          scaleSelect.value = modeName;
+          currentRoot = newRoot;
+          currentScale = modeName;
+          selectedChord = null;
+          update();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+    });
+  }
+
+  // Initial render
+  update();
+
+  // ─── STARFIELD (copied from other pages) ───
+  (function(){
+    const c = document.getElementById('stars');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    let w, h, stars = [];
+    function resize() {
+      w = c.width = window.innerWidth;
+      h = c.height = window.innerHeight;
+    }
+    function init() {
+      resize();
+      stars = [];
+      for (let i = 0; i < 200; i++) {
+        stars.push({
+          x: Math.random() * w, y: Math.random() * h,
+          r: Math.random() * 1.2 + 0.3,
+          a: Math.random() * 0.5 + 0.2,
+          d: Math.random() * 0.02 + 0.005,
+          p: Math.random() * Math.PI * 2
+        });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      const t = Date.now() * 0.001;
+      stars.forEach(s => {
+        const flicker = s.a + Math.sin(t * s.d * 10 + s.p) * 0.15;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(240,232,216,${Math.max(0.05, flicker)})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    init();
+    window.addEventListener('resize', resize);
+    draw();
+  })();
+  </script>
+</body>
+</html>
