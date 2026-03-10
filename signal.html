@@ -165,12 +165,18 @@
       color: var(--glow);
       font-size: 0.5rem;
     }
+    .sig-slider, .sig-control {
+      touch-action: manipulation;
+    }
     .sig-slider {
       -webkit-appearance: none; appearance: none;
       width: 100%; height: 3px;
       background: rgba(138, 126, 107, 0.2);
       outline: none; cursor: pointer;
       border-radius: 2px;
+    }
+    .sig-slider {
+      touch-action: none;
     }
     .sig-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
@@ -710,9 +716,20 @@
       container.appendChild(block);
     });
 
-    // Attach slider events
+    // Attach slider events — prevent drag when touching sliders
     container.querySelectorAll('.sig-slider').forEach(s => {
       s.addEventListener('input', onSliderChange);
+      s.addEventListener('mousedown', e => e.stopPropagation());
+      s.addEventListener('touchstart', e => {
+        e.stopPropagation();
+        // Temporarily disable draggable on parent block
+        const block = s.closest('.signal-block');
+        if (block) block.draggable = false;
+      }, { passive: true });
+      s.addEventListener('touchend', () => {
+        const block = s.closest('.signal-block');
+        if (block) block.draggable = true;
+      }, { passive: true });
     });
     container.querySelectorAll('.signal-block-bypass').forEach(b => {
       b.addEventListener('click', onBypassToggle);
