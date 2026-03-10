@@ -1825,3 +1825,139 @@ footer .roots {
     border-bottom: none;
   }
 }
+
+/* ─── MIDI BADGE ─── */
+.midi-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: var(--stone-dark);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(138, 126, 107, 0.15);
+  background: rgba(10, 14, 26, 0.6);
+  white-space: nowrap;
+}
+.midi-badge.connected {
+  color: var(--moss-light);
+  border-color: rgba(74, 124, 89, 0.4);
+  box-shadow: 0 0 8px rgba(74, 124, 89, 0.15);
+}
+
+/* ─── PIANO KEYBOARD ─── */
+.piano-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 450;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(10, 14, 26, 0.95);
+  border-top: 1px solid rgba(0, 229, 255, 0.12);
+  backdrop-filter: blur(12px);
+  padding: 0.4rem 0.5rem 0.5rem;
+}
+
+.piano-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.piano-info-item {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--glow);
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  background: rgba(0, 229, 255, 0.04);
+}
+
+.piano-info-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--glow-warm);
+  letter-spacing: 0.05em;
+}
+
+.piano-keys {
+  display: flex;
+  position: relative;
+  height: 90px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.piano-key {
+  position: relative;
+  cursor: pointer;
+  transition: background 0.08s, box-shadow 0.08s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.3rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.piano-key.white {
+  width: 36px;
+  height: 90px;
+  background: rgba(200, 195, 180, 0.12);
+  border: 1px solid rgba(138, 126, 107, 0.2);
+  border-radius: 0 0 3px 3px;
+  margin-right: 1px;
+  z-index: 1;
+}
+
+.piano-key.black {
+  width: 24px;
+  height: 58px;
+  background: rgba(10, 14, 26, 0.9);
+  border: 1px solid rgba(138, 126, 107, 0.25);
+  border-radius: 0 0 2px 2px;
+  margin-left: -13px;
+  margin-right: -13px;
+  z-index: 2;
+}
+
+.piano-key.white.active {
+  background: rgba(0, 229, 255, 0.25);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.4), inset 0 0 10px rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.5);
+}
+
+.piano-key.black.active {
+  background: rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.5), inset 0 0 8px rgba(0, 229, 255, 0.2);
+  border-color: rgba(0, 229, 255, 0.6);
+}
+
+.piano-key:hover {
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.piano-key-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.45rem;
+  color: var(--stone-dark);
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+.piano-key.black .piano-key-label {
+  color: rgba(138, 126, 107, 0.5);
+  font-size: 0.4rem;
+}
+
+/* ─── PIANO MOBILE ─── */
+@media (max-width: 768px) {
+  .piano-keys { height: 70px; }
+  .piano-key.white { width: 28px; height: 70px; }
+  .piano-key.black { width: 20px; height: 45px; margin-left: -11px; margin-right: -11px; }
+  .piano-info { gap: 0.5rem; }
+  .piano-info-item { font-size: 0.5rem; }
+}

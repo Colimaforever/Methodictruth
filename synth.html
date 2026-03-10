@@ -6,7 +6,7 @@
   <title>Synth — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
   <style>
     /* ─── SYNTH LAYOUT ─── */
     .synth-page { position: relative; z-index: 1; min-height: 100vh; padding-top: 60px; }
@@ -279,6 +279,10 @@
         <button class="synth-btn preset" onclick="loadPreset('noisewash')">Noise Wash</button>
       </div>
       <div class="synth-toolbar-section">
+        <button class="synth-btn" id="kbToggleBtn" onclick="toggleKeyboard()">⌨ Keyboard</button>
+        <span class="midi-badge" id="midiBadge">MIDI: None</span>
+      </div>
+      <div class="synth-toolbar-section">
         <button class="synth-btn danger" onclick="clearAll()">✕ Clear</button>
       </div>
     </div>
@@ -294,6 +298,16 @@
         </defs>
       </svg>
     </div>
+  </div>
+
+  <!-- Musical Typing Piano Keyboard -->
+  <div class="piano-container" id="pianoContainer" style="display:none;">
+    <div class="piano-info">
+      <span class="piano-info-item" id="pianoOctave">Oct: 4</span>
+      <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
+      <span class="piano-info-hint" id="pianoHint"></span>
+    </div>
+    <div class="piano-keys" id="pianoKeys"></div>
   </div>
 
   <div class="audio-status" id="audioStatus">◇ audio suspended</div>
@@ -859,6 +873,285 @@
   // Update cables on scroll/resize
   window.addEventListener('resize', updateCablePositions);
   window.addEventListener('scroll', updateCablePositions);
+
+  // ═══════════════════════════════════════════════
+  // MIDI INPUT & MUSICAL TYPING KEYBOARD
+  // ═══════════════════════════════════════════════
+
+  let midiAccess = null;
+  let keyboardOctave = 4;
+  let keyboardVelocity = 100;
+  const activeNotes = new Map(); // note string → {synths}
+  const pianoContainer = document.getElementById('pianoContainer');
+  const pianoKeysEl = document.getElementById('pianoKeys');
+  const midiBadge = document.getElementById('midiBadge');
+
+  // Note names
+  const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  // Logic Pro X style keyboard mapping: key → semitone offset from C
+  const KEY_MAP = {
+    'a':0, 'w':1, 's':2, 'e':3, 'd':4, 'f':5, 't':6,
+    'g':7, 'y':8, 'h':9, 'u':10, 'j':11,
+    'k':12, 'o':13, 'l':14
+  };
+
+  const MAPPED_KEYS = new Set([...Object.keys(KEY_MAP), 'z','x','c','v']);
+  const heldKeys = new Set();
+
+  // Convert MIDI note number to frequency
+  function midiToFreq(note) { return 440 * Math.pow(2, (note - 69) / 12); }
+
+  // Get all oscillator modules in the patch
+  function getOscillators() {
+    return Object.values(modules).filter(m => m.type === 'oscillator');
+  }
+
+  // Trigger a note on
+  function noteOn(noteNum, vel) {
+    const freq = midiToFreq(noteNum);
+    const noteName = NOTE_NAMES[noteNum % 12] + Math.floor(noteNum / 12 - 1);
+    const gain = vel / 127;
+
+    const oscs = getOscillators();
+    if (oscs.length === 0) {
+      document.getElementById('pianoHint').textContent = '⚠ Add an oscillator module first';
+      setTimeout(() => { document.getElementById('pianoHint').textContent = ''; }, 2000);
+      return;
+    }
+
+    if (activeNotes.has(noteNum)) noteOff(noteNum); // retrigger
+
+    // For each oscillator, create a temporary clone that plays this note
+    const synthNodes = [];
+    oscs.forEach(mod => {
+      const origOsc = mod.audio.node;
+      const tempOsc = new Tone.Oscillator({
+        type: origOsc.type,
+        frequency: freq,
+        detune: origOsc.detune.value
+      });
+      const tempGain = new Tone.Gain(gain);
+      tempOsc.connect(tempGain);
+
+      // Route through whatever the original oscillator's output connects to
+      // Find cables from this osc's output
+      const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
+      if (outCables.length > 0) {
+        outCables.forEach(c => {
+          const targetMod = modules[c.to.moduleId];
+          if (targetMod) {
+            const inNode = targetMod.audio[c.to.portName] || targetMod.audio.in;
+            if (inNode) tempGain.connect(inNode);
+          }
+        });
+      } else {
+        tempGain.toDestination();
+      }
+      tempOsc.start();
+      synthNodes.push({ osc: tempOsc, gain: tempGain });
+    });
+
+    activeNotes.set(noteNum, synthNodes);
+    highlightPianoKey(noteNum, true);
+  }
+
+  // Trigger a note off
+  function noteOff(noteNum) {
+    const nodes = activeNotes.get(noteNum);
+    if (!nodes) return;
+    nodes.forEach(n => {
+      try {
+        n.osc.stop();
+        n.osc.dispose();
+        n.gain.dispose();
+      } catch(e) {}
+    });
+    activeNotes.delete(noteNum);
+    highlightPianoKey(noteNum, false);
+  }
+
+  // ─── MIDI SETUP ───
+  async function initMIDI() {
+    if (!navigator.requestMIDIAccess) {
+      midiBadge.textContent = 'MIDI: N/A';
+      midiBadge.title = 'Web MIDI not supported in this browser';
+      return;
+    }
+    try {
+      midiAccess = await navigator.requestMIDIAccess();
+      midiAccess.onstatechange = updateMIDIDevices;
+      updateMIDIDevices();
+    } catch(e) {
+      midiBadge.textContent = 'MIDI: Denied';
+    }
+  }
+
+  function updateMIDIDevices() {
+    if (!midiAccess) return;
+    let connected = 0;
+    midiAccess.inputs.forEach(input => {
+      input.onmidimessage = handleMIDIMessage;
+      connected++;
+    });
+    if (connected > 0) {
+      midiBadge.textContent = 'MIDI: Connected';
+      midiBadge.classList.add('connected');
+    } else {
+      midiBadge.textContent = 'MIDI: None';
+      midiBadge.classList.remove('connected');
+    }
+  }
+
+  function handleMIDIMessage(msg) {
+    const [status, data1, data2] = msg.data;
+    const cmd = status & 0xf0;
+
+    if (cmd === 0x90 && data2 > 0) {
+      noteOn(data1, data2);
+    } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
+      noteOff(data1);
+    } else if (cmd === 0xb0) {
+      // CC messages
+      handleMIDICC(data1, data2);
+    }
+  }
+
+  function handleMIDICC(cc, val) {
+    // CC1 = filter cutoff, CC74 = resonance
+    const filters = Object.values(modules).filter(m => m.type === 'filter');
+    if (cc === 1) {
+      // Map 0-127 to 20-10000 Hz (log scale)
+      const freq = 20 * Math.pow(500, val / 127);
+      filters.forEach(m => { setParam(m.id, 'frequency', Math.round(freq)); });
+    } else if (cc === 74) {
+      const q = 0.1 + (val / 127) * 19.9;
+      filters.forEach(m => { setParam(m.id, 'Q', Math.round(q * 10) / 10); });
+    }
+  }
+
+  // ─── MUSICAL TYPING ───
+  function toggleKeyboard() {
+    const btn = document.getElementById('kbToggleBtn');
+    const showing = pianoContainer.style.display !== 'none';
+    pianoContainer.style.display = showing ? 'none' : 'flex';
+    btn.classList.toggle('active', !showing);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    const key = e.key.toLowerCase();
+
+    if (!MAPPED_KEYS.has(key)) return;
+    e.preventDefault();
+
+    if (key === 'z') {
+      keyboardOctave = Math.max(0, keyboardOctave - 1);
+      document.getElementById('pianoOctave').textContent = 'Oct: ' + keyboardOctave;
+      return;
+    }
+    if (key === 'x') {
+      keyboardOctave = Math.min(8, keyboardOctave + 1);
+      document.getElementById('pianoOctave').textContent = 'Oct: ' + keyboardOctave;
+      return;
+    }
+    if (key === 'c') {
+      keyboardVelocity = Math.max(1, keyboardVelocity - 10);
+      document.getElementById('pianoVelocity').textContent = 'Vel: ' + keyboardVelocity;
+      return;
+    }
+    if (key === 'v') {
+      keyboardVelocity = Math.min(127, keyboardVelocity + 10);
+      document.getElementById('pianoVelocity').textContent = 'Vel: ' + keyboardVelocity;
+      return;
+    }
+
+    if (KEY_MAP[key] !== undefined && !heldKeys.has(key)) {
+      heldKeys.add(key);
+      const midiNote = (keyboardOctave + 1) * 12 + KEY_MAP[key];
+      noteOn(midiNote, keyboardVelocity);
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    const key = e.key.toLowerCase();
+    if (KEY_MAP[key] !== undefined && heldKeys.has(key)) {
+      heldKeys.delete(key);
+      const midiNote = (keyboardOctave + 1) * 12 + KEY_MAP[key];
+      noteOff(midiNote);
+    }
+  });
+
+  // ─── BUILD PIANO UI ───
+  function buildPiano() {
+    pianoKeysEl.innerHTML = '';
+    // 2 octaves + 3 extra keys (C to D of next octave) = 27 semitones
+    const totalSemitones = 27; // C0 to D2 (relative)
+    const blackIndices = new Set([1,3,6,8,10,13,15,18,20,22,25]);
+
+    // Computer key labels for each semitone
+    const keyLabels = ['A','W','S','E','D','F','T','G','Y','H','U','J','K','O','L','','','','','','','','','','','',''];
+
+    for (let i = 0; i < totalSemitones; i++) {
+      const isBlack = blackIndices.has(i);
+      const keyEl = document.createElement('div');
+      keyEl.className = 'piano-key' + (isBlack ? ' black' : ' white');
+      keyEl.dataset.semitone = i;
+
+      const label = keyLabels[i] || '';
+      if (label) {
+        const labelEl = document.createElement('span');
+        labelEl.className = 'piano-key-label';
+        labelEl.textContent = label;
+        keyEl.appendChild(labelEl);
+      }
+
+      // Mouse/touch interaction
+      keyEl.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        const midiNote = (keyboardOctave + 1) * 12 + i;
+        noteOn(midiNote, keyboardVelocity);
+        keyEl.dataset.mouseHeld = '1';
+      });
+      keyEl.addEventListener('mouseup', () => {
+        const midiNote = (keyboardOctave + 1) * 12 + i;
+        noteOff(midiNote);
+        delete keyEl.dataset.mouseHeld;
+      });
+      keyEl.addEventListener('mouseleave', () => {
+        if (keyEl.dataset.mouseHeld) {
+          const midiNote = (keyboardOctave + 1) * 12 + i;
+          noteOff(midiNote);
+          delete keyEl.dataset.mouseHeld;
+        }
+      });
+      keyEl.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const midiNote = (keyboardOctave + 1) * 12 + i;
+        noteOn(midiNote, keyboardVelocity);
+      }, { passive: false });
+      keyEl.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        const midiNote = (keyboardOctave + 1) * 12 + i;
+        noteOff(midiNote);
+      });
+
+      pianoKeysEl.appendChild(keyEl);
+    }
+  }
+
+  function highlightPianoKey(noteNum, on) {
+    const semitone = noteNum - (keyboardOctave + 1) * 12;
+    const keyEl = pianoKeysEl.querySelector(`[data-semitone="${semitone}"]`);
+    if (keyEl) {
+      keyEl.classList.toggle('active', on);
+    }
+  }
+
+  // Init
+  buildPiano();
+  initMIDI();
 
   // ─── STARFIELD (shared with site) ───
   (function initStars() {
