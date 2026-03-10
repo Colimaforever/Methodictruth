@@ -24,7 +24,7 @@ if (saved) {
 } else {
   audio.volume = 0.4;
 }
-audio.loop = true;
+audio.loop = false;
 
 // Save state continuously so it's always fresh
 function saveMusicState() {
@@ -33,6 +33,8 @@ function saveMusicState() {
     time: audio.currentTime,
     playing: isPlaying,
     volume: audio.volume,
+    generative: genActive,
+    maqamIndex: currentMaqamIndex,
     ts: Date.now()
   }));
 }
@@ -108,10 +110,263 @@ function togglePlay() {
 }
 
 playBtn.addEventListener('click', togglePlay);
-prevBtn.addEventListener('click', () => { loadTrack(currentTrack - 1); if (isPlaying) audio.play(); });
-nextBtn.addEventListener('click', () => { loadTrack(currentTrack + 1); if (isPlaying) audio.play(); });
-volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value / 100; });
-audio.addEventListener('ended', () => { loadTrack(currentTrack + 1); audio.play(); });
+prevBtn.addEventListener('click', handlePrev);
+nextBtn.addEventListener('click', handleNext);
+volumeSlider.addEventListener('input', handleVolume);
+audio.addEventListener('ended', handleTrackEnded);
+
+// ─── GENERATIVE MAQAM ENGINE ───
+const maqamScales = [
+  { name: 'Hijaz',     notes: [0, 1, 4, 5, 7, 8, 10],   detune: [0, 0, 0, 0, 0, 0, 0] },
+  { name: 'Rast',      notes: [0, 2, 3, 5, 7, 9, 10],    detune: [0, 0, 50, 0, 0, 0, 50] },
+  { name: 'Bayati',    notes: [0, 1, 3, 5, 7, 8, 10],    detune: [0, 50, 0, 0, 0, 0, 0] },
+  { name: 'Chahargah', notes: [0, 2, 3, 6, 7, 8, 11],    detune: [0, 0, 0, 0, 0, 0, 0] },
+];
+
+let genEngine = null; // holds the running generative engine state
+let genActive = false;
+let currentMaqamIndex = 0;
+
+function loadToneJS() {
+  return new Promise((resolve, reject) => {
+    if (window.Tone) return resolve();
+    const s = document.createElement('script');
+    s.src = 'lib/tone.min.js';
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function maqamFreq(scale, degree, octave) {
+  const semitone = scale.notes[((degree % scale.notes.length) + scale.notes.length) % scale.notes.length];
+  const oct = octave + Math.floor(degree / scale.notes.length);
+  const cents = scale.detune[((degree % scale.notes.length) + scale.notes.length) % scale.notes.length] || 0;
+  const base = 440 * Math.pow(2, (semitone - 9) / 12 + (oct - 4));
+  return base * Math.pow(2, cents / 1200);
+}
+
+function handleTrackEnded() {
+  // Instead of looping, start generative engine
+  startGenerativeEngine();
+}
+
+function handlePrev() {
+  if (genActive) {
+    if (currentMaqamIndex > 0) {
+      currentMaqamIndex--;
+      if (genEngine) switchMaqam(currentMaqamIndex);
+    } else {
+      stopGenerativeEngine();
+      loadTrack(0);
+      startPlaying();
+    }
+  } else {
+    loadTrack(currentTrack - 1);
+    if (isPlaying) audio.play();
+  }
+}
+
+function handleNext() {
+  if (genActive) {
+    currentMaqamIndex = (currentMaqamIndex + 1) % maqamScales.length;
+    if (genEngine) switchMaqam(currentMaqamIndex);
+  } else if (!genActive && currentTrack === playlist.length - 1) {
+    startGenerativeEngine();
+  } else {
+    loadTrack(currentTrack + 1);
+    if (isPlaying) audio.play();
+  }
+}
+
+function handleVolume(e) {
+  const vol = e.target.value / 100;
+  audio.volume = vol;
+  if (genEngine && genEngine.masterGain) {
+    genEngine.masterGain.gain.rampTo(vol, 0.1);
+  }
+}
+
+function togglePlay() {
+  if (playlist.length === 0 && !genActive) {
+    trackName.textContent = 'Drop mp3s in /audio';
+    return;
+  }
+  if (genActive) {
+    if (isPlaying) {
+      pauseGenerativeEngine();
+    } else {
+      resumeGenerativeEngine();
+    }
+    return;
+  }
+  if (isPlaying) {
+    audio.pause();
+    isPlaying = false;
+    playBtn.textContent = '▷';
+    playerStatus.textContent = '◇ paused';
+    musicPlayer.classList.remove('playing');
+  } else {
+    startPlaying();
+  }
+}
+
+async function startGenerativeEngine() {
+  audio.pause();
+  audio.currentTime = 0;
+  
+  await loadToneJS();
+  await Tone.start();
+  
+  genActive = true;
+  const scale = maqamScales[currentMaqamIndex];
+  trackName.textContent = 'Generative · Maqam ' + scale.name;
+  playerStatus.textContent = '◈ generating';
+  setPlayingUI();
+
+  const eng = {};
+  genEngine = eng;
+
+  // Master chain
+  eng.masterGain = new Tone.Gain(audio.volume).toDestination();
+  eng.compressor = new Tone.Compressor(-20, 4).connect(eng.masterGain);
+  eng.reverb = new Tone.Reverb({ decay: 8, wet: 0.7 });
+  await eng.reverb.generate();
+  eng.reverb.connect(eng.compressor);
+
+  // Drone layer - 2 FMSynths
+  eng.drones = [];
+  for (let i = 0; i < 2; i++) {
+    const drone = new Tone.FMSynth({
+      harmonicity: 1.5,
+      modulationIndex: 0.5,
+      envelope: { attack: 4, decay: 0, sustain: 1, release: 5 },
+      modulation: { type: 'sine' },
+      oscillator: { type: 'sine' }
+    }).connect(eng.reverb);
+    drone.volume.value = -18;
+    eng.drones.push(drone);
+  }
+  // Start drones
+  const droneFreqs = [maqamFreq(scale, 0, 2), maqamFreq(scale, 4, 2)];
+  eng.drones[0].triggerAttack(droneFreqs[0]);
+  eng.drones[1].triggerAttack(droneFreqs[1]);
+
+  // Drone microtonal drift LFOs
+  eng.droneLFOs = eng.drones.map((d, i) => {
+    const lfo = new Tone.LFO({ frequency: 0.03 + i * 0.01, min: -10, max: 10, type: 'sine' }).start();
+    lfo.connect(d.detune);
+    return lfo;
+  });
+
+  // Pad layer
+  eng.pad = new Tone.PolySynth(Tone.FMSynth, {
+    maxPolyphony: 4,
+    harmonicity: 2,
+    modulationIndex: 1,
+    envelope: { attack: 6, decay: 2, sustain: 0.8, release: 8 },
+    oscillator: { type: 'triangle' }
+  }).connect(eng.reverb);
+  eng.pad.volume.value = -22;
+
+  // Shimmer layer
+  eng.shimmer = new Tone.AMSynth({
+    harmonicity: 3,
+    envelope: { attack: 0.3, decay: 2, sustain: 0, release: 3 },
+    oscillator: { type: 'sine' }
+  }).connect(eng.reverb);
+  eng.shimmer.volume.value = -28;
+
+  // Texture layer - filtered noise
+  eng.noise = new Tone.Noise('brown').start();
+  eng.noise.volume.value = -35;
+  eng.noiseFilter = new Tone.AutoFilter({ frequency: 0.05, baseFrequency: 200, octaves: 3, wet: 1 }).connect(eng.reverb).start();
+  eng.noise.connect(eng.noiseFilter);
+
+  // Schedule pad chord changes
+  eng.currentScale = scale;
+  eng.padLoop = new Tone.Loop((time) => {
+    const s = eng.currentScale;
+    const root = Math.floor(Math.random() * 3); // 0,1,2 degree
+    const chord = [0, 2, 4].map(d => maqamFreq(s, root + d, 3));
+    eng.pad.triggerAttackRelease(chord, '12s', time);
+  }, 20);
+  eng.padLoop.start(0);
+
+  // Schedule shimmer notes
+  eng.shimmerLoop = new Tone.Loop((time) => {
+    const s = eng.currentScale;
+    const deg = Math.floor(Math.random() * s.notes.length);
+    const freq = maqamFreq(s, deg, 5 + Math.floor(Math.random() * 2));
+    eng.shimmer.triggerAttackRelease(freq, '2s', time, 0.3 + Math.random() * 0.3);
+  }, 5);
+  eng.shimmerLoop.start(0);
+  eng.shimmerLoop.humanize = '2s';
+
+  // Maqam rotation every 2-5 min
+  eng.maqamRotation = setInterval(() => {
+    if (!genActive) return;
+    currentMaqamIndex = (currentMaqamIndex + 1) % maqamScales.length;
+    switchMaqam(currentMaqamIndex);
+  }, (120 + Math.random() * 180) * 1000);
+
+  // Fade in
+  eng.masterGain.gain.value = 0;
+  eng.masterGain.gain.rampTo(audio.volume || 0.4, 5);
+
+  Tone.Transport.start();
+}
+
+function switchMaqam(index) {
+  if (!genEngine) return;
+  const scale = maqamScales[index];
+  genEngine.currentScale = scale;
+  trackName.textContent = 'Generative · Maqam ' + scale.name;
+
+  // Glide drones to new pitches
+  const newFreqs = [maqamFreq(scale, 0, 2), maqamFreq(scale, 4, 2)];
+  genEngine.drones.forEach((d, i) => {
+    d.frequency.rampTo(newFreqs[i], 12);
+  });
+}
+
+function pauseGenerativeEngine() {
+  if (!genEngine) return;
+  Tone.Transport.pause();
+  genEngine.drones.forEach(d => d.volume.rampTo(-Infinity, 1));
+  genEngine.noise.volume.rampTo(-Infinity, 1);
+  isPlaying = false;
+  playBtn.textContent = '▷';
+  playerStatus.textContent = '◇ paused';
+  musicPlayer.classList.remove('playing');
+}
+
+function resumeGenerativeEngine() {
+  if (!genEngine) return;
+  Tone.Transport.start();
+  genEngine.drones.forEach(d => d.volume.rampTo(-18, 1));
+  genEngine.noise.volume.rampTo(-35, 1);
+  setPlayingUI();
+  playerStatus.textContent = '◈ generating';
+}
+
+function stopGenerativeEngine() {
+  if (!genEngine) return;
+  if (genEngine.maqamRotation) clearInterval(genEngine.maqamRotation);
+  Tone.Transport.stop();
+  Tone.Transport.cancel();
+  // Dispose all nodes
+  ['drones', 'droneLFOs'].forEach(key => {
+    if (genEngine[key]) genEngine[key].forEach(n => n.dispose());
+  });
+  ['pad', 'shimmer', 'noise', 'noiseFilter', 'reverb', 'compressor', 'masterGain'].forEach(key => {
+    if (genEngine[key]) genEngine[key].dispose();
+  });
+  if (genEngine.padLoop) genEngine.padLoop.dispose();
+  if (genEngine.shimmerLoop) genEngine.shimmerLoop.dispose();
+  genEngine = null;
+  genActive = false;
+}
 
 // Initialize: restore from saved state or start fresh
 if (playlist.length > 0) {
