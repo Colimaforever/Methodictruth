@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tap BPM — Truth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=30">
+  <style>
+    .bpm-container {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      text-align: center;
+    }
+    .bpm-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 5rem;
+      font-weight: 300;
+      color: var(--glow);
+      text-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
+      line-height: 1;
+      margin: 1rem 0 0.3rem;
+      transition: text-shadow 0.1s;
+    }
+    .bpm-display.pulse {
+      text-shadow: 0 0 50px rgba(0, 229, 255, 0.8), 0 0 100px rgba(0, 229, 255, 0.3);
+    }
+    .bpm-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--stone-dark);
+      margin-bottom: 2rem;
+    }
+    .bpm-tempo-name {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--glow-warm);
+      margin-bottom: 2rem;
+      min-height: 1.5rem;
+    }
+    .tap-zone {
+      width: 100%;
+      padding: 3rem 2rem;
+      background: rgba(26, 18, 10, 0.6);
+      border: 2px solid rgba(0, 229, 255, 0.15);
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: all 0.1s;
+      touch-action: manipulation;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .tap-zone:active, .tap-zone.active {
+      border-color: rgba(0, 229, 255, 0.6);
+      background: rgba(0, 229, 255, 0.05);
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+    }
+    .tap-zone-text {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      color: var(--parchment);
+      letter-spacing: 0.1em;
+      pointer-events: none;
+    }
+    .tap-zone-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--stone-dark);
+      letter-spacing: 0.2em;
+      margin-top: 0.8rem;
+      pointer-events: none;
+    }
+    .bpm-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 1.5rem 0;
+    }
+    .bpm-stat {
+      text-align: center;
+    }
+    .bpm-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--parchment);
+    }
+    .bpm-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      color: var(--stone-dark);
+      text-transform: uppercase;
+    }
+    .bpm-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .bpm-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(26, 18, 10, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.2);
+      color: var(--stone-dark);
+      padding: 0.6rem 1.2rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .bpm-btn:hover {
+      color: var(--parchment);
+      border-color: rgba(138, 126, 107, 0.4);
+    }
+    .bpm-metronome {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(26, 18, 10, 0.4);
+      border: 1px solid rgba(138, 126, 107, 0.1);
+      border-radius: 6px;
+    }
+    .bpm-metronome-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--stone-dark);
+      margin-bottom: 1rem;
+    }
+    .metro-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .metro-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(138, 126, 107, 0.15);
+      border: 1px solid rgba(138, 126, 107, 0.2);
+      transition: all 0.08s;
+    }
+    .metro-dot.beat {
+      background: var(--glow);
+      border-color: var(--glow);
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+    }
+    .metro-dot.downbeat {
+      background: var(--glow-warm);
+      border-color: var(--glow-warm);
+      box-shadow: 0 0 10px rgba(255, 191, 0, 0.5);
+    }
+    .ms-per-beat {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--stone-dark);
+      margin-top: 0.8rem;
+    }
+    @media (max-width: 600px) {
+      .bpm-display { font-size: 4rem; }
+      .tap-zone { padding: 2.5rem 1.5rem; }
+      .bpm-stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="starfield">
+    <canvas id="stars"></canvas>
+    <canvas id="bgOscilloscope" class="bg-oscilloscope"></canvas>
+  </div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles.html">Chronicles</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth.html">Synth</a>
+          <a href="theory.html">Theory</a>
+          <a href="signal.html">Signal</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html" class="active">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="topology.html">Topology</a>
+          <a href="architecture.html">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="live.html">Live</a>
+      <a href="about.html">About</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Tap BPM</h1>
+    <div class="subtitle">Tempo Detection</div>
+  </div>
+
+  <div class="bpm-container">
+    <div class="bpm-display" id="bpmDisplay">—</div>
+    <div class="bpm-label">beats per minute</div>
+    <div class="bpm-tempo-name" id="tempoName"></div>
+
+    <div class="tap-zone" id="tapZone">
+      <span class="tap-zone-text">Tap Here</span>
+      <span class="tap-zone-hint">or press any key · spacebar · click</span>
+    </div>
+
+    <div class="bpm-stats">
+      <div class="bpm-stat">
+        <div class="bpm-stat-value" id="tapCount">0</div>
+        <div class="bpm-stat-label">taps</div>
+      </div>
+      <div class="bpm-stat">
+        <div class="bpm-stat-value" id="avgInterval">—</div>
+        <div class="bpm-stat-label">ms / beat</div>
+      </div>
+      <div class="bpm-stat">
+        <div class="bpm-stat-value" id="deviation">—</div>
+        <div class="bpm-stat-label">± ms</div>
+      </div>
+    </div>
+
+    <div class="bpm-actions">
+      <button class="bpm-btn" id="resetBtn">Reset</button>
+      <button class="bpm-btn" id="metroToggle">▶ Metronome</button>
+    </div>
+
+    <div class="bpm-metronome" id="metronomePanel" style="display:none">
+      <div class="bpm-metronome-title">Metronome</div>
+      <div class="metro-dots">
+        <div class="metro-dot" id="dot0"></div>
+        <div class="metro-dot" id="dot1"></div>
+        <div class="metro-dot" id="dot2"></div>
+        <div class="metro-dot" id="dot3"></div>
+      </div>
+      <div class="ms-per-beat" id="msPerBeat"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+    <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
+    <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+  </footer>
+
+  <div class="music-player" id="musicPlayer">
+    <button class="music-btn" id="prevBtn" title="Previous">◁</button>
+    <button class="music-btn" id="playBtn" title="Play">▷</button>
+    <button class="music-btn" id="nextBtn" title="Next">▷▷</button>
+    <div class="player-info">
+      <div class="player-track" id="trackName">No tracks loaded</div>
+      <div class="player-status" id="playerStatus">◇ idle</div>
+    </div>
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="40" title="Volume">
+  </div>
+
+  <script src="scripts.js?v=30"></script>
+  <script>
+  (function() {
+    const taps = [];
+    const display = document.getElementById('bpmDisplay');
+    const tempoName = document.getElementById('tempoName');
+    const tapCount = document.getElementById('tapCount');
+    const avgInterval = document.getElementById('avgInterval');
+    const deviationEl = document.getElementById('deviation');
+    const tapZone = document.getElementById('tapZone');
+    const resetBtn = document.getElementById('resetBtn');
+    const metroToggle = document.getElementById('metroToggle');
+    const metroPanel = document.getElementById('metronomePanel');
+    const msPerBeat = document.getElementById('msPerBeat');
+    let metroActive = false, metroInterval = null, metroBeat = 0;
+    let metroCtx = null, lastBpm = 0;
+
+    const tempoNames = [
+      [0, ''], [20, 'Larghissimo'], [40, 'Grave'], [55, 'Largo'],
+      [66, 'Larghetto'], [76, 'Adagio'], [92, 'Andante'],
+      [108, 'Moderato'], [120, 'Allegretto'], [132, 'Allegro'],
+      [160, 'Vivace'], [176, 'Presto'], [200, 'Prestissimo']
+    ];
+
+    function getTempoName(bpm) {
+      let name = '';
+      for (const [threshold, n] of tempoNames) {
+        if (bpm >= threshold) name = n;
+      }
+      return name;
+    }
+
+    function tap() {
+      const now = performance.now();
+      // Reset if >3 seconds since last tap
+      if (taps.length > 0 && now - taps[taps.length - 1] > 3000) {
+        taps.length = 0;
+      }
+      taps.push(now);
+
+      // Pulse effect
+      display.classList.add('pulse');
+      tapZone.classList.add('active');
+      setTimeout(() => { display.classList.remove('pulse'); tapZone.classList.remove('active'); }, 100);
+
+      tapCount.textContent = taps.length;
+
+      if (taps.length < 2) {
+        display.textContent = '—';
+        tempoName.textContent = 'keep tapping...';
+        avgInterval.textContent = '—';
+        deviationEl.textContent = '—';
+        return;
+      }
+
+      // Calculate intervals
+      const intervals = [];
+      for (let i = 1; i < taps.length; i++) {
+        intervals.push(taps[i] - taps[i - 1]);
+      }
+
+      const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      const bpm = Math.round(60000 / avg);
+      lastBpm = bpm;
+
+      // Standard deviation
+      const variance = intervals.reduce((sum, v) => sum + Math.pow(v - avg, 2), 0) / intervals.length;
+      const stdDev = Math.round(Math.sqrt(variance));
+
+      display.textContent = bpm;
+      tempoName.textContent = getTempoName(bpm);
+      avgInterval.textContent = Math.round(avg);
+      deviationEl.textContent = stdDev;
+      msPerBeat.textContent = Math.round(avg) + ' ms/beat';
+    }
+
+    function reset() {
+      taps.length = 0;
+      display.textContent = '—';
+      tempoName.textContent = '';
+      tapCount.textContent = '0';
+      avgInterval.textContent = '—';
+      deviationEl.textContent = '—';
+      lastBpm = 0;
+      stopMetronome();
+    }
+
+    function startMetronome() {
+      if (!lastBpm || lastBpm < 20) return;
+      metroActive = true;
+      metroToggle.textContent = '■ Stop';
+      metroPanel.style.display = 'block';
+      metroBeat = 0;
+
+      // Audio context for click sound
+      if (!metroCtx) metroCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      const interval = 60000 / lastBpm;
+      tick();
+      metroInterval = setInterval(tick, interval);
+    }
+
+    function tick() {
+      // Visual
+      document.querySelectorAll('.metro-dot').forEach(d => { d.classList.remove('beat', 'downbeat'); });
+      const dot = document.getElementById('dot' + (metroBeat % 4));
+      dot.classList.add(metroBeat % 4 === 0 ? 'downbeat' : 'beat');
+
+      // Audio click
+      if (metroCtx) {
+        const osc = metroCtx.createOscillator();
+        const gain = metroCtx.createGain();
+        osc.connect(gain);
+        gain.connect(metroCtx.destination);
+        osc.frequency.value = metroBeat % 4 === 0 ? 1000 : 700;
+        gain.gain.value = 0.08;
+        gain.gain.exponentialRampToValueAtTime(0.001, metroCtx.currentTime + 0.05);
+        osc.start(metroCtx.currentTime);
+        osc.stop(metroCtx.currentTime + 0.05);
+      }
+
+      metroBeat++;
+    }
+
+    function stopMetronome() {
+      metroActive = false;
+      metroToggle.textContent = '▶ Metronome';
+      metroPanel.style.display = 'none';
+      if (metroInterval) { clearInterval(metroInterval); metroInterval = null; }
+      document.querySelectorAll('.metro-dot').forEach(d => { d.classList.remove('beat', 'downbeat'); });
+    }
+
+    // Event listeners
+    tapZone.addEventListener('mousedown', (e) => { e.preventDefault(); tap(); });
+    tapZone.addEventListener('touchstart', (e) => { e.preventDefault(); tap(); }, { passive: false });
+
+    document.addEventListener('keydown', (e) => {
+      // Don't intercept if typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.repeat) return;
+      tap();
+    });
+
+    resetBtn.addEventListener('click', reset);
+    metroToggle.addEventListener('click', () => {
+      if (metroActive) stopMetronome();
+      else startMetronome();
+    });
+  })();
+  </script>
+</body>
+</html>
