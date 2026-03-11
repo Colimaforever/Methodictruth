@@ -617,23 +617,27 @@ resize();
 requestAnimationFrame(drawStars);
 
 // ─── MOBILE NAV TOGGLE ───
-const navToggle = document.getElementById('navToggle');
-const navLinks = document.getElementById('navLinks');
-if (navToggle && navLinks) {
+(function() {
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  if (!navToggle || !navLinks) return;
   navToggle.addEventListener('click', () => {
     navLinks.classList.toggle('open');
     navToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
   });
-  // Close nav when a link is clicked
-  navLinks.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => {
+  // Close nav when a link is clicked (use event delegation so it works for all links)
+  navLinks.addEventListener('click', (e) => {
+    if (e.target.closest('a')) {
       navLinks.classList.remove('open');
       navToggle.textContent = '☰';
-    });
+      // Also close any open dropdowns
+      navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
   });
   // Dropdown toggle on mobile (tap)
   navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
       const dropdown = btn.closest('.nav-dropdown');
       // Close other dropdowns
@@ -643,7 +647,7 @@ if (navToggle && navLinks) {
       dropdown.classList.toggle('open');
     });
   });
-}
+})();
 
 // ─── SPA ROUTER — Keep audio alive across navigation ───
 (function() {
@@ -671,7 +675,7 @@ if (navToggle && navLinks) {
     if (!pageName) return;
 
     try {
-      const resp = await fetch(href);
+      const resp = await fetch(href, { cache: 'no-cache' });
       if (!resp.ok) { window.location.href = href; return; }
       const html = await resp.text();
       const parser = new DOMParser();
