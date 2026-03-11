@@ -242,12 +242,9 @@ let volumeRafId = null;
 function handleVolume(e) {
   const vol = e.target.value / 100;
   currentVolume = vol;
-  console.log('[Vol] fader:', vol, 'writable:', volumeWritable, 'audioVol:', audio.volume, 'gain:', audioGain ? audioGain.gain.value : 'none');
   if (volumeWritable) {
-    // Desktop/Android: audio.volume works
     audio.volume = vol;
   } else {
-    // iOS: use Web Audio gain node
     ensureAudioGain();
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     if (audioGain) {
@@ -257,13 +254,16 @@ function handleVolume(e) {
       } catch(err) { audioGain.gain.value = vol; }
     }
   }
-  // Generative engine volume (Tone.js — works everywhere)
+  // Generative engine volume (Tone.js)
   if (genEngine && genEngine.masterGain) {
     if (volumeRafId) cancelAnimationFrame(volumeRafId);
     volumeRafId = requestAnimationFrame(() => {
-      genEngine.masterGain.gain.value = vol;
+      try { genEngine.masterGain.gain.rampTo(vol, 0.05); } catch(e) { genEngine.masterGain.gain.value = vol; }
       volumeRafId = null;
     });
+    console.log('[Vol] gen engine vol →', vol);
+  } else {
+    console.log('[Vol] audio vol →', vol, genEngine ? 'engine exists but no masterGain' : 'no genEngine');
   }
 }
 
