@@ -553,6 +553,10 @@ h1 {
 main {
   position: relative;
   z-index: 1;
+}
+/* Content pages that need centered narrow layout */
+main.content-main,
+.content-main {
   max-width: 800px;
   margin: 0 auto;
   padding: 0 2rem 6rem;
