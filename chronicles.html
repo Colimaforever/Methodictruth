@@ -6,7 +6,7 @@
   <title>Chronicles — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=47">
+  <link rel="stylesheet" href="styles.css?v=49">
 </head>
 <body>
 
@@ -339,10 +339,141 @@
     </div>
   </nav>
 
-  <div class="page-header" style="padding:5.5rem 2rem 1.5rem;">
+  <div class="page-header" style="padding:5.5rem 2rem 1rem;">
     <h1>Chronicles</h1>
     <div class="subtitle">Field Notes from the Edge</div>
   </div>
+
+  <!-- Floating Timeline Nav -->
+  <nav class="chron-nav" id="chronNav">
+    <button class="chron-nav-toggle" id="chronNavToggle">𒀭</button>
+    <div class="chron-nav-list" id="chronNavList">
+      <a href="#day-eight" class="chron-nav-item active">Day Eight</a>
+      <a href="#day-three" class="chron-nav-item">Day Three</a>
+      <a href="#day-two" class="chron-nav-item">Day Two</a>
+      <a href="#going-live" class="chron-nav-item">Going Live</a>
+      <a href="#day-one" class="chron-nav-item">Day One</a>
+    </div>
+  </nav>
+
+  <style>
+    .chron-nav {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
+    }
+    .chron-nav-toggle {
+      display: none;
+      background: rgba(18, 14, 10, 0.85);
+      border: 1px solid rgba(123, 104, 238, 0.25);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      color: rgba(123, 104, 238, 0.6);
+      font-size: 1.1rem;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s;
+    }
+    .chron-nav-toggle:hover {
+      border-color: rgba(123, 104, 238, 0.5);
+    }
+    .chron-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 0.6rem 0;
+    }
+    .chron-nav-item {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--stone-dark);
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      text-align: right;
+      border-right: 2px solid rgba(123, 104, 238, 0.1);
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .chron-nav-item:hover {
+      color: var(--parchment);
+      border-right-color: rgba(0, 229, 255, 0.4);
+    }
+    .chron-nav-item.active {
+      color: var(--glow);
+      border-right-color: var(--glow);
+    }
+    @media (max-width: 900px) {
+      .chron-nav {
+        right: 0.8rem;
+        top: auto;
+        bottom: 5rem;
+        transform: none;
+        align-items: flex-end;
+      }
+      .chron-nav-toggle { display: flex; align-items: center; justify-content: center; }
+      .chron-nav-list {
+        display: none;
+        background: rgba(14, 10, 8, 0.94);
+        border: 1px solid rgba(123, 104, 238, 0.2);
+        backdrop-filter: blur(12px);
+        padding: 0.5rem;
+        margin-bottom: 0.4rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      }
+      .chron-nav-list.open { display: flex; }
+      .chron-nav-item { font-size: 0.55rem; padding: 0.35rem 0.7rem; }
+    }
+  </style>
+
+  <script>
+  (function() {
+    // Toggle on mobile
+    const toggle = document.getElementById('chronNavToggle');
+    const list = document.getElementById('chronNavList');
+    if (toggle && list) {
+      toggle.addEventListener('click', () => list.classList.toggle('open'));
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('.chron-nav-item').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (list) list.classList.remove('open');
+      });
+    });
+
+    // Active state on scroll
+    const sections = ['day-eight', 'day-three', 'day-two', 'going-live', 'day-one'];
+    const navItems = document.querySelectorAll('.chron-nav-item');
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        let current = sections[0];
+        sections.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top < window.innerHeight * 0.4) current = id;
+        });
+        navItems.forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + current);
+        });
+        ticking = false;
+      });
+    });
+  })();
+  </script>
 
   <main>
     <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="day-eight">Day Eight</span> <span class="leaf">🌿</span></div>
