@@ -135,23 +135,8 @@ function startPlaying(seekTo) {
   }
 }
 
-function togglePlay() {
-  if (playlist.length === 0) {
-    trackName.textContent = 'Drop mp3s in /audio';
-    return;
-  }
-  if (isPlaying) {
-    audio.pause();
-    isPlaying = false;
-    playBtn.textContent = '▷';
-    playerStatus.textContent = '◇ paused';
-    musicPlayer.classList.remove('playing');
-  } else {
-    startPlaying();
-  }
-}
-
-playBtn.addEventListener('click', togglePlay);
+// togglePlay defined below (after generative engine code)
+// playBtn listener also below
 prevBtn.addEventListener('click', handlePrev);
 nextBtn.addEventListener('click', handleNext);
 volumeSlider.addEventListener('input', handleVolume);
@@ -299,6 +284,7 @@ function togglePlay() {
     startPlaying();
   }
 }
+playBtn.addEventListener('click', togglePlay);
 
 async function startGenerativeEngine() {
   audio.pause();
