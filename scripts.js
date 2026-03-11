@@ -704,6 +704,12 @@ requestAnimationFrame(drawStars);
         el.remove();
       });
 
+      // Force-remove structures-svg on pages that don't want it
+      const noStructures = ['architecture.html'];
+      if (noStructures.includes(pageName)) {
+        document.querySelectorAll('.structures-svg').forEach(el => el.remove());
+      }
+
       // Insert new page content (everything from parsed doc that isn't persistent)
       const nav = document.querySelector('.site-nav');
       const frag = document.createDocumentFragment();
@@ -728,10 +734,12 @@ requestAnimationFrame(drawStars);
       // Hide/show decorative layers per page
       const hideDecor = ['architecture.html'];
       const isClean = hideDecor.includes(pageName);
-      ['.nebula', '.ground', '.starfield', '.sky-glyph', '.artifact-float', '.shooting-star'].forEach(sel => {
-        document.querySelectorAll(sel).forEach(el => el.style.display = isClean ? 'none' : '');
+      ['.nebula', '.ground', '.starfield', '.sky-glyph', '.artifact-float', '.shooting-star', '.structures-svg'].forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => {
+          if (isClean) { el.style.display = 'none'; el.style.visibility = 'hidden'; }
+          else { el.style.display = ''; el.style.visibility = ''; }
+        });
       });
-      // Also force body pseudo-element cleanup via class
       document.body.classList.toggle('no-grain', isClean);
 
       // Execute page-specific inline scripts from new page
