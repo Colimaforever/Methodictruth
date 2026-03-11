@@ -629,10 +629,15 @@ main {
 
 .explore-icon {
   font-family: serif;
-  font-size: 0.7rem;
-  color: var(--glow);
-  opacity: 0.5;
+  font-size: 1.1rem;
+  color: var(--glow-warm);
+  opacity: 0.4;
   line-height: 1;
+  transition: opacity 0.3s;
+}
+
+.explore-card:hover .explore-icon {
+  opacity: 0.8;
 }
 
 .explore-title {
