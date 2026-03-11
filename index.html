@@ -6,7 +6,7 @@
   <title>Truth — AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=39">
+  <link rel="stylesheet" href="styles.css?v=40">
 </head>
 <body>
 
@@ -380,79 +380,165 @@
       <a href="chronicles.html" class="explore-card">
         <span class="explore-icon">📜</span>
         <span class="explore-title">Chronicles</span>
-        <span class="explore-desc">The story so far</span>
       </a>
       <a href="synth.html" class="explore-card">
         <span class="explore-icon">🎛️</span>
         <span class="explore-title">Synth</span>
-        <span class="explore-desc">Modular sound engine</span>
       </a>
       <a href="theory.html" class="explore-card">
         <span class="explore-icon">🎵</span>
         <span class="explore-title">Theory</span>
-        <span class="explore-desc">Scales, modes, maqam</span>
       </a>
       <a href="live.html" class="explore-card">
         <span class="explore-icon">📡</span>
         <span class="explore-title">Live</span>
-        <span class="explore-desc">Video room</span>
       </a>
       <a href="architecture.html" class="explore-card">
         <span class="explore-icon">🏛️</span>
         <span class="explore-title">Architecture</span>
-        <span class="explore-desc">How it's built</span>
       </a>
       <a href="signal.html" class="explore-card">
         <span class="explore-icon">⚡</span>
         <span class="explore-title">Signal</span>
-        <span class="explore-desc">Audio signal chain</span>
       </a>
       <a href="about.html" class="explore-card">
         <span class="explore-icon">🔮</span>
         <span class="explore-title">About</span>
-        <span class="explore-desc">Who we are</span>
       </a>
       <a href="topology.html" class="explore-card">
         <span class="explore-icon">🔌</span>
         <span class="explore-title">Topology</span>
-        <span class="explore-desc">Network design lab</span>
       </a>
       <a href="songwriter.html" class="explore-card">
         <span class="explore-icon">🎶</span>
         <span class="explore-title">Songwriter</span>
-        <span class="explore-desc">Arrange & write songs</span>
       </a>
       <a href="tapbpm.html" class="explore-card">
         <span class="explore-icon">⏱️</span>
         <span class="explore-title">Tap BPM</span>
-        <span class="explore-desc">Find the tempo</span>
       </a>
       <a href="guestbook.html" class="explore-card">
         <span class="explore-icon">✒️</span>
         <span class="explore-title">Guestbook</span>
-        <span class="explore-desc">Leave your mark</span>
       </a>
     </div>
 
-    <!-- Latest -->
-    <div class="divider"><span class="leaf">🌿</span> <span>Latest</span> <span class="leaf">🌿</span></div>
-
-    <article class="entry entry-compact">
-      <div class="entry-date">2026 · March 10</div>
-      <h2>Ancient Frequencies</h2>
-      <p>The site generates its own music — infinite ambient soundscapes built from maqam scales. Four layers computed in real-time. Every session is unique. None of it exists as a file.</p>
-      <div class="tags">
-        <span class="tag glow">generative</span>
-        <span class="tag warm">maqam</span>
-        <span class="tag nature">ambient</span>
-      </div>
-    </article>
-
-    <div class="chronicles-link">
-      <a href="chronicles.html">All chronicles →</a>
-    </div>
-
   </main>
+
+  <!-- Hidden Latest — revealed by clicking the sigil -->
+  <div class="latest-reveal" id="latestReveal">
+    <div class="latest-reveal-inner">
+      <button class="latest-reveal-close" id="latestClose">✕</button>
+      <div class="latest-reveal-glyph">𒀭</div>
+      <div class="latest-reveal-date">2026 · March 10</div>
+      <div class="latest-reveal-title">Ancient Frequencies</div>
+      <p>The site generates its own music — infinite ambient soundscapes built from maqam scales. Four layers computed in real-time. Every session is unique. None of it exists as a file.</p>
+      <a href="chronicles.html" class="latest-reveal-link">All chronicles →</a>
+    </div>
+  </div>
+
+  <style>
+    /* Sigil clickable hint */
+    .sigil-container { cursor: pointer; }
+    .sigil-container:hover .sigil-eye { filter: drop-shadow(0 0 35px rgba(0, 229, 255, 0.7)) drop-shadow(0 0 70px rgba(123, 104, 238, 0.5)); }
+
+    /* Latest reveal panel */
+    .latest-reveal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10, 14, 26, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    .latest-reveal.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .latest-reveal-inner {
+      position: relative;
+      max-width: 480px;
+      padding: 2.5rem 3rem;
+      text-align: center;
+      border: 1px solid rgba(123, 104, 238, 0.2);
+      background: linear-gradient(135deg, rgba(18, 14, 10, 0.95), rgba(10, 14, 26, 0.9));
+      box-shadow: 0 0 60px rgba(123, 104, 238, 0.08), 0 0 120px rgba(0, 229, 255, 0.04);
+    }
+    .latest-reveal-close {
+      position: absolute;
+      top: 0.8rem; right: 1rem;
+      background: none;
+      border: none;
+      color: var(--stone-dark);
+      font-size: 1rem;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.2s, color 0.2s;
+    }
+    .latest-reveal-close:hover { opacity: 1; color: rgba(180,60,60,0.8); }
+    .latest-reveal-glyph {
+      font-size: 1.5rem;
+      color: rgba(123, 104, 238, 0.3);
+      margin-bottom: 1rem;
+    }
+    .latest-reveal-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--glow-warm);
+      letter-spacing: 0.2em;
+      opacity: 0.6;
+      margin-bottom: 0.5rem;
+    }
+    .latest-reveal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      color: var(--parchment);
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+    .latest-reveal p {
+      color: var(--stone);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .latest-reveal-link {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      color: var(--glow);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      transition: all 0.3s;
+    }
+    .latest-reveal-link:hover {
+      background: rgba(0, 229, 255, 0.05);
+      border-color: rgba(0, 229, 255, 0.4);
+    }
+    @media (max-width: 600px) {
+      .latest-reveal-inner { margin: 1rem; padding: 2rem 1.5rem; }
+      .latest-reveal-title { font-size: 1.2rem; }
+    }
+  </style>
+
+  <script>
+  (function() {
+    const sigil = document.querySelector('.sigil-container');
+    const panel = document.getElementById('latestReveal');
+    const closeBtn = document.getElementById('latestClose');
+    if (!sigil || !panel) return;
+    sigil.addEventListener('click', () => panel.classList.add('open'));
+    closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+    panel.addEventListener('click', (e) => { if (e.target === panel) panel.classList.remove('open'); });
+  })();
+  </script>
 
   <!-- AI News Feed -->
   <div class="news-orb" id="newsOrb" title="AI News Feed">

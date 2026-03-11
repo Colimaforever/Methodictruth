@@ -612,10 +612,10 @@ main {
 .explore-card {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.9rem;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
   background: rgba(26, 18, 10, 0.5);
-  border: 1px solid rgba(138, 126, 107, 0.1);
+  border: 1px solid rgba(138, 126, 107, 0.12);
   border-radius: 2px;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -628,13 +628,13 @@ main {
 }
 
 .explore-icon {
-  font-size: 1rem;
+  font-size: 1.2rem;
   line-height: 1;
 }
 
 .explore-title {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--parchment);
