@@ -692,27 +692,32 @@ requestAnimationFrame(drawStars);
         document.head.appendChild(clone);
       });
 
-      // Swap main content (all page content lives inside <main>)
-      const newMain = doc.querySelector('main');
-      const oldMain = document.querySelector('main');
-      if (newMain && oldMain) {
-        oldMain.replaceWith(newMain.cloneNode(true));
-      } else {
-        // Fallback: if either page lacks <main>, do a full navigation
-        console.warn('SPA: missing <main> tag, falling back to full nav');
-        window.location.href = href;
-        return;
-      }
+      // Swap page content: everything between nav and persistent elements
+      // Persistent = starfield, nebula, ground, nav, music player, bgOscilloscope, scripts
+      const KEEP = new Set(['SCRIPT', 'CANVAS']);
+      const keepSelectors = '.starfield, .nebula, .ground, .site-nav, #musicPlayer, #bgOscilloscope';
 
-      // Swap chat orb/float if present
-      const newOrb = doc.querySelector('.chat-orb');
-      const newFloat = doc.querySelector('.chat-float');
-      const oldOrb = document.querySelector('.chat-orb');
-      const oldFloat = document.querySelector('.chat-float');
-      if (newOrb && !oldOrb) document.body.appendChild(newOrb.cloneNode(true));
-      if (!newOrb && oldOrb) oldOrb.remove();
-      if (newFloat && !oldFloat) document.body.appendChild(newFloat.cloneNode(true));
-      if (!newFloat && oldFloat) oldFloat.remove();
+      // Remove old page content
+      Array.from(document.body.children).forEach(el => {
+        if (KEEP.has(el.tagName)) return;
+        if (el.matches && el.matches(keepSelectors)) return;
+        el.remove();
+      });
+
+      // Insert new page content (everything from parsed doc that isn't persistent)
+      const nav = document.querySelector('.site-nav');
+      const frag = document.createDocumentFragment();
+      Array.from(doc.body.children).forEach(el => {
+        if (KEEP.has(el.tagName)) return;
+        if (el.matches && el.matches(keepSelectors)) return;
+        frag.appendChild(el.cloneNode(true));
+      });
+      // Insert after nav
+      if (nav && nav.nextSibling) {
+        nav.parentNode.insertBefore(frag, nav.nextSibling);
+      } else {
+        document.body.appendChild(frag);
+      }
 
       // Update active nav link
       document.querySelectorAll('.site-nav a').forEach(a => {
