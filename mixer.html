@@ -17,72 +17,72 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=50">
   <style>
-    .mixer-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 0.5rem; }
+    .mixer-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 0.2rem; }
 
     /* ─── TRANSPORT ─── */
     .mx-transport {
-      display: flex; align-items: center; justify-content: center; gap: 0.8rem;
-      padding: 0.6rem 1rem; max-width: 1200px; margin: 0 auto 0.5rem;
-      background: rgba(18,14,10,0.6); border: 1px solid rgba(138,126,107,0.08);
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      padding: 0.3rem 0.5rem; width: 100%; margin: 0 0 0.2rem;
+      background: rgba(18,14,10,0.7); border-bottom: 1px solid rgba(138,126,107,0.08);
     }
     .mx-transport-btn {
       background: rgba(26,18,10,0.6); border: 1px solid rgba(138,126,107,0.15);
-      color: var(--stone); font-family: 'JetBrains Mono',monospace; font-size: 0.75rem;
-      padding: 0.35rem 0.8rem; cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
+      color: var(--stone); font-family: 'JetBrains Mono',monospace; font-size: 0.7rem;
+      padding: 0.4rem 0.7rem; cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
+      touch-action: manipulation;
     }
     .mx-transport-btn:hover { border-color: rgba(0,229,255,0.3); color: var(--parchment); }
     .mx-transport-btn.active { border-color: var(--glow); color: var(--glow); }
     .mx-time {
-      font-family: 'JetBrains Mono',monospace; font-size: 0.7rem; color: var(--glow);
-      min-width: 60px; text-align: center;
+      font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; color: var(--glow);
+      min-width: 50px; text-align: center;
     }
     .mx-scrubber {
-      flex: 1; max-width: 300px; height: 4px; -webkit-appearance: none; appearance: none;
+      flex: 1; max-width: 400px; height: 6px; -webkit-appearance: none; appearance: none;
       background: rgba(138,126,107,0.15); outline: none; cursor: pointer;
     }
     .mx-scrubber::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%;
+      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
       background: var(--glow); cursor: pointer;
     }
 
-    /* ─── CONSOLE (mixer body) ─── */
+    /* ─── CONSOLE — FULL WIDTH ─── */
     .mx-console {
-      display: flex; max-width: 1200px; margin: 0 auto; padding: 0 0.5rem;
-      gap: 2px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      display: flex; width: 100%; padding: 0;
+      gap: 1px; overflow-x: auto; -webkit-overflow-scrolling: touch;
     }
 
     /* ─── CHANNEL STRIP ─── */
     .mx-channel {
       display: flex; flex-direction: column; align-items: center;
-      min-width: 100px; width: 100px; padding: 0.5rem 0.3rem;
+      flex: 1; min-width: 0; padding: 0.4rem 0.2rem;
       background: rgba(18,14,10,0.7); border: 1px solid rgba(138,126,107,0.06);
-      flex-shrink: 0;
     }
     .mx-channel.master {
-      min-width: 120px; width: 120px;
+      flex: 1.3;
       background: rgba(18,14,10,0.85); border-color: rgba(232,168,124,0.15);
     }
     .mx-ch-label {
-      font-family: 'JetBrains Mono',monospace; font-size: 0.55rem; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.3rem;
+      font-family: 'JetBrains Mono',monospace; font-size: 0.55rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.2rem;
       width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .mx-channel.master .mx-ch-label { color: var(--glow-warm); }
 
     /* Load button */
     .mx-load-btn {
-      width: 80%; padding: 0.25rem; margin-bottom: 0.4rem;
+      width: 90%; padding: 0.3rem; margin-bottom: 0.3rem;
       background: rgba(0,229,255,0.05); border: 1px dashed rgba(0,229,255,0.2);
       color: var(--stone-dark); font-family: 'JetBrains Mono',monospace; font-size: 0.5rem;
-      cursor: pointer; transition: all 0.2s; text-align: center;
+      cursor: pointer; transition: all 0.2s; text-align: center; touch-action: manipulation;
     }
     .mx-load-btn:hover { border-color: var(--glow); color: var(--glow); }
     .mx-load-btn.loaded { border-style: solid; border-color: rgba(0,229,255,0.3); color: var(--glow); }
 
     /* Meter */
     .mx-meter {
-      width: 8px; height: 100px; background: rgba(10,14,26,0.8);
-      border: 1px solid rgba(138,126,107,0.08); position: relative; margin-bottom: 0.3rem;
+      width: 10px; height: 120px; background: rgba(10,14,26,0.8);
+      border: 1px solid rgba(138,126,107,0.08); position: relative; margin-bottom: 0.2rem;
     }
     .mx-meter-fill {
       position: absolute; bottom: 0; left: 0; right: 0;
@@ -95,103 +95,127 @@
     }
     .mx-meter-clip.active { opacity: 1; }
 
-    /* Fader */
-    .mx-fader-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 0.3rem; }
+    /* Fader — VERTICAL */
+    .mx-fader-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 0.2rem; }
     .mx-fader {
       writing-mode: vertical-lr; direction: rtl;
-      width: 100px; height: 4px; -webkit-appearance: none; appearance: none;
-      background: rgba(138,126,107,0.1); outline: none; cursor: pointer;
+      width: 120px; height: 6px; -webkit-appearance: none; appearance: none;
+      background: rgba(138,126,107,0.12); outline: none; cursor: pointer;
+      touch-action: none;
     }
     .mx-fader::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 24px; height: 8px;
-      background: linear-gradient(to bottom, rgba(240,232,216,0.8), rgba(138,126,107,0.6));
-      border: 1px solid rgba(138,126,107,0.3); cursor: pointer;
+      -webkit-appearance: none; width: 32px; height: 10px;
+      background: linear-gradient(to bottom, rgba(240,232,216,0.9), rgba(138,126,107,0.7));
+      border: 1px solid rgba(138,126,107,0.4); cursor: pointer;
     }
+    .mx-fader::-webkit-slider-runnable-track { background: transparent; }
     .mx-fader-val {
       font-family: 'JetBrains Mono',monospace; font-size: 0.5rem;
-      color: var(--stone-dark); margin-top: 0.2rem;
+      color: var(--stone-dark); margin-top: 0.15rem;
     }
 
     /* Pan knob */
-    .mx-pan-wrap { display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.3rem; }
+    .mx-pan-wrap { display: flex; align-items: center; gap: 0.2rem; margin-bottom: 0.2rem; }
     .mx-pan-label { font-family: 'JetBrains Mono',monospace; font-size: 0.45rem; color: var(--stone-dark); }
     .mx-pan {
-      width: 50px; height: 4px; -webkit-appearance: none; appearance: none;
-      background: rgba(138,126,107,0.1); outline: none; cursor: pointer;
+      width: 100%; max-width: 60px; height: 6px; -webkit-appearance: none; appearance: none;
+      background: rgba(138,126,107,0.1); outline: none; cursor: pointer; touch-action: none;
     }
     .mx-pan::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%;
-      background: var(--parchment); border: 1px solid rgba(138,126,107,0.3); cursor: pointer;
+      -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+      background: var(--parchment); border: 1px solid rgba(138,126,107,0.4); cursor: pointer;
     }
 
-    /* Mute / Solo */
-    .mx-btn-row { display: flex; gap: 3px; margin-bottom: 0.3rem; }
+    /* Mute / Solo — bigger touch targets */
+    .mx-btn-row { display: flex; gap: 2px; margin-bottom: 0.2rem; width: 100%; }
     .mx-mute, .mx-solo {
-      font-family: 'JetBrains Mono',monospace; font-size: 0.5rem; padding: 0.15rem 0.35rem;
+      font-family: 'JetBrains Mono',monospace; font-size: 0.55rem; padding: 0.3rem 0;
       border: 1px solid rgba(138,126,107,0.12); background: transparent; cursor: pointer;
       color: var(--stone-dark); transition: all 0.2s; letter-spacing: 0.1em;
+      flex: 1; text-align: center; touch-action: manipulation;
     }
     .mx-mute.active { background: rgba(180,60,60,0.3); border-color: rgba(180,60,60,0.5); color: #e06060; }
     .mx-solo.active { background: rgba(232,168,124,0.2); border-color: rgba(232,168,124,0.4); color: var(--glow-warm); }
 
     /* ─── EQ (master) ─── */
-    .mx-eq { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; margin-bottom: 0.3rem; width: 100%; }
+    .mx-eq { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; margin-bottom: 0.2rem; width: 100%; }
     .mx-eq-label { font-family: 'JetBrains Mono',monospace; font-size: 0.45rem; color: var(--stone-dark); letter-spacing: 0.1em; }
-    .mx-eq-band {
-      display: flex; align-items: center; gap: 0.2rem; width: 100%;
-    }
-    .mx-eq-name { font-family: 'JetBrains Mono',monospace; font-size: 0.4rem; color: var(--stone-dark); min-width: 18px; }
+    .mx-eq-band { display: flex; align-items: center; gap: 0.15rem; width: 100%; }
+    .mx-eq-name { font-family: 'JetBrains Mono',monospace; font-size: 0.4rem; color: var(--stone-dark); min-width: 16px; }
     .mx-eq-slider {
-      flex: 1; height: 3px; -webkit-appearance: none; appearance: none;
-      background: rgba(138,126,107,0.1); outline: none; cursor: pointer;
+      flex: 1; height: 6px; -webkit-appearance: none; appearance: none;
+      background: rgba(138,126,107,0.1); outline: none; cursor: pointer; touch-action: none;
     }
     .mx-eq-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%;
+      -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
       background: var(--glow-warm); cursor: pointer;
     }
     .mx-eq-val { font-family: 'JetBrains Mono',monospace; font-size: 0.4rem; color: var(--stone-dark); min-width: 22px; text-align: right; }
 
     /* ─── INFO PANEL ─── */
     .mx-info {
-      max-width: 1200px; margin: 0.5rem auto; padding: 0 1rem;
+      width: 100%; margin: 0.3rem 0; padding: 0 0.5rem;
     }
     .mx-info-card {
       background: rgba(18,14,10,0.6); border: 1px solid rgba(138,126,107,0.08);
-      padding: 1rem 1.2rem; position: relative; z-index: 1;
+      padding: 0.6rem 0.8rem; position: relative; z-index: 1;
     }
     .mx-info-title {
-      font-family: 'Cinzel',serif; font-size: 0.85rem; color: var(--glow-warm);
-      margin-bottom: 0.5rem; letter-spacing: 0.05em;
+      font-family: 'Cinzel',serif; font-size: 0.8rem; color: var(--glow-warm);
+      margin-bottom: 0.3rem; letter-spacing: 0.05em;
     }
     .mx-info-text {
-      font-family: 'EB Garamond',Georgia,serif; font-size: 0.95rem;
-      color: var(--stone); line-height: 1.6;
+      font-family: 'EB Garamond',Georgia,serif; font-size: 0.9rem;
+      color: var(--stone); line-height: 1.5;
     }
     .mx-info-text code {
-      font-family: 'JetBrains Mono',monospace; font-size: 0.8rem;
+      font-family: 'JetBrains Mono',monospace; font-size: 0.75rem;
       color: var(--glow); background: rgba(0,229,255,0.05); padding: 0.1rem 0.3rem;
     }
 
-    /* ─── TOOLTIPS ─── */
-    [data-tip] { position: relative; }
-    [data-tip]:hover::after {
-      content: attr(data-tip);
-      position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-      background: rgba(10,14,26,0.95); border: 1px solid rgba(0,229,255,0.2);
-      color: var(--parchment); font-family: 'EB Garamond',Georgia,serif;
-      font-size: 0.75rem; padding: 0.4rem 0.6rem; white-space: nowrap;
-      z-index: 100; pointer-events: none; margin-bottom: 4px;
-      max-width: 220px; white-space: normal; line-height: 1.3;
+    /* ─── TOOLTIPS (desktop only) ─── */
+    @media (hover: hover) {
+      [data-tip] { position: relative; }
+      [data-tip]:hover::after {
+        content: attr(data-tip);
+        position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+        background: rgba(10,14,26,0.95); border: 1px solid rgba(0,229,255,0.2);
+        color: var(--parchment); font-family: 'EB Garamond',Georgia,serif;
+        font-size: 0.75rem; padding: 0.4rem 0.6rem; white-space: nowrap;
+        z-index: 100; pointer-events: none; margin-bottom: 4px;
+        max-width: 220px; white-space: normal; line-height: 1.3;
+      }
     }
 
     /* ─── DROP ZONE ─── */
     .mx-channel.dragover { border-color: var(--glow); background: rgba(0,229,255,0.05); }
 
+    /* ─── MOBILE: channels fill screen width ─── */
     @media (max-width: 768px) {
-      .mx-console { padding: 0; }
-      .mx-channel { min-width: 80px; width: 80px; }
-      .mx-channel.master { min-width: 90px; width: 90px; }
+      .mx-console { gap: 0; }
+      .mx-channel { min-width: calc(100vw / 4); padding: 0.3rem 0.15rem; }
+      .mx-channel.master { min-width: calc(100vw / 3.5); }
+      .mx-fader { width: 100px; }
+      .mx-meter { height: 90px; }
+      .mx-transport { gap: 0.25rem; flex-wrap: wrap; }
+      .mx-transport-btn { font-size: 0.6rem; padding: 0.35rem 0.5rem; }
+      .mx-scrubber { max-width: 100%; order: 10; flex-basis: 100%; margin-top: 0.2rem; }
+    }
+
+    /* ─── SMALL PHONES ─── */
+    @media (max-width: 400px) {
+      .mx-channel { min-width: calc(100vw / 3.5); }
       .mx-fader { width: 80px; }
+      .mx-meter { height: 70px; width: 8px; }
+      .mx-ch-label { font-size: 0.45rem; }
+    }
+
+    /* ─── WIDE DESKTOP ─── */
+    @media (min-width: 1400px) {
+      .mx-console { max-width: 1600px; margin: 0 auto; }
+      .mx-channel { min-width: 140px; }
+      .mx-fader { width: 150px; }
+      .mx-meter { height: 150px; width: 12px; }
     }
   </style>
 </head>
@@ -230,9 +254,9 @@
     </div>
   </nav>
 
-  <div class="page-header" style="padding:3.5rem 2rem 0.2rem;">
-    <h1 style="font-size:clamp(1.2rem,3vw,1.8rem);margin-bottom:0.1rem;">Mixer</h1>
-    <div class="subtitle" style="font-size:0.55rem;">Pedagogical Mixing Console · Drop stems, learn the craft</div>
+  <div class="page-header" style="padding:3.2rem 1rem 0.1rem;">
+    <h1 style="font-size:clamp(1rem,2.5vw,1.5rem);margin-bottom:0;">Mixer</h1>
+    <div class="subtitle" style="font-size:0.5rem;">Drop stems · learn the craft</div>
   </div>
 
   <main class="mixer-page">
