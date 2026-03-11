@@ -651,8 +651,7 @@ requestAnimationFrame(drawStars);
 
 // ─── SPA ROUTER — Keep audio alive across navigation ───
 (function() {
-  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'theory.html', 'signal.html', 'topology.html', 'songwriter.html', 'tapbpm.html'];
-  // architecture.html excluded from SPA — needs clean DOM (no persistent nebula/ground)
+  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'theory.html', 'signal.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html'];
 
   function isInternalLink(href) {
     try {
