@@ -15,6 +15,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=50">
   <script src="lib/peerjs.min.js"></script>
+  <style>
+    .live-room-body { display: flex; gap: 1rem; position: relative; z-index: 1; }
+    .live-grid { flex: 1; }
+    .live-canvas-panel { flex: 1; display: flex; flex-direction: column; min-height: 400px; }
+    .live-canvas-tools { display: flex; gap: 0.3rem; align-items: center; padding: 0.4rem; background: rgba(18,14,10,0.8); border: 1px solid rgba(138,126,107,0.1); margin-bottom: 0.3rem; }
+    .live-canvas-color { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: border-color 0.2s; }
+    .live-canvas-color.active { border-color: rgba(255,255,255,0.7); }
+    .live-canvas-color:hover { border-color: rgba(255,255,255,0.4); }
+    .live-canvas-tool { background: rgba(26,18,10,0.6); border: 1px solid rgba(138,126,107,0.15); color: var(--stone); font-family: 'JetBrains Mono',monospace; font-size: 0.6rem; padding: 0.3rem 0.6rem; cursor: pointer; transition: all 0.2s; }
+    .live-canvas-tool:hover { border-color: rgba(0,229,255,0.3); color: var(--parchment); }
+    .live-canvas-tool.active { border-color: var(--glow); color: var(--glow); }
+    #sharedCanvas { flex: 1; background: #0a0e1a; border: 1px solid rgba(138,126,107,0.08); cursor: crosshair; touch-action: none; }
+    .live-roster { display: flex; gap: 0.5rem; justify-content: center; padding: 0.3rem 0; font-family: 'JetBrains Mono',monospace; font-size: 0.55rem; color: var(--stone-dark); letter-spacing: 0.1em; position: relative; z-index: 1; }
+    .live-roster span { opacity: 0.6; }
+    .live-dj-status { text-align: center; font-family: 'JetBrains Mono',monospace; font-size: 0.65rem; color: var(--glow-warm); padding: 0.4rem; opacity: 0.8; position: relative; z-index: 1; }
+    .live-dj-controls { display: flex; gap: 0.5rem; justify-content: center; align-items: center; padding: 0.4rem; position: relative; z-index: 1; }
+    .live-dj-select { background: rgba(18,14,10,0.8); border: 1px solid rgba(138,126,107,0.2); color: var(--parchment); font-family: 'JetBrains Mono',monospace; font-size: 0.65rem; padding: 0.3rem 0.5rem; }
+    .live-toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%); background: rgba(18,14,10,0.9); border: 1px solid rgba(0,229,255,0.3); color: var(--glow); font-family: 'JetBrains Mono',monospace; font-size: 0.7rem; padding: 0.5rem 1.2rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+    .live-toast.show { opacity: 1; }
+    @media (max-width: 768px) {
+      .live-room-body { flex-direction: column; }
+      .live-canvas-panel { min-height: 300px; }
+      .live-controls { flex-wrap: wrap; }
+    }
+  </style>
 </head>
 <body>
 
@@ -123,16 +148,57 @@
     <!-- Room Screen (hidden until join) -->
     <div id="roomScreen" class="live-room" style="display:none;">
       <div class="live-controls">
-        <button id="muteBtn" class="live-ctrl-btn" title="Toggle Microphone">🎙 Mic On</button>
-        <button id="camBtn" class="live-ctrl-btn" title="Toggle Camera">📷 Cam On</button>
-        <button id="leaveBtn" class="live-ctrl-btn live-ctrl-leave" title="Leave Room">✕ Leave</button>
-        <span id="peerCount" class="live-peer-count">0 connected</span>
+        <button id="muteBtn" class="live-ctrl-btn" title="Toggle Microphone">🎙 Mic</button>
+        <button id="camBtn" class="live-ctrl-btn" title="Toggle Camera">📷 Cam</button>
+        <button id="screenBtn" class="live-ctrl-btn" title="Share Screen">🖥 Screen</button>
+        <button id="canvasBtn" class="live-ctrl-btn" title="Collaborative Canvas">🖌 Canvas</button>
+        <button id="djBtn" class="live-ctrl-btn" title="DJ Mode">🎵 DJ</button>
+        <button id="shareBtn" class="live-ctrl-btn" title="Copy Room Link">🔗 Share</button>
+        <button id="leaveBtn" class="live-ctrl-btn live-ctrl-leave" title="Leave Room">✕</button>
+        <span id="peerCount" class="live-peer-count">1 soul</span>
       </div>
-      <div id="videoGrid" class="live-grid">
-        <!-- Local video -->
-        <div class="live-tile" id="localTile">
-          <video id="localVideo" autoplay muted playsinline></video>
-          <span class="live-tile-name" id="localName">You</span>
+
+      <!-- Peer Roster -->
+      <div id="peerRoster" class="live-roster"></div>
+
+      <!-- DJ Status -->
+      <div id="djStatus" class="live-dj-status" style="display:none;"></div>
+
+      <!-- DJ Controls (visible only to DJ) -->
+      <div id="djControls" class="live-dj-controls" style="display:none;">
+        <button id="djPlayBtn" class="live-ctrl-btn">▷ Play</button>
+        <select id="djScaleSelect" class="live-dj-select">
+          <option value="0">Hijaz</option>
+          <option value="1">Rast</option>
+          <option value="2">Bayati</option>
+          <option value="3">Chahargah</option>
+        </select>
+        <button id="djQuitBtn" class="live-ctrl-btn" style="font-size:0.6rem;">Stop DJ</button>
+      </div>
+
+      <!-- Toast -->
+      <div id="liveToast" class="live-toast"></div>
+
+      <div class="live-room-body">
+        <div id="videoGrid" class="live-grid">
+          <div class="live-tile" id="localTile">
+            <video id="localVideo" autoplay muted playsinline></video>
+            <span class="live-tile-name" id="localName">You</span>
+          </div>
+        </div>
+
+        <!-- Collaborative Canvas -->
+        <div id="canvasPanel" class="live-canvas-panel" style="display:none;">
+          <div class="live-canvas-tools">
+            <button class="live-canvas-color active" data-color="#00e5ff" style="background:#00e5ff;" title="Cyan"></button>
+            <button class="live-canvas-color" data-color="#e8a87c" style="background:#e8a87c;" title="Amber"></button>
+            <button class="live-canvas-color" data-color="#7b68ee" style="background:#7b68ee;" title="Purple"></button>
+            <button class="live-canvas-color" data-color="#f0e8d8" style="background:#f0e8d8;" title="White"></button>
+            <button class="live-canvas-color" data-color="#8a7e6b" style="background:#8a7e6b;" title="Stone"></button>
+            <button id="eraserBtn" class="live-canvas-tool">⌫</button>
+            <button id="clearCanvasBtn" class="live-canvas-tool">✕ Clear</button>
+          </div>
+          <canvas id="sharedCanvas"></canvas>
         </div>
       </div>
     </div>
@@ -151,10 +217,12 @@
   <script src="lib/firebase-app-compat.js"></script>
   <script src="lib/firebase-database-compat.js"></script>
 
+  <script src="lib/tone.min.js"></script>
   <script>
   (function() {
     // ─── LIVE ROOM — PeerJS WebRTC Mesh + Firebase Signaling ───
-    const ROOM_ID = 'methodictruth-live';
+    const urlParams = new URLSearchParams(window.location.search);
+    const ROOM_ID = urlParams.get('room') || 'methodictruth-live';
 
     // Firebase config
     const firebaseConfig = {
@@ -181,6 +249,19 @@
     const videoGrid = document.getElementById('videoGrid');
     const localVideo = document.getElementById('localVideo');
     const localName = document.getElementById('localName');
+    const screenBtn = document.getElementById('screenBtn');
+    const canvasBtn = document.getElementById('canvasBtn');
+    const djBtn = document.getElementById('djBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const djPlayBtn = document.getElementById('djPlayBtn');
+    const djScaleSelect = document.getElementById('djScaleSelect');
+    const djQuitBtn = document.getElementById('djQuitBtn');
+    const djControls = document.getElementById('djControls');
+    const djStatus = document.getElementById('djStatus');
+    const peerRoster = document.getElementById('peerRoster');
+    const canvasPanel = document.getElementById('canvasPanel');
+    const sharedCanvas = document.getElementById('sharedCanvas');
+    const liveToast = document.getElementById('liveToast');
 
     let peer = null;
     let localStream = null;
@@ -328,42 +409,356 @@
     }
 
     function updatePeerCount() {
-      const count = Object.keys(peers).length;
-      peerCount.textContent = count + ' connected';
+      updateRoster();
     }
 
     function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-    // Controls
+    function showToast(msg) {
+      liveToast.textContent = msg;
+      liveToast.classList.add('show');
+      setTimeout(() => liveToast.classList.remove('show'), 2000);
+    }
+
+    // ─── CONTROLS ───
     muteBtn.addEventListener('click', () => {
       isMuted = !isMuted;
       localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
-      muteBtn.textContent = isMuted ? '🔇 Muted' : '🎙 Mic On';
+      muteBtn.textContent = isMuted ? '🔇 Muted' : '🎙 Mic';
       muteBtn.classList.toggle('active', isMuted);
     });
 
     camBtn.addEventListener('click', () => {
       isCamOff = !isCamOff;
       localStream.getVideoTracks().forEach(t => t.enabled = !isCamOff);
-      camBtn.textContent = isCamOff ? '📷 Cam Off' : '📷 Cam On';
+      camBtn.textContent = isCamOff ? '📷 Off' : '📷 Cam';
       camBtn.classList.toggle('active', isCamOff);
     });
 
-    leaveBtn.addEventListener('click', leaveRoom);
+    // ─── SCREEN SHARE ───
+    let isScreenSharing = false;
+    let originalVideoTrack = null;
 
-    // Clean up on page close
+    screenBtn.addEventListener('click', async () => {
+      if (isScreenSharing) { stopScreenShare(); return; }
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        const screenTrack = screenStream.getVideoTracks()[0];
+        originalVideoTrack = localStream.getVideoTracks()[0];
+        localStream.removeTrack(originalVideoTrack);
+        localStream.addTrack(screenTrack);
+        localVideo.srcObject = localStream;
+        // Replace track on all peer connections
+        Object.values(peers).forEach(p => {
+          if (p.call && p.call.peerConnection) {
+            const sender = p.call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+            if (sender) sender.replaceTrack(screenTrack);
+          }
+        });
+        isScreenSharing = true;
+        screenBtn.textContent = '🖥 Stop';
+        screenBtn.classList.add('active');
+        screenTrack.onended = () => stopScreenShare();
+      } catch (e) { showToast('Screen share denied'); }
+    });
+
+    function stopScreenShare() {
+      if (!originalVideoTrack || !isScreenSharing) return;
+      const screenTrack = localStream.getVideoTracks()[0];
+      localStream.removeTrack(screenTrack);
+      screenTrack.stop();
+      localStream.addTrack(originalVideoTrack);
+      localVideo.srcObject = localStream;
+      Object.values(peers).forEach(p => {
+        if (p.call && p.call.peerConnection) {
+          const sender = p.call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) sender.replaceTrack(originalVideoTrack);
+        }
+      });
+      isScreenSharing = false;
+      screenBtn.textContent = '🖥 Screen';
+      screenBtn.classList.remove('active');
+    }
+
+    // ─── ROOM LINKS ───
+    shareBtn.addEventListener('click', () => {
+      const url = window.location.origin + '/live.html?room=' + encodeURIComponent(ROOM_ID);
+      navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => showToast('Copy failed'));
+    });
+
+    // ─── PEER ROSTER ───
+    function updateRoster() {
+      const names = [username + ' (you)'];
+      Object.values(peers).forEach(p => {
+        if (p.tile) { const n = p.tile.querySelector('.live-tile-name'); if (n) names.push(n.textContent); }
+      });
+      peerRoster.innerHTML = names.map(n => '<span>' + escapeHtml(n) + '</span>').join('');
+      const count = Object.keys(peers).length + 1;
+      peerCount.textContent = count + (count === 1 ? ' soul' : ' souls');
+    }
+
+    // ─── COLLABORATIVE CANVAS ───
+    let canvasVisible = false;
+    let canvasCtx = null;
+    let drawing = false;
+    let currentColor = '#00e5ff';
+    let isEraser = false;
+    let lastPoint = null;
+    const canvasRef = db.ref('live-canvas/' + ROOM_ID);
+
+    canvasBtn.addEventListener('click', () => {
+      canvasVisible = !canvasVisible;
+      canvasPanel.style.display = canvasVisible ? 'flex' : 'none';
+      canvasBtn.classList.toggle('active', canvasVisible);
+      if (canvasVisible && !canvasCtx) initCanvas();
+    });
+
+    function initCanvas() {
+      const rect = sharedCanvas.parentElement.getBoundingClientRect();
+      sharedCanvas.width = Math.floor(rect.width);
+      sharedCanvas.height = Math.floor(rect.height - 40);
+      canvasCtx = sharedCanvas.getContext('2d');
+      canvasCtx.lineCap = 'round';
+      canvasCtx.lineJoin = 'round';
+
+      // Load existing strokes
+      canvasRef.once('value', snap => {
+        if (!snap.exists()) return;
+        Object.values(snap.val()).forEach(stroke => drawStroke(stroke));
+      });
+
+      // Listen for new strokes
+      canvasRef.on('child_added', snap => { drawStroke(snap.val()); });
+      canvasRef.on('child_removed', () => {
+        canvasCtx.clearRect(0, 0, sharedCanvas.width, sharedCanvas.height);
+      });
+
+      // Drawing events
+      sharedCanvas.addEventListener('pointerdown', startDraw);
+      sharedCanvas.addEventListener('pointermove', moveDraw);
+      sharedCanvas.addEventListener('pointerup', endDraw);
+      sharedCanvas.addEventListener('pointerleave', endDraw);
+    }
+
+    function getCanvasPos(e) {
+      const r = sharedCanvas.getBoundingClientRect();
+      return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+    }
+
+    let currentStrokePoints = [];
+    function startDraw(e) {
+      drawing = true;
+      lastPoint = getCanvasPos(e);
+      currentStrokePoints = [lastPoint];
+    }
+
+    function moveDraw(e) {
+      if (!drawing) return;
+      const p = getCanvasPos(e);
+      currentStrokePoints.push(p);
+      // Draw locally for responsiveness
+      const w = sharedCanvas.width, h = sharedCanvas.height;
+      canvasCtx.beginPath();
+      canvasCtx.strokeStyle = isEraser ? '#0a0e1a' : currentColor;
+      canvasCtx.lineWidth = isEraser ? 20 : 2;
+      canvasCtx.globalAlpha = isEraser ? 1 : 0.85;
+      canvasCtx.moveTo(lastPoint.x * w, lastPoint.y * h);
+      canvasCtx.lineTo(p.x * w, p.y * h);
+      canvasCtx.stroke();
+      canvasCtx.globalAlpha = 1;
+      lastPoint = p;
+    }
+
+    function endDraw() {
+      if (!drawing) return;
+      drawing = false;
+      if (currentStrokePoints.length > 1) {
+        canvasRef.push({
+          points: currentStrokePoints,
+          color: isEraser ? '#0a0e1a' : currentColor,
+          width: isEraser ? 20 : 2,
+          ts: Date.now()
+        });
+      }
+      currentStrokePoints = [];
+    }
+
+    function drawStroke(stroke) {
+      if (!canvasCtx || !stroke.points || stroke.points.length < 2) return;
+      const w = sharedCanvas.width, h = sharedCanvas.height;
+      canvasCtx.beginPath();
+      canvasCtx.strokeStyle = stroke.color || '#00e5ff';
+      canvasCtx.lineWidth = stroke.width || 2;
+      canvasCtx.globalAlpha = stroke.color === '#0a0e1a' ? 1 : 0.85;
+      canvasCtx.moveTo(stroke.points[0].x * w, stroke.points[0].y * h);
+      for (let i = 1; i < stroke.points.length; i++) {
+        canvasCtx.lineTo(stroke.points[i].x * w, stroke.points[i].y * h);
+      }
+      canvasCtx.stroke();
+      canvasCtx.globalAlpha = 1;
+    }
+
+    // Canvas tool buttons
+    document.querySelectorAll('.live-canvas-color').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.live-canvas-color').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentColor = btn.dataset.color;
+        isEraser = false;
+        document.getElementById('eraserBtn').classList.remove('active');
+      });
+    });
+    document.getElementById('eraserBtn').addEventListener('click', function() {
+      isEraser = !isEraser;
+      this.classList.toggle('active', isEraser);
+    });
+    document.getElementById('clearCanvasBtn').addEventListener('click', () => {
+      canvasRef.remove();
+      if (canvasCtx) canvasCtx.clearRect(0, 0, sharedCanvas.width, sharedCanvas.height);
+    });
+
+    // ─── DJ MODE ───
+    const maqamScales = [
+      { name: 'Hijaz',     notes: [0, 1, 4, 5, 7, 8, 10] },
+      { name: 'Rast',      notes: [0, 2, 3, 5, 7, 9, 10] },
+      { name: 'Bayati',    notes: [0, 1, 3, 5, 7, 8, 10] },
+      { name: 'Chahargah', notes: [0, 2, 3, 6, 7, 8, 11] },
+    ];
+    const djRef = db.ref('live-dj/' + ROOM_ID);
+    let isDJ = false;
+    let djEngine = null;
+
+    djBtn.addEventListener('click', () => {
+      if (isDJ) return; // already DJ
+      djRef.child('claim').set({ peerId: peer.id, username, ts: firebase.database.ServerValue.TIMESTAMP });
+      isDJ = true;
+      djBtn.classList.add('active');
+      djControls.style.display = 'flex';
+      showToast('You are the DJ');
+    });
+
+    djPlayBtn.addEventListener('click', async () => {
+      if (!isDJ) return;
+      const state = (await djRef.child('state').once('value')).val();
+      const isPlaying = state && state.playing;
+      if (isPlaying) {
+        djRef.child('state').update({ playing: false });
+        djPlayBtn.textContent = '▷ Play';
+      } else {
+        await Tone.start();
+        djRef.child('state').set({ playing: true, scale: parseInt(djScaleSelect.value), ts: Date.now() });
+        djPlayBtn.textContent = '❚❚ Pause';
+      }
+    });
+
+    djScaleSelect.addEventListener('change', () => {
+      if (!isDJ) return;
+      djRef.child('state').update({ scale: parseInt(djScaleSelect.value) });
+    });
+
+    djQuitBtn.addEventListener('click', () => {
+      if (!isDJ) return;
+      djRef.child('state').set({ playing: false });
+      djRef.child('claim').remove();
+      isDJ = false;
+      djBtn.classList.remove('active');
+      djControls.style.display = 'none';
+      stopDJEngine();
+    });
+
+    // Listen for DJ state changes
+    djRef.child('claim').on('value', snap => {
+      const claim = snap.val();
+      if (!claim) {
+        djStatus.style.display = 'none';
+        if (!isDJ) { djControls.style.display = 'none'; stopDJEngine(); }
+        return;
+      }
+      if (claim.peerId !== (peer && peer.id)) {
+        isDJ = false;
+        djBtn.classList.remove('active');
+        djControls.style.display = 'none';
+        djStatus.style.display = 'block';
+        djStatus.textContent = '🎵 DJ: ' + escapeHtml(claim.username);
+      }
+    });
+
+    djRef.child('state').on('value', async snap => {
+      const state = snap.val();
+      if (!state) { stopDJEngine(); return; }
+      if (state.playing) {
+        if (!djEngine) await startDJEngine(state.scale);
+        else switchDJScale(state.scale);
+        if (!isDJ) djStatus.textContent = '🎵 DJ playing ' + (maqamScales[state.scale] || maqamScales[0]).name;
+      } else {
+        stopDJEngine();
+      }
+    });
+
+    async function startDJEngine(scaleIdx) {
+      await Tone.start();
+      const scale = maqamScales[scaleIdx || 0];
+      const eng = {};
+      eng.masterGain = new Tone.Gain(0.3).toDestination();
+      eng.reverb = new Tone.Reverb({ decay: 8, wet: 0.7 });
+      await eng.reverb.ready;
+      eng.reverb.connect(eng.masterGain);
+      eng.drones = [];
+      const baseFreq = 110;
+      for (let i = 0; i < 2; i++) {
+        const note = scale.notes[i % scale.notes.length];
+        const freq = baseFreq * Math.pow(2, note / 12) * (i < 1 ? 1 : 2);
+        const drone = new Tone.FMSynth({ harmonicity: 2, modulationIndex: 0.5, envelope: { attack: 4, decay: 0, sustain: 1, release: 4 }, volume: -18 }).connect(eng.reverb);
+        drone.triggerAttack(freq);
+        eng.drones.push(drone);
+      }
+      eng.noise = new Tone.Noise('brown');
+      eng.noise.volume.value = -35;
+      eng.noiseFilter = new Tone.AutoFilter({ frequency: 0.05, baseFrequency: 200, octaves: 3, wet: 1 }).connect(eng.reverb).start();
+      eng.noise.connect(eng.noiseFilter);
+      eng.noise.start();
+      eng.currentScale = scale;
+      djEngine = eng;
+    }
+
+    function switchDJScale(scaleIdx) {
+      if (!djEngine) return;
+      const scale = maqamScales[scaleIdx || 0];
+      const baseFreq = 110;
+      djEngine.drones.forEach((d, i) => {
+        const note = scale.notes[i % scale.notes.length];
+        const freq = baseFreq * Math.pow(2, note / 12) * (i < 1 ? 1 : 2);
+        d.frequency.rampTo(freq, 2);
+      });
+      djEngine.currentScale = scale;
+    }
+
+    function stopDJEngine() {
+      if (!djEngine) return;
+      djEngine.drones.forEach(d => { try { d.triggerRelease(); d.dispose(); } catch(e){} });
+      if (djEngine.noise) { try { djEngine.noise.stop(); djEngine.noise.dispose(); } catch(e){} }
+      if (djEngine.noiseFilter) { try { djEngine.noiseFilter.dispose(); } catch(e){} }
+      if (djEngine.reverb) { try { djEngine.reverb.dispose(); } catch(e){} }
+      if (djEngine.masterGain) { try { djEngine.masterGain.dispose(); } catch(e){} }
+      djEngine = null;
+      if (!isDJ) djPlayBtn.textContent = '▷ Play';
+    }
+
+    // ─── LEAVE / CLEANUP ───
+    leaveBtn.addEventListener('click', leaveRoom);
     window.addEventListener('beforeunload', leaveRoom);
 
     function leaveRoom() {
-      // Remove from Firebase
+      if (isDJ) { djRef.child('state').set({ playing: false }); djRef.child('claim').remove(); }
+      stopDJEngine();
+      if (canvasCtx) { canvasRef.off(); }
+      djRef.off();
       if (myRef) myRef.remove();
-      roomRef.off(); // stop listening
-
+      roomRef.off();
       Object.keys(peers).forEach(removePeer);
       if (localStream) localStream.getTracks().forEach(t => t.stop());
       if (peer) peer.destroy();
-      peer = null;
-      myRef = null;
+      peer = null; myRef = null;
       roomScreen.style.display = 'none';
       joinScreen.style.display = 'block';
       localVideo.srcObject = null;
