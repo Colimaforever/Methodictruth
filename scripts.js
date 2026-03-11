@@ -256,14 +256,15 @@ function handleVolume(e) {
   }
   // Generative engine volume (Tone.js)
   if (genEngine && genEngine.masterGain) {
-    if (volumeRafId) cancelAnimationFrame(volumeRafId);
-    volumeRafId = requestAnimationFrame(() => {
-      try { genEngine.masterGain.gain.rampTo(vol, 0.05); } catch(e) { genEngine.masterGain.gain.value = vol; }
-      volumeRafId = null;
-    });
-    console.log('[Vol] gen engine vol →', vol);
-  } else {
-    console.log('[Vol] audio vol →', vol, genEngine ? 'engine exists but no masterGain' : 'no genEngine');
+    try {
+      // Cancel any ongoing ramps (like the 5s startup fade) then set immediately
+      const g = genEngine.masterGain.gain;
+      if (g.cancelAndHoldAtTime) g.cancelAndHoldAtTime(Tone.now());
+      else if (g.cancelScheduledValues) g.cancelScheduledValues(Tone.now());
+      g.value = vol;
+    } catch(e) {
+      console.warn('[Vol] genEngine set failed:', e);
+    }
   }
 }
 
