@@ -4,12 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Theory — Truth · AI Chronicles</title>
+  <meta name="description" content="Interactive music theory explorer — scales, modes, maqam systems, and chord voicings.">
+  <meta property="og:title" content="Theory — Truth · AI Chronicles">
+  <meta property="og:description" content="Interactive music theory explorer — scales, modes, maqam systems, and chord voicings.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/theory.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=47">
+  <link rel="stylesheet" href="styles.css?v=50">
   <style>
     /* ─── THEORY PAGE ─── */
-    .theory-page { position: relative; z-index: 1; min-height: 100vh; padding-bottom: 4rem; }
+    .theory-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
 
     /* ─── SECTION SYSTEM ─── */
     .theory-section {
@@ -348,7 +355,7 @@
 </head>
 <body>
 
-  <div class="starfield"><canvas id="stars"></canvas></div>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
   <div class="nebula"></div>
   <div class="ground"></div>
 

@@ -583,6 +583,7 @@ function initStars() {
 }
 
 function drawStars(time) {
+  if (document.hidden) { requestAnimationFrame(drawStars); return; }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   stars.forEach(star => {

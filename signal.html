@@ -4,12 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Signal Chain — Truth · AI Chronicles</title>
+  <meta name="description" content="Visual audio signal chain builder — design and hear your effects path in real-time.">
+  <meta property="og:title" content="Signal Chain — Truth · AI Chronicles">
+  <meta property="og:description" content="Visual audio signal chain builder — design and hear your effects path in real-time.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/signal.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=34">
+  <link rel="stylesheet" href="styles.css?v=50">
   <style>
     /* ─── SIGNAL CHAIN PAGE ─── */
-    .signal-page { position: relative; z-index: 1; min-height: 100vh; padding-top: 60px; }
+    .signal-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 60px; }
 
     .signal-toolbar {
       position: fixed; top: 48px; left: 0; right: 0; z-index: 400;
@@ -17,6 +24,7 @@
       padding: 0.5rem 1rem;
       background: rgba(10, 14, 26, 0.92);
       border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       flex-wrap: wrap;
       font-family: 'JetBrains Mono', monospace;
@@ -100,6 +108,7 @@
       min-height: 200px;
       background: linear-gradient(135deg, rgba(26, 18, 10, 0.92), rgba(15, 20, 15, 0.85));
       border: 1px solid rgba(0, 229, 255, 0.15);
+      -webkit-backdrop-filter: blur(6px);
       backdrop-filter: blur(6px);
       padding: 0.8rem;
       position: relative;
@@ -354,6 +363,7 @@
       background: rgba(10, 14, 26, 0.92); border: 1px solid rgba(0, 229, 255, 0.3);
       color: var(--glow); font-size: 1.3rem; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
       transition: all 0.2s;
@@ -365,6 +375,7 @@
       width: 380px; max-height: 70vh;
       background: rgba(10, 14, 26, 0.96);
       border: 1px solid rgba(0, 229, 255, 0.15);
+      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
       box-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
       overflow-y: auto; display: none;
@@ -407,7 +418,7 @@
 </head>
 <body>
 
-  <div class="starfield"><canvas id="stars"></canvas></div>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
   <div class="nebula"></div>
   <div class="ground"></div>
 
@@ -539,7 +550,7 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=31"></script>
+  <script src="scripts.js?v=37"></script>
   <script src="lib/tone.min.js"></script>
   <script>
 (function() {

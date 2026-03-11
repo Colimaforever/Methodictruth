@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tap BPM — Truth</title>
+  <meta name="description" content="Tap tempo BPM detector with metronome and visual feedback.">
+  <meta property="og:title" content="Tap BPM — Truth">
+  <meta property="og:description" content="Tap tempo BPM detector with metronome and visual feedback.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/tapbpm.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=47">
+  <link rel="stylesheet" href="styles.css?v=50">
   <style>
     .bpm-container {
       max-width: 500px;
@@ -178,7 +185,7 @@
 </head>
 <body>
   <div class="starfield">
-    <canvas id="stars"></canvas>
+    <canvas id="stars" aria-hidden="true" role="presentation"></canvas>
     <canvas id="bgOscilloscope" class="bg-oscilloscope"></canvas>
   </div>
 
@@ -274,7 +281,7 @@
     <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="40" title="Volume">
   </div>
 
-  <script src="scripts.js?v=36"></script>
+  <script src="scripts.js?v=37"></script>
   <script>
   (function() {
     const taps = [];

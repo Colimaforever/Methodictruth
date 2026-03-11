@@ -4,9 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Architecture — Truth · AI Chronicles</title>
+  <meta name="description" content="Interactive diagram of how an AI agent works — from user input through channels, gateway, memory, and tools.">
+  <meta property="og:title" content="Architecture — Truth · AI Chronicles">
+  <meta property="og:description" content="Interactive diagram of how an AI agent works — from user input through channels, gateway, memory, and tools.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/architecture.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=49">
+  <link rel="stylesheet" href="styles.css?v=50">
   <style>
     /* Hide terrain structures on this page — overlaps the diagram */
     .structures-svg { display: none !important; visibility: hidden !important; opacity: 0 !important; }
@@ -70,6 +77,7 @@
       border: 1px solid rgba(0, 229, 255, 0.15);
       border-left: 3px solid var(--glow);
       padding: 2rem 2.5rem;
+      -webkit-backdrop-filter: blur(4px);
       backdrop-filter: blur(4px);
       transition: all 0.4s ease;
       opacity: 0;
@@ -189,7 +197,7 @@
     </defs>
   </svg>
 
-  <div class="starfield"><canvas id="stars"></canvas></div>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
   <div class="nebula"></div>
   <div class="ground"></div>
 
@@ -222,21 +230,31 @@
 
   <!-- Navigation -->
   <nav class="site-nav">
-    <a href="index.html">Home</a>
-    <span class="nav-glyph">◇</span>
-    <a href="chronicles.html">Chronicles</a>
-    <span class="nav-glyph">◇</span>
-    <a href="about.html">About</a>
-    <span class="nav-glyph">◇</span>
-    <a href="stack.html">Stack</a>
-    <span class="nav-glyph">◇</span>
-    <a href="architecture.html" class="active">Architecture</a>
-    <span class="nav-glyph">◇</span>
-    <a href="live.html">Live</a>
-    <span class="nav-glyph">◇</span>
-    <a href="synth.html">Synth</a>
-    <span class="nav-glyph">◇</span>
-    <a href="theory.html">Theory</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles.html">Chronicles</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth.html">Synth</a>
+          <a href="theory.html">Theory</a>
+          <a href="signal.html">Signal</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture.html">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="topology.html">Topology</a>
+      <a href="live.html">Live</a>
+      <a href="about.html">About</a>
+    </div>
   </nav>
 
   <div class="page-header" style="padding:5.5rem 2rem 1rem;">
@@ -267,19 +285,19 @@
         <!-- Channels → Gateway -->
         <line x1="195" y1="210" x2="350" y2="210" class="flow-line" stroke="rgba(0,229,255,0.35)" stroke-width="1.5"/>
         <!-- Gateway → Agent Core -->
-        <path d="M480,245 L480,295" class="flow-line" stroke="rgba(123,104,238,0.4)" stroke-width="2"/>
+        <path d="M480,245 L480,295" class="flow-line" fill="none" stroke="rgba(123,104,238,0.4)" stroke-width="2"/>
         <!-- Agent → Memory -->
-        <path d="M410,340 L280,400" class="flow-line" stroke="rgba(232,168,124,0.35)" stroke-width="1.5"/>
+        <path d="M410,340 L280,400" class="flow-line" fill="none" stroke="rgba(232,168,124,0.35)" stroke-width="1.5"/>
         <!-- Agent → Tools -->
-        <path d="M550,340 L680,400" class="flow-line" stroke="rgba(74,222,128,0.35)" stroke-width="1.5"/>
+        <path d="M550,340 L680,400" class="flow-line" fill="none" stroke="rgba(74,222,128,0.35)" stroke-width="1.5"/>
         <!-- Agent → Sub-Agents -->
-        <path d="M480,370 L480,450" class="flow-line" stroke="rgba(123,104,238,0.3)" stroke-width="1.5"/>
+        <path d="M480,370 L480,450" class="flow-line" fill="none" stroke="rgba(123,104,238,0.3)" stroke-width="1.5"/>
         <!-- Agent → Skills -->
-        <path d="M550,350 L750,310" class="flow-line" stroke="rgba(74,222,128,0.3)" stroke-width="1.2"/>
+        <path d="M550,350 L750,310" class="flow-line" fill="none" stroke="rgba(74,222,128,0.3)" stroke-width="1.2"/>
         <!-- Memory → Workspace -->
-        <path d="M230,460 L230,530" class="flow-line" stroke="rgba(232,168,124,0.25)" stroke-width="1.2"/>
+        <path d="M230,460 L230,530" class="flow-line" fill="none" stroke="rgba(232,168,124,0.25)" stroke-width="1.2"/>
         <!-- Agent → Cron -->
-        <path d="M410,350 L250,310" class="flow-line" stroke="rgba(0,229,255,0.25)" stroke-width="1.2"/>
+        <path d="M410,350 L250,310" class="flow-line" fill="none" stroke="rgba(0,229,255,0.25)" stroke-width="1.2"/>
         <!-- Response path: Agent → Gateway → Channels → User (return) -->
         <!-- Return flow path removed: was creating prominent dark arc across diagram -->
 
@@ -455,7 +473,7 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=22"></script>
+  <script src="scripts.js?v=37"></script>
   <script>
   (function() {
     const nodeData = {

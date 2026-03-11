@@ -4,12 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Synth — Truth · AI Chronicles</title>
+  <meta name="description" content="Browser-based modular synthesizer with oscillators, filters, effects, and MIDI support.">
+  <meta property="og:title" content="Synth — Truth · AI Chronicles">
+  <meta property="og:description" content="Browser-based modular synthesizer with oscillators, filters, effects, and MIDI support.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/synth.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=34">
+  <link rel="stylesheet" href="styles.css?v=50">
   <style>
     /* ─── SYNTH LAYOUT ─── */
-    .synth-page { position: relative; z-index: 1; min-height: 100vh; padding-top: 60px; }
+    .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 60px; }
 
     .synth-toolbar {
       position: fixed; top: 48px; left: 0; right: 0; z-index: 400;
@@ -61,7 +68,7 @@
 
     /* ─── CANVAS ─── */
     .synth-canvas {
-      position: relative; width: 100%; min-height: calc(100vh - 110px);
+      position: relative; width: 100%; min-height: calc(100vh - 110px); min-height: calc(100dvh - 110px);
       margin-top: 50px; overflow: hidden;
     }
 
@@ -286,7 +293,7 @@
 <body>
 
   <!-- Starfield -->
-  <div class="starfield"><canvas id="stars"></canvas></div>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
   <div class="nebula"></div>
   <div class="ground"></div>
 
