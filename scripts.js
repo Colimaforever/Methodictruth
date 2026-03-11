@@ -7,29 +7,34 @@ const playlist = [
 const audio = new Audio();
 let currentTrack = 0;
 let isPlaying = false;
+let currentVolume = 0.4;
 
-// Web Audio gain node for iOS volume control (audio.volume is read-only on iOS)
+// Detect if audio.volume is writable (iOS makes it read-only)
+let volumeWritable = true;
+try {
+  const testAudio = new Audio();
+  testAudio.volume = 0.5;
+  if (testAudio.volume !== 0.5) volumeWritable = false;
+} catch(e) { volumeWritable = false; }
+
+// Web Audio gain node — only used when audio.volume is read-only (iOS)
 let audioCtx = null;
 let audioGain = null;
 let audioSourceNode = null;
-let currentVolume = 0.4;
-let gainNodeFailed = false;
 
 function ensureAudioGain() {
-  if (audioCtx || gainNodeFailed) return;
+  if (audioCtx || volumeWritable) return; // don't need it if audio.volume works
   try {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     audioGain = audioCtx.createGain();
-    audioGain.connect(audioCtx.destination);
     audioSourceNode = audioCtx.createMediaElementSource(audio);
     audioSourceNode.connect(audioGain);
+    audioGain.connect(audioCtx.destination);
     audioGain.gain.value = currentVolume;
-    console.log('[Volume] Web Audio gain node created, vol:', currentVolume);
+    console.log('[Vol] iOS gain node active, vol:', currentVolume);
   } catch (e) {
-    console.warn('[Volume] Web Audio gain failed, falling back to audio.volume:', e);
-    gainNodeFailed = true;
-    audioCtx = null;
-    audioGain = null;
+    console.warn('[Vol] gain node failed:', e);
+    audioCtx = null; audioGain = null;
   }
 }
 
@@ -100,9 +105,11 @@ function setPlayingUI() {
 function startPlaying(seekTo) {
   if (playlist.length === 0) return;
   if (!audio.src) loadTrack(currentTrack);
-  // Ensure Web Audio gain node exists (needs user interaction on iOS)
-  ensureAudioGain();
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  // iOS: ensure Web Audio gain node exists (needs user gesture to unlock AudioContext)
+  if (!volumeWritable) {
+    ensureAudioGain();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
 
   function seekAndPlay() {
     if (seekTo != null) audio.currentTime = seekTo;
@@ -235,18 +242,22 @@ let volumeRafId = null;
 function handleVolume(e) {
   const vol = e.target.value / 100;
   currentVolume = vol;
-  // Ensure gain node exists (slider touch counts as user gesture for iOS)
-  ensureAudioGain();
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-  // Use Web Audio gain for cross-platform volume (iOS audio.volume is read-only)
-  if (audioGain && audioCtx) {
-    try {
-      audioGain.gain.cancelScheduledValues(audioCtx.currentTime);
-      audioGain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    } catch(err) { audioGain.gain.value = vol; }
+  console.log('[Vol] fader:', vol, 'writable:', volumeWritable, 'audioVol:', audio.volume, 'gain:', audioGain ? audioGain.gain.value : 'none');
+  if (volumeWritable) {
+    // Desktop/Android: audio.volume works
+    audio.volume = vol;
+  } else {
+    // iOS: use Web Audio gain node
+    ensureAudioGain();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    if (audioGain) {
+      try {
+        audioGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        audioGain.gain.setValueAtTime(vol, audioCtx.currentTime);
+      } catch(err) { audioGain.gain.value = vol; }
+    }
   }
-  try { audio.volume = vol; } catch(e) {} // fallback for desktop (throws on some iOS)
-  // Generative engine volume
+  // Generative engine volume (Tone.js — works everywhere)
   if (genEngine && genEngine.masterGain) {
     if (volumeRafId) cancelAnimationFrame(volumeRafId);
     volumeRafId = requestAnimationFrame(() => {
@@ -501,8 +512,8 @@ function onFirstInteraction() {
       startPlaying(saved && saved.time ? saved.time : undefined);
     }
   }
-  // Ensure Web Audio gain exists and resume any suspended contexts
-  ensureAudioGain();
+  // iOS: ensure Web Audio gain exists and resume suspended contexts
+  if (!volumeWritable) ensureAudioGain();
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   if (bgAudioCtx && bgAudioCtx.state === 'suspended') bgAudioCtx.resume();
 }
