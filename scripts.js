@@ -705,6 +705,11 @@ requestAnimationFrame(drawStars);
       const oldMain = document.querySelector('main');
       if (newMain && oldMain) {
         oldMain.replaceWith(newMain.cloneNode(true));
+      } else {
+        // Fallback: if either page lacks <main>, do a full navigation
+        console.warn('SPA: missing <main> tag, falling back to full nav');
+        window.location.href = href;
+        return;
       }
 
       // Swap chat orb/float if present
