@@ -729,10 +729,20 @@ requestAnimationFrame(drawStars);
       });
 
       // Execute page-specific inline scripts from new page
-      const newScripts = doc.querySelectorAll('main ~ script, .chat-float ~ script');
-      newScripts.forEach(s => {
-        // Skip scripts.js and lib scripts — those are already loaded
-        if (s.src) return;
+      // Find ALL inline scripts (no src) except ones we've already loaded globally
+      const skipSrc = ['scripts.js', 'tone.min.js', 'firebase-app-compat.js', 'firebase-database-compat.js', 'peerjs.min.js'];
+      doc.querySelectorAll('script').forEach(s => {
+        if (s.src && skipSrc.some(lib => s.src.includes(lib))) return;
+        if (s.src) {
+          // Load external page-specific scripts dynamically
+          const existing = document.querySelector(`script[src="${new URL(s.src, href).pathname}"]`);
+          if (!existing) {
+            const ns = document.createElement('script');
+            ns.src = s.src;
+            document.body.appendChild(ns);
+          }
+          return;
+        }
         try {
           const fn = new Function(s.textContent);
           fn();
