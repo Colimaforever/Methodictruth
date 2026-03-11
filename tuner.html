@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tuner — Truth · AI Chronicles</title>
+  <meta name="description" content="Chromatic guitar tuner with device selection — tune by ear or by eye.">
+  <meta property="og:title" content="Tuner — Truth · AI Chronicles">
+  <meta property="og:description" content="Chromatic guitar tuner with device selection — tune by ear or by eye.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/tuner.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=50">
+  <style>
+    .tuner-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 4rem; display: flex; flex-direction: column; align-items: center; }
+
+    /* Device selector */
+    .tn-device {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;
+    }
+    .tn-device-label {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.6rem; color: var(--stone-dark);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .tn-device-select {
+      background: rgba(18,14,10,0.8); border: 1px solid rgba(138,126,107,0.2);
+      color: var(--parchment); font-family: 'JetBrains Mono',monospace; font-size: 0.7rem;
+      padding: 0.3rem 0.6rem; max-width: 250px;
+    }
+
+    /* Start button */
+    .tn-start {
+      background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.3);
+      color: var(--glow); font-family: 'Cinzel',serif; font-size: 1rem;
+      padding: 0.6rem 2rem; cursor: pointer; transition: all 0.3s; letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+    }
+    .tn-start:hover { background: rgba(0,229,255,0.15); border-color: var(--glow); }
+    .tn-start.active { background: rgba(0,229,255,0.15); border-color: var(--glow); }
+
+    /* Tuner display */
+    .tn-display {
+      width: 340px; max-width: 90vw; text-align: center; position: relative;
+    }
+
+    /* Note name */
+    .tn-note {
+      font-family: 'Cinzel',serif; font-size: clamp(4rem,12vw,7rem); color: var(--parchment);
+      line-height: 1; margin-bottom: 0.2rem; transition: color 0.2s;
+      text-shadow: 0 0 30px rgba(0,229,255,0.1);
+    }
+    .tn-note.in-tune { color: rgba(74,222,128,0.9); text-shadow: 0 0 40px rgba(74,222,128,0.3); }
+    .tn-note.sharp { color: rgba(232,168,124,0.9); }
+    .tn-note.flat { color: rgba(123,104,238,0.9); }
+    .tn-octave {
+      font-family: 'JetBrains Mono',monospace; font-size: 1.2rem; color: var(--stone-dark);
+      vertical-align: super;
+    }
+
+    /* Frequency */
+    .tn-freq {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.75rem; color: var(--stone-dark);
+      letter-spacing: 0.1em; margin-bottom: 1rem;
+    }
+
+    /* Cents gauge */
+    .tn-gauge {
+      width: 100%; height: 60px; position: relative; margin-bottom: 1rem;
+    }
+    .tn-gauge-track {
+      position: absolute; top: 28px; left: 0; right: 0; height: 4px;
+      background: rgba(138,126,107,0.1);
+    }
+    .tn-gauge-center {
+      position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      width: 2px; height: 24px; background: rgba(74,222,128,0.5);
+    }
+    .tn-gauge-ticks {
+      position: absolute; top: 28px; left: 0; right: 0; height: 4px;
+    }
+    .tn-gauge-tick {
+      position: absolute; top: -6px; width: 1px; height: 16px;
+      background: rgba(138,126,107,0.15);
+    }
+    .tn-gauge-needle {
+      position: absolute; top: 14px; left: 50%; width: 3px; height: 32px;
+      background: var(--glow); transform: translateX(-50%); transition: left 0.08s ease-out;
+      box-shadow: 0 0 8px rgba(0,229,255,0.4);
+    }
+    .tn-gauge-needle.in-tune { background: rgba(74,222,128,0.9); box-shadow: 0 0 12px rgba(74,222,128,0.5); }
+    .tn-gauge-labels {
+      display: flex; justify-content: space-between;
+      font-family: 'JetBrains Mono',monospace; font-size: 0.5rem; color: var(--stone-dark);
+      margin-top: 2px; padding: 0 5px;
+    }
+    .tn-cents {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.85rem; color: var(--stone);
+      text-align: center; margin-bottom: 1.5rem; min-height: 1.2em;
+    }
+
+    /* String quick-select */
+    .tn-strings {
+      display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1.5rem;
+    }
+    .tn-string-btn {
+      width: 44px; height: 44px; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; background: rgba(18,14,10,0.6); border: 1px solid rgba(138,126,107,0.12);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .tn-string-btn:hover { border-color: rgba(0,229,255,0.3); }
+    .tn-string-btn.active { border-color: var(--glow); background: rgba(0,229,255,0.08); }
+    .tn-string-note {
+      font-family: 'Cinzel',serif; font-size: 0.85rem; color: var(--parchment); line-height: 1;
+    }
+    .tn-string-num {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.45rem; color: var(--stone-dark);
+    }
+
+    /* Tuning presets */
+    .tn-tuning-row {
+      display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .tn-tuning-btn {
+      background: rgba(18,14,10,0.5); border: 1px solid rgba(138,126,107,0.1);
+      color: var(--stone-dark); font-family: 'JetBrains Mono',monospace; font-size: 0.55rem;
+      padding: 0.25rem 0.6rem; cursor: pointer; transition: all 0.2s; letter-spacing: 0.08em;
+    }
+    .tn-tuning-btn:hover { border-color: rgba(0,229,255,0.3); color: var(--parchment); }
+    .tn-tuning-btn.active { border-color: var(--glow-warm); color: var(--glow-warm); }
+
+    /* Reference tone */
+    .tn-ref {
+      display: flex; align-items: center; gap: 0.5rem; justify-content: center; margin-bottom: 1rem;
+    }
+    .tn-ref-btn {
+      background: rgba(18,14,10,0.5); border: 1px solid rgba(138,126,107,0.12);
+      color: var(--stone); font-family: 'JetBrains Mono',monospace; font-size: 0.6rem;
+      padding: 0.3rem 0.7rem; cursor: pointer; transition: all 0.2s;
+    }
+    .tn-ref-btn:hover { border-color: rgba(232,168,124,0.3); }
+    .tn-ref-btn.active { border-color: var(--glow-warm); color: var(--glow-warm); }
+
+    /* Waveform */
+    .tn-waveform {
+      width: 100%; height: 60px; margin-bottom: 1rem;
+    }
+    .tn-waveform canvas { width: 100%; height: 100%; display: block; }
+
+    /* Info */
+    .tn-info {
+      max-width: 400px; padding: 0.8rem 1rem; background: rgba(18,14,10,0.5);
+      border: 1px solid rgba(138,126,107,0.06); margin-top: 0.5rem;
+    }
+    .tn-info-text {
+      font-family: 'EB Garamond',Georgia,serif; font-size: 0.85rem; color: var(--stone);
+      line-height: 1.5; text-align: center;
+    }
+    .tn-info-text strong { color: var(--parchment); }
+  </style>
+</head>
+<body>
+
+  <canvas id="stars" aria-hidden="true" role="presentation"></canvas>
+  <div class="starfield"></div>
+
+  <nav class="site-nav">
+    <a href="index.html" class="nav-sigil">𓂀</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="chronicles.html">Chronicles</a>
+      <a href="synth.html">Synth</a>
+      <a href="mixer.html">Mixer</a>
+      <a href="theory.html">Theory</a>
+      <a href="live.html">Live</a>
+      <a href="about.html">About</a>
+    </div>
+  </nav>
+
+  <div class="page-header" style="padding:4rem 2rem 0.3rem;">
+    <h1 style="font-size:clamp(1.4rem,3.5vw,2.2rem);margin-bottom:0.2rem;">Tuner</h1>
+    <div class="subtitle" style="font-size:0.6rem;">Chromatic Pitch Detection · Select your input device</div>
+  </div>
+
+  <main class="tuner-page">
+
+    <!-- Device Selection -->
+    <div class="tn-device">
+      <span class="tn-device-label">Input:</span>
+      <select id="tnDeviceSelect" class="tn-device-select">
+        <option value="">Select audio input...</option>
+      </select>
+    </div>
+
+    <!-- Start/Stop -->
+    <button id="tnStart" class="tn-start">Start Tuner</button>
+
+    <!-- Tuner Display -->
+    <div class="tn-display">
+      <div class="tn-note" id="tnNote">—</div>
+      <div class="tn-freq" id="tnFreq">— Hz</div>
+
+      <!-- Cents Gauge -->
+      <div class="tn-gauge">
+        <div class="tn-gauge-track"></div>
+        <div class="tn-gauge-center"></div>
+        <div class="tn-gauge-ticks">
+          <div class="tn-gauge-tick" style="left:10%"></div>
+          <div class="tn-gauge-tick" style="left:20%"></div>
+          <div class="tn-gauge-tick" style="left:30%"></div>
+          <div class="tn-gauge-tick" style="left:40%"></div>
+          <div class="tn-gauge-tick" style="left:50%"></div>
+          <div class="tn-gauge-tick" style="left:60%"></div>
+          <div class="tn-gauge-tick" style="left:70%"></div>
+          <div class="tn-gauge-tick" style="left:80%"></div>
+          <div class="tn-gauge-tick" style="left:90%"></div>
+        </div>
+        <div class="tn-gauge-needle" id="tnNeedle"></div>
+        <div class="tn-gauge-labels" style="position:absolute;bottom:0;left:0;right:0;">
+          <span>♭ -50¢</span><span>IN TUNE</span><span>♯ +50¢</span>
+        </div>
+      </div>
+      <div class="tn-cents" id="tnCents"></div>
+
+      <!-- Waveform -->
+      <div class="tn-waveform">
+        <canvas id="tnWaveform"></canvas>
+      </div>
+    </div>
+
+    <!-- Tuning presets -->
+    <div class="tn-tuning-row">
+      <button class="tn-tuning-btn active" data-tuning="standard">Standard</button>
+      <button class="tn-tuning-btn" data-tuning="dropd">Drop D</button>
+      <button class="tn-tuning-btn" data-tuning="opend">Open D</button>
+      <button class="tn-tuning-btn" data-tuning="openg">Open G</button>
+      <button class="tn-tuning-btn" data-tuning="dadgad">DADGAD</button>
+      <button class="tn-tuning-btn" data-tuning="halfdown">½ Step Down</button>
+    </div>
+
+    <!-- String quick-select -->
+    <div class="tn-strings" id="tnStrings"></div>
+
+    <!-- Reference tone -->
+    <div class="tn-ref">
+      <button id="tnRefBtn" class="tn-ref-btn">🔊 Play Reference Tone</button>
+    </div>
+
+    <!-- Info -->
+    <div class="tn-info">
+      <div class="tn-info-text" id="tnInfo">
+        Select your audio input device and click <strong>Start Tuner</strong>. Play a string — the tuner detects pitch using autocorrelation and shows how many <strong>cents</strong> sharp or flat you are. Green = in tune.
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Music Player -->
+  <div class="music-player" id="musicPlayer">
+    <div class="visualizer">
+      <div class="viz-bar" style="height:4px"></div>
+      <div class="viz-bar" style="height:8px"></div>
+      <div class="viz-bar" style="height:6px"></div>
+      <div class="viz-bar" style="height:12px"></div>
+      <div class="viz-bar" style="height:6px"></div>
+    </div>
+    <button class="player-btn" id="prevBtn" title="Previous">⟨</button>
+    <button class="player-btn" id="playBtn" title="Play/Pause">▷</button>
+    <button class="player-btn" id="nextBtn" title="Next">⟩</button>
+    <span class="track-name" id="trackName">loading...</span>
+    <span class="player-status" id="playerStatus">◇</span>
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="40" title="Volume">
+  </div>
+
+  <div id="bgOscilloscope" class="bg-oscilloscope" aria-hidden="true">
+    <canvas id="bgOsc"></canvas>
+  </div>
+
+  <footer>
+    <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+    <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
+    <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+  </footer>
+
+  <script src="scripts.js?v=45"></script>
+  <script>
+  (function() {
+    const NOTE_NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+    const A4 = 440;
+
+    // Tuning presets: [string6(low E) → string1(high E)]
+    const TUNINGS = {
+      standard: [
+        { note: 'E', octave: 2, freq: 82.41 },
+        { note: 'A', octave: 2, freq: 110.00 },
+        { note: 'D', octave: 3, freq: 146.83 },
+        { note: 'G', octave: 3, freq: 196.00 },
+        { note: 'B', octave: 3, freq: 246.94 },
+        { note: 'E', octave: 4, freq: 329.63 },
+      ],
+      dropd: [
+        { note: 'D', octave: 2, freq: 73.42 },
+        { note: 'A', octave: 2, freq: 110.00 },
+        { note: 'D', octave: 3, freq: 146.83 },
+        { note: 'G', octave: 3, freq: 196.00 },
+        { note: 'B', octave: 3, freq: 246.94 },
+        { note: 'E', octave: 4, freq: 329.63 },
+      ],
+      opend: [
+        { note: 'D', octave: 2, freq: 73.42 },
+        { note: 'A', octave: 2, freq: 110.00 },
+        { note: 'D', octave: 3, freq: 146.83 },
+        { note: 'F♯', octave: 3, freq: 185.00 },
+        { note: 'A', octave: 3, freq: 220.00 },
+        { note: 'D', octave: 4, freq: 293.66 },
+      ],
+      openg: [
+        { note: 'D', octave: 2, freq: 73.42 },
+        { note: 'G', octave: 2, freq: 98.00 },
+        { note: 'D', octave: 3, freq: 146.83 },
+        { note: 'G', octave: 3, freq: 196.00 },
+        { note: 'B', octave: 3, freq: 246.94 },
+        { note: 'D', octave: 4, freq: 293.66 },
+      ],
+      dadgad: [
+        { note: 'D', octave: 2, freq: 73.42 },
+        { note: 'A', octave: 2, freq: 110.00 },
+        { note: 'D', octave: 3, freq: 146.83 },
+        { note: 'G', octave: 3, freq: 196.00 },
+        { note: 'A', octave: 3, freq: 220.00 },
+        { note: 'D', octave: 4, freq: 293.66 },
+      ],
+      halfdown: [
+        { note: 'D♯', octave: 2, freq: 77.78 },
+        { note: 'G♯', octave: 2, freq: 103.83 },
+        { note: 'C♯', octave: 3, freq: 138.59 },
+        { note: 'F♯', octave: 3, freq: 185.00 },
+        { note: 'A♯', octave: 3, freq: 233.08 },
+        { note: 'D♯', octave: 4, freq: 311.13 },
+      ],
+    };
+
+    let currentTuning = 'standard';
+    let selectedString = null;
+    let audioCtx = null;
+    let analyser = null;
+    let micStream = null;
+    let rafId = null;
+    let isRunning = false;
+    let refOsc = null;
+
+    const deviceSelect = document.getElementById('tnDeviceSelect');
+    const startBtn = document.getElementById('tnStart');
+    const noteEl = document.getElementById('tnNote');
+    const freqEl = document.getElementById('tnFreq');
+    const centsEl = document.getElementById('tnCents');
+    const needleEl = document.getElementById('tnNeedle');
+    const waveCanvas = document.getElementById('tnWaveform');
+    const waveCtx = waveCanvas.getContext('2d');
+    const stringsEl = document.getElementById('tnStrings');
+    const refBtn = document.getElementById('tnRefBtn');
+    const infoEl = document.getElementById('tnInfo');
+
+    // ─── ENUMERATE DEVICES ───
+    async function loadDevices() {
+      try {
+        // Need permission first to get labels
+        const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        tempStream.getTracks().forEach(t => t.stop());
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputs = devices.filter(d => d.kind === 'audioinput');
+        deviceSelect.innerHTML = '';
+        audioInputs.forEach((d, i) => {
+          const opt = document.createElement('option');
+          opt.value = d.deviceId;
+          opt.textContent = d.label || 'Microphone ' + (i + 1);
+          deviceSelect.appendChild(opt);
+        });
+      } catch (e) {
+        deviceSelect.innerHTML = '<option>Microphone access denied</option>';
+      }
+    }
+    loadDevices();
+
+    // ─── BUILD STRING BUTTONS ───
+    function buildStrings() {
+      const tuning = TUNINGS[currentTuning];
+      stringsEl.innerHTML = '';
+      tuning.forEach((s, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'tn-string-btn';
+        btn.innerHTML = `<span class="tn-string-note">${s.note}</span><span class="tn-string-num">${6 - i}</span>`;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tn-string-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedString = i;
+          infoEl.innerHTML = `Targeting <strong>${s.note}${s.octave}</strong> (${s.freq.toFixed(1)} Hz) — string ${6 - i}`;
+        });
+        stringsEl.appendChild(btn);
+      });
+    }
+    buildStrings();
+
+    // Tuning preset buttons
+    document.querySelectorAll('.tn-tuning-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tn-tuning-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTuning = btn.dataset.tuning;
+        selectedString = null;
+        buildStrings();
+      });
+    });
+
+    // ─── START / STOP ───
+    startBtn.addEventListener('click', async () => {
+      if (isRunning) { stopTuner(); return; }
+      try {
+        const constraints = { audio: { deviceId: deviceSelect.value ? { exact: deviceSelect.value } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false } };
+        micStream = await navigator.mediaDevices.getUserMedia(constraints);
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 4096;
+        analyser.smoothingTimeConstant = 0.8;
+        const source = audioCtx.createMediaStreamSource(micStream);
+        source.connect(analyser);
+        isRunning = true;
+        startBtn.textContent = 'Stop Tuner';
+        startBtn.classList.add('active');
+        detect();
+      } catch (e) {
+        infoEl.innerHTML = '<strong>Error:</strong> Could not access microphone. Check permissions.';
+      }
+    });
+
+    function stopTuner() {
+      isRunning = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      if (micStream) micStream.getTracks().forEach(t => t.stop());
+      if (audioCtx) audioCtx.close();
+      audioCtx = null; analyser = null; micStream = null;
+      startBtn.textContent = 'Start Tuner';
+      startBtn.classList.remove('active');
+      noteEl.textContent = '—';
+      noteEl.className = 'tn-note';
+      freqEl.textContent = '— Hz';
+      centsEl.textContent = '';
+      needleEl.style.left = '50%';
+    }
+
+    // ─── PITCH DETECTION (Autocorrelation) ───
+    function autoCorrelate(buf, sampleRate) {
+      // Check if there's enough signal
+      let rms = 0;
+      for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+      rms = Math.sqrt(rms / buf.length);
+      if (rms < 0.01) return -1; // too quiet
+
+      // Trim silence from edges
+      let r1 = 0, r2 = buf.length - 1;
+      const threshold = 0.2;
+      for (let i = 0; i < buf.length / 2; i++) {
+        if (Math.abs(buf[i]) < threshold) { r1 = i; break; }
+      }
+      for (let i = 1; i < buf.length / 2; i++) {
+        if (Math.abs(buf[buf.length - i]) < threshold) { r2 = buf.length - i; break; }
+      }
+      buf = buf.slice(r1, r2);
+      const SIZE = buf.length;
+
+      // Autocorrelation
+      const c = new Float32Array(SIZE);
+      for (let i = 0; i < SIZE; i++) {
+        for (let j = 0; j < SIZE - i; j++) {
+          c[i] += buf[j] * buf[j + i];
+        }
+      }
+
+      // Find first dip then peak
+      let d = 0;
+      while (c[d] > c[d + 1]) d++;
+      let maxVal = -1, maxPos = -1;
+      for (let i = d; i < SIZE; i++) {
+        if (c[i] > maxVal) { maxVal = c[i]; maxPos = i; }
+      }
+
+      // Parabolic interpolation for sub-sample accuracy
+      let T0 = maxPos;
+      if (T0 > 0 && T0 < SIZE - 1) {
+        const x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
+        const a = (x1 + x3 - 2 * x2) / 2;
+        const b = (x3 - x1) / 2;
+        if (a) T0 = T0 - b / (2 * a);
+      }
+
+      return sampleRate / T0;
+    }
+
+    function freqToNote(freq) {
+      const noteNum = 12 * (Math.log2(freq / A4));
+      const nearest = Math.round(noteNum);
+      const cents = Math.round((noteNum - nearest) * 100);
+      const noteIndex = ((nearest % 12) + 12) % 12;
+      const octave = Math.floor((nearest + 69) / 12) - 1;
+      return { note: NOTE_NAMES[noteIndex], octave, cents, nearest };
+    }
+
+    // ─── DETECTION LOOP ───
+    const timeBuf = new Float32Array(4096);
+
+    function detect() {
+      if (!isRunning) return;
+      analyser.getFloatTimeDomainData(timeBuf);
+      const freq = autoCorrelate(timeBuf, audioCtx.sampleRate);
+
+      drawWaveform(timeBuf);
+
+      if (freq > 0 && freq < 1200) {
+        const info = freqToNote(freq);
+        noteEl.innerHTML = info.note + '<span class="tn-octave">' + info.octave + '</span>';
+        freqEl.textContent = freq.toFixed(1) + ' Hz';
+
+        const absCents = Math.abs(info.cents);
+        if (absCents <= 3) {
+          noteEl.className = 'tn-note in-tune';
+          centsEl.textContent = '✓ In Tune';
+          centsEl.style.color = 'rgba(74,222,128,0.9)';
+        } else {
+          noteEl.className = 'tn-note ' + (info.cents > 0 ? 'sharp' : 'flat');
+          centsEl.textContent = (info.cents > 0 ? '+' : '') + info.cents + ' cents ' + (info.cents > 0 ? '♯ sharp' : '♭ flat');
+          centsEl.style.color = info.cents > 0 ? 'rgba(232,168,124,0.8)' : 'rgba(123,104,238,0.8)';
+        }
+
+        // Needle position: -50 to +50 cents mapped to 0% to 100%
+        const pct = 50 + (Math.max(-50, Math.min(50, info.cents)));
+        needleEl.style.left = pct + '%';
+        needleEl.className = 'tn-gauge-needle' + (absCents <= 3 ? ' in-tune' : '');
+
+        // If a string is selected, show distance to target
+        if (selectedString !== null) {
+          const target = TUNINGS[currentTuning][selectedString];
+          const targetCents = 1200 * Math.log2(freq / target.freq);
+          if (Math.abs(targetCents) <= 3) {
+            infoEl.innerHTML = `<strong>${target.note}${target.octave}</strong> — ✓ In tune!`;
+          } else {
+            infoEl.innerHTML = `<strong>${target.note}${target.octave}</strong> — ${targetCents > 0 ? '+' : ''}${Math.round(targetCents)} cents ${targetCents > 0 ? '(sharp)' : '(flat)'}`;
+          }
+        }
+      }
+
+      rafId = requestAnimationFrame(detect);
+    }
+
+    // ─── WAVEFORM DRAW ───
+    function drawWaveform(buf) {
+      const w = waveCanvas.width = waveCanvas.clientWidth * (window.devicePixelRatio || 1);
+      const h = waveCanvas.height = waveCanvas.clientHeight * (window.devicePixelRatio || 1);
+      waveCtx.clearRect(0, 0, w, h);
+      waveCtx.strokeStyle = 'rgba(0,229,255,0.4)';
+      waveCtx.lineWidth = 1.5;
+      waveCtx.beginPath();
+      const slice = w / buf.length;
+      for (let i = 0; i < buf.length; i++) {
+        const x = i * slice;
+        const y = (buf[i] + 1) / 2 * h;
+        if (i === 0) waveCtx.moveTo(x, y);
+        else waveCtx.lineTo(x, y);
+      }
+      waveCtx.stroke();
+    }
+
+    // ─── REFERENCE TONE ───
+    let refCtx = null;
+    refBtn.addEventListener('click', () => {
+      if (refOsc) {
+        refOsc.stop(); refOsc = null;
+        if (refCtx) { refCtx.close(); refCtx = null; }
+        refBtn.textContent = '🔊 Play Reference Tone';
+        refBtn.classList.remove('active');
+        return;
+      }
+      const targetFreq = selectedString !== null ? TUNINGS[currentTuning][selectedString].freq : 440;
+      refCtx = new (window.AudioContext || window.webkitAudioContext)();
+      refOsc = refCtx.createOscillator();
+      const gain = refCtx.createGain();
+      gain.gain.value = 0.15;
+      refOsc.frequency.value = targetFreq;
+      refOsc.type = 'sine';
+      refOsc.connect(gain);
+      gain.connect(refCtx.destination);
+      refOsc.start();
+      refBtn.textContent = '🔇 Stop (' + targetFreq.toFixed(0) + ' Hz)';
+      refBtn.classList.add('active');
+    });
+
+  })();
+  </script>
+</body>
+</html>
