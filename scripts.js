@@ -684,19 +684,7 @@ requestAnimationFrame(drawStars);
       // Swap title
       document.title = doc.title;
 
-      // Swap standalone header (only if it's NOT inside <main>)
-      const newHeader = doc.querySelector('body > header, body > div > header');
-      const oldHeader = document.querySelector('body > header, body > div > header');
-      if (newHeader && oldHeader) {
-        oldHeader.replaceWith(newHeader.cloneNode(true));
-      } else if (!newHeader && oldHeader) {
-        oldHeader.remove();
-      } else if (newHeader && !oldHeader) {
-        const main = document.querySelector('main');
-        if (main) main.before(newHeader.cloneNode(true));
-      }
-
-      // Swap main content
+      // Swap main content (all page content lives inside <main>)
       const newMain = doc.querySelector('main');
       const oldMain = document.querySelector('main');
       if (newMain && oldMain) {
