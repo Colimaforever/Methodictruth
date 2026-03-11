@@ -684,6 +684,14 @@ requestAnimationFrame(drawStars);
       // Swap title
       document.title = doc.title;
 
+      // Swap page-specific styles: remove old page styles, inject new ones
+      document.querySelectorAll('style[data-spa-page]').forEach(s => s.remove());
+      doc.querySelectorAll('head style').forEach(s => {
+        const clone = s.cloneNode(true);
+        clone.setAttribute('data-spa-page', pageName);
+        document.head.appendChild(clone);
+      });
+
       // Swap main content (all page content lives inside <main>)
       const newMain = doc.querySelector('main');
       const oldMain = document.querySelector('main');
