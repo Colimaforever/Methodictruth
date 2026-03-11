@@ -69,7 +69,7 @@
     /* ─── CHAIN AREA ─── */
     .signal-chain-area {
       margin-top: 50px;
-      padding: 1.5rem 1rem;
+      padding: 1.5rem 0.5rem;
       overflow-x: auto;
       position: relative;
     }
@@ -86,15 +86,17 @@
       display: flex;
       gap: 0.5rem;
       align-items: flex-start;
-      min-width: max-content;
       position: relative;
       z-index: 1;
       padding: 0.5rem 0;
+      width: 100%;
     }
 
     /* ─── SIGNAL BLOCK ─── */
     .signal-block {
-      width: 180px;
+      flex: 1 1 0;
+      min-width: 120px;
+      max-width: 220px;
       min-height: 200px;
       background: linear-gradient(135deg, rgba(26, 18, 10, 0.92), rgba(15, 20, 15, 0.85));
       border: 1px solid rgba(0, 229, 255, 0.15);
@@ -103,7 +105,6 @@
       position: relative;
       cursor: grab;
       transition: all 0.3s;
-      flex-shrink: 0;
     }
     .signal-block:hover { border-color: rgba(0, 229, 255, 0.3); box-shadow: 0 0 20px rgba(0,229,255,0.06); }
     .signal-block.bypassed {
@@ -243,8 +244,8 @@
     /* ─── CONNECTOR ARROW ─── */
     .signal-connector {
       display: flex; align-items: center; justify-content: center;
-      width: 30px; min-height: 200px;
-      flex-shrink: 0;
+      width: 20px; min-width: 12px; min-height: 200px;
+      flex-shrink: 1;
       position: relative;
     }
     .signal-connector::before {
