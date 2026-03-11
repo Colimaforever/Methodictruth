@@ -126,6 +126,7 @@ const maqamScales = [
 
 let genEngine = null; // holds the running generative engine state
 let genActive = false;
+let userPaused = false; // tracks if user explicitly paused — prevents auto-resume on interaction
 let currentMaqamIndex = 0;
 
 function loadToneJS() {
@@ -200,11 +201,17 @@ function handleNext() {
   }
 }
 
+let volumeRafId = null;
 function handleVolume(e) {
   const vol = e.target.value / 100;
   audio.volume = vol;
+  // Debounce generative engine volume to avoid overlapping ramps
   if (genEngine && genEngine.masterGain) {
-    genEngine.masterGain.gain.rampTo(vol, 0.1);
+    if (volumeRafId) cancelAnimationFrame(volumeRafId);
+    volumeRafId = requestAnimationFrame(() => {
+      genEngine.masterGain.gain.value = vol;
+      volumeRafId = null;
+    });
   }
 }
 
@@ -215,19 +222,23 @@ function togglePlay() {
   }
   if (genActive) {
     if (isPlaying) {
+      userPaused = true;
       pauseGenerativeEngine();
     } else {
+      userPaused = false;
       resumeGenerativeEngine();
     }
     return;
   }
   if (isPlaying) {
+    userPaused = true;
     audio.pause();
     isPlaying = false;
     playBtn.textContent = '▷';
     playerStatus.textContent = '◇ paused';
     musicPlayer.classList.remove('playing');
   } else {
+    userPaused = false;
     startPlaying();
   }
 }
@@ -357,8 +368,11 @@ function switchMaqam(index) {
 function pauseGenerativeEngine() {
   if (!genEngine) return;
   Tone.Transport.pause();
-  genEngine.drones.forEach(d => d.volume.rampTo(-Infinity, 1));
-  genEngine.noise.volume.rampTo(-Infinity, 1);
+  // Immediately silence — don't rely on slow ramp
+  genEngine.drones.forEach(d => { d.volume.cancelScheduledValues(Tone.now()); d.volume.value = -Infinity; });
+  if (genEngine.noise) { genEngine.noise.volume.cancelScheduledValues(Tone.now()); genEngine.noise.volume.value = -Infinity; }
+  if (genEngine.pad) genEngine.pad.releaseAll();
+  if (genEngine.shimmer) genEngine.shimmer.triggerRelease();
   isPlaying = false;
   playBtn.textContent = '▷';
   playerStatus.textContent = '◇ paused';
@@ -369,7 +383,7 @@ function resumeGenerativeEngine() {
   if (!genEngine) return;
   Tone.Transport.start();
   genEngine.drones.forEach(d => d.volume.rampTo(-18, 1));
-  genEngine.noise.volume.rampTo(-35, 1);
+  if (genEngine.noise) genEngine.noise.volume.rampTo(-35, 1);
   setPlayingUI();
   playerStatus.textContent = '◈ generating';
 }
@@ -436,12 +450,12 @@ function onFirstInteraction() {
   ['touchstart', 'click', 'scroll', 'keydown'].forEach(evt => {
     document.removeEventListener(evt, onFirstInteraction, true);
   });
-  // If not already playing, start music
-  if (!isPlaying) {
+  // Only auto-start if nothing is already playing and no user has explicitly paused
+  if (!isPlaying && !userPaused) {
     if (saved && saved.generative) {
       currentMaqamIndex = saved.maqamIndex || 0;
       startGenerativeEngine();
-    } else {
+    } else if (playlist.length > 0) {
       loadTrack(currentTrack);
       startPlaying(saved && saved.time ? saved.time : undefined);
     }
