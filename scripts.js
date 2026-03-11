@@ -725,6 +725,13 @@ requestAnimationFrame(drawStars);
         a.classList.toggle('active', linkPage === pageName);
       });
 
+      // Hide/show decorative layers per page
+      const hideDecor = ['architecture.html'];
+      const neb = document.querySelector('.nebula');
+      const gnd = document.querySelector('.ground');
+      if (neb) neb.style.display = hideDecor.includes(pageName) ? 'none' : '';
+      if (gnd) gnd.style.display = hideDecor.includes(pageName) ? 'none' : '';
+
       // Execute page-specific inline scripts from new page
       // Find ALL inline scripts (no src) except ones we've already loaded globally
       const skipSrc = ['scripts.js', 'tone.min.js', 'firebase-app-compat.js', 'firebase-database-compat.js', 'peerjs.min.js'];

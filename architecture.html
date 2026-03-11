@@ -8,8 +8,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=39">
   <style>
-    /* Kill grain overlays on this page — they create a dark circle artifact over the diagram */
+    /* Kill grain overlays and nebula on this page — they create dark artifacts over the diagram */
     body::before, body::after { display: none !important; }
+    .nebula { display: none !important; }
+    .ground { display: none !important; }
 
     /* ─── ARCHITECTURE PAGE ─── */
     .arch-container {
@@ -430,7 +432,7 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=32"></script>
+  <script src="scripts.js?v=33"></script>
   <script>
   (function() {
     const nodeData = {
