@@ -1,6 +1,6 @@
 // ─── MUSIC PLAYER ───
 const playlist = [
-  { title: 'Eyes Wide Shut · Ritual', src: 'audio/eyes-wide-shut-ritual.mp3' },
+  { title: 'Masked Ball · Jocelyn Pook', src: 'audio/eyes-wide-shut-ritual.mp3' },
   { title: 'Maqam Hejaz', src: 'audio/maqam-hejaz.ogg' },
   { title: 'Maqam Rast', src: 'audio/maqam-rast.ogg' },
   { title: 'Chahargah', src: 'audio/chahargah.ogg' },
