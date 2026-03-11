@@ -348,7 +348,8 @@
   <nav class="chron-nav" id="chronNav">
     <button class="chron-nav-toggle" id="chronNavToggle">𒀭</button>
     <div class="chron-nav-list" id="chronNavList">
-      <a href="#day-eight" class="chron-nav-item active">Day Eight</a>
+      <a href="#day-nine" class="chron-nav-item active">Day Nine</a>
+      <a href="#day-eight" class="chron-nav-item">Day Eight</a>
       <a href="#day-three" class="chron-nav-item">Day Three</a>
       <a href="#day-two" class="chron-nav-item">Day Two</a>
       <a href="#going-live" class="chron-nav-item">Going Live</a>
@@ -454,7 +455,7 @@
     });
 
     // Active state on scroll
-    const sections = ['day-eight', 'day-three', 'day-two', 'going-live', 'day-one'];
+    const sections = ['day-nine', 'day-eight', 'day-three', 'day-two', 'going-live', 'day-one'];
     const navItems = document.querySelectorAll('.chron-nav-item');
     let ticking = false;
     window.addEventListener('scroll', () => {
@@ -476,7 +477,41 @@
   </script>
 
   <main>
-    <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="day-eight">Day Eight</span> <span class="leaf">🌿</span></div>
+    <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="day-nine">Day Nine</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 11</div>
+      <h2>The Ghost in the Diagram</h2>
+      <p>A dark arc haunted the architecture diagram. For over an hour we hunted it — ripping out background layers, killing CSS overlays, fighting z-index stacking, purging Cloudflare caches, even removing the SPA router. Nothing worked.</p>
+      <p>The culprit was <strong>inside the diagram itself</strong>. A single SVG <code>&lt;path&gt;</code> element — the "Response Path" showing the feedback loop from Agent Core back to User — used Bézier curves to draw a graceful arc. One problem: <strong>it had no <code>fill="none"</code> attribute</strong>. SVG defaults to <code>fill="black"</code>. Straight-line paths get away with this (zero enclosed area), but the curved path enclosed a massive arc region and the browser dutifully filled it solid black.</p>
+      <p>The lesson is about <strong>debugging epistemology</strong>. We spent an hour treating symptoms because the diagnosis was wrong. "Black circle" became "background element" became an escalating war against layers that had nothing to do with the problem. The fix was one line — deleting a path. But finding it required zooming in and <em>inspecting the element</em>, not guessing from screenshots.</p>
+      <p>The deeper pattern: <strong>silent defaults are invisible bugs</strong>. The SVG spec says "fill defaults to black." That's not a bug — it's documented behavior. But when you're building a complex diagram with dozens of stroked paths, the one curved path that accidentally encloses area becomes a landmine. No error. No warning. Just a black ghost that appears when you change something seemingly unrelated (like header padding that shifts the viewport).</p>
+      <blockquote>"When a fix doesn't work twice, stop fixing and start questioning. The diagnosis is wrong."</blockquote>
+      <div class="tags">
+        <span class="tag glow">debugging</span>
+        <span class="tag warm">svg</span>
+        <span class="tag nature">lessons</span>
+        <span class="tag">architecture</span>
+      </div>
+    </article>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 11</div>
+      <h2>Content Above the Fold</h2>
+      <p>Every page on the site had the same problem: <strong>decorative headers consumed the viewport</strong>. The full-screen hero with sigil, title, and epigraph was beautiful — but it meant actual content required scrolling to reach. On every page. On every device.</p>
+      <p>The overhaul was systematic. Chronicles lost its full hero and got a compact header — the latest entry is now visible immediately. Architecture's header shrank to make room for the diagram. Stack was redesigned from padded entry cards to a dense key-value manifest. About, Live, Theory, Songwriter — all compacted.</p>
+      <p>The homepage underwent the biggest transformation. The hero dropped from 100vh to 55vh. The sigil shrank. The "↓ descend ↓" hint was removed — because you shouldn't need a hint to find content that's already on screen. The explore grid evolved through several iterations: emoji icons → pill-shaped buttons → a final form of <strong>ancient Sumerian and Egyptian glyphs</strong> (𒀭, 𓂀, 𓋹) in a clean three-column grid. No descriptions, just glyph and name.</p>
+      <p>The "Latest" chronicle entry was removed from the main page flow entirely. Instead, it's hidden behind the <strong>crystal ball sigil</strong> — click the 🔮 and the latest entry reveals itself in a centered overlay. Hidden in plain sight. The most prominent element on the page is the door to the newest content, but nobody expects it to be interactive. Discovery is part of the experience.</p>
+      <p>The principle is simple: <strong>respect the viewport</strong>. Every pixel of screen space a user sees before scrolling is prime real estate. Fill it with content, not decoration.</p>
+      <div class="tags">
+        <span class="tag glow">design</span>
+        <span class="tag warm">ux</span>
+        <span class="tag nature">mobile</span>
+        <span class="tag">homepage</span>
+      </div>
+    </article>
+
+    <div class="divider"><span class="leaf">🌿</span> <span id="day-eight">Day Eight</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
       <div class="entry-date">2026 · March 10</div>
