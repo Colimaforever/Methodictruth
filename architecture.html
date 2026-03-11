@@ -6,12 +6,15 @@
   <title>Architecture — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=40">
+  <link rel="stylesheet" href="styles.css?v=41">
   <style>
-    /* Kill grain overlays and nebula on this page — they create dark artifacts over the diagram */
-    body::before, body::after { display: none !important; }
-    .nebula { display: none !important; }
-    .ground { display: none !important; }
+    /* Kill ALL decorative overlays on this page */
+    body::before, body::after { content: none !important; display: none !important; }
+    .nebula, .ground, .starfield, .sky-glyph, .artifact-float, .shooting-star, .structures-svg { 
+      display: none !important; 
+      visibility: hidden !important;
+    }
+    body { background: #0a0e1a !important; }
 
     /* ─── ARCHITECTURE PAGE ─── */
     .arch-container {
@@ -183,8 +186,7 @@
 </head>
 <body>
 
-  <!-- Background: just starfield, no other decorative layers -->
-  <div class="starfield"><canvas id="stars"></canvas></div>
+  <!-- All background layers removed for clean diagram -->
 
   <!-- Navigation -->
   <nav class="site-nav">
@@ -432,7 +434,7 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=33"></script>
+  <script src="scripts.js?v=34"></script>
   <script>
   (function() {
     const nodeData = {

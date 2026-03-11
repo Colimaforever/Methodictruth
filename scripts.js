@@ -727,10 +727,12 @@ requestAnimationFrame(drawStars);
 
       // Hide/show decorative layers per page
       const hideDecor = ['architecture.html'];
-      const neb = document.querySelector('.nebula');
-      const gnd = document.querySelector('.ground');
-      if (neb) neb.style.display = hideDecor.includes(pageName) ? 'none' : '';
-      if (gnd) gnd.style.display = hideDecor.includes(pageName) ? 'none' : '';
+      const isClean = hideDecor.includes(pageName);
+      ['.nebula', '.ground', '.starfield', '.sky-glyph', '.artifact-float', '.shooting-star'].forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => el.style.display = isClean ? 'none' : '');
+      });
+      // Also force body pseudo-element cleanup via class
+      document.body.classList.toggle('no-grain', isClean);
 
       // Execute page-specific inline scripts from new page
       // Find ALL inline scripts (no src) except ones we've already loaded globally

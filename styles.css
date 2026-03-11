@@ -16,6 +16,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+body.no-grain::before, body.no-grain::after { content: none !important; }
 
 body {
   background: var(--sky-deep);
