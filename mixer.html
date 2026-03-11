@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mixer — Truth · AI Chronicles</title>
+  <meta name="description" content="A pedagogical audio mixer — learn gain staging, panning, and EQ by mixing real stems.">
+  <meta property="og:title" content="Mixer — Truth · AI Chronicles">
+  <meta property="og:description" content="A pedagogical audio mixer — learn gain staging, panning, and EQ by mixing real stems.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/mixer.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=50">
+  <style>
+    .mixer-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 4rem; }
+
+    /* ─── TRANSPORT ─── */
+    .mx-transport {
+      display: flex; align-items: center; justify-content: center; gap: 0.8rem;
+      padding: 0.6rem 1rem; max-width: 1200px; margin: 0 auto 0.5rem;
+      background: rgba(18,14,10,0.6); border: 1px solid rgba(138,126,107,0.08);
+    }
+    .mx-transport-btn {
+      background: rgba(26,18,10,0.6); border: 1px solid rgba(138,126,107,0.15);
+      color: var(--stone); font-family: 'JetBrains Mono',monospace; font-size: 0.75rem;
+      padding: 0.35rem 0.8rem; cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
+    }
+    .mx-transport-btn:hover { border-color: rgba(0,229,255,0.3); color: var(--parchment); }
+    .mx-transport-btn.active { border-color: var(--glow); color: var(--glow); }
+    .mx-time {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.7rem; color: var(--glow);
+      min-width: 60px; text-align: center;
+    }
+    .mx-scrubber {
+      flex: 1; max-width: 300px; height: 4px; -webkit-appearance: none; appearance: none;
+      background: rgba(138,126,107,0.15); outline: none; cursor: pointer;
+    }
+    .mx-scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--glow); cursor: pointer;
+    }
+
+    /* ─── CONSOLE (mixer body) ─── */
+    .mx-console {
+      display: flex; max-width: 1200px; margin: 0 auto; padding: 0 0.5rem;
+      gap: 2px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+
+    /* ─── CHANNEL STRIP ─── */
+    .mx-channel {
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 100px; width: 100px; padding: 0.5rem 0.3rem;
+      background: rgba(18,14,10,0.7); border: 1px solid rgba(138,126,107,0.06);
+      flex-shrink: 0;
+    }
+    .mx-channel.master {
+      min-width: 120px; width: 120px;
+      background: rgba(18,14,10,0.85); border-color: rgba(232,168,124,0.15);
+    }
+    .mx-ch-label {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.55rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.3rem;
+      width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .mx-channel.master .mx-ch-label { color: var(--glow-warm); }
+
+    /* Load button */
+    .mx-load-btn {
+      width: 80%; padding: 0.25rem; margin-bottom: 0.4rem;
+      background: rgba(0,229,255,0.05); border: 1px dashed rgba(0,229,255,0.2);
+      color: var(--stone-dark); font-family: 'JetBrains Mono',monospace; font-size: 0.5rem;
+      cursor: pointer; transition: all 0.2s; text-align: center;
+    }
+    .mx-load-btn:hover { border-color: var(--glow); color: var(--glow); }
+    .mx-load-btn.loaded { border-style: solid; border-color: rgba(0,229,255,0.3); color: var(--glow); }
+
+    /* Meter */
+    .mx-meter {
+      width: 8px; height: 100px; background: rgba(10,14,26,0.8);
+      border: 1px solid rgba(138,126,107,0.08); position: relative; margin-bottom: 0.3rem;
+    }
+    .mx-meter-fill {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, var(--glow), #7b68ee, #e8a87c);
+      transition: height 0.05s;
+    }
+    .mx-meter-clip {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: rgba(180,60,60,0.8); opacity: 0; transition: opacity 0.1s;
+    }
+    .mx-meter-clip.active { opacity: 1; }
+
+    /* Fader */
+    .mx-fader-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 0.3rem; }
+    .mx-fader {
+      writing-mode: vertical-lr; direction: rtl;
+      width: 100px; height: 4px; -webkit-appearance: none; appearance: none;
+      background: rgba(138,126,107,0.1); outline: none; cursor: pointer;
+    }
+    .mx-fader::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 24px; height: 8px;
+      background: linear-gradient(to bottom, rgba(240,232,216,0.8), rgba(138,126,107,0.6));
+      border: 1px solid rgba(138,126,107,0.3); cursor: pointer;
+    }
+    .mx-fader-val {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.5rem;
+      color: var(--stone-dark); margin-top: 0.2rem;
+    }
+
+    /* Pan knob */
+    .mx-pan-wrap { display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.3rem; }
+    .mx-pan-label { font-family: 'JetBrains Mono',monospace; font-size: 0.45rem; color: var(--stone-dark); }
+    .mx-pan {
+      width: 50px; height: 4px; -webkit-appearance: none; appearance: none;
+      background: rgba(138,126,107,0.1); outline: none; cursor: pointer;
+    }
+    .mx-pan::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--parchment); border: 1px solid rgba(138,126,107,0.3); cursor: pointer;
+    }
+
+    /* Mute / Solo */
+    .mx-btn-row { display: flex; gap: 3px; margin-bottom: 0.3rem; }
+    .mx-mute, .mx-solo {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.5rem; padding: 0.15rem 0.35rem;
+      border: 1px solid rgba(138,126,107,0.12); background: transparent; cursor: pointer;
+      color: var(--stone-dark); transition: all 0.2s; letter-spacing: 0.1em;
+    }
+    .mx-mute.active { background: rgba(180,60,60,0.3); border-color: rgba(180,60,60,0.5); color: #e06060; }
+    .mx-solo.active { background: rgba(232,168,124,0.2); border-color: rgba(232,168,124,0.4); color: var(--glow-warm); }
+
+    /* ─── EQ (master) ─── */
+    .mx-eq { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; margin-bottom: 0.3rem; width: 100%; }
+    .mx-eq-label { font-family: 'JetBrains Mono',monospace; font-size: 0.45rem; color: var(--stone-dark); letter-spacing: 0.1em; }
+    .mx-eq-band {
+      display: flex; align-items: center; gap: 0.2rem; width: 100%;
+    }
+    .mx-eq-name { font-family: 'JetBrains Mono',monospace; font-size: 0.4rem; color: var(--stone-dark); min-width: 18px; }
+    .mx-eq-slider {
+      flex: 1; height: 3px; -webkit-appearance: none; appearance: none;
+      background: rgba(138,126,107,0.1); outline: none; cursor: pointer;
+    }
+    .mx-eq-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--glow-warm); cursor: pointer;
+    }
+    .mx-eq-val { font-family: 'JetBrains Mono',monospace; font-size: 0.4rem; color: var(--stone-dark); min-width: 22px; text-align: right; }
+
+    /* ─── INFO PANEL ─── */
+    .mx-info {
+      max-width: 1200px; margin: 1rem auto; padding: 0 1rem;
+    }
+    .mx-info-card {
+      background: rgba(18,14,10,0.6); border: 1px solid rgba(138,126,107,0.08);
+      padding: 1rem 1.2rem; position: relative; z-index: 1;
+    }
+    .mx-info-title {
+      font-family: 'Cinzel',serif; font-size: 0.85rem; color: var(--glow-warm);
+      margin-bottom: 0.5rem; letter-spacing: 0.05em;
+    }
+    .mx-info-text {
+      font-family: 'EB Garamond',Georgia,serif; font-size: 0.95rem;
+      color: var(--stone); line-height: 1.6;
+    }
+    .mx-info-text code {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.8rem;
+      color: var(--glow); background: rgba(0,229,255,0.05); padding: 0.1rem 0.3rem;
+    }
+
+    /* ─── TOOLTIPS ─── */
+    [data-tip] { position: relative; }
+    [data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+      background: rgba(10,14,26,0.95); border: 1px solid rgba(0,229,255,0.2);
+      color: var(--parchment); font-family: 'EB Garamond',Georgia,serif;
+      font-size: 0.75rem; padding: 0.4rem 0.6rem; white-space: nowrap;
+      z-index: 100; pointer-events: none; margin-bottom: 4px;
+      max-width: 220px; white-space: normal; line-height: 1.3;
+    }
+
+    /* ─── DROP ZONE ─── */
+    .mx-channel.dragover { border-color: var(--glow); background: rgba(0,229,255,0.05); }
+
+    @media (max-width: 768px) {
+      .mx-console { padding: 0; }
+      .mx-channel { min-width: 80px; width: 80px; }
+      .mx-channel.master { min-width: 90px; width: 90px; }
+      .mx-fader { width: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="stars" aria-hidden="true" role="presentation"></canvas>
+  <div class="starfield"></div>
+
+  <nav class="site-nav">
+    <a href="index.html" class="nav-sigil">𓂀</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="chronicles.html">Chronicles</a>
+      <a href="synth.html">Synth</a>
+      <a href="mixer.html">Mixer</a>
+      <a href="theory.html">Theory</a>
+      <a href="live.html">Live</a>
+      <a href="about.html">About</a>
+    </div>
+  </nav>
+
+  <div class="page-header" style="padding:4rem 2rem 0.3rem;">
+    <h1 style="font-size:clamp(1.4rem,3.5vw,2.2rem);margin-bottom:0.2rem;">Mixer</h1>
+    <div class="subtitle" style="font-size:0.6rem;">Pedagogical Mixing Console · Drop stems, learn the craft</div>
+  </div>
+
+  <main class="mixer-page">
+
+    <!-- Transport -->
+    <div class="mx-transport">
+      <button id="mxPlay" class="mx-transport-btn" data-tip="Play all loaded tracks in sync">▷ Play</button>
+      <button id="mxStop" class="mx-transport-btn" data-tip="Stop and return to start">◻ Stop</button>
+      <span id="mxTime" class="mx-time">0:00</span>
+      <input type="range" id="mxScrubber" class="mx-scrubber" min="0" max="100" value="0" data-tip="Scrub through the timeline">
+      <button id="mxLoop" class="mx-transport-btn" data-tip="Loop playback">⟲ Loop</button>
+    </div>
+
+    <!-- Mixer Console -->
+    <div class="mx-console" id="mxConsole">
+      <!-- Track channels generated by JS -->
+
+      <!-- Master Channel -->
+      <div class="mx-channel master" id="masterChannel">
+        <div class="mx-ch-label">Master</div>
+
+        <!-- EQ -->
+        <div class="mx-eq" data-tip="3-band equalizer: shape the frequency balance of the final mix">
+          <div class="mx-eq-label">EQ</div>
+          <div class="mx-eq-band">
+            <span class="mx-eq-name">Lo</span>
+            <input type="range" class="mx-eq-slider" id="eqLow" min="-12" max="12" value="0" data-tip="Low shelf: boost or cut bass frequencies (under 300Hz)">
+            <span class="mx-eq-val" id="eqLowVal">0dB</span>
+          </div>
+          <div class="mx-eq-band">
+            <span class="mx-eq-name">Mid</span>
+            <input type="range" class="mx-eq-slider" id="eqMid" min="-12" max="12" value="0" data-tip="Mid bell: boost or cut midrange (300Hz–3kHz) where vocals and instruments live">
+            <span class="mx-eq-val" id="eqMidVal">0dB</span>
+          </div>
+          <div class="mx-eq-band">
+            <span class="mx-eq-name">Hi</span>
+            <input type="range" class="mx-eq-slider" id="eqHigh" min="-12" max="12" value="0" data-tip="High shelf: boost or cut treble (above 3kHz) for brightness or smoothness">
+            <span class="mx-eq-val" id="eqHighVal">0dB</span>
+          </div>
+        </div>
+
+        <div class="mx-meter" data-tip="Master output level — red means clipping (distortion)">
+          <div class="mx-meter-fill" id="masterMeterL"></div>
+          <div class="mx-meter-clip" id="masterClip"></div>
+        </div>
+
+        <div class="mx-fader-wrap" data-tip="Master fader: controls the overall output volume. Start at 0dB and mix into it.">
+          <input type="range" class="mx-fader" id="masterFader" min="0" max="127" value="100">
+          <span class="mx-fader-val" id="masterFaderVal">0 dB</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info / Educational Panel -->
+    <div class="mx-info" id="mxInfo">
+      <div class="mx-info-card">
+        <div class="mx-info-title">𓂀 The Art of the Mix</div>
+        <div class="mx-info-text" id="mxInfoText">
+          <p><strong>Welcome to the mixer.</strong> This is where stems become a song.</p>
+          <p>Click <code>+ Load</code> on any channel to drop in an audio file (mp3, wav, stems from Suno, etc). Each track gets its own <strong>fader</strong> (volume), <strong>pan</strong> (left/right placement), and <strong>mute/solo</strong> controls.</p>
+          <p>The <strong>Master</strong> channel controls the final output — its 3-band <strong>EQ</strong> lets you shape the overall frequency balance. Hover any control for a tooltip explaining what it does.</p>
+          <p><strong>Key concepts:</strong> Start with all faders at unity (0 dB). Bring tracks in one at a time. Pan instruments away from each other to create space. Use EQ to carve frequencies — cut before you boost.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Music Player -->
+  <div class="music-player" id="musicPlayer">
+    <div class="visualizer">
+      <div class="viz-bar" style="height:4px"></div>
+      <div class="viz-bar" style="height:8px"></div>
+      <div class="viz-bar" style="height:6px"></div>
+      <div class="viz-bar" style="height:12px"></div>
+      <div class="viz-bar" style="height:6px"></div>
+    </div>
+    <button class="player-btn" id="prevBtn" title="Previous">⟨</button>
+    <button class="player-btn" id="playBtn" title="Play/Pause">▷</button>
+    <button class="player-btn" id="nextBtn" title="Next">⟩</button>
+    <span class="track-name" id="trackName">loading...</span>
+    <span class="player-status" id="playerStatus">◇</span>
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="40" title="Volume">
+  </div>
+
+  <div id="bgOscilloscope" class="bg-oscilloscope" aria-hidden="true">
+    <canvas id="bgOsc"></canvas>
+  </div>
+
+  <footer>
+    <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+    <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
+    <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+  </footer>
+
+  <script src="scripts.js?v=44"></script>
+  <script src="lib/tone.min.js"></script>
+  <script>
+  (function() {
+    // ─── MIXER ENGINE ───
+    const NUM_TRACKS = 6;
+    const console$ = document.getElementById('mxConsole');
+    const masterCh = document.getElementById('masterChannel');
+    const playBtn = document.getElementById('mxPlay');
+    const stopBtn = document.getElementById('mxStop');
+    const loopBtn = document.getElementById('mxLoop');
+    const scrubber = document.getElementById('mxScrubber');
+    const timeDisplay = document.getElementById('mxTime');
+    const infoText = document.getElementById('mxInfoText');
+
+    let isPlaying = false;
+    let isLooping = false;
+    let startTime = 0;
+    let maxDuration = 0;
+    let rafId = null;
+
+    // Tone.js nodes
+    let masterGain, masterEqLow, masterEqMid, masterEqHigh, masterMeter, masterLimiter;
+    const tracks = [];
+
+    // ─── INIT TONE.JS CHAIN ───
+    async function initAudio() {
+      await Tone.start();
+
+      masterEqLow = new Tone.Filter({ type: 'lowshelf', frequency: 300, gain: 0 });
+      masterEqMid = new Tone.Filter({ type: 'peaking', frequency: 1000, gain: 0, Q: 1 });
+      masterEqHigh = new Tone.Filter({ type: 'highshelf', frequency: 3000, gain: 0 });
+      masterLimiter = new Tone.Limiter(-1);
+      masterGain = new Tone.Gain(faderToGain(100));
+      masterMeter = new Tone.Meter({ normalRange: true });
+
+      masterGain.chain(masterEqLow, masterEqMid, masterEqHigh, masterLimiter, Tone.Destination);
+      masterLimiter.connect(masterMeter);
+    }
+
+    function faderToGain(val) {
+      // 0-127 fader: 100 = 0dB (unity), 127 = +6dB, 0 = -inf
+      if (val === 0) return 0;
+      const dB = ((val - 100) / 127) * 48; // rough mapping
+      return Math.pow(10, dB / 20);
+    }
+
+    function faderTodB(val) {
+      if (val === 0) return '-∞';
+      const dB = ((val - 100) / 127) * 48;
+      return dB.toFixed(1);
+    }
+
+    // ─── CREATE TRACK CHANNELS ───
+    for (let i = 0; i < NUM_TRACKS; i++) {
+      const ch = document.createElement('div');
+      ch.className = 'mx-channel';
+      ch.dataset.track = i;
+      ch.innerHTML = `
+        <div class="mx-ch-label" id="chLabel${i}">Track ${i+1}</div>
+        <button class="mx-load-btn" id="chLoad${i}" data-tip="Click or drag an audio file to load it into this track">+ Load</button>
+        <div class="mx-meter" data-tip="Track level meter — watch for clipping">
+          <div class="mx-meter-fill" id="chMeter${i}"></div>
+          <div class="mx-meter-clip" id="chClip${i}"></div>
+        </div>
+        <div class="mx-fader-wrap" data-tip="Track volume fader — controls how loud this track is in the mix">
+          <input type="range" class="mx-fader" id="chFader${i}" min="0" max="127" value="100">
+          <span class="mx-fader-val" id="chFaderVal${i}">0 dB</span>
+        </div>
+        <div class="mx-pan-wrap" data-tip="Pan: place this track in the stereo field. L = left speaker, R = right speaker, C = center">
+          <span class="mx-pan-label">L</span>
+          <input type="range" class="mx-pan" id="chPan${i}" min="-100" max="100" value="0">
+          <span class="mx-pan-label">R</span>
+        </div>
+        <div class="mx-btn-row">
+          <button class="mx-mute" id="chMute${i}" data-tip="Mute: silence this track without losing your fader position">M</button>
+          <button class="mx-solo" id="chSolo${i}" data-tip="Solo: hear only this track (and other soloed tracks). Great for isolating parts.">S</button>
+        </div>
+      `;
+
+      // Insert before master
+      console$.insertBefore(ch, masterCh);
+
+      // Hidden file input
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'audio/*';
+      fileInput.style.display = 'none';
+      fileInput.id = 'chFile' + i;
+      ch.appendChild(fileInput);
+
+      tracks.push({
+        index: i,
+        el: ch,
+        loaded: false,
+        buffer: null,
+        player: null,
+        gain: null,
+        panner: null,
+        meter: null,
+        muted: false,
+        soloed: false,
+        fileName: ''
+      });
+
+      // Drag and drop
+      ch.addEventListener('dragover', e => { e.preventDefault(); ch.classList.add('dragover'); });
+      ch.addEventListener('dragleave', () => ch.classList.remove('dragover'));
+      ch.addEventListener('drop', e => {
+        e.preventDefault(); ch.classList.remove('dragover');
+        if (e.dataTransfer.files.length) loadFile(i, e.dataTransfer.files[0]);
+      });
+
+      // Click to load
+      document.getElementById('chLoad' + i).addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', e => { if (e.target.files.length) loadFile(i, e.target.files[0]); });
+
+      // Fader
+      document.getElementById('chFader' + i).addEventListener('input', e => {
+        const val = parseInt(e.target.value);
+        document.getElementById('chFaderVal' + i).textContent = faderTodB(val) + ' dB';
+        if (tracks[i].gain) tracks[i].gain.gain.value = faderToGain(val);
+        updateSoloMute();
+      });
+
+      // Pan
+      document.getElementById('chPan' + i).addEventListener('input', e => {
+        const val = parseInt(e.target.value) / 100;
+        if (tracks[i].panner) tracks[i].panner.pan.value = val;
+      });
+
+      // Mute
+      document.getElementById('chMute' + i).addEventListener('click', function() {
+        tracks[i].muted = !tracks[i].muted;
+        this.classList.toggle('active', tracks[i].muted);
+        updateSoloMute();
+        showInfo('mute');
+      });
+
+      // Solo
+      document.getElementById('chSolo' + i).addEventListener('click', function() {
+        tracks[i].soloed = !tracks[i].soloed;
+        this.classList.toggle('active', tracks[i].soloed);
+        updateSoloMute();
+        showInfo('solo');
+      });
+    }
+
+    // ─── LOAD AUDIO FILE ───
+    async function loadFile(trackIdx, file) {
+      if (!masterGain) await initAudio();
+
+      const t = tracks[trackIdx];
+      const arrayBuffer = await file.arrayBuffer();
+      const audioBuffer = await Tone.context.decodeAudioData(arrayBuffer);
+
+      // Clean up previous
+      if (t.player) { t.player.stop(); t.player.dispose(); }
+      if (t.gain) t.gain.dispose();
+      if (t.panner) t.panner.dispose();
+      if (t.meter) t.meter.dispose();
+
+      t.buffer = new Tone.ToneAudioBuffer().fromArray(audioBuffer);
+      t.player = new Tone.Player(t.buffer).sync();
+      t.gain = new Tone.Gain(faderToGain(parseInt(document.getElementById('chFader' + trackIdx).value)));
+      t.panner = new Tone.Panner(parseInt(document.getElementById('chPan' + trackIdx).value) / 100);
+      t.meter = new Tone.Meter({ normalRange: true });
+
+      t.player.chain(t.gain, t.panner, t.meter, masterGain);
+      t.player.start(0);
+      t.loaded = true;
+
+      // Update UI
+      const name = file.name.replace(/\.[^.]+$/, '').substring(0, 14);
+      t.fileName = name;
+      document.getElementById('chLabel' + trackIdx).textContent = name;
+      document.getElementById('chLoad' + trackIdx).textContent = '✓ ' + name;
+      document.getElementById('chLoad' + trackIdx).classList.add('loaded');
+
+      // Update max duration
+      if (audioBuffer.duration > maxDuration) {
+        maxDuration = audioBuffer.duration;
+        scrubber.max = Math.floor(maxDuration);
+      }
+
+      showInfo('loaded');
+    }
+
+    // ─── SOLO/MUTE LOGIC ───
+    function updateSoloMute() {
+      const anySoloed = tracks.some(t => t.soloed);
+      tracks.forEach(t => {
+        if (!t.gain) return;
+        const faderVal = parseInt(document.getElementById('chFader' + t.index).value);
+        if (t.muted) {
+          t.gain.gain.value = 0;
+        } else if (anySoloed && !t.soloed) {
+          t.gain.gain.value = 0;
+        } else {
+          t.gain.gain.value = faderToGain(faderVal);
+        }
+      });
+    }
+
+    // ─── TRANSPORT ───
+    playBtn.addEventListener('click', async () => {
+      if (!masterGain) await initAudio();
+      if (isPlaying) {
+        Tone.Transport.pause();
+        isPlaying = false;
+        playBtn.textContent = '▷ Play';
+        playBtn.classList.remove('active');
+      } else {
+        await Tone.start();
+        Tone.Transport.start();
+        isPlaying = true;
+        playBtn.textContent = '❚❚ Pause';
+        playBtn.classList.add('active');
+        updateMeters();
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      Tone.Transport.stop();
+      Tone.Transport.position = 0;
+      isPlaying = false;
+      playBtn.textContent = '▷ Play';
+      playBtn.classList.remove('active');
+      timeDisplay.textContent = '0:00';
+      scrubber.value = 0;
+    });
+
+    loopBtn.addEventListener('click', () => {
+      isLooping = !isLooping;
+      Tone.Transport.loop = isLooping;
+      if (isLooping && maxDuration) {
+        Tone.Transport.loopStart = 0;
+        Tone.Transport.loopEnd = maxDuration;
+      }
+      loopBtn.classList.toggle('active', isLooping);
+    });
+
+    scrubber.addEventListener('input', () => {
+      const t = parseFloat(scrubber.value);
+      Tone.Transport.seconds = t;
+    });
+
+    // ─── METERS ───
+    function updateMeters() {
+      if (!isPlaying) return;
+
+      // Track meters
+      tracks.forEach(t => {
+        if (!t.meter) return;
+        const level = t.meter.getValue();
+        const pct = Math.min(100, Math.max(0, level * 100));
+        const meterEl = document.getElementById('chMeter' + t.index);
+        const clipEl = document.getElementById('chClip' + t.index);
+        if (meterEl) meterEl.style.height = pct + '%';
+        if (clipEl) clipEl.classList.toggle('active', level > 0.95);
+      });
+
+      // Master meter
+      if (masterMeter) {
+        const ml = masterMeter.getValue();
+        const mPct = Math.min(100, Math.max(0, ml * 100));
+        document.getElementById('masterMeterL').style.height = mPct + '%';
+        document.getElementById('masterClip').classList.toggle('active', ml > 0.95);
+      }
+
+      // Time
+      const secs = Tone.Transport.seconds;
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      timeDisplay.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      if (maxDuration) scrubber.value = Math.floor(secs);
+
+      rafId = requestAnimationFrame(updateMeters);
+    }
+
+    // ─── MASTER CONTROLS ───
+    document.getElementById('masterFader').addEventListener('input', e => {
+      const val = parseInt(e.target.value);
+      document.getElementById('masterFaderVal').textContent = faderTodB(val) + ' dB';
+      if (masterGain) masterGain.gain.value = faderToGain(val);
+    });
+
+    ['Low', 'Mid', 'High'].forEach(band => {
+      const slider = document.getElementById('eq' + band);
+      const valEl = document.getElementById('eq' + band + 'Val');
+      slider.addEventListener('input', () => {
+        const v = parseInt(slider.value);
+        valEl.textContent = (v >= 0 ? '+' : '') + v + 'dB';
+        const node = band === 'Low' ? masterEqLow : band === 'Mid' ? masterEqMid : masterEqHigh;
+        if (node) node.gain.value = v;
+      });
+    });
+
+    // ─── EDUCATIONAL INFO ───
+    const infoCards = {
+      loaded: `<p><strong>Track loaded!</strong> Hit ▷ Play to hear it. Load more stems into other tracks to build your mix.</p>
+        <p><strong>Tip:</strong> Start with faders at <code>0 dB</code> (unity gain). If the mix is too loud, bring everything <em>down</em> rather than pushing one thing <em>up</em>. This is called <strong>gain staging</strong> — keeping healthy levels through the signal chain.</p>`,
+      mute: `<p><strong>Mute</strong> silences a track without moving the fader. Use it to quickly A/B test — does the mix sound better with or without this element?</p>
+        <p>This is one of the most powerful mixing moves: <em>subtractive mixing</em>. Sometimes the best thing you can do for a mix is remove something.</p>`,
+      solo: `<p><strong>Solo</strong> isolates a track so you hear it alone. Essential for:</p>
+        <p>• <strong>Identifying problems</strong> — is this track actually clean?<br>• <strong>EQ decisions</strong> — what frequencies does this track occupy?<br>• <strong>Checking timing</strong> — is this stem in sync with the others?</p>
+        <p>But remember: always check your decisions in the <em>full mix</em>. A track that sounds great soloed might clash with everything else.</p>`,
+      pan: `<p><strong>Panning</strong> places a sound in the stereo field — left, right, or center.</p>
+        <p>Convention: kick, bass, and lead vocal stay <strong>center</strong>. Guitars, keys, and background vocals spread <strong>wide</strong>. This creates space and prevents frequency masking — two sounds occupying the same frequency AND the same stereo position will fight each other.</p>`,
+      eq: `<p><strong>EQ (Equalization)</strong> boosts or cuts specific frequency ranges.</p>
+        <p>• <strong>Low (under 300Hz):</strong> Bass, warmth, muddiness<br>• <strong>Mid (300Hz–3kHz):</strong> Body, presence, vocals, most instruments<br>• <strong>High (above 3kHz):</strong> Clarity, air, sibilance, cymbals</p>
+        <p><strong>Golden rule:</strong> Cut narrow, boost wide. If something sounds muddy, cut low-mids rather than boosting highs. Subtractive EQ almost always sounds more natural.</p>`
+    };
+
+    function showInfo(key) {
+      if (infoCards[key]) infoText.innerHTML = infoCards[key];
+    }
+
+    // EQ info on hover
+    document.querySelectorAll('.mx-eq-slider').forEach(s => {
+      s.addEventListener('focus', () => showInfo('eq'));
+      s.addEventListener('input', () => showInfo('eq'));
+    });
+
+    // Pan info
+    document.querySelectorAll('.mx-pan').forEach(s => {
+      s.addEventListener('input', () => showInfo('pan'));
+    });
+
+  })();
+  </script>
+</body>
+</html>
