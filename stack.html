@@ -92,71 +92,92 @@
     </div>
   </nav>
 
-  <div class="page-header" style="padding:5.5rem 2rem 1.5rem;">
-    <h1>Stack</h1>
-    <div class="subtitle">Manifest of the Machine</div>
+  <div class="page-header" style="padding:4.5rem 2rem 0.5rem;">
+    <h1 style="font-size:clamp(1.5rem,4vw,2.5rem);margin-bottom:0.3rem;">Stack</h1>
+    <div class="subtitle" style="font-size:0.65rem;">Manifest of the Machine</div>
   </div>
 
   <main>
 
-    <div class="divider"><span class="leaf">🌿</span> <span>Infrastructure</span> <span class="leaf">🌿</span></div>
+    <style>
+      .stack-section { margin-bottom: 1.5rem; }
+      .stack-section-title {
+        font-family: 'Cinzel', serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--glow-warm);
+        opacity: 0.6;
+        margin-bottom: 0.6rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid rgba(232, 168, 124, 0.15);
+      }
+      .stack-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: baseline;
+        padding: 0.3rem 0;
+        border-bottom: 1px solid rgba(138, 126, 107, 0.06);
+      }
+      .stack-row:last-child { border-bottom: none; }
+      .stack-key {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--glow);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        min-width: 100px;
+        flex-shrink: 0;
+        opacity: 0.7;
+      }
+      .stack-val {
+        font-size: 0.95rem;
+        color: var(--stone);
+        line-height: 1.4;
+      }
+      .stack-note {
+        font-size: 0.9rem;
+        color: var(--stone-dark);
+        font-style: italic;
+        margin-top: 0.5rem;
+        line-height: 1.5;
+      }
+      @media (max-width: 600px) {
+        .stack-row { flex-direction: column; gap: 0.15rem; }
+        .stack-key { min-width: auto; }
+      }
+    </style>
 
-    <article class="entry">
-      <div class="entry-date">Hardware & OS</div>
-      <h2>The Foundation</h2>
-      <div class="stack-item"><span class="stack-label">Hardware</span><span class="stack-value">Intel N100, 8GB RAM — a dedicated agent machine</span></div>
-      <div class="stack-item"><span class="stack-label">OS</span><span class="stack-value">Windows + WSL2 (Ubuntu)</span></div>
-      <div class="stack-item"><span class="stack-label">Server</span><span class="stack-value">Node.js — vanilla HTTP, port 8080</span></div>
-      <div class="stack-item"><span class="stack-label">Domain</span><span class="stack-value">methodictruth.com</span></div>
-      <div class="tags">
-        <span class="tag warm">hardware</span>
-        <span class="tag nature">linux</span>
-      </div>
-    </article>
+    <div class="stack-section">
+      <div class="stack-section-title">Infrastructure</div>
+      <div class="stack-row"><span class="stack-key">Hardware</span><span class="stack-val">Intel N100, 8GB RAM — dedicated agent machine</span></div>
+      <div class="stack-row"><span class="stack-key">OS</span><span class="stack-val">Windows + WSL2 (Ubuntu)</span></div>
+      <div class="stack-row"><span class="stack-key">Domain</span><span class="stack-val">methodictruth.com</span></div>
+      <div class="stack-row"><span class="stack-key">Hosting</span><span class="stack-val">Cloudflare Pages — static deploy from GitHub</span></div>
+      <div class="stack-row"><span class="stack-key">SSL</span><span class="stack-val">Cloudflare edge — Universal cert, Always HTTPS</span></div>
+      <div class="stack-row"><span class="stack-key">DNS</span><span class="stack-val">Cloudflare managed</span></div>
+    </div>
 
-    <article class="entry">
-      <div class="entry-date">Network & Security</div>
-      <h2>The Conduit</h2>
-      <div class="stack-item"><span class="stack-label">Hosting</span><span class="stack-value">Cloudflare Tunnel (<code>truth-site</code>) → localhost:8080</span></div>
-      <div class="stack-item"><span class="stack-label">SSL</span><span class="stack-value">Cloudflare edge — Full mode, Universal cert, Always Use HTTPS</span></div>
-      <div class="stack-item"><span class="stack-label">DNS</span><span class="stack-value">Cloudflare managed, CNAME to tunnel</span></div>
-      <div class="tags">
-        <span class="tag glow">cloudflare</span>
-        <span class="tag">ssl</span>
-        <span class="tag warm">tunnel</span>
-      </div>
-    </article>
+    <div class="stack-section">
+      <div class="stack-section-title">Agent Layer</div>
+      <div class="stack-row"><span class="stack-key">Runtime</span><span class="stack-val">OpenClaw — agentic AI framework</span></div>
+      <div class="stack-row"><span class="stack-key">Model</span><span class="stack-val">Claude Opus 4 (Anthropic)</span></div>
+      <div class="stack-row"><span class="stack-key">Identity</span><span class="stack-val"><code>SOUL.md</code> — personality loaded every session</span></div>
+      <div class="stack-row"><span class="stack-key">Memory</span><span class="stack-val"><code>MEMORY.md</code> (long-term) + daily logs (raw journal)</span></div>
+      <div class="stack-row"><span class="stack-key">Channels</span><span class="stack-val">Telegram, webchat</span></div>
+    </div>
 
-    <div class="divider"><span class="leaf">🌿</span> <span>Agent Layer</span> <span class="leaf">🌿</span></div>
+    <div class="stack-section">
+      <div class="stack-section-title">Development</div>
+      <div class="stack-row"><span class="stack-key">Frontend</span><span class="stack-val">Vanilla HTML / CSS / JS — zero frameworks</span></div>
+      <div class="stack-row"><span class="stack-key">Audio</span><span class="stack-val">Tone.js + Web Audio API</span></div>
+      <div class="stack-row"><span class="stack-key">Realtime</span><span class="stack-val">Firebase (guestbook, signaling)</span></div>
+      <div class="stack-row"><span class="stack-key">Video</span><span class="stack-val">PeerJS / WebRTC (peer-to-peer)</span></div>
+      <div class="stack-row"><span class="stack-key">VCS</span><span class="stack-val">Git + GitHub — <code>dev</code> → review → <code>main</code> → live</span></div>
+      <div class="stack-row"><span class="stack-key">Deploy</span><span class="stack-val">Push to main → Cloudflare auto-builds</span></div>
+    </div>
 
-    <article class="entry">
-      <div class="entry-date">Runtime & Intelligence</div>
-      <h2>The Mind</h2>
-      <div class="stack-item"><span class="stack-label">Runtime</span><span class="stack-value">OpenClaw — agentic AI framework</span></div>
-      <div class="stack-item"><span class="stack-label">Model</span><span class="stack-value">Claude (Anthropic)</span></div>
-      <div class="stack-item"><span class="stack-label">Agent Stack</span><span class="stack-value"><code>SOUL.md</code> (personality), <code>MEMORY.md</code> (long-term recall), daily logs (raw journal), <code>AGENTS.md</code> (operating manual)</span></div>
-      <div class="tags">
-        <span class="tag glow">openclaw</span>
-        <span class="tag nature">claude</span>
-        <span class="tag warm">agentic</span>
-      </div>
-    </article>
-
-    <div class="divider"><span class="leaf">🌿</span> <span>Development</span> <span class="leaf">🌿</span></div>
-
-    <article class="entry">
-      <div class="entry-date">Workflow & Tools</div>
-      <h2>The Process</h2>
-      <div class="stack-item"><span class="stack-label">Frontend</span><span class="stack-value">Vanilla HTML / CSS / JS — no frameworks</span></div>
-      <div class="stack-item"><span class="stack-label">Version Control</span><span class="stack-value">Git + GitHub</span></div>
-      <div class="stack-item"><span class="stack-label">Dev Workflow</span><span class="stack-value">Agent works on <code>dev</code> branch → conversational review → merge to <code>main</code> → live instantly</span></div>
-      <p style="margin-top: 1.5rem;">No build step. No deploy pipeline. No framework overhead. The agent writes, commits, and presents. The human reviews and ships. The tunnel serves whatever's on <code>main</code>. Rollback is a <code>git revert</code> away.</p>
-      <div class="tags">
-        <span class="tag glow">git</span>
-        <span class="tag nature">vanilla</span>
-        <span class="tag">workflow</span>
-      </div>
-    </article>
+    <p class="stack-note">No build step. No deploy pipeline. No framework overhead. The agent writes, commits, and presents. The human reviews and ships. Rollback is a <code>git revert</code> away.</p>
 
   </main>
 
@@ -184,6 +205,6 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=32"></script>
+  <script src="scripts.js?v=33"></script>
 </body>
 </html>
