@@ -6,7 +6,7 @@
   <title>Architecture — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=42">
+  <link rel="stylesheet" href="styles.css?v=43">
   <style>
     /* Kill ALL decorative overlays on this page */
     body::before, body::after { content: none !important; display: none !important; }
@@ -15,6 +15,7 @@
       visibility: hidden !important;
     }
     body { background: #0a0e1a !important; }
+    .page-header { position: relative; z-index: 10; }
 
     /* ─── ARCHITECTURE PAGE ─── */
     .arch-container {
@@ -22,7 +23,7 @@
       margin: 0 auto;
       padding: 0 1rem 4rem;
       position: relative;
-      z-index: 1;
+      z-index: 10;
     }
 
     .arch-diagram-wrap {
@@ -35,6 +36,12 @@
       width: 100%;
       height: auto;
       display: block;
+      background: #0a0e1a;
+      border-radius: 4px;
+    }
+    .arch-diagram-wrap {
+      background: #0a0e1a;
+      border-radius: 4px;
     }
 
     /* Nodes */
