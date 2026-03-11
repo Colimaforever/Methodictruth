@@ -261,13 +261,13 @@ body::after {
 /* ─── HEADER / HERO ─── */
 header {
   position: relative;
-  min-height: 70vh;
+  min-height: 55vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 2rem 2rem 1rem;
+  padding: 5rem 2rem 1rem;
   z-index: 1;
 }
 
