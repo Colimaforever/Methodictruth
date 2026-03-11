@@ -261,7 +261,7 @@ body::after {
 /* ─── HEADER / HERO ─── */
 header {
   position: relative;
-  min-height: 100vh;
+  min-height: 85vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -587,7 +587,7 @@ main {
 /* ─── INTRO ─── */
 .intro {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
   padding: 0 1rem;
 }
 
