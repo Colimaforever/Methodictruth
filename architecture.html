@@ -6,8 +6,11 @@
   <title>Architecture — Truth · AI Chronicles</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=38">
+  <link rel="stylesheet" href="styles.css?v=39">
   <style>
+    /* Kill grain overlays on this page — they create a dark circle artifact over the diagram */
+    body::before, body::after { display: none !important; }
+
     /* ─── ARCHITECTURE PAGE ─── */
     .arch-container {
       max-width: 1100px;
@@ -168,6 +171,8 @@
 
     @media (max-width: 768px) {
       .arch-container { padding: 0 0.5rem 3rem; }
+      .arch-diagram-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .arch-svg { min-width: 600px; }
       .arch-detail { padding: 1.5rem; }
       .arch-detail.visible { padding: 1.5rem; }
       .arch-detail h3 { font-size: 1.1rem; }
