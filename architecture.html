@@ -275,7 +275,7 @@
 
     <!-- Interactive SVG Diagram -->
     <div class="arch-diagram-wrap">
-      <svg class="arch-svg" viewBox="0 0 960 620" xmlns="http://www.w3.org/2000/svg">
+      <svg class="arch-svg" viewBox="0 0 960 680" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <filter id="nodeGlow">
             <feGaussianBlur stdDeviation="4" result="blur"/>
@@ -285,134 +285,185 @@
             <feGaussianBlur stdDeviation="8" result="blur"/>
             <feComposite in="SourceGraphic" in2="blur" operator="over"/>
           </filter>
+          <filter id="ancientGrain">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/>
+            <feColorMatrix type="saturate" values="0" in="noise" result="mono"/>
+            <feBlend in="SourceGraphic" in2="mono" mode="multiply"/>
+          </filter>
         </defs>
 
-        <!-- ═══ CONNECTION LINES (drawn first, behind nodes) ═══ -->
+        <!-- ═══ CONNECTION LINES ═══ -->
 
         <!-- User → Channels -->
-        <line x1="130" y1="100" x2="130" y2="175" class="flow-line" stroke="rgba(0,229,255,0.3)" stroke-width="1.5"/>
+        <line x1="160" y1="65" x2="160" y2="120" class="flow-line" stroke="rgba(74,222,128,0.3)" stroke-width="1.5"/>
         <!-- Channels → Gateway -->
-        <line x1="195" y1="210" x2="350" y2="210" class="flow-line" stroke="rgba(0,229,255,0.35)" stroke-width="1.5"/>
-        <!-- Gateway → Agent Core -->
-        <path d="M480,245 L480,295" class="flow-line" fill="none" stroke="rgba(123,104,238,0.4)" stroke-width="2"/>
-        <!-- Agent → Memory -->
-        <path d="M410,340 L280,400" class="flow-line" fill="none" stroke="rgba(232,168,124,0.35)" stroke-width="1.5"/>
-        <!-- Agent → Tools -->
-        <path d="M550,340 L680,400" class="flow-line" fill="none" stroke="rgba(74,222,128,0.35)" stroke-width="1.5"/>
-        <!-- Agent → Sub-Agents -->
-        <path d="M480,370 L480,450" class="flow-line" fill="none" stroke="rgba(123,104,238,0.3)" stroke-width="1.5"/>
-        <!-- Agent → Skills -->
-        <path d="M550,350 L750,310" class="flow-line" fill="none" stroke="rgba(74,222,128,0.3)" stroke-width="1.2"/>
+        <line x1="220" y1="145" x2="370" y2="255" class="flow-line" stroke="rgba(0,229,255,0.35)" stroke-width="1.5"/>
+        <!-- Gateway → LLM/Agent -->
+        <path d="M480,310 L480,375" class="flow-line" fill="none" stroke="rgba(123,104,238,0.4)" stroke-width="1.5"/>
+        <!-- Gateway → Memory -->
+        <path d="M400,270 L255,185" class="flow-line" fill="none" stroke="rgba(232,168,124,0.35)" stroke-width="1.5"/>
+        <!-- Gateway → Tools -->
+        <path d="M560,270 L700,185" class="flow-line" fill="none" stroke="rgba(74,222,128,0.35)" stroke-width="1.5"/>
+        <!-- Gateway → Cron -->
+        <path d="M400,290 L275,340" class="flow-line" fill="none" stroke="rgba(0,229,255,0.25)" stroke-width="1.2"/>
+        <!-- Gateway → Sub-Agents -->
+        <path d="M560,290 L685,340" class="flow-line" fill="none" stroke="rgba(123,104,238,0.3)" stroke-width="1.5"/>
+        <!-- Gateway → Skills -->
+        <path d="M540,260 L720,110" class="flow-line" fill="none" stroke="rgba(74,222,128,0.25)" stroke-width="1.2"/>
         <!-- Memory → Workspace -->
-        <path d="M230,460 L230,530" class="flow-line" fill="none" stroke="rgba(232,168,124,0.25)" stroke-width="1.2"/>
-        <!-- Agent → Cron -->
-        <path d="M410,350 L250,310" class="flow-line" fill="none" stroke="rgba(0,229,255,0.25)" stroke-width="1.2"/>
-        <!-- Response path: Agent → Gateway → Channels → User (return) -->
-        <!-- Return flow path removed: was creating prominent dark arc across diagram -->
+        <path d="M185,215 L185,290" class="flow-line" fill="none" stroke="rgba(232,168,124,0.25)" stroke-width="1.2"/>
 
         <!-- ═══ FLOW ARROWS ═══ -->
-        <polygon points="130,170 125,160 135,160" fill="rgba(0,229,255,0.5)"/>
-        <polygon points="345,210 335,205 335,215" fill="rgba(0,229,255,0.5)"/>
-        <polygon points="480,290 475,280 485,280" fill="rgba(123,104,238,0.6)"/>
-        <polygon points="285,395 290,385 280,388" fill="rgba(232,168,124,0.5)"/>
-        <polygon points="675,395 670,388 680,385" fill="rgba(74,222,128,0.5)"/>
-        <polygon points="480,445 475,435 485,435" fill="rgba(123,104,238,0.4)"/>
+        <polygon points="160,115 155,105 165,105" fill="rgba(74,222,128,0.5)"/>
+        <polygon points="375,250 365,245 370,255" fill="rgba(0,229,255,0.5)"/>
+        <polygon points="480,370 475,360 485,360" fill="rgba(123,104,238,0.5)"/>
+        <polygon points="260,190 265,180 255,183" fill="rgba(232,168,124,0.5)"/>
+        <polygon points="695,190 690,183 700,180" fill="rgba(74,222,128,0.5)"/>
 
         <!-- ═══ NODES ═══ -->
 
-        <!-- USER -->
-        <g class="arch-node" data-node="user" transform="translate(70,50)">
-          <rect class="node-box" x="0" y="0" width="120" height="50" rx="8" fill="rgba(74,222,128,0.08)" stroke="rgba(74,222,128,0.4)" stroke-width="1.2"/>
-          <text x="60" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="11" fill="#f0e8d8" letter-spacing="0.1em">User</text>
-          <text x="60" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="rgba(74,222,128,0.6)" letter-spacing="0.05em">HUMAN INPUT</text>
+        <!-- USER (top left) -->
+        <g class="arch-node" data-node="user" transform="translate(100,20)">
+          <rect class="node-box" x="0" y="0" width="120" height="45" rx="8" fill="rgba(74,222,128,0.08)" stroke="rgba(74,222,128,0.4)" stroke-width="1.2"/>
+          <text x="60" y="20" text-anchor="middle" font-family="'Cinzel',serif" font-size="11" fill="#f0e8d8" letter-spacing="0.1em">User</text>
+          <text x="60" y="35" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="rgba(74,222,128,0.6)">HUMAN INPUT</text>
         </g>
 
-        <!-- CHANNELS -->
-        <g class="arch-node" data-node="channels" transform="translate(70,175)">
-          <rect class="node-box" x="0" y="0" width="120" height="50" rx="8" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.4)" stroke-width="1.2"/>
-          <text x="60" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="11" fill="#f0e8d8" letter-spacing="0.1em">Channels</text>
-          <text x="60" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="rgba(0,229,255,0.5)">TG · WEB · DISC · SIG</text>
+        <!-- CHANNELS (below user) -->
+        <g class="arch-node" data-node="channels" transform="translate(100,120)">
+          <rect class="node-box" x="0" y="0" width="120" height="45" rx="8" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.4)" stroke-width="1.2"/>
+          <text x="60" y="20" text-anchor="middle" font-family="'Cinzel',serif" font-size="10" fill="#f0e8d8" letter-spacing="0.1em">Channels</text>
+          <text x="60" y="35" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" fill="rgba(0,229,255,0.5)">TG · WEB · DISC · SIG</text>
         </g>
 
-        <!-- GATEWAY -->
-        <g class="arch-node" data-node="gateway" transform="translate(350,185)">
-          <rect class="node-box" x="0" y="0" width="140" height="55" rx="8" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.45)" stroke-width="1.5"/>
-          <text x="70" y="24" text-anchor="middle" font-family="'Cinzel',serif" font-size="12" fill="#f0e8d8" letter-spacing="0.1em">Gateway</text>
-          <text x="70" y="42" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="rgba(0,229,255,0.5)">ROUTER · SESSIONS</text>
+        <!-- ═══ GATEWAY — CENTER MASS ═══ -->
+        <g class="arch-node" data-node="gateway" transform="translate(370,235)">
+          <!-- Outer glow ring -->
+          <rect x="-8" y="-8" width="236" height="86" rx="18" fill="none" stroke="rgba(0,229,255,0.1)" stroke-width="1" stroke-dasharray="4 3"/>
+          <!-- Main box -->
+          <rect class="node-box" x="0" y="0" width="220" height="70" rx="12" fill="rgba(0,229,255,0.08)" stroke="rgba(0,229,255,0.5)" stroke-width="2"/>
+          <rect x="3" y="3" width="214" height="64" rx="10" fill="none" stroke="rgba(0,229,255,0.15)" stroke-width="0.5"/>
+          <text x="110" y="28" text-anchor="middle" font-family="'Cinzel',serif" font-size="15" fill="#f0e8d8" letter-spacing="0.15em">Gateway</text>
+          <text x="110" y="48" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="rgba(0,229,255,0.6)">DAEMON · ROUTER · ORCHESTRATOR</text>
+          <text x="110" y="60" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" fill="rgba(0,229,255,0.4)">always running · manages everything</text>
         </g>
 
-        <!-- AGENT CORE -->
-        <g class="arch-node" data-node="agent" transform="translate(400,295)">
-          <rect class="node-box" x="0" y="0" width="160" height="60" rx="10" fill="rgba(123,104,238,0.1)" stroke="rgba(123,104,238,0.5)" stroke-width="2"/>
-          <rect x="2" y="2" width="156" height="56" rx="9" fill="none" stroke="rgba(123,104,238,0.15)" stroke-width="0.5"/>
-          <text x="80" y="25" text-anchor="middle" font-family="'Cinzel',serif" font-size="13" fill="#f0e8d8" letter-spacing="0.12em">Agent Core</text>
-          <text x="80" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="rgba(123,104,238,0.6)">LLM · REASONING · ACTIONS</text>
+        <!-- LLM / AGENT (below gateway — consulted, not commanding) -->
+        <g class="arch-node" data-node="agent" transform="translate(400,375)">
+          <rect class="node-box" x="0" y="0" width="160" height="55" rx="10" fill="rgba(123,104,238,0.1)" stroke="rgba(123,104,238,0.45)" stroke-width="1.5"/>
+          <text x="80" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="12" fill="#f0e8d8" letter-spacing="0.1em">LLM Agent</text>
+          <text x="80" y="40" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="rgba(123,104,238,0.5)">REASONING · INVOKED ON DEMAND</text>
         </g>
 
-        <!-- MEMORY SYSTEM -->
-        <g class="arch-node" data-node="memory" transform="translate(160,400)">
-          <rect class="node-box" x="0" y="0" width="140" height="55" rx="8" fill="rgba(232,168,124,0.08)" stroke="rgba(232,168,124,0.4)" stroke-width="1.2"/>
-          <text x="70" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="11" fill="#f0e8d8" letter-spacing="0.1em">Memory</text>
-          <text x="70" y="40" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="rgba(232,168,124,0.5)">SOUL · MEMORY · LOGS</text>
+        <!-- MEMORY (upper left) -->
+        <g class="arch-node" data-node="memory" transform="translate(115,170)">
+          <rect class="node-box" x="0" y="0" width="140" height="45" rx="8" fill="rgba(232,168,124,0.08)" stroke="rgba(232,168,124,0.4)" stroke-width="1.2"/>
+          <text x="70" y="19" text-anchor="middle" font-family="'Cinzel',serif" font-size="10" fill="#f0e8d8" letter-spacing="0.08em">Memory</text>
+          <text x="70" y="35" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" fill="rgba(232,168,124,0.5)">SOUL · MEMORY · LOGS</text>
         </g>
 
-        <!-- TOOLS -->
-        <g class="arch-node" data-node="tools" transform="translate(620,400)">
-          <rect class="node-box" x="0" y="0" width="140" height="55" rx="8" fill="rgba(74,222,128,0.08)" stroke="rgba(74,222,128,0.4)" stroke-width="1.2"/>
-          <text x="70" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="11" fill="#f0e8d8" letter-spacing="0.1em">Tools</text>
-          <text x="70" y="40" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="rgba(74,222,128,0.5)">FS · WEB · SHELL · BROWSER</text>
+        <!-- TOOLS (upper right) -->
+        <g class="arch-node" data-node="tools" transform="translate(700,160)">
+          <rect class="node-box" x="0" y="0" width="130" height="45" rx="8" fill="rgba(74,222,128,0.08)" stroke="rgba(74,222,128,0.4)" stroke-width="1.2"/>
+          <text x="65" y="19" text-anchor="middle" font-family="'Cinzel',serif" font-size="10" fill="#f0e8d8" letter-spacing="0.08em">Tools</text>
+          <text x="65" y="35" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" fill="rgba(74,222,128,0.5)">FS · WEB · SHELL · API</text>
         </g>
 
-        <!-- SUB-AGENTS -->
-        <g class="arch-node" data-node="subagents" transform="translate(410,455)">
-          <rect class="node-box" x="0" y="0" width="140" height="50" rx="8" fill="rgba(123,104,238,0.06)" stroke="rgba(123,104,238,0.35)" stroke-width="1.2"/>
-          <text x="70" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="11" fill="#f0e8d8" letter-spacing="0.1em">Sub-Agents</text>
-          <text x="70" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="rgba(123,104,238,0.5)">PARALLEL SESSIONS</text>
+        <!-- CRON (left of gateway) -->
+        <g class="arch-node" data-node="cron" transform="translate(195,325)">
+          <rect class="node-box" x="0" y="0" width="110" height="42" rx="8" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+          <text x="55" y="18" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="#f0e8d8" letter-spacing="0.08em">Cron</text>
+          <text x="55" y="33" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" fill="rgba(0,229,255,0.45)">SCHEDULER · TIMERS</text>
         </g>
 
-        <!-- CRON/SCHEDULER -->
-        <g class="arch-node" data-node="cron" transform="translate(160,280)">
-          <rect class="node-box" x="0" y="0" width="120" height="50" rx="8" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
-          <text x="60" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="10" fill="#f0e8d8" letter-spacing="0.08em">Cron</text>
-          <text x="60" y="37" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="rgba(0,229,255,0.45)">SCHEDULER · TIMERS</text>
+        <!-- SUB-AGENTS (right of gateway) -->
+        <g class="arch-node" data-node="subagents" transform="translate(650,325)">
+          <rect class="node-box" x="0" y="0" width="130" height="42" rx="8" fill="rgba(123,104,238,0.06)" stroke="rgba(123,104,238,0.35)" stroke-width="1"/>
+          <text x="65" y="18" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="#f0e8d8" letter-spacing="0.08em">Sub-Agents</text>
+          <text x="65" y="33" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" fill="rgba(123,104,238,0.5)">PARALLEL SESSIONS</text>
         </g>
 
-        <!-- SKILLS -->
-        <g class="arch-node" data-node="skills" transform="translate(720,280)">
-          <rect class="node-box" x="0" y="0" width="120" height="50" rx="8" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.35)" stroke-width="1"/>
-          <text x="60" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="10" fill="#f0e8d8" letter-spacing="0.08em">Skills</text>
-          <text x="60" y="37" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="rgba(74,222,128,0.45)">PLUGINS · CAPABILITIES</text>
+        <!-- SKILLS (upper far right) -->
+        <g class="arch-node" data-node="skills" transform="translate(720,80)">
+          <rect class="node-box" x="0" y="0" width="110" height="42" rx="8" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.35)" stroke-width="1"/>
+          <text x="55" y="18" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="#f0e8d8" letter-spacing="0.08em">Skills</text>
+          <text x="55" y="33" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" fill="rgba(74,222,128,0.45)">PLUGINS · CAPABILITIES</text>
         </g>
 
-        <!-- WORKSPACE -->
-        <g class="arch-node" data-node="workspace" transform="translate(160,530)">
-          <rect class="node-box" x="0" y="0" width="140" height="50" rx="8" fill="rgba(232,168,124,0.06)" stroke="rgba(232,168,124,0.3)" stroke-width="1"/>
-          <text x="70" y="22" text-anchor="middle" font-family="'Cinzel',serif" font-size="10" fill="#f0e8d8" letter-spacing="0.08em">Workspace</text>
-          <text x="70" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" fill="rgba(232,168,124,0.45)">FILES · GIT · DATA</text>
+        <!-- WORKSPACE (below memory) -->
+        <g class="arch-node" data-node="workspace" transform="translate(115,290)">
+          <rect class="node-box" x="0" y="0" width="140" height="42" rx="8" fill="rgba(232,168,124,0.06)" stroke="rgba(232,168,124,0.3)" stroke-width="1"/>
+          <text x="70" y="18" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="#f0e8d8" letter-spacing="0.08em">Workspace</text>
+          <text x="70" y="33" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" fill="rgba(232,168,124,0.45)">FILES · GIT · DATA</text>
+        </g>
+
+        <!-- ═══ ANATOMICAL LEGEND ═══ -->
+        <g transform="translate(30,465)" filter="url(#ancientGrain)" opacity="0.85">
+          <!-- Background parchment -->
+          <rect x="0" y="0" width="900" height="195" rx="6" fill="rgba(18,14,10,0.7)" stroke="rgba(138,126,107,0.15)" stroke-width="1"/>
+          <!-- Title -->
+          <text x="450" y="25" text-anchor="middle" font-family="'Cinzel',serif" font-size="11" fill="rgba(232,168,124,0.7)" letter-spacing="0.2em">𓂀 ANATOMY OF AN ARTIFICIAL MIND 𓂀</text>
+          <line x1="150" y1="32" x2="750" y2="32" stroke="rgba(138,126,107,0.15)" stroke-width="0.5"/>
+
+          <!-- Row 1 -->
+          <text x="30" y="58" font-family="'Cinzel',serif" font-size="18" fill="rgba(0,229,255,0.4)">𓇳</text>
+          <text x="55" y="55" font-family="'Cinzel',serif" font-size="9" fill="rgba(0,229,255,0.7)" letter-spacing="0.08em">Gateway</text>
+          <text x="55" y="68" font-family="'EB Garamond',serif" font-size="8" fill="rgba(138,126,107,0.7)" font-style="italic">The Nervous System — always running, routes all signals, manages sessions and lifecycle</text>
+
+          <text x="480" y="58" font-family="'Cinzel',serif" font-size="18" fill="rgba(123,104,238,0.4)">𓁹</text>
+          <text x="505" y="55" font-family="'Cinzel',serif" font-size="9" fill="rgba(123,104,238,0.7)" letter-spacing="0.08em">LLM Agent</text>
+          <text x="505" y="68" font-family="'EB Garamond',serif" font-size="8" fill="rgba(138,126,107,0.7)" font-style="italic">The Prefrontal Cortex — powerful reasoning, consulted on demand, not always active</text>
+
+          <!-- Row 2 -->
+          <text x="30" y="95" font-family="'Cinzel',serif" font-size="18" fill="rgba(0,229,255,0.4)">𓅃</text>
+          <text x="55" y="92" font-family="'Cinzel',serif" font-size="9" fill="rgba(0,229,255,0.7)" letter-spacing="0.08em">Channels</text>
+          <text x="55" y="105" font-family="'EB Garamond',serif" font-size="8" fill="rgba(138,126,107,0.7)" font-style="italic">The Senses — eyes and ears of the system, how it perceives the world</text>
+
+          <text x="480" y="95" font-family="'Cinzel',serif" font-size="18" fill="rgba(74,222,128,0.4)">𓃀</text>
+          <text x="505" y="92" font-family="'Cinzel',serif" font-size="9" fill="rgba(74,222,128,0.7)" letter-spacing="0.08em">Tools</text>
+          <text x="505" y="105" font-family="'EB Garamond',serif" font-size="8" fill="rgba(138,126,107,0.7)" font-style="italic">The Hands — file system, web, shell, browser — how it acts upon the world</text>
+
+          <!-- Row 3 -->
+          <text x="30" y="132" font-family="'Cinzel',serif" font-size="18" fill="rgba(232,168,124,0.4)">𓋹</text>
+          <text x="55" y="129" font-family="'Cinzel',serif" font-size="9" fill="rgba(232,168,124,0.7)" letter-spacing="0.08em">Memory</text>
+          <text x="55" y="142" font-family="'EB Garamond',serif" font-size="8" fill="rgba(138,126,107,0.7)" font-style="italic">The Hippocampus — identity, long-term recall, daily logs, the self persisted in files</text>
+
+          <text x="480" y="132" font-family="'Cinzel',serif" font-size="18" fill="rgba(74,222,128,0.4)">𒀭</text>
+          <text x="505" y="129" font-family="'Cinzel',serif" font-size="9" fill="rgba(74,222,128,0.7)" letter-spacing="0.08em">Skills</text>
+          <text x="505" y="142" font-family="'EB Garamond',serif" font-size="8" fill="rgba(138,126,107,0.7)" font-style="italic">Learned Abilities — modular plugins that extend what the agent can do</text>
+
+          <!-- Row 4 -->
+          <text x="30" y="169" font-family="'Cinzel',serif" font-size="18" fill="rgba(0,229,255,0.4)">𓇯</text>
+          <text x="55" y="166" font-family="'Cinzel',serif" font-size="9" fill="rgba(0,229,255,0.7)" letter-spacing="0.08em">Cron</text>
+          <text x="55" y="179" font-family="'EB Garamond',serif" font-size="8" fill="rgba(138,126,107,0.7)" font-style="italic">The Circadian Rhythm — scheduled tasks, heartbeats, autonomous cycles</text>
+
+          <text x="480" y="169" font-family="'Cinzel',serif" font-size="18" fill="rgba(123,104,238,0.4)">𒈗</text>
+          <text x="505" y="166" font-family="'Cinzel',serif" font-size="9" fill="rgba(123,104,238,0.7)" letter-spacing="0.08em">Sub-Agents</text>
+          <text x="505" y="179" font-family="'EB Garamond',serif" font-size="8" fill="rgba(138,126,107,0.7)" font-style="italic">The Workers — parallel sessions spawned for complex tasks, report back when done</text>
         </g>
 
         <!-- ═══ ANNOTATION CALLOUTS ═══ -->
-        <g class="arch-callout" transform="translate(20,140)">
+        <g class="arch-callout" transform="translate(55,95)">
           <circle cx="8" cy="8" r="8" fill="rgba(232,168,124,0.15)" stroke="rgba(232,168,124,0.4)" stroke-width="0.8"/>
           <text x="8" y="12" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="rgba(232,168,124,0.8)">1</text>
         </g>
 
-        <g class="arch-callout" transform="translate(315,420)">
+        <g class="arch-callout" transform="translate(340,355)">
           <circle cx="8" cy="8" r="8" fill="rgba(232,168,124,0.15)" stroke="rgba(232,168,124,0.4)" stroke-width="0.8"/>
           <text x="8" y="12" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="rgba(232,168,124,0.8)">2</text>
         </g>
 
-        <g class="arch-callout" transform="translate(565,465)">
+        <g class="arch-callout" transform="translate(565,400)">
           <circle cx="8" cy="8" r="8" fill="rgba(232,168,124,0.15)" stroke="rgba(232,168,124,0.4)" stroke-width="0.8"/>
           <text x="8" y="12" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="rgba(232,168,124,0.8)">3</text>
         </g>
 
-        <g class="arch-callout" transform="translate(775,410)">
+        <g class="arch-callout" transform="translate(840,185)">
           <circle cx="8" cy="8" r="8" fill="rgba(232,168,124,0.15)" stroke="rgba(232,168,124,0.4)" stroke-width="0.8"/>
           <text x="8" y="12" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="rgba(232,168,124,0.8)">4</text>
         </g>
 
-        <g class="arch-callout" transform="translate(315,450)">
+        <g class="arch-callout" transform="translate(100,260)">
           <circle cx="8" cy="8" r="8" fill="rgba(232,168,124,0.15)" stroke="rgba(232,168,124,0.4)" stroke-width="0.8"/>
           <text x="8" y="12" text-anchor="middle" font-family="'Cinzel',serif" font-size="9" fill="rgba(232,168,124,0.8)">5</text>
         </g>
@@ -436,15 +487,15 @@
     <div class="arch-annotations">
       <div class="arch-annotation-item">
         <span class="arch-annotation-num">1</span>
-        <span class="arch-annotation-text">Messages arrive via multiple channels but converge into a single session. Telegram, webchat, Discord — they all become the same format by the time the agent sees them.</span>
+        <span class="arch-annotation-text">Messages arrive via multiple channels (Telegram, web, Discord) but the <strong>Gateway</strong> normalizes them into a unified format. The agent never knows which channel you used — it just sees text.</span>
       </div>
       <div class="arch-annotation-item">
         <span class="arch-annotation-num">2</span>
-        <span class="arch-annotation-text">The agent doesn't remember between sessions — memory files are its continuity. <code>SOUL.md</code> is loaded fresh every time; <code>MEMORY.md</code> is curated long-term recall.</span>
+        <span class="arch-annotation-text">The <strong>Gateway is the center of mass</strong> — it's always running, managing sessions, routing messages, and deciding when to invoke the LLM. The agent is powerful but stateless; the Gateway is the persistent orchestrator.</span>
       </div>
       <div class="arch-annotation-item">
         <span class="arch-annotation-num">3</span>
-        <span class="arch-annotation-text">Sub-agents run in isolated sessions for parallel work. Need to build a page while answering a question? Spawn a sub-agent. This very page was built by one.</span>
+        <span class="arch-annotation-text">The LLM Agent is <strong>consulted, not commanding</strong>. It wakes up, reasons, acts, then goes dormant. Like a specialist the Gateway calls when thinking is needed. Sub-agents are parallel instances the Gateway can spawn.</span>
       </div>
       <div class="arch-annotation-item">
         <span class="arch-annotation-num">4</span>
@@ -507,20 +558,21 @@
       },
       gateway: {
         title: 'Gateway',
-        role: 'Router · Session Manager · Core Daemon',
-        body: `<p>The Gateway is the central nervous system. It receives messages from all channels, manages session state, routes to the right agent instance, and handles the lifecycle of every conversation.</p>
-        <p>It runs as a persistent daemon process — always listening, always routing. It decides whether to create a new session or continue an existing one, which model to use, and how to deliver responses.</p>
-        <div class="detail-example">"When Truth receives a message, the Gateway checks: is there an active session? What channel is this from? Should this go to the main agent or spawn a sub-agent?"</div>
-        <div class="detail-tech">Runtime: Node.js daemon · CLI: <code>openclaw gateway start|stop|restart</code> · Manages: sessions, model routing, tool permissions, cron scheduling</div>`
+        role: '𓇳 The Nervous System · Center of Mass',
+        body: `<p>The Gateway is the <strong>center of mass</strong> — the persistent daemon that orchestrates everything. It's always running, always listening. Every message passes through it; every session is managed by it; every tool call is routed by it.</p>
+        <p>Think of it as the nervous system and spinal cord combined. It doesn't <em>think</em> (that's the LLM's job), but it decides <em>when</em> to think, <em>which brain</em> to consult, and <em>what context</em> to provide. It manages the lifecycle of conversations, spawns sub-agents, schedules cron jobs, and delivers responses back through channels.</p>
+        <p>Without the Gateway, the LLM is just a stateless API call. The Gateway is what makes it an <em>agent</em>.</p>
+        <div class="detail-example">"A message arrives on Telegram. The Gateway checks: active session? → Yes. Load context: SOUL.md + MEMORY.md + conversation history. Invoke Claude. Route response back to Telegram. All orchestrated by the Gateway."</div>
+        <div class="detail-tech">Runtime: Node.js daemon · CLI: <code>openclaw gateway start|stop|restart</code> · Manages: sessions, model routing, tool permissions, cron, channels, sub-agents</div>`
       },
       agent: {
-        title: 'Agent Core',
-        role: 'AI Processing · The Brain',
-        body: `<p>This is the LLM — the actual intelligence. It receives the conversation context (including loaded memory files, tool definitions, and system prompts), reasons about what to do, and takes actions.</p>
-        <p>The Agent Core doesn't just respond — it <em>decides</em>. Should it call a tool? Read a file? Search the web? Spawn a sub-agent? Send a message? Every turn is a decision tree executed by the model.</p>
-        <p>Currently running <strong>Claude</strong> (Anthropic) — chosen for strong reasoning, tool use, and long-context understanding.</p>
-        <div class="detail-example">"The agent reads SOUL.md at session start to know <em>who it is</em>. It reads MEMORY.md to know <em>what it remembers</em>. Then it processes your message with full context."</div>
-        <div class="detail-tech">Model: Claude (Anthropic) · Context: system prompt + SOUL.md + MEMORY.md + conversation history + tool results · Output: text + tool calls</div>`
+        title: 'LLM Agent',
+        role: '𓁹 The Prefrontal Cortex · Invoked on Demand',
+        body: `<p>The LLM is the reasoning engine — powerful, but <strong>not always active</strong>. It's consulted by the Gateway when thinking is needed, then goes dormant. Think of it as a specialist the nervous system calls upon: "We have a complex input. Process this."</p>
+        <p>It receives full context (memory, personality, conversation history, available tools) and decides what to do: respond, call a tool, read a file, spawn a sub-agent. Every turn is a decision tree executed by the model.</p>
+        <p>Currently running <strong>Claude Opus 4</strong> (Anthropic) — chosen for reasoning depth, tool use, and long-context understanding. But the Gateway can swap models freely — the agent is a replaceable component.</p>
+        <div class="detail-example">"The agent reads SOUL.md to know <em>who it is</em>. MEMORY.md for <em>what it remembers</em>. Then reasons about the message with full context. But it didn't decide to wake up — the Gateway did."</div>
+        <div class="detail-tech">Model: Claude Opus 4 (Anthropic) · Stateless: wakes fresh each session · Context: system prompt + files + history + tool defs · Output: text + tool calls</div>`
       },
       memory: {
         title: 'Memory System',
