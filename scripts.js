@@ -5,7 +5,6 @@ const playlist = [
 ];
 
 const audio = new Audio();
-audio.crossOrigin = 'anonymous';
 let currentTrack = 0;
 let isPlaying = false;
 
@@ -14,15 +13,24 @@ let audioCtx = null;
 let audioGain = null;
 let audioSourceNode = null;
 let currentVolume = 0.4;
+let gainNodeFailed = false;
 
 function ensureAudioGain() {
-  if (audioCtx) return;
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  audioGain = audioCtx.createGain();
-  audioGain.connect(audioCtx.destination);
-  audioSourceNode = audioCtx.createMediaElementSource(audio);
-  audioSourceNode.connect(audioGain);
-  audioGain.gain.value = currentVolume;
+  if (audioCtx || gainNodeFailed) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioGain = audioCtx.createGain();
+    audioGain.connect(audioCtx.destination);
+    audioSourceNode = audioCtx.createMediaElementSource(audio);
+    audioSourceNode.connect(audioGain);
+    audioGain.gain.value = currentVolume;
+    console.log('[Volume] Web Audio gain node created, vol:', currentVolume);
+  } catch (e) {
+    console.warn('[Volume] Web Audio gain failed, falling back to audio.volume:', e);
+    gainNodeFailed = true;
+    audioCtx = null;
+    audioGain = null;
+  }
 }
 
 const playBtn = document.getElementById('playBtn');
@@ -227,9 +235,17 @@ let volumeRafId = null;
 function handleVolume(e) {
   const vol = e.target.value / 100;
   currentVolume = vol;
+  // Ensure gain node exists (slider touch counts as user gesture for iOS)
+  ensureAudioGain();
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   // Use Web Audio gain for cross-platform volume (iOS audio.volume is read-only)
-  if (audioGain) audioGain.gain.value = vol;
-  audio.volume = vol; // fallback for desktop
+  if (audioGain && audioCtx) {
+    try {
+      audioGain.gain.cancelScheduledValues(audioCtx.currentTime);
+      audioGain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    } catch(err) { audioGain.gain.value = vol; }
+  }
+  try { audio.volume = vol; } catch(e) {} // fallback for desktop (throws on some iOS)
   // Generative engine volume
   if (genEngine && genEngine.masterGain) {
     if (volumeRafId) cancelAnimationFrame(volumeRafId);
@@ -485,7 +501,8 @@ function onFirstInteraction() {
       startPlaying(saved && saved.time ? saved.time : undefined);
     }
   }
-  // Resume any suspended audio contexts
+  // Ensure Web Audio gain exists and resume any suspended contexts
+  ensureAudioGain();
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   if (bgAudioCtx && bgAudioCtx.state === 'suspended') bgAudioCtx.resume();
 }
