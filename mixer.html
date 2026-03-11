@@ -46,20 +46,20 @@
       background: var(--glow); cursor: pointer;
     }
 
-    /* ─── CONSOLE — FULL WIDTH ─── */
+    /* ─── CONSOLE — ALL CHANNELS VISIBLE, NO SCROLL ─── */
     .mx-console {
-      display: flex; width: 100%; padding: 0;
-      gap: 1px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      display: flex; width: calc(100% - 1rem); margin: 0 0.5rem;
+      gap: 1px; overflow: hidden;
     }
 
     /* ─── CHANNEL STRIP ─── */
     .mx-channel {
       display: flex; flex-direction: column; align-items: center;
-      flex: 1; min-width: 0; padding: 0.4rem 0.2rem;
+      flex: 1; min-width: 0; padding: 0.4rem 0.15rem;
       background: rgba(18,14,10,0.7); border: 1px solid rgba(138,126,107,0.06);
     }
     .mx-channel.master {
-      flex: 1.3;
+      flex: 1.2;
       background: rgba(18,14,10,0.85); border-color: rgba(232,168,124,0.15);
     }
     .mx-ch-label {
@@ -81,7 +81,7 @@
 
     /* Meter */
     .mx-meter {
-      width: 10px; height: 120px; background: rgba(10,14,26,0.8);
+      width: 10px; height: clamp(100px, 20vh, 180px); background: rgba(10,14,26,0.8);
       border: 1px solid rgba(138,126,107,0.08); position: relative; margin-bottom: 0.2rem;
     }
     .mx-meter-fill {
@@ -99,7 +99,7 @@
     .mx-fader-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 0.2rem; }
     .mx-fader {
       writing-mode: vertical-lr; direction: rtl;
-      width: 120px; height: 6px; -webkit-appearance: none; appearance: none;
+      width: clamp(80px, 15vh, 150px); height: 6px; -webkit-appearance: none; appearance: none;
       background: rgba(138,126,107,0.12); outline: none; cursor: pointer;
       touch-action: none;
     }
@@ -190,32 +190,37 @@
     /* ─── DROP ZONE ─── */
     .mx-channel.dragover { border-color: var(--glow); background: rgba(0,229,255,0.05); }
 
-    /* ─── MOBILE: channels fill screen width ─── */
+    /* ─── MOBILE: all 7 channels visible, no scroll ─── */
     @media (max-width: 768px) {
-      .mx-console { gap: 0; }
-      .mx-channel { min-width: calc(100vw / 4); padding: 0.3rem 0.15rem; }
-      .mx-channel.master { min-width: calc(100vw / 3.5); }
-      .mx-fader { width: 100px; }
-      .mx-meter { height: 90px; }
-      .mx-transport { gap: 0.25rem; flex-wrap: wrap; }
-      .mx-transport-btn { font-size: 0.6rem; padding: 0.35rem 0.5rem; }
-      .mx-scrubber { max-width: 100%; order: 10; flex-basis: 100%; margin-top: 0.2rem; }
+      .mx-console { gap: 0; width: 100%; margin: 0; }
+      .mx-channel { padding: 0.3rem 0.1rem; }
+      .mx-fader { width: clamp(60px, 12vh, 100px); }
+      .mx-transport { gap: 0.2rem; flex-wrap: wrap; }
+      .mx-transport-btn { font-size: 0.55rem; padding: 0.3rem 0.4rem; }
+      .mx-scrubber { max-width: 100%; order: 10; flex-basis: 100%; margin-top: 0.15rem; }
+      .mx-ch-label { font-size: 0.45rem; letter-spacing: 0.05em; }
+      .mx-load-btn { font-size: 0.4rem; padding: 0.2rem; }
+      .mx-mute, .mx-solo { font-size: 0.45rem; padding: 0.25rem 0; }
+      .mx-pan { max-width: 40px; }
+      .mx-fader-val { font-size: 0.4rem; }
     }
 
     /* ─── SMALL PHONES ─── */
     @media (max-width: 400px) {
-      .mx-channel { min-width: calc(100vw / 3.5); }
-      .mx-fader { width: 80px; }
-      .mx-meter { height: 70px; width: 8px; }
-      .mx-ch-label { font-size: 0.45rem; }
+      .mx-channel { padding: 0.2rem 0.05rem; }
+      .mx-fader { width: clamp(50px, 10vh, 80px); }
+      .mx-meter { width: 6px; }
+      .mx-ch-label { font-size: 0.4rem; }
+      .mx-load-btn { font-size: 0.35rem; }
+      .mx-eq-name { font-size: 0.35rem; min-width: 12px; }
+      .mx-eq-val { font-size: 0.35rem; min-width: 18px; }
     }
 
     /* ─── WIDE DESKTOP ─── */
     @media (min-width: 1400px) {
       .mx-console { max-width: 1600px; margin: 0 auto; }
-      .mx-channel { min-width: 140px; }
-      .mx-fader { width: 150px; }
-      .mx-meter { height: 150px; width: 12px; }
+      .mx-fader { width: 170px; }
+      .mx-meter { width: 14px; }
     }
   </style>
 </head>
