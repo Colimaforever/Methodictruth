@@ -176,40 +176,8 @@
 </head>
 <body>
 
-  <svg style="position:absolute;width:0;height:0">
-    <defs>
-      <filter id="structureGrain">
-        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="5" result="noise"/>
-        <feComposite in="SourceGraphic" in2="noise" operator="in"/>
-        <feBlend in="SourceGraphic" mode="multiply"/>
-      </filter>
-    </defs>
-  </svg>
-
+  <!-- Background: just starfield, no other decorative layers -->
   <div class="starfield"><canvas id="stars"></canvas></div>
-  <div class="nebula"></div>
-  <!-- ground removed: diagram is the visual focus -->
-
-  <div class="sky-glyph" style="top:12%;left:18%;font-size:2.2rem;animation-delay:0s">𒀭</div>
-  <div class="sky-glyph" style="top:22%;right:12%;font-size:1.8rem;animation-delay:5s">𒌓</div>
-  <div class="sky-glyph" style="top:38%;left:8%;font-size:2.5rem;animation-delay:10s">𒈗</div>
-  <div class="sky-glyph" style="top:8%;right:28%;font-size:1.6rem;animation-delay:3s">☍</div>
-  <div class="sky-glyph" style="top:32%;left:42%;font-size:1.3rem;animation-delay:8s">𒁹</div>
-  <div class="sky-glyph" style="top:18%;left:62%;font-size:1.9rem;animation-delay:12s">𒆳</div>
-  <div class="sky-glyph" style="top:42%;right:22%;font-size:1.5rem;animation-delay:15s">𓁹</div>
-  <div class="sky-glyph" style="top:6%;left:38%;font-size:1.4rem;animation-delay:7s">𒀀</div>
-  <div class="sky-glyph" style="top:28%;right:38%;font-size:1.2rem;animation-delay:2s">☊</div>
-  <div class="sky-glyph" style="top:48%;left:25%;font-size:2rem;animation-delay:18s">𓋹</div>
-  <div class="sky-glyph" style="top:15%;left:80%;font-size:1.7rem;animation-delay:9s">𒊕</div>
-  <div class="sky-glyph" style="top:55%;right:15%;font-size:1.3rem;animation-delay:14s">𓂀</div>
-
-  <!-- artifact removed for clean diagram view -->
-
-  <!-- structures SVG removed: diagram is the visual focus -->
-
-  <div class="shooting-star"></div>
-  <div class="shooting-star"></div>
-  <div class="shooting-star"></div>
 
   <!-- Navigation -->
   <nav class="site-nav">
