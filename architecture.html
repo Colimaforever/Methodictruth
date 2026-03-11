@@ -8,8 +8,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=47">
   <style>
-    /* Push diagram above the fixed background structures */
-    .structures-svg { z-index: -1 !important; }
+    /* Opaque background behind diagram — nothing bleeds through */
+    .arch-diagram-wrap {
+      background: var(--sky-deep, #0a0e1a);
+      border-radius: 6px;
+      padding: 0.5rem;
+    }
 
     /* ─── ARCHITECTURE PAGE ─── */
     .arch-container {
