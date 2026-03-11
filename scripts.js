@@ -420,9 +420,38 @@ if (saved && saved.generative && saved.playing) {
       playerStatus.textContent = '◇ tap ▷ to resume';
     }
   } else if (!saved) {
+    // Try autoplay — if blocked (iOS), first interaction handler will start it
     startPlaying();
   }
 }
+// Mark as interacted if autoplay succeeded
+audio.addEventListener('playing', () => { hasInteracted = true; }, { once: true });
+
+// ─── iOS AUTO-PLAY ON FIRST INTERACTION ───
+let hasInteracted = false;
+function onFirstInteraction() {
+  if (hasInteracted) return;
+  hasInteracted = true;
+  // Remove all listeners
+  ['touchstart', 'click', 'scroll', 'keydown'].forEach(evt => {
+    document.removeEventListener(evt, onFirstInteraction, true);
+  });
+  // If not already playing, start music
+  if (!isPlaying) {
+    if (saved && saved.generative) {
+      currentMaqamIndex = saved.maqamIndex || 0;
+      startGenerativeEngine();
+    } else {
+      loadTrack(currentTrack);
+      startPlaying(saved && saved.time ? saved.time : undefined);
+    }
+  }
+  // Resume any suspended audio contexts
+  if (bgAudioCtx && bgAudioCtx.state === 'suspended') bgAudioCtx.resume();
+}
+['touchstart', 'click', 'scroll', 'keydown'].forEach(evt => {
+  document.addEventListener(evt, onFirstInteraction, { capture: true, once: false, passive: true });
+});
 
 // ─── BACKGROUND OSCILLOSCOPE ───
 const bgOsc = document.getElementById('bgOscilloscope');
