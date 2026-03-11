@@ -15,17 +15,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=50">
+  <link rel="stylesheet" href="styles.css?v=51">
   <style>
     .bpm-container {
-      max-width: 500px;
+      max-width: min(500px, 92vw);
       margin: 2rem auto;
       padding: 0 1rem;
       text-align: center;
     }
     .bpm-display {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 5rem;
+      font-size: clamp(3.5rem, 10vw, 5rem);
       font-weight: 300;
       color: var(--glow);
       text-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
@@ -178,11 +178,7 @@
       color: var(--stone-dark);
       margin-top: 0.8rem;
     }
-    @media (max-width: 600px) {
-      .bpm-display { font-size: 4rem; }
-      .tap-zone { padding: 2.5rem 1.5rem; }
-      .bpm-stats { gap: 1.5rem; }
-    }
+    /* fluid clamp() handles responsive sizing */
   </style>
 </head>
 <body>

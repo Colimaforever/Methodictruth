@@ -15,13 +15,13 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=50">
+  <link rel="stylesheet" href="styles.css?v=51">
   <script src="lib/peerjs.min.js"></script>
   <style>
-    .live-room-body { display: flex; gap: 1rem; position: relative; z-index: 1; }
-    .live-grid { flex: 1; }
-    .live-canvas-panel { flex: 1; display: flex; flex-direction: column; min-height: 400px; }
-    .live-canvas-tools { display: flex; gap: 0.3rem; align-items: center; padding: 0.4rem; background: rgba(18,14,10,0.8); border: 1px solid rgba(138,126,107,0.1); margin-bottom: 0.3rem; }
+    .live-room-body { display: flex; gap: 1rem; position: relative; z-index: 1; flex-wrap: wrap; }
+    .live-grid { flex: 1; min-width: min(280px, 100%); }
+    .live-canvas-panel { flex: 1; display: flex; flex-direction: column; min-height: min(400px, 50vh); min-width: min(280px, 100%); }
+    .live-canvas-tools { display: flex; gap: 0.3rem; align-items: center; padding: 0.4rem; background: rgba(18,14,10,0.8); border: 1px solid rgba(138,126,107,0.1); margin-bottom: 0.3rem; flex-wrap: wrap; }
     .live-canvas-color { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: border-color 0.2s; }
     .live-canvas-color.active { border-color: rgba(255,255,255,0.7); }
     .live-canvas-color:hover { border-color: rgba(255,255,255,0.4); }
@@ -29,18 +29,13 @@
     .live-canvas-tool:hover { border-color: rgba(0,229,255,0.3); color: var(--parchment); }
     .live-canvas-tool.active { border-color: var(--glow); color: var(--glow); }
     #sharedCanvas { flex: 1; background: #0a0e1a; border: 1px solid rgba(138,126,107,0.08); cursor: crosshair; touch-action: none; }
-    .live-roster { display: flex; gap: 0.5rem; justify-content: center; padding: 0.3rem 0; font-family: 'JetBrains Mono',monospace; font-size: 0.55rem; color: var(--stone-dark); letter-spacing: 0.1em; position: relative; z-index: 1; }
+    .live-roster { display: flex; gap: 0.5rem; justify-content: center; padding: 0.3rem 0; font-family: 'JetBrains Mono',monospace; font-size: 0.55rem; color: var(--stone-dark); letter-spacing: 0.1em; position: relative; z-index: 1; flex-wrap: wrap; }
     .live-roster span { opacity: 0.6; }
     .live-dj-status { text-align: center; font-family: 'JetBrains Mono',monospace; font-size: 0.65rem; color: var(--glow-warm); padding: 0.4rem; opacity: 0.8; position: relative; z-index: 1; }
-    .live-dj-controls { display: flex; gap: 0.5rem; justify-content: center; align-items: center; padding: 0.4rem; position: relative; z-index: 1; }
+    .live-dj-controls { display: flex; gap: 0.5rem; justify-content: center; align-items: center; padding: 0.4rem; position: relative; z-index: 1; flex-wrap: wrap; }
     .live-dj-select { background: rgba(18,14,10,0.8); border: 1px solid rgba(138,126,107,0.2); color: var(--parchment); font-family: 'JetBrains Mono',monospace; font-size: 0.65rem; padding: 0.3rem 0.5rem; }
     .live-toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%); background: rgba(18,14,10,0.9); border: 1px solid rgba(0,229,255,0.3); color: var(--glow); font-family: 'JetBrains Mono',monospace; font-size: 0.7rem; padding: 0.5rem 1.2rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
     .live-toast.show { opacity: 1; }
-    @media (max-width: 768px) {
-      .live-room-body { flex-direction: column; }
-      .live-canvas-panel { min-height: 300px; }
-      .live-controls { flex-wrap: wrap; }
-    }
   </style>
 </head>
 <body>

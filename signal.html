@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=50">
+  <link rel="stylesheet" href="styles.css?v=51">
   <style>
     /* ─── SIGNAL CHAIN PAGE ─── */
     .signal-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 60px; }
@@ -286,8 +286,8 @@
 
     .signal-scope {
       flex: 1;
-      min-width: 300px;
-      max-width: 600px;
+      min-width: min(300px, 100%);
+      max-width: min(600px, 95vw);
       height: 180px;
       border: 1px solid rgba(0, 229, 255, 0.12);
       background: rgba(10, 14, 26, 0.6);

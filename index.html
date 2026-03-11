@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=50">
+  <link rel="stylesheet" href="styles.css?v=51">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -515,8 +515,8 @@
     }
     .latest-reveal-inner {
       position: relative;
-      max-width: 480px;
-      padding: 2.5rem 3rem;
+      max-width: min(480px, 90vw);
+      padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 4vw, 3rem);
       text-align: center;
       border: 1px solid rgba(123, 104, 238, 0.2);
       background: linear-gradient(135deg, rgba(18, 14, 10, 0.95), rgba(10, 14, 26, 0.9));
@@ -574,10 +574,7 @@
       background: rgba(0, 229, 255, 0.05);
       border-color: rgba(0, 229, 255, 0.4);
     }
-    @media (max-width: 600px) {
-      .latest-reveal-inner { margin: 1rem; padding: 2rem 1.5rem; }
-      .latest-reveal-title { font-size: 1.2rem; }
-    }
+    /* fluid clamp() handles responsive sizing */
   </style>
 
   <script>

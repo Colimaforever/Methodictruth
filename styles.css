@@ -22,7 +22,7 @@ body {
   background: var(--sky-deep);
   color: var(--stone);
   font-family: 'EB Garamond', Georgia, serif;
-  font-size: 18px;
+  font-size: clamp(16px, 1.125vw, 20px);
   line-height: 1.7;
   overflow-x: hidden;
 }
@@ -144,13 +144,13 @@ body::after {
   left: 0;
   right: 0;
   z-index: 500;
-  padding: 0.8rem 1.5rem;
+  padding: clamp(0.4rem, 0.8vw, 0.8rem) clamp(0.8rem, 2vw, 1.5rem);
   background: rgba(10, 14, 26, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(138, 126, 107, 0.08);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: clamp(0.55rem, 0.7vw, 0.7rem);
   letter-spacing: 0.35em;
   text-transform: uppercase;
 }
@@ -176,7 +176,7 @@ body::after {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2rem;
+  gap: clamp(0.8rem, 2vw, 2rem);
 }
 
 .site-nav a {
@@ -263,12 +263,13 @@ body::after {
 header {
   position: relative;
   min-height: 55vh;
+  min-height: 55dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 5rem 2rem 1rem;
+  padding: clamp(3rem, 8vw, 5rem) clamp(1rem, 4vw, 2rem) 1rem;
   z-index: 1;
 }
 
@@ -320,8 +321,8 @@ header {
 /* ─── OCCULT SIGIL ─── */
 .sigil-container {
   position: relative;
-  width: 180px;
-  height: 180px;
+  width: clamp(120px, 18vw, 180px);
+  height: clamp(120px, 18vw, 180px);
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -486,7 +487,7 @@ header {
 
 h1 {
   font-family: 'Cinzel', serif;
-  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-size: clamp(2rem, 6vw, 5rem);
   font-weight: 400;
   letter-spacing: 0.3em;
   color: var(--parchment);
@@ -497,7 +498,7 @@ h1 {
 
 .subtitle {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
+  font-size: clamp(0.6rem, 1vw, 0.85rem);
   font-weight: 300;
   letter-spacing: 0.5em;
   color: var(--glow);
@@ -509,8 +510,8 @@ h1 {
   margin-top: 1.5rem;
   font-style: italic;
   color: var(--stone-dark);
-  font-size: 1rem;
-  max-width: 500px;
+  font-size: clamp(0.85rem, 1.1vw, 1rem);
+  max-width: min(500px, 90vw);
 }
 
 .scroll-hint {
@@ -554,9 +555,9 @@ h1 {
 main {
   position: relative;
   z-index: 1;
-  max-width: 800px;
+  max-width: min(800px, 92vw);
   margin: 0 auto;
-  padding: 0 2rem 6rem;
+  padding: 0 clamp(0.75rem, 3vw, 2rem) clamp(3rem, 6vw, 6rem);
 }
 
 /* Section divider */
@@ -564,7 +565,7 @@ main {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  margin: 5rem 0;
+  margin: clamp(2.5rem, 5vw, 5rem) 0;
   color: var(--stone-dark);
 }
 .divider::before, .divider::after {
@@ -593,20 +594,20 @@ main {
 }
 
 .intro p {
-  font-size: 1.15rem;
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
   color: var(--stone);
-  max-width: 600px;
+  max-width: min(600px, 90vw);
   margin: 0 auto;
 }
 
 /* ─── EXPLORE GRID ─── */
 .explore-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.4rem;
-  max-width: 700px;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 45%), 1fr));
+  gap: clamp(0.25rem, 0.5vw, 0.4rem);
+  max-width: min(700px, 95vw);
   margin: 2.5rem auto 2rem;
-  padding: 0 1rem;
+  padding: 0 clamp(0.5rem, 1vw, 1rem);
 }
 
 .explore-card {
@@ -614,7 +615,7 @@ main {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 0.5rem;
+  padding: clamp(0.5rem, 1vw, 0.75rem) 0.5rem;
   background: rgba(26, 18, 10, 0.35);
   border: 1px solid rgba(138, 126, 107, 0.08);
   text-decoration: none;
@@ -642,7 +643,7 @@ main {
 
 .explore-title {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: clamp(0.6rem, 0.8vw, 0.7rem);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--stone);
@@ -666,8 +667,8 @@ main {
   background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
   border: 1px solid rgba(138, 126, 107, 0.15);
   border-left: 3px solid var(--moss);
-  padding: 2.5rem;
-  margin-bottom: 3rem;
+  padding: clamp(1.2rem, 3vw, 2.5rem);
+  margin-bottom: clamp(1.5rem, 3vw, 3rem);
   position: relative;
   transition: border-color 0.3s, box-shadow 0.3s;
   -webkit-backdrop-filter: blur(4px);
@@ -700,7 +701,7 @@ main {
 
 .entry h2 {
   font-family: 'Cinzel', serif;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
   font-weight: 400;
   color: var(--parchment);
   margin-bottom: 1rem;
@@ -776,6 +777,7 @@ blockquote {
   gap: 1rem;
   margin-bottom: 0.75rem;
   align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .stack-label {
@@ -784,7 +786,7 @@ blockquote {
   color: var(--glow);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  min-width: 120px;
+  min-width: clamp(80px, 12vw, 120px);
   opacity: 0.7;
   flex-shrink: 0;
 }
@@ -799,22 +801,22 @@ blockquote {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding: 8rem 2rem 4rem;
+  padding: clamp(5rem, 10vw, 8rem) clamp(1rem, 3vw, 2rem) clamp(2rem, 5vw, 4rem);
 }
 
 .page-header h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.6rem, 5vw, 3.5rem);
   margin-bottom: 0.5rem;
 }
 
 .page-header .subtitle {
-  font-size: 0.75rem;
+  font-size: clamp(0.55rem, 0.8vw, 0.75rem);
 }
 
 /* ─── CHRONICLES LINK ─── */
 /* ─── TIMELINE ─── */
 .timeline {
-  max-width: 640px;
+  max-width: min(640px, 95vw);
   margin: 0 auto;
   padding: 1rem 0 2rem;
   display: flex;
@@ -826,7 +828,7 @@ blockquote {
   display: flex;
   align-items: flex-start;
   gap: 1.2rem;
-  padding: 1.2rem 1.5rem;
+  padding: clamp(0.6rem, 1.5vw, 1.2rem) clamp(0.8rem, 2vw, 1.5rem);
   text-decoration: none;
   color: inherit;
   border-left: 1px solid rgba(0, 229, 255, 0.1);
@@ -867,7 +869,7 @@ blockquote {
 
 .timeline-day {
   font-family: 'Cinzel', serif;
-  font-size: 1rem;
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
   color: var(--glow);
   letter-spacing: 0.08em;
 }
@@ -881,7 +883,7 @@ blockquote {
 
 .timeline-summary {
   font-family: 'EB Garamond', serif;
-  font-size: 0.95rem;
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
   color: rgba(210, 200, 180, 0.6);
   line-height: 1.4;
   margin-top: 0.2rem;
@@ -919,7 +921,7 @@ footer {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
   border-top: 1px solid rgba(74, 124, 89, 0.15);
 }
 
@@ -961,8 +963,8 @@ footer .donate-link:hover {
 /* ─── MUSIC PLAYER ─── */
 .music-player {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: clamp(0.8rem, 2vw, 2rem);
+  right: clamp(0.8rem, 2vw, 2rem);
   z-index: 999;
   display: flex;
   align-items: center;
@@ -1011,7 +1013,7 @@ footer .donate-link:hover {
 
 .player-track {
   color: var(--parchment);
-  max-width: 160px;
+  max-width: clamp(80px, 15vw, 160px);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1073,21 +1075,8 @@ footer .donate-link:hover {
   -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
 }
 
+/* ─── MOBILE NAV (hamburger) — only breakpoint we truly need ─── */
 @media (max-width: 600px) {
-  .music-player {
-    bottom: 1rem;
-    right: 1rem;
-    left: 1rem;
-    justify-content: center;
-  }
-  .player-track { max-width: 120px; }
-  .entry { padding: 1.5rem; }
-  main { padding: 0 0.75rem 4rem; }
-  .pillar-left, .pillar-right, .vine-accent { display: none; }
-  .stack-item { flex-direction: column; gap: 0.25rem; }
-  .stack-label { min-width: auto; }
-
-  /* Nav: hamburger on mobile */
   .nav-toggle {
     display: block;
   }
@@ -1101,7 +1090,6 @@ footer .donate-link:hover {
     display: flex;
   }
   .site-nav {
-    padding: 0.6rem 1rem;
     font-size: 0.6rem;
     letter-spacing: 0.2em;
   }
@@ -1119,61 +1107,18 @@ footer .donate-link:hover {
   .nav-drop-menu a {
     padding: 0.4rem 0.8rem;
   }
+  .pillar-left, .pillar-right, .vine-accent { display: none; }
 
-  /* Explore grid: 2 columns on mobile */
-  .explore-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.3rem;
-    padding: 0 0.5rem;
+  /* Music player: full-width bottom bar on small screens */
+  .music-player {
+    left: 1rem;
+    justify-content: center;
   }
-  .explore-card {
-    padding: 0.6rem 0.4rem;
-  }
-
-  /* Page header */
-  .page-header h1 { font-size: 1.8rem; }
-  .page-header .subtitle { font-size: 0.8rem; }
-
-  /* Timeline */
-  .timeline-entry { padding: 0.8rem 1rem; }
-  .timeline-day { font-size: 0.85rem; }
-  .timeline-summary { font-size: 0.85rem; }
-
-  /* Live room */
-  .live-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  .live-controls {
-    gap: 0.5rem;
-  }
-  .live-ctrl-btn {
-    font-size: 0.6rem;
-    padding: 0.4rem 0.7rem;
-  }
-  .live-join-form {
-    padding: 0 1rem;
-  }
-  .live-input, .gb-input {
-    max-width: 100%;
-  }
-
-  /* Guestbook */
-  .gb-form-entry { padding: 1rem; }
-  .gb-textarea { font-size: 0.9rem; }
-  .gb-entry { padding: 1rem; }
-
-  /* Guestbook widget */
-  .gb-widget { padding: 0.8rem; }
-  .gb-widget-msg-item p { font-size: 0.85rem; }
-
-  /* Intro text */
-  .intro p { font-size: 1rem; }
 }
 
 /* ─── LIVE ROOM ─── */
 .live-join {
-  max-width: 600px;
+  max-width: min(600px, 92vw);
   margin: 0 auto;
 }
 
@@ -1194,7 +1139,7 @@ footer .donate-link:hover {
   border: 1px solid rgba(0, 229, 255, 0.2);
   padding: 0.7rem 1.2rem;
   width: 100%;
-  max-width: 300px;
+  max-width: min(300px, 90vw);
   letter-spacing: 0.05em;
   outline: none;
   transition: border-color 0.3s;
@@ -1234,25 +1179,25 @@ footer .donate-link:hover {
 }
 
 .live-room {
-  max-width: 1100px;
+  max-width: min(1100px, 96vw);
   margin: 0 auto;
 }
 
 .live-controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: clamp(0.4rem, 1vw, 0.75rem);
   margin-bottom: 2rem;
   flex-wrap: wrap;
 }
 
 .live-ctrl-btn {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: clamp(0.55rem, 0.8vw, 0.7rem);
   color: var(--stone);
   background: rgba(26, 18, 10, 0.8);
   border: 1px solid rgba(138, 126, 107, 0.25);
-  padding: 0.5rem 1rem;
+  padding: clamp(0.35rem, 0.6vw, 0.5rem) clamp(0.6rem, 1.2vw, 1rem);
   cursor: pointer;
   letter-spacing: 0.05em;
   transition: all 0.2s;
@@ -1288,7 +1233,7 @@ footer .donate-link:hover {
 
 .live-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 1.5rem;
 }
 
@@ -1327,7 +1272,7 @@ footer .donate-link:hover {
 }
 
 .gb-input {
-  max-width: 260px;
+  max-width: min(260px, 90vw);
 }
 
 .gb-textarea {
@@ -1365,7 +1310,7 @@ footer .donate-link:hover {
 
 .gb-entry {
   border-left-color: var(--oracle);
-  padding: 1.5rem 2rem;
+  padding: clamp(1rem, 2vw, 1.5rem) clamp(1.2rem, 2.5vw, 2rem);
 }
 
 .gb-entry::before {
@@ -1395,31 +1340,14 @@ footer .donate-link:hover {
   padding: 3rem 0;
 }
 
-@media (max-width: 600px) {
-  .live-grid {
-    grid-template-columns: 1fr;
-  }
-  .live-controls {
-    justify-content: center;
-  }
-  .live-peer-count {
-    margin-left: 0;
-    width: 100%;
-    text-align: center;
-  }
-  .gb-entry {
-    padding: 1.2rem 1.5rem;
-  }
-}
-
 /* ─── GUESTBOOK WIDGET (Homepage) ─── */
 .gb-widget {
-  max-width: 480px;
+  max-width: min(480px, 95vw);
   margin: 0 auto 2rem;
   background: rgba(18, 14, 10, 0.6);
   border: 1px solid rgba(0, 229, 255, 0.08);
   border-radius: 4px;
-  padding: 1.2rem;
+  padding: clamp(0.8rem, 1.5vw, 1.2rem);
 }
 
 .gb-widget-form {
@@ -1474,7 +1402,7 @@ footer .donate-link:hover {
 
 .gb-widget-msg-item p {
   font-family: 'EB Garamond', serif;
-  font-size: 0.9rem;
+  font-size: clamp(0.82rem, 1vw, 0.9rem);
   color: rgba(210, 200, 180, 0.7);
   margin: 0.2rem 0 0;
   line-height: 1.3;
@@ -1513,11 +1441,11 @@ footer .donate-link:hover {
 /* ─── FLOATING CHAT ORB + PANEL (Byzantine Occult) ─── */
 .chat-orb {
   position: fixed;
-  bottom: 2rem;
-  left: 2rem;
+  bottom: clamp(0.8rem, 2vw, 2rem);
+  left: clamp(0.8rem, 2vw, 2rem);
   z-index: 998;
-  width: 56px;
-  height: 56px;
+  width: clamp(44px, 5vw, 56px);
+  height: clamp(44px, 5vw, 56px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1570,11 +1498,11 @@ footer .donate-link:hover {
 /* ─── CHAT PANEL ─── */
 .chat-float {
   position: fixed;
-  bottom: 2rem;
-  left: 2rem;
+  bottom: clamp(0.8rem, 2vw, 2rem);
+  left: clamp(0.8rem, 2vw, 2rem);
   z-index: 999;
-  width: 300px;
-  height: 400px;
+  width: min(300px, 90vw);
+  height: min(400px, 70vh);
   display: flex;
   flex-direction: column;
   background: rgba(14, 10, 8, 0.94);
@@ -1751,19 +1679,13 @@ footer .donate-link:hover {
 
 /* Mobile: full width at bottom */
 @media (max-width: 600px) {
-  .chat-orb {
-    bottom: 1rem;
-    left: 1rem;
-    width: 48px;
-    height: 48px;
-  }
-  .chat-orb svg { width: 34px; height: 34px; }
   .chat-float {
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
     height: 50vh;
+    height: 50dvh;
     border-radius: 0;
     border-left: none;
     border-right: none;
@@ -1805,11 +1727,11 @@ footer .donate-link:hover {
 /* ─── AI NEWS FEED ORB + PANEL ─── */
 .news-orb {
   position: fixed;
-  bottom: 6rem;
-  right: 2rem;
+  bottom: clamp(4rem, 7vw, 6rem);
+  right: clamp(0.8rem, 2vw, 2rem);
   z-index: 998;
-  width: 56px;
-  height: 56px;
+  width: clamp(44px, 5vw, 56px);
+  height: clamp(44px, 5vw, 56px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1854,11 +1776,11 @@ footer .donate-link:hover {
 /* News Panel */
 .news-float {
   position: fixed;
-  bottom: 6rem;
-  right: 2rem;
+  bottom: clamp(4rem, 7vw, 6rem);
+  right: clamp(0.8rem, 2vw, 2rem);
   z-index: 999;
-  width: 320px;
-  max-height: 480px;
+  width: min(320px, 90vw);
+  max-height: min(480px, 70vh);
   display: flex;
   flex-direction: column;
   background: rgba(14, 10, 8, 0.94);
@@ -1988,19 +1910,13 @@ footer .donate-link:hover {
 }
 
 @media (max-width: 600px) {
-  .news-orb {
-    bottom: 5rem;
-    right: 1rem;
-    width: 48px;
-    height: 48px;
-  }
-  .news-orb svg { width: 34px; height: 34px; }
   .news-float {
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
     max-height: 50vh;
+    max-height: 50dvh;
     border-left: none;
     border-right: none;
     border-bottom: none;
@@ -2050,14 +1966,14 @@ footer .donate-link:hover {
 
 .piano-info {
   display: flex;
-  gap: 1rem;
+  gap: clamp(0.4rem, 1vw, 1rem);
   align-items: center;
   margin-bottom: 0.3rem;
 }
 
 .piano-info-item {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
+  font-size: clamp(0.45rem, 0.7vw, 0.6rem);
   color: var(--glow);
   letter-spacing: 0.1em;
   padding: 0.15rem 0.5rem;
@@ -2075,7 +1991,7 @@ footer .donate-link:hover {
 .piano-keys {
   display: flex;
   position: relative;
-  height: 90px;
+  height: clamp(60px, 10vw, 90px);
   max-width: 100%;
   overflow-x: auto;
 }
@@ -2093,8 +2009,8 @@ footer .donate-link:hover {
 }
 
 .piano-key.white {
-  width: 36px;
-  height: 90px;
+  width: clamp(24px, 3.5vw, 36px);
+  height: clamp(60px, 10vw, 90px);
   background: rgba(200, 195, 180, 0.12);
   border: 1px solid rgba(138, 126, 107, 0.2);
   border-radius: 0 0 3px 3px;
@@ -2103,13 +2019,13 @@ footer .donate-link:hover {
 }
 
 .piano-key.black {
-  width: 24px;
-  height: 58px;
+  width: clamp(16px, 2.5vw, 24px);
+  height: clamp(40px, 6.5vw, 58px);
   background: rgba(10, 14, 26, 0.9);
   border: 1px solid rgba(138, 126, 107, 0.25);
   border-radius: 0 0 2px 2px;
-  margin-left: -13px;
-  margin-right: -13px;
+  margin-left: clamp(-9px, -1.3vw, -13px);
+  margin-right: clamp(-9px, -1.3vw, -13px);
   z-index: 2;
 }
 
@@ -2142,11 +2058,14 @@ footer .donate-link:hover {
   font-size: 0.4rem;
 }
 
-/* ─── PIANO MOBILE ─── */
-@media (max-width: 768px) {
-  .piano-keys { height: 70px; }
-  .piano-key.white { width: 28px; height: 70px; }
-  .piano-key.black { width: 20px; height: 45px; margin-left: -11px; margin-right: -11px; }
-  .piano-info { gap: 0.5rem; }
-  .piano-info-item { font-size: 0.5rem; }
+/* ─── LIVE ROOM MOBILE: controls wrap, peer count centers ─── */
+@media (max-width: 600px) {
+  .live-controls {
+    justify-content: center;
+  }
+  .live-peer-count {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
 }
