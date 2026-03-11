@@ -684,20 +684,16 @@ requestAnimationFrame(drawStars);
       // Swap title
       document.title = doc.title;
 
-      // Swap header or page-header
-      const newHeader = doc.querySelector('header') || doc.querySelector('.page-header');
-      const oldHeader = document.querySelector('header') || document.querySelector('.page-header');
+      // Swap standalone header (only if it's NOT inside <main>)
+      const newHeader = doc.querySelector('body > header, body > div > header');
+      const oldHeader = document.querySelector('body > header, body > div > header');
       if (newHeader && oldHeader) {
         oldHeader.replaceWith(newHeader.cloneNode(true));
+      } else if (!newHeader && oldHeader) {
+        oldHeader.remove();
       } else if (newHeader && !oldHeader) {
-        // Current page has no header but new one does — insert before main
         const main = document.querySelector('main');
         if (main) main.before(newHeader.cloneNode(true));
-      } else if (!newHeader && oldHeader) {
-        // New page has no separate header
-        const newPH = doc.querySelector('.page-header');
-        if (newPH) oldHeader.replaceWith(newPH.cloneNode(true));
-        else oldHeader.remove();
       }
 
       // Swap main content
