@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback — Report Bugs & Share Ideas</title>
+  <meta name="keywords" content="feedback, bug report, feature request, contact">
+  <meta name="description" content="Found a bug? Have an idea? Drop your feedback here. No login required.">
+  <meta property="og:title" content="Feedback — Report Bugs & Share Ideas">
+  <meta property="og:description" content="Found a bug? Have an idea? Drop your feedback here. No login required.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/feedback.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=52">
+  <style>
+    .fb-page {
+      position: relative; z-index: 1;
+      max-width: min(560px, 92vw); margin: 0 auto;
+      padding: clamp(0.5rem, 2vw, 1rem);
+    }
+
+    .fb-form {
+      background: rgba(18,14,10,0.7);
+      border: 1px solid rgba(138,126,107,0.1);
+      padding: clamp(1rem, 3vw, 1.5rem);
+      margin-top: 0.5rem;
+    }
+
+    .fb-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--stone-dark);
+      display: block; margin-bottom: 0.3rem;
+    }
+
+    .fb-select {
+      width: 100%; padding: 0.5rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+      background: rgba(10,14,26,0.6); color: var(--glow);
+      border: 1px solid rgba(0,229,255,0.15);
+      outline: none; cursor: pointer; margin-bottom: 0.8rem;
+      -webkit-appearance: none; border-radius: 0;
+      touch-action: manipulation;
+    }
+    .fb-select option { background: #0a0e1a; color: var(--glow); }
+
+    .fb-textarea {
+      width: 100%; min-height: 120px; padding: 0.6rem;
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      background: rgba(10,14,26,0.4); color: var(--parchment);
+      border: 1px solid rgba(138,126,107,0.15);
+      outline: none; resize: vertical; margin-bottom: 0.8rem;
+      line-height: 1.5;
+    }
+    .fb-textarea:focus { border-color: rgba(0,229,255,0.3); }
+    .fb-textarea::placeholder { color: rgba(138,126,107,0.4); }
+
+    .fb-email {
+      width: 100%; padding: 0.5rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+      background: rgba(10,14,26,0.4); color: var(--parchment);
+      border: 1px solid rgba(138,126,107,0.15);
+      outline: none; margin-bottom: 0.8rem;
+    }
+    .fb-email:focus { border-color: rgba(0,229,255,0.3); }
+    .fb-email::placeholder { color: rgba(138,126,107,0.4); }
+
+    .fb-submit {
+      font-family: 'Cinzel', serif; font-size: 0.85rem;
+      letter-spacing: 0.1em; padding: 0.6rem 1.5rem;
+      background: rgba(0,229,255,0.08); color: var(--glow);
+      border: 1px solid rgba(0,229,255,0.3);
+      cursor: pointer; transition: all 0.3s;
+      touch-action: manipulation;
+    }
+    .fb-submit:hover { background: rgba(0,229,255,0.15); border-color: var(--glow); }
+    .fb-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .fb-status {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      margin-top: 0.5rem; min-height: 1.2em;
+    }
+    .fb-status.success { color: rgba(74,222,128,0.8); }
+    .fb-status.error { color: rgba(180,60,60,0.8); }
+
+    .fb-count {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.5rem;
+      color: var(--stone-dark); text-align: right; margin-top: -0.5rem; margin-bottom: 0.5rem;
+    }
+
+    /* Honeypot — hidden from humans */
+    .fb-hp { position: absolute; left: -9999px; opacity: 0; height: 0; width: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-sigil" href="index.html">◈</a>
+      <input type="checkbox" id="navToggle" class="nav-toggle-input">
+      <label for="navToggle" class="nav-hamburger"><span></span><span></span><span></span></label>
+      <div class="nav-links">
+        <a href="chronicles.html">Chronicles</a>
+        <a href="architecture.html">Architecture</a>
+        <div class="nav-dropdown">
+          <a href="synth.html" class="nav-dropdown-trigger">Music ▾</a>
+          <div class="nav-dropdown-content">
+            <a href="synth.html">Synth</a>
+            <a href="mixer.html">Mixer</a>
+            <a href="tuner.html">Tuner</a>
+            <a href="theory.html">Theory</a>
+            <a href="songwriter.html">Songwriter</a>
+            <a href="tapbpm.html">Tap BPM</a>
+            <a href="signal.html">Signal</a>
+          </div>
+        </div>
+        <a href="topology.html">Topology</a>
+        <a href="live.html">Live</a>
+        <a href="about.html">About</a>
+        <a href="feedback.html">Feedback</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header" style="padding:3.2rem 2rem 0.1rem;">
+    <h1 style="font-size:clamp(1.1rem,2.5vw,1.6rem);margin-bottom:0;">𓂀 Feedback</h1>
+    <div class="subtitle" style="font-size:0.5rem;">bugs · ideas · complaints · whatever</div>
+  </div>
+
+  <main class="fb-page">
+    <div class="fb-form">
+      <label class="fb-label">Type</label>
+      <select class="fb-select" id="fbType">
+        <option value="bug">𓃀 Bug Report</option>
+        <option value="idea">𓇳 Feature Idea</option>
+        <option value="feedback">𓁹 General Feedback</option>
+        <option value="complaint">𒈗 Complaint</option>
+      </select>
+
+      <label class="fb-label">Message</label>
+      <textarea class="fb-textarea" id="fbMessage" placeholder="What's on your mind?" maxlength="2000"></textarea>
+      <div class="fb-count"><span id="fbCharCount">0</span> / 2000</div>
+
+      <label class="fb-label">Email (optional — if you want a response)</label>
+      <input class="fb-email" id="fbEmail" type="email" placeholder="you@example.com" maxlength="100">
+
+      <!-- Honeypot -->
+      <div class="fb-hp" aria-hidden="true">
+        <label for="fbWebsite">Website</label>
+        <input type="text" id="fbWebsite" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <button class="fb-submit" id="fbSubmit">Submit</button>
+      <div class="fb-status" id="fbStatus"></div>
+    </div>
+  </main>
+
+  <div id="musicPlayer"></div>
+  <script src="scripts.js?v=49"></script>
+
+  <!-- Firebase SDK -->
+  <script src="lib/firebase-app-compat.js"></script>
+  <script src="lib/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
+      authDomain: "methodictruth.firebaseapp.com",
+      databaseURL: "https://methodictruth-default-rtdb.firebaseio.com",
+      projectId: "methodictruth",
+      storageBucket: "methodictruth.firebasestorage.app",
+      messagingSenderId: "415814328505",
+      appId: "1:415814328505:web:6f8ad89f05d944d4087b68"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const feedbackRef = db.ref('feedback');
+
+    const fbType = document.getElementById('fbType');
+    const fbMessage = document.getElementById('fbMessage');
+    const fbEmail = document.getElementById('fbEmail');
+    const fbSubmit = document.getElementById('fbSubmit');
+    const fbStatus = document.getElementById('fbStatus');
+    const fbCharCount = document.getElementById('fbCharCount');
+    const fbWebsite = document.getElementById('fbWebsite'); // honeypot
+
+    // Character count
+    fbMessage.addEventListener('input', () => {
+      fbCharCount.textContent = fbMessage.value.length;
+    });
+
+    // Rate limit: 1 submission per 5 minutes
+    function canSubmit() {
+      const last = parseInt(localStorage.getItem('fb-last-submit') || '0');
+      return Date.now() - last > 5 * 60 * 1000;
+    }
+
+    function markSubmitted() {
+      localStorage.setItem('fb-last-submit', Date.now().toString());
+    }
+
+    // Submit
+    fbSubmit.addEventListener('click', async () => {
+      // Honeypot check
+      if (fbWebsite.value) {
+        fbStatus.textContent = '𓂀 Submitted. Thank you.';
+        fbStatus.className = 'fb-status success';
+        fbMessage.value = '';
+        return; // silently discard bot submission
+      }
+
+      const msg = fbMessage.value.trim();
+      if (!msg) {
+        fbStatus.textContent = 'Write something first.';
+        fbStatus.className = 'fb-status error';
+        return;
+      }
+      if (msg.length < 5) {
+        fbStatus.textContent = 'Too short — give us something to work with.';
+        fbStatus.className = 'fb-status error';
+        return;
+      }
+      if (!canSubmit()) {
+        fbStatus.textContent = 'Easy there — one submission per 5 minutes.';
+        fbStatus.className = 'fb-status error';
+        return;
+      }
+
+      fbSubmit.disabled = true;
+      fbStatus.textContent = 'Sending...';
+      fbStatus.className = 'fb-status';
+
+      try {
+        await feedbackRef.push({
+          type: fbType.value,
+          message: msg,
+          email: fbEmail.value.trim() || null,
+          timestamp: firebase.database.ServerValue.TIMESTAMP,
+          userAgent: navigator.userAgent.substring(0, 200),
+          page: document.referrer || null
+        });
+
+        markSubmitted();
+        fbMessage.value = '';
+        fbCharCount.textContent = '0';
+        fbStatus.textContent = '𓂀 Received. We hear you.';
+        fbStatus.className = 'fb-status success';
+      } catch (e) {
+        fbStatus.textContent = 'Failed to send. Try again.';
+        fbStatus.className = 'fb-status error';
+      }
+
+      fbSubmit.disabled = false;
+    });
+  </script>
+</body>
+</html>
