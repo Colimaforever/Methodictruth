@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="styles.css?v=51">
   <style>
     /* ─── SYNTH LAYOUT ─── */
-    .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 80px; }
+    .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 110px; }
 
     .synth-toolbar {
       position: fixed; top: 48px; left: 0; right: 0; z-index: 400;
@@ -27,7 +27,7 @@
       background: rgba(10, 14, 26, 0.95);
       border-bottom: 1px solid rgba(0, 229, 255, 0.1);
       backdrop-filter: blur(10px);
-      flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      flex-wrap: wrap;
       font-family: 'JetBrains Mono', monospace;
     }
 
@@ -347,32 +347,32 @@
     <!-- Toolbar -->
     <div class="synth-toolbar">
       <div class="synth-toolbar-section">
-        <button class="synth-btn start-audio" id="startAudioBtn" onclick="startAudio()">◈ Start Audio</button>
+        <button class="synth-btn start-audio" id="startAudioBtn">◈ Start Audio</button>
       </div>
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label">Add:</span>
-        <button class="synth-btn" onclick="addModule('oscillator')">Osc</button>
-        <button class="synth-btn" onclick="addModule('filter')">Filter</button>
-        <button class="synth-btn" onclick="addModule('lfo')">LFO</button>
-        <button class="synth-btn" onclick="addModule('delay')">Delay</button>
-        <button class="synth-btn" onclick="addModule('reverb')">Reverb</button>
-        <button class="synth-btn" onclick="addModule('gain')">Gain</button>
-        <button class="synth-btn" onclick="addModule('noise')">Noise</button>
-        <button class="synth-btn" onclick="addModule('envelope')">ADSR</button>
-        <button class="synth-btn" onclick="addModule('output')">Output</button>
+        <button class="synth-btn" data-add="oscillator">Osc</button>
+        <button class="synth-btn" data-add="filter">Filter</button>
+        <button class="synth-btn" data-add="lfo">LFO</button>
+        <button class="synth-btn" data-add="delay">Delay</button>
+        <button class="synth-btn" data-add="reverb">Reverb</button>
+        <button class="synth-btn" data-add="gain">Gain</button>
+        <button class="synth-btn" data-add="noise">Noise</button>
+        <button class="synth-btn" data-add="envelope">ADSR</button>
+        <button class="synth-btn" data-add="output">Output</button>
       </div>
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label">Presets:</span>
-        <button class="synth-btn preset" onclick="loadPreset('drone')">Drone</button>
-        <button class="synth-btn preset" onclick="loadPreset('arp')">Arp</button>
-        <button class="synth-btn preset" onclick="loadPreset('noisewash')">Noise Wash</button>
+        <button class="synth-btn preset" data-preset="drone">Drone</button>
+        <button class="synth-btn preset" data-preset="arp">Arp</button>
+        <button class="synth-btn preset" data-preset="noisewash">Noise Wash</button>
       </div>
       <div class="synth-toolbar-section">
-        <button class="synth-btn" id="kbToggleBtn" onclick="toggleKeyboard()">⌨ Minimize</button>
+        <button class="synth-btn" id="kbToggleBtn">⌨ Minimize</button>
         <span class="midi-badge" id="midiBadge">MIDI: None</span>
       </div>
       <div class="synth-toolbar-section">
-        <button class="synth-btn danger" onclick="clearAll()">✕ Clear</button>
+        <button class="synth-btn danger" id="clearAllBtn">✕ Clear</button>
       </div>
     </div>
 
@@ -1333,6 +1333,42 @@
     }
     draw();
   })();
+
+  // ─── TOUCH-SAFE BUTTON HANDLERS ───
+  // iOS Safari eats onclick in scrollable containers. Use touchend + click with dedup.
+  function tapHandler(el, fn) {
+    let touched = false;
+    el.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      touched = true;
+      fn();
+      setTimeout(() => { touched = false; }, 400);
+    }, { passive: false });
+    el.addEventListener('click', (e) => {
+      if (touched) return; // already fired via touch
+      fn();
+    });
+  }
+
+  // Start Audio
+  tapHandler(document.getElementById('startAudioBtn'), startAudio);
+
+  // Add module buttons
+  document.querySelectorAll('[data-add]').forEach(btn => {
+    tapHandler(btn, () => addModule(btn.dataset.add));
+  });
+
+  // Preset buttons
+  document.querySelectorAll('[data-preset]').forEach(btn => {
+    tapHandler(btn, () => loadPreset(btn.dataset.preset));
+  });
+
+  // Clear
+  tapHandler(document.getElementById('clearAllBtn'), clearAll);
+
+  // Keyboard toggle
+  tapHandler(document.getElementById('kbToggleBtn'), toggleKeyboard);
+
   </script>
 </body>
 </html>
