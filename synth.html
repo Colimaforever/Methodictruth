@@ -363,8 +363,17 @@
       </div>
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label">Presets:</span>
+        <button class="synth-btn preset" data-preset="pad">Pad</button>
+        <button class="synth-btn preset" data-preset="lead">Lead</button>
+        <button class="synth-btn preset" data-preset="bass">Bass</button>
+        <button class="synth-btn preset" data-preset="pluck">Pluck</button>
         <button class="synth-btn preset" data-preset="drone">Drone</button>
+        <button class="synth-btn preset" data-preset="ambient">Ambient</button>
+        <button class="synth-btn preset" data-preset="wobble">Wobble</button>
+        <button class="synth-btn preset" data-preset="organ">Organ</button>
         <button class="synth-btn preset" data-preset="arp">Arp</button>
+        <button class="synth-btn preset" data-preset="scifi">Sci-Fi</button>
+        <button class="synth-btn preset" data-preset="ritual">Ritual</button>
         <button class="synth-btn preset" data-preset="noisewash">Noise Wash</button>
       </div>
       <div class="synth-toolbar-section">
@@ -986,6 +995,233 @@
       const out = addModule('output', 840, 40);
       setParam(out, 'gain', 0.25);
       autoConnect(nz, 'out', flt, 'in');
+      autoConnect(flt, 'out', rev, 'in');
+      autoConnect(rev, 'out', out, 'in');
+
+    } else if (name === 'pad') {
+      // Warm pad: two detuned saws → LP filter → reverb
+      const osc1 = addModule('oscillator', 60, 20);
+      setParam(osc1, 'type', 'sawtooth');
+      setParam(osc1, 'frequency', 220);
+      setParam(osc1, 'detune', -12);
+      const osc2 = addModule('oscillator', 60, 200);
+      setParam(osc2, 'type', 'sawtooth');
+      setParam(osc2, 'frequency', 220);
+      setParam(osc2, 'detune', 12);
+      const gain1 = addModule('gain', 280, 100);
+      setParam(gain1, 'gain', 0.4);
+      const flt = addModule('filter', 480, 100);
+      setParam(flt, 'type', 'lowpass');
+      setParam(flt, 'frequency', 1200);
+      setParam(flt, 'Q', 1.5);
+      const rev = addModule('reverb', 680, 100);
+      setParam(rev, 'decay', 6);
+      setParam(rev, 'wet', 0.6);
+      const out = addModule('output', 880, 100);
+      setParam(out, 'gain', 0.3);
+      autoConnect(osc1, 'out', gain1, 'in');
+      autoConnect(osc2, 'out', gain1, 'in');
+      autoConnect(gain1, 'out', flt, 'in');
+      autoConnect(flt, 'out', rev, 'in');
+      autoConnect(rev, 'out', out, 'in');
+
+    } else if (name === 'lead') {
+      // Synth lead: square → BP filter (high resonance) → delay → output
+      const osc = addModule('oscillator', 60, 60);
+      setParam(osc, 'type', 'square');
+      setParam(osc, 'frequency', 440);
+      const flt = addModule('filter', 280, 60);
+      setParam(flt, 'type', 'bandpass');
+      setParam(flt, 'frequency', 1800);
+      setParam(flt, 'Q', 8);
+      const dly = addModule('delay', 480, 60);
+      setParam(dly, 'delayTime', 0.15);
+      setParam(dly, 'feedback', 0.35);
+      setParam(dly, 'wet', 0.3);
+      const gain1 = addModule('gain', 680, 60);
+      setParam(gain1, 'gain', 0.5);
+      const out = addModule('output', 880, 60);
+      setParam(out, 'gain', 0.4);
+      autoConnect(osc, 'out', flt, 'in');
+      autoConnect(flt, 'out', dly, 'in');
+      autoConnect(dly, 'out', gain1, 'in');
+      autoConnect(gain1, 'out', out, 'in');
+
+    } else if (name === 'ambient') {
+      // Ambient: triangle osc + pink noise → filter → reverb (massive)
+      const osc = addModule('oscillator', 60, 20);
+      setParam(osc, 'type', 'triangle');
+      setParam(osc, 'frequency', 110);
+      const nz = addModule('noise', 60, 200);
+      setParam(nz, 'type', 'pink');
+      const gain1 = addModule('gain', 280, 20);
+      setParam(gain1, 'gain', 0.3);
+      const gain2 = addModule('gain', 280, 200);
+      setParam(gain2, 'gain', 0.15);
+      const flt = addModule('filter', 480, 100);
+      setParam(flt, 'type', 'lowpass');
+      setParam(flt, 'frequency', 600);
+      setParam(flt, 'Q', 2);
+      const rev = addModule('reverb', 680, 100);
+      setParam(rev, 'decay', 12);
+      setParam(rev, 'wet', 0.85);
+      const out = addModule('output', 880, 100);
+      setParam(out, 'gain', 0.25);
+      autoConnect(osc, 'out', gain1, 'in');
+      autoConnect(nz, 'out', gain2, 'in');
+      autoConnect(gain1, 'out', flt, 'in');
+      autoConnect(gain2, 'out', flt, 'in');
+      autoConnect(flt, 'out', rev, 'in');
+      autoConnect(rev, 'out', out, 'in');
+
+    } else if (name === 'bass') {
+      // Sub bass: sine + square sub → LP filter (aggressive)
+      const osc = addModule('oscillator', 60, 60);
+      setParam(osc, 'type', 'square');
+      setParam(osc, 'frequency', 55);
+      const flt = addModule('filter', 280, 60);
+      setParam(flt, 'type', 'lowpass');
+      setParam(flt, 'frequency', 400);
+      setParam(flt, 'Q', 5);
+      const gain1 = addModule('gain', 480, 60);
+      setParam(gain1, 'gain', 0.6);
+      const out = addModule('output', 680, 60);
+      setParam(out, 'gain', 0.5);
+      autoConnect(osc, 'out', flt, 'in');
+      autoConnect(flt, 'out', gain1, 'in');
+      autoConnect(gain1, 'out', out, 'in');
+
+    } else if (name === 'pluck') {
+      // Pluck: triangle → filter sweep → short delay
+      const osc = addModule('oscillator', 60, 60);
+      setParam(osc, 'type', 'triangle');
+      setParam(osc, 'frequency', 330);
+      const flt = addModule('filter', 280, 60);
+      setParam(flt, 'type', 'lowpass');
+      setParam(flt, 'frequency', 3000);
+      setParam(flt, 'Q', 4);
+      const dly = addModule('delay', 480, 60);
+      setParam(dly, 'delayTime', 0.08);
+      setParam(dly, 'feedback', 0.2);
+      setParam(dly, 'wet', 0.25);
+      const out = addModule('output', 680, 60);
+      setParam(out, 'gain', 0.4);
+      autoConnect(osc, 'out', flt, 'in');
+      autoConnect(flt, 'out', dly, 'in');
+      autoConnect(dly, 'out', out, 'in');
+
+    } else if (name === 'wobble') {
+      // Wobble bass: saw → LP filter modulated by LFO
+      const osc = addModule('oscillator', 60, 60);
+      setParam(osc, 'type', 'sawtooth');
+      setParam(osc, 'frequency', 80);
+      const lfo = addModule('lfo', 60, 240);
+      setParam(lfo, 'frequency', 3);
+      setParam(lfo, 'min', 200);
+      setParam(lfo, 'max', 3000);
+      const flt = addModule('filter', 320, 60);
+      setParam(flt, 'type', 'lowpass');
+      setParam(flt, 'frequency', 1000);
+      setParam(flt, 'Q', 8);
+      const gain1 = addModule('gain', 540, 60);
+      setParam(gain1, 'gain', 0.5);
+      const out = addModule('output', 740, 60);
+      setParam(out, 'gain', 0.45);
+      autoConnect(osc, 'out', flt, 'in');
+      autoConnect(flt, 'out', gain1, 'in');
+      autoConnect(gain1, 'out', out, 'in');
+      try { modules[lfo].audio.node.connect(modules[flt].audio.node.frequency); } catch(e) {}
+
+    } else if (name === 'organ') {
+      // Organ: sine + detuned sine → gain → reverb
+      const osc1 = addModule('oscillator', 60, 20);
+      setParam(osc1, 'type', 'sine');
+      setParam(osc1, 'frequency', 262);
+      const osc2 = addModule('oscillator', 60, 200);
+      setParam(osc2, 'type', 'sine');
+      setParam(osc2, 'frequency', 524);
+      const gain1 = addModule('gain', 280, 100);
+      setParam(gain1, 'gain', 0.35);
+      const rev = addModule('reverb', 480, 100);
+      setParam(rev, 'decay', 4);
+      setParam(rev, 'wet', 0.4);
+      const out = addModule('output', 680, 100);
+      setParam(out, 'gain', 0.35);
+      autoConnect(osc1, 'out', gain1, 'in');
+      autoConnect(osc2, 'out', gain1, 'in');
+      autoConnect(gain1, 'out', rev, 'in');
+      autoConnect(rev, 'out', out, 'in');
+
+    } else if (name === 'scifi') {
+      // Sci-fi: two oscs with LFO on both frequencies → delay → reverb
+      const osc1 = addModule('oscillator', 60, 20);
+      setParam(osc1, 'type', 'sawtooth');
+      setParam(osc1, 'frequency', 150);
+      const osc2 = addModule('oscillator', 60, 200);
+      setParam(osc2, 'type', 'square');
+      setParam(osc2, 'frequency', 153);
+      const lfo = addModule('lfo', 60, 380);
+      setParam(lfo, 'frequency', 0.3);
+      setParam(lfo, 'min', 100);
+      setParam(lfo, 'max', 600);
+      const gain1 = addModule('gain', 300, 100);
+      setParam(gain1, 'gain', 0.3);
+      const flt = addModule('filter', 480, 100);
+      setParam(flt, 'type', 'lowpass');
+      setParam(flt, 'frequency', 1500);
+      setParam(flt, 'Q', 4);
+      const dly = addModule('delay', 660, 40);
+      setParam(dly, 'delayTime', 0.4);
+      setParam(dly, 'feedback', 0.6);
+      setParam(dly, 'wet', 0.5);
+      const rev = addModule('reverb', 660, 200);
+      setParam(rev, 'decay', 8);
+      setParam(rev, 'wet', 0.7);
+      const out = addModule('output', 860, 100);
+      setParam(out, 'gain', 0.25);
+      autoConnect(osc1, 'out', gain1, 'in');
+      autoConnect(osc2, 'out', gain1, 'in');
+      autoConnect(gain1, 'out', flt, 'in');
+      autoConnect(flt, 'out', dly, 'in');
+      autoConnect(dly, 'out', rev, 'in');
+      autoConnect(rev, 'out', out, 'in');
+      try {
+        modules[lfo].audio.node.connect(modules[osc1].audio.node.frequency);
+        modules[lfo].audio.node.connect(modules[osc2].audio.node.frequency);
+      } catch(e) {}
+
+    } else if (name === 'ritual') {
+      // Ritual: deep drone + noise + massive reverb (on-brand)
+      const osc1 = addModule('oscillator', 60, 20);
+      setParam(osc1, 'type', 'sine');
+      setParam(osc1, 'frequency', 55);
+      const osc2 = addModule('oscillator', 60, 180);
+      setParam(osc2, 'type', 'sawtooth');
+      setParam(osc2, 'frequency', 82.5);
+      setParam(osc2, 'detune', -5);
+      const nz = addModule('noise', 60, 340);
+      setParam(nz, 'type', 'brown');
+      const gain1 = addModule('gain', 300, 20);
+      setParam(gain1, 'gain', 0.5);
+      const gain2 = addModule('gain', 300, 180);
+      setParam(gain2, 'gain', 0.2);
+      const gain3 = addModule('gain', 300, 340);
+      setParam(gain3, 'gain', 0.08);
+      const flt = addModule('filter', 500, 100);
+      setParam(flt, 'type', 'lowpass');
+      setParam(flt, 'frequency', 500);
+      setParam(flt, 'Q', 2);
+      const rev = addModule('reverb', 700, 100);
+      setParam(rev, 'decay', 15);
+      setParam(rev, 'wet', 0.9);
+      const out = addModule('output', 900, 100);
+      setParam(out, 'gain', 0.3);
+      autoConnect(osc1, 'out', gain1, 'in');
+      autoConnect(osc2, 'out', gain2, 'in');
+      autoConnect(nz, 'out', gain3, 'in');
+      autoConnect(gain1, 'out', flt, 'in');
+      autoConnect(gain2, 'out', flt, 'in');
+      autoConnect(gain3, 'out', flt, 'in');
       autoConnect(flt, 'out', rev, 'in');
       autoConnect(rev, 'out', out, 'in');
     }
