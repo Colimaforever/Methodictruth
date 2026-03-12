@@ -18,31 +18,32 @@
   <link rel="stylesheet" href="styles.css?v=51">
   <style>
     /* ─── SYNTH LAYOUT ─── */
-    .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 60px; }
+    .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 80px; }
 
     .synth-toolbar {
       position: fixed; top: 48px; left: 0; right: 0; z-index: 400;
-      display: flex; align-items: center; gap: 0.4rem;
-      padding: 0.5rem 1rem;
-      background: rgba(10, 14, 26, 0.92);
+      display: flex; align-items: center; gap: 0.3rem;
+      padding: 0.3rem 0.5rem;
+      background: rgba(10, 14, 26, 0.95);
       border-bottom: 1px solid rgba(0, 229, 255, 0.1);
       backdrop-filter: blur(10px);
-      flex-wrap: wrap;
+      flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .synth-toolbar-section {
-      display: flex; gap: 0.3rem; align-items: center;
-      padding-right: 0.6rem;
+      display: flex; gap: 0.2rem; align-items: center;
+      padding-right: 0.4rem;
       border-right: 1px solid rgba(0, 229, 255, 0.08);
-      margin-right: 0.3rem;
+      margin-right: 0.2rem;
+      flex-shrink: 0;
     }
     .synth-toolbar-section:last-child { border-right: none; }
 
     .synth-toolbar-label {
-      font-size: 0.55rem; color: var(--stone-dark);
-      letter-spacing: 0.15em; text-transform: uppercase;
-      margin-right: 0.2rem;
+      font-size: 0.5rem; color: var(--stone-dark);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-right: 0.1rem;
     }
 
     .synth-btn {
@@ -50,8 +51,10 @@
       font-size: 0.6rem; letter-spacing: 0.05em;
       color: var(--stone); background: rgba(26, 18, 10, 0.8);
       border: 1px solid rgba(138, 126, 107, 0.2);
-      padding: 0.35rem 0.6rem; cursor: pointer;
+      padding: 0.4rem 0.6rem; cursor: pointer;
       transition: all 0.2s; white-space: nowrap;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      user-select: none; -webkit-user-select: none;
     }
     .synth-btn:hover { border-color: var(--glow); color: var(--glow); }
     .synth-btn.active { border-color: var(--glow); color: var(--glow); background: rgba(0, 229, 255, 0.08); }
@@ -130,12 +133,14 @@
     .port {
       display: flex; align-items: center; gap: 0.3rem;
       cursor: pointer; position: relative;
+      padding: 0.2rem; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     .port.input { flex-direction: row; }
     .port.output { flex-direction: row-reverse; }
 
     .port-circle {
-      width: 12px; height: 12px; border-radius: 50%;
+      width: 16px; height: 16px; border-radius: 50%;
       border: 1.5px solid rgba(0, 229, 255, 0.4);
       background: rgba(10, 14, 26, 0.8);
       transition: all 0.2s; flex-shrink: 0;
@@ -170,11 +175,12 @@
 
     .module-control select {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem; color: var(--glow);
+      font-size: 0.7rem; color: var(--glow);
       background: rgba(10, 14, 26, 0.6);
       border: 1px solid rgba(0, 229, 255, 0.15);
-      padding: 0.2rem 0.3rem; outline: none;
-      cursor: pointer;
+      padding: 0.35rem 0.4rem; outline: none;
+      cursor: pointer; touch-action: manipulation;
+      -webkit-appearance: none; border-radius: 0;
     }
     .module-control select option { background: #0a0e1a; color: var(--glow); }
 
@@ -186,13 +192,13 @@
       touch-action: none;
     }
     .synth-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 14px; height: 14px;
+      -webkit-appearance: none; width: 20px; height: 20px;
       background: radial-gradient(circle, var(--glow) 0%, rgba(0, 229, 255, 0.3) 100%);
       border-radius: 50%; border: 1px solid rgba(0, 229, 255, 0.5);
       cursor: pointer; box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
     }
     .synth-slider::-moz-range-thumb {
-      width: 14px; height: 14px;
+      width: 20px; height: 20px;
       background: radial-gradient(circle, var(--glow) 0%, rgba(0, 229, 255, 0.3) 100%);
       border-radius: 50%; border: 1px solid rgba(0, 229, 255, 0.5);
       cursor: pointer; box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
@@ -644,6 +650,16 @@
   function addModule(type, x, y) {
     const def = MODULE_DEFS[type];
     if (!def) return;
+    // Auto-start audio context on first interaction (mobile fix)
+    if (Tone.context.state !== 'running') {
+      Tone.start().then(() => {
+        document.getElementById('startAudioBtn').textContent = '◈ Audio Running';
+        document.getElementById('startAudioBtn').classList.add('active');
+        document.getElementById('startAudioBtn').classList.remove('start-audio');
+        audioStatusEl.textContent = '◈ audio running';
+        audioStatusEl.classList.add('running');
+      });
+    }
     const id = 'mod_' + (moduleIdCounter++);
 
     // Default position
@@ -694,14 +710,14 @@
     html += `<div class="module-ports">`;
     html += `<div class="port-group inputs">`;
     def.inputs.forEach(p => {
-      html += `<div class="port input" data-module="${id}" data-port="${p}" data-dir="input" onclick="handlePort(this)">
+      html += `<div class="port input" data-module="${id}" data-port="${p}" data-dir="input" onclick="handlePort(this)" ontouchend="event.preventDefault(); handlePort(this)">
         <span class="port-circle" id="port_${id}_${p}"></span>
         <span class="port-label">${p}</span>
       </div>`;
     });
     html += `</div><div class="port-group outputs">`;
     def.outputs.forEach(p => {
-      html += `<div class="port output" data-module="${id}" data-port="${p}" data-dir="output" onclick="handlePort(this)">
+      html += `<div class="port output" data-module="${id}" data-port="${p}" data-dir="output" onclick="handlePort(this)" ontouchend="event.preventDefault(); handlePort(this)">
         <span class="port-label">${p}</span>
         <span class="port-circle" id="port_${id}_${p}"></span>
       </div>`;
@@ -902,7 +918,16 @@
   }
 
   // ─── PRESETS ───
-  function loadPreset(name) {
+  async function loadPreset(name) {
+    // Ensure audio context is running (required on mobile)
+    if (Tone.context.state !== 'running') {
+      await Tone.start();
+      document.getElementById('startAudioBtn').textContent = '◈ Audio Running';
+      document.getElementById('startAudioBtn').classList.add('active');
+      document.getElementById('startAudioBtn').classList.remove('start-audio');
+      audioStatusEl.textContent = '◈ audio running';
+      audioStatusEl.classList.add('running');
+    }
     clearAll();
     if (name === 'drone') {
       const osc = addModule('oscillator', 60, 40);
