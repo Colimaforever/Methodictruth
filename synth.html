@@ -448,7 +448,7 @@
      MODULAR SYNTH ENGINE — methodictruth.com
      ═══════════════════════════════════════════════ */
 
-  const canvas = document.getElementById('synthCanvas');
+  const synthCanvas = document.getElementById('synthCanvas');
   const patchSvg = document.getElementById('patchSvg');
   const audioStatusEl = document.getElementById('audioStatus');
 
@@ -663,7 +663,7 @@
     const id = 'mod_' + (moduleIdCounter++);
 
     // Default position
-    if (x === undefined) x = 60 + Math.random() * (canvas.clientWidth - 300);
+    if (x === undefined) x = 60 + Math.random() * (synthCanvas.clientWidth - 300);
     if (y === undefined) y = 20 + Math.random() * 200;
 
     // Collect default params
@@ -726,7 +726,7 @@
 
     html += `</div>`;
     el.innerHTML = html;
-    canvas.appendChild(el);
+    synthCanvas.appendChild(el);
 
     modules[id] = { id, type, def, params, audio, el };
     setupDrag(el, id);
@@ -858,7 +858,7 @@
       const toCircle = document.getElementById(`port_${cable.to.moduleId}_${cable.to.portName}`);
       if (!fromCircle || !toCircle) return;
 
-      const canvasRect = canvas.getBoundingClientRect();
+      const canvasRect = synthCanvas.getBoundingClientRect();
       const fromRect = fromCircle.getBoundingClientRect();
       const toRect = toCircle.getBoundingClientRect();
 
