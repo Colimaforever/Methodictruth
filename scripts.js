@@ -1,10 +1,10 @@
 // ─── MUSIC PLAYER ───
 const playlist = [
-  { title: 'Masked Ball · Jocelyn Pook', src: 'audio/eyes-wide-shut-ritual.mp3' },
   { title: 'Maqam Hejaz', src: 'audio/maqam-hejaz.ogg' },
   { title: 'Maqam Rast', src: 'audio/maqam-rast.ogg' },
   { title: 'Chahargah', src: 'audio/chahargah.ogg' },
   { title: 'Moqaddameh: Tchekad', src: 'audio/moqaddameh-tchekad.mp3' },
+  { title: 'Masked Ball · Jocelyn Pook', src: 'audio/eyes-wide-shut-ritual.mp3' },
   { title: 'Sudden Truths', src: 'audio/sudden-truths.mp3' },
 ];
 
@@ -614,23 +614,24 @@ startPlaying = function(seekTo) {
 };
 
 // ─── STARFIELD RENDERER ───
-const canvas = document.getElementById('stars');
-const ctx = canvas.getContext('2d');
+const _starCanvas = document.getElementById('stars');
+const _starCtx = _starCanvas ? _starCanvas.getContext('2d') : null;
 let stars = [];
 
 function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  if (!_starCanvas) return;
+  _starCanvas.width = window.innerWidth;
+  _starCanvas.height = window.innerHeight;
   initStars();
 }
 
 function initStars() {
   stars = [];
-  const count = Math.floor((canvas.width * canvas.height) / 2000);
+  const count = Math.floor((_starCanvas.width * _starCanvas.height) / 2000);
   for (let i = 0; i < count; i++) {
     stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
+      x: Math.random() * _starCanvas.width,
+      y: Math.random() * _starCanvas.height,
       size: Math.random() * 1.5 + 0.3,
       opacity: Math.random() * 0.8 + 0.2,
       twinkleSpeed: Math.random() * 0.02 + 0.005,
@@ -642,39 +643,42 @@ function initStars() {
 }
 
 function drawStars(time) {
+  if (!_starCanvas || !_starCtx) return;
   if (document.hidden) { requestAnimationFrame(drawStars); return; }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  _starCtx.clearRect(0, 0, _starCanvas.width, _starCanvas.height);
   
   stars.forEach(star => {
     const twinkle = Math.sin(time * star.twinkleSpeed + star.twinkleOffset);
     const opacity = star.opacity * (0.6 + twinkle * 0.4);
     
     if (star.warm) {
-      ctx.fillStyle = `rgba(232, 168, 124, ${opacity})`;
+      _starCtx.fillStyle = `rgba(232, 168, 124, ${opacity})`;
     } else if (star.blue) {
-      ctx.fillStyle = `rgba(140, 180, 255, ${opacity})`;
+      _starCtx.fillStyle = `rgba(140, 180, 255, ${opacity})`;
     } else {
-      ctx.fillStyle = `rgba(240, 232, 216, ${opacity})`;
+      _starCtx.fillStyle = `rgba(240, 232, 216, ${opacity})`;
     }
     
-    ctx.beginPath();
-    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-    ctx.fill();
+    _starCtx.beginPath();
+    _starCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+    _starCtx.fill();
     
     if (star.size > 1.2) {
-      ctx.fillStyle = `rgba(240, 232, 216, ${opacity * 0.15})`;
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, star.size * 3, 0, Math.PI * 2);
-      ctx.fill();
+      _starCtx.fillStyle = `rgba(240, 232, 216, ${opacity * 0.15})`;
+      _starCtx.beginPath();
+      _starCtx.arc(star.x, star.y, star.size * 3, 0, Math.PI * 2);
+      _starCtx.fill();
     }
   });
 
   requestAnimationFrame(drawStars);
 }
 
-window.addEventListener('resize', resize);
-resize();
-requestAnimationFrame(drawStars);
+if (_starCanvas && _starCtx) {
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(drawStars);
+}
 
 // ─── MOBILE NAV TOGGLE ───
 (function() {
