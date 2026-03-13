@@ -423,17 +423,63 @@
     // Provide peer-like object for synth jam compatibility
     const peer = { get id() { return myPeerId; }, get destroyed() { return !myPeerId; } };
 
-    // ICE servers — STUN + Metered TURN
-    const ICE_SERVERS = [
+    // ICE servers — generated dynamically with TURN credentials
+    let ICE_SERVERS = [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
       { urls: 'stun:stun.cloudflare.com:3478' },
-      { urls: 'turn:a.relay.metered.ca:80', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
-      { urls: 'turn:a.relay.metered.ca:80?transport=tcp', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
-      { urls: 'turn:a.relay.metered.ca:443', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
-      { urls: 'turn:a.relay.metered.ca:443?transport=tcp', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
-      { urls: 'turns:a.relay.metered.ca:443?transport=tcp', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
     ];
+
+    // Generate HMAC-SHA1 TURN credentials from secret (standard coturn REST API mechanism)
+    async function generateTurnCredentials() {
+      const secret = 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-';
+      const ttl = 86400; // 24h
+      const timestamp = Math.floor(Date.now() / 1000) + ttl;
+      const username = timestamp.toString();
+
+      // HMAC-SHA1(secret, username) → base64
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+      const sig = await crypto.subtle.sign('HMAC', key, enc.encode(username));
+      const credential = btoa(String.fromCharCode(...new Uint8Array(sig)));
+
+      const turnServers = [
+        { urls: 'turn:a.relay.metered.ca:80', username, credential },
+        { urls: 'turn:a.relay.metered.ca:80?transport=tcp', username, credential },
+        { urls: 'turn:a.relay.metered.ca:443', username, credential },
+        { urls: 'turn:a.relay.metered.ca:443?transport=tcp', username, credential },
+        { urls: 'turns:a.relay.metered.ca:443?transport=tcp', username, credential },
+      ];
+      ICE_SERVERS = ICE_SERVERS.concat(turnServers);
+      logDebug('TURN credentials generated (' + turnServers.length + ' servers)');
+
+      // Test TURN connectivity
+      try {
+        const testPc = new RTCPeerConnection({ iceServers: turnServers });
+        testPc.createDataChannel('test');
+        const offer = await testPc.createOffer();
+        await testPc.setLocalDescription(offer);
+        await new Promise((resolve) => {
+          let found = false;
+          testPc.onicecandidate = (e) => {
+            if (e.candidate) {
+              if (e.candidate.candidate.includes('relay')) {
+                logDebug('✅ TURN relay available!');
+                found = true;
+                resolve();
+              } else if (e.candidate.candidate.includes('srflx')) {
+                logDebug('STUN reflexive candidate OK');
+              }
+            }
+          };
+          setTimeout(() => {
+            if (!found) logDebug('⚠️ No TURN relay candidates (STUN only)');
+            resolve();
+          }, 5000);
+        });
+        testPc.close();
+      } catch(e) { logDebug('TURN test error: ' + e.message); }
+    }
 
     // Connection diagnostics — shown directly on screen
     function showConnectionState(remotePeerId, state) {
@@ -478,6 +524,9 @@
       username = usernameInput.value.trim() || 'Wanderer';
       localStorage.setItem('live-username', username);
       localName.textContent = username;
+
+      // Generate TURN credentials first
+      await generateTurnCredentials();
 
       try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -621,9 +670,9 @@
 
       // When we receive remote tracks
       pc.ontrack = (e) => {
-        console.log('[Live] Got remote track from', remotePeerId);
+        logDebug('🎥 Got track from ' + remotePeerId.substr(0,6) + ' kind=' + e.track.kind + ' streams=' + e.streams.length);
         const remoteStream = e.streams[0];
-        if (!remoteStream) return;
+        if (!remoteStream) { logDebug('⚠️ No stream in ontrack event!'); return; }
 
         if (peers[remotePeerId] && peers[remotePeerId].tile) {
           peers[remotePeerId].tile.querySelector('video').srcObject = remoteStream;
