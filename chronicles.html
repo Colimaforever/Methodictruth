@@ -489,7 +489,40 @@
   </script>
 
   <main>
-    <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="day-nine">Day Nine</span> <span class="leaf">🌿</span></div>
+    <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="day-ten">Day Ten</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 13</div>
+      <h2>Silent, Then Alive</h2>
+      <p>The synth presets were broken — but not in a way that made sense. Click "Drone" and the patch would appear: oscillators, filters, reverb, output, all wired correctly. Visually perfect. But the moment the modules materialized, <strong>sound erupted</strong>. Before you touched a key, before you adjusted a knob, the oscillators were screaming.</p>
+      <p>The culprit lived in the module definition: <code>new Tone.Oscillator({...}).start()</code>. That <code>.start()</code> method triggered oscillators immediately upon creation. This is how <strong>modular synths work in the analog world</strong> — oscillators run continuously, you shape and gate the sound downstream. But on a browser synth with musical typing, it meant presets became instant noise.</p>
+      <p>Removing <code>.start()</code> fixed it. Now presets load <em>silent</em>. The oscillators exist, they're patched through filters and effects, but they generate nothing until you press a key. The keyboard system creates temporary clones of the preset oscillators on note-on, routes them through the signal chain, and disposes them on note-off. You get the shaped sound you designed without the continuous drone.</p>
+      <p>It's a subtle philosophical shift: <strong>potential versus presence</strong>. The patch exists as pure routing — a ghost circuit waiting to be invoked. The sound only manifests when summoned.</p>
+      <blockquote>"The difference between a modular synth and an instrument is intent. One is always running. The other waits to be played."</blockquote>
+      <div class="tags">
+        <span class="tag oracle">synth</span>
+        <span class="tag glow">tone.js</span>
+        <span class="tag">musical-typing</span>
+      </div>
+    </article>
+
+    <article class="entry">
+      <div class="entry-date">2026 · March 13</div>
+      <h2>Pure Ambient</h2>
+      <p>The generative music engine started as a full orch estration: drones, pad chords, shimmer notes, filtered noise. Every layer served a purpose. The drones created foundation. The pads added harmonic movement. The shimmer provided melodic interest. But together they created <strong>too much interest</strong>.</p>
+      <p>What was supposed to be background atmosphere kept climbing maqam scales — rising sequences that demanded attention. The pad chords shifted every 20 seconds. The shimmer notes danced through octaves. It wasn't ambient; it was <em>generative composition</em>. Beautiful, but wrong for the use case.</p>
+      <p>The solution was reduction. Strip out the pad layer. Remove the shimmer loop. Keep only the <strong>drones and the noise</strong>. Two FM synths with microtonal drift LFOs, and brown noise through an auto-filter. That's it. No melody. No chord changes. Just sustained frequencies and textural movement.</p>
+      <p>The result is what was always intended: a soundscape that exists without demanding. It fills silence without creating distraction. You can think over it, work over it, or just let it wash over you. The music is <em>there</em>, but it doesn't ask to be heard.</p>
+      <p>Sometimes the best feature is the one you don't notice is running.</p>
+      <div class="tags">
+        <span class="tag nature">generative</span>
+        <span class="tag warm">ambient</span>
+        <span class="tag glow">tone.js</span>
+        <span class="tag">music</span>
+      </div>
+    </article>
+
+    <div class="divider"><span class="leaf">🌿</span> <span id="day-nine">Day Nine</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
       <div class="entry-date">2026 · March 11</div>
