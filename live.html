@@ -423,14 +423,25 @@
     // Provide peer-like object for synth jam compatibility
     const peer = { get id() { return myPeerId; }, get destroyed() { return !myPeerId; } };
 
-    const ICE_SERVERS = [
+    // ICE servers — STUN for NAT discovery, TURN for relay fallback
+    // TURN credentials fetched dynamically from Metered API (free tier)
+    let ICE_SERVERS = [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' },
       { urls: 'stun:stun.cloudflare.com:3478' },
-      { urls: 'turn:staticauth.openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-      { urls: 'turn:staticauth.openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-      { urls: 'turn:staticauth.openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
     ];
+
+    // Connection diagnostics shown to user
+    function showConnectionState(remotePeerId, state) {
+      const name = (peers[remotePeerId] && peers[remotePeerId].username) || remotePeerId;
+      console.log('[Live] Connection to', name, ':', state);
+      if (state === 'checking') showToast('Connecting to ' + name + '...');
+      else if (state === 'connected' || state === 'completed') showToast('✓ Connected to ' + name);
+      else if (state === 'failed') showToast('✗ Connection to ' + name + ' failed — may need TURN server');
+    }
 
     const signalRef = db.ref('live-signal/' + ROOM_ID);
 
@@ -549,17 +560,20 @@
       };
 
       pc.oniceconnectionstatechange = () => {
-        console.log('[Live] ICE state with', remotePeerId, ':', pc.iceConnectionState);
-        if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
-          showToast((remoteUsername || 'Peer') + ' connected!');
+        showConnectionState(remotePeerId, pc.iceConnectionState);
+        if (pc.iceConnectionState === 'failed') {
+          // ICE restart — try to renegotiate
+          console.warn('[Live] ICE FAILED with', remotePeerId, '— attempting restart');
+          pc.restartIce();
+          pc.createOffer({ iceRestart: true }).then(offer => {
+            pc.setLocalDescription(offer);
+            sendSignal(remotePeerId, { type: 'offer', sdp: offer.sdp, username });
+          }).catch(e => console.error('[Live] ICE restart error:', e));
         }
-        if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
-          console.warn('[Live] ICE failed/disconnected with', remotePeerId);
-          // Try ICE restart
-          if (pc.iceConnectionState === 'failed') {
-            showToast('Reconnecting to ' + (remoteUsername || 'peer') + '...');
-          }
-        }
+      };
+
+      pc.onicegatheringstatechange = () => {
+        console.log('[Live] ICE gathering:', pc.iceGatheringState, 'for', remotePeerId);
       };
 
       // When we receive remote tracks
