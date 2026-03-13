@@ -91,6 +91,46 @@
       min-height: 1.2em; text-align: center;
     }
 
+    /* ─── STEP SEQUENCER ─── */
+    .live-seq-panel {
+      width: 100%; padding: 0.5rem; position: relative; z-index: 1;
+      background: rgba(10,14,26,0.7); border: 1px solid rgba(123,104,238,0.08);
+    }
+    .live-seq-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.2rem 0.3rem; margin-bottom: 0.3rem; flex-wrap: wrap; gap: 0.3rem;
+    }
+    .live-seq-transport { display: flex; gap: 0.3rem; align-items: center; }
+    .live-seq-grid {
+      display: flex; flex-direction: column; gap: 1px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .live-seq-row {
+      display: flex; align-items: center; gap: 1px; min-height: 28px;
+    }
+    .live-seq-label {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.45rem;
+      color: var(--stone-dark); min-width: 36px; text-align: right;
+      padding-right: 4px; letter-spacing: 0.05em; flex-shrink: 0;
+    }
+    .live-seq-cell {
+      flex: 1; min-width: 20px; height: 24px;
+      background: rgba(18,14,10,0.6); border: 1px solid rgba(138,126,107,0.06);
+      cursor: pointer; transition: all 0.1s; touch-action: manipulation;
+    }
+    .live-seq-cell:hover { border-color: rgba(0,229,255,0.2); }
+    .live-seq-cell.on { background: rgba(0,229,255,0.25); border-color: rgba(0,229,255,0.4); }
+    .live-seq-cell.beat { background: rgba(138,126,107,0.04); }
+    .live-seq-cell.playing { box-shadow: inset 0 0 8px rgba(0,229,255,0.5); }
+    .live-seq-step-indicator {
+      display: flex; gap: 1px; margin-left: 37px; margin-top: 2px;
+    }
+    .live-seq-step-dot {
+      flex: 1; min-width: 20px; height: 3px;
+      background: rgba(138,126,107,0.08); transition: background 0.05s;
+    }
+    .live-seq-step-dot.active { background: var(--glow); }
+
     .live-toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%); background: rgba(18,14,10,0.9); border: 1px solid rgba(0,229,255,0.3); color: var(--glow); font-family: 'JetBrains Mono',monospace; font-size: 0.7rem; padding: 0.5rem 1.2rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
     .live-toast.show { opacity: 1; }
   </style>
@@ -182,9 +222,9 @@
     </div>
   </nav>
 
-  <div class="page-header" style="padding:5.5rem 2rem 1.5rem;">
-    <h1>Live Room</h1>
-    <div class="subtitle">Communion Through the Ether</div>
+  <div class="page-header" style="padding:3.2rem 1rem 0.2rem;">
+    <h1 style="font-size:clamp(1.1rem,2.5vw,1.6rem);margin-bottom:0;">Live Room</h1>
+    <div class="subtitle" style="font-size:0.5rem;">Communion Through the Ether</div>
   </div>
 
   <main>
@@ -211,6 +251,7 @@
         <button id="canvasBtn" class="live-ctrl-btn" title="Collaborative Canvas">🖌 Canvas</button>
         <button id="djBtn" class="live-ctrl-btn" title="DJ Mode">🎵 DJ</button>
         <button id="synthBtn" class="live-ctrl-btn" title="Live Synth Jam">🎹 Synth</button>
+        <button id="seqBtn" class="live-ctrl-btn" title="Step Sequencer">⬡ Seq</button>
         <button id="shareBtn" class="live-ctrl-btn" title="Copy Room Link">🔗 Share</button>
         <button id="leaveBtn" class="live-ctrl-btn live-ctrl-leave" title="Leave Room">✕</button>
         <span id="peerCount" class="live-peer-count">1 soul</span>
@@ -273,6 +314,27 @@
           </div>
           <div id="liveSynthKeyboard" class="live-synth-keyboard"></div>
           <div id="liveSynthActivity" class="live-synth-activity"></div>
+        </div>
+
+        <!-- Step Sequencer -->
+        <div id="seqPanel" class="live-seq-panel" style="display:none;">
+          <div class="live-seq-header">
+            <span class="live-synth-title">⬡ Step Sequencer</span>
+            <div class="live-seq-transport">
+              <button id="seqPlayBtn" class="live-canvas-tool">▷</button>
+              <select id="seqBPM" class="live-dj-select">
+                <option value="80">80</option>
+                <option value="100">100</option>
+                <option value="120" selected>120</option>
+                <option value="140">140</option>
+                <option value="160">160</option>
+              </select>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.5rem;color:var(--stone-dark)">BPM</span>
+              <button id="seqClearBtn" class="live-canvas-tool">✕</button>
+            </div>
+          </div>
+          <div id="seqGrid" class="live-seq-grid"></div>
+          <div id="seqStepIndicator" class="live-seq-step-indicator"></div>
         </div>
 
         <!-- Collaborative Canvas -->
@@ -1108,6 +1170,219 @@
       showToast('Scale: ' + liveSynthScale.value);
     });
 
+    // ─── STEP SEQUENCER ───
+    const seqPanel = document.getElementById('seqPanel');
+    const seqBtnEl = document.getElementById('seqBtn');
+    const seqGrid = document.getElementById('seqGrid');
+    const seqPlayBtn = document.getElementById('seqPlayBtn');
+    const seqBPM = document.getElementById('seqBPM');
+    const seqClearBtn = document.getElementById('seqClearBtn');
+    const seqStepIndicator = document.getElementById('seqStepIndicator');
+    const seqRef = db.ref('live-seq/' + ROOM_ID);
+
+    let seqVisible = false;
+    let seqPlaying = false;
+    let seqStep = 0;
+    let seqInterval = null;
+    let seqSynths = {}; // row index → Tone.Synth
+
+    // 8 rows: kick, snare, hihat, perc, plus 4 melodic
+    const SEQ_ROWS = [
+      { name: 'KICK',  type: 'drum', freq: 60,  osc: 'sine',     env: { attack: 0.001, decay: 0.3, sustain: 0, release: 0.1 }, vol: -6 },
+      { name: 'SNARE', type: 'noise', freq: 200, osc: 'white',    env: { attack: 0.001, decay: 0.15, sustain: 0, release: 0.1 }, vol: -10 },
+      { name: 'HAT',   type: 'noise', freq: 800, osc: 'white',    env: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.02 }, vol: -14 },
+      { name: 'PERC',  type: 'drum', freq: 180,  osc: 'triangle', env: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.05 }, vol: -10 },
+      { name: 'C3',    type: 'tone', freq: 131,  osc: 'square',   env: { attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.2 }, vol: -12 },
+      { name: 'E3',    type: 'tone', freq: 165,  osc: 'square',   env: { attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.2 }, vol: -12 },
+      { name: 'G3',    type: 'tone', freq: 196,  osc: 'square',   env: { attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.2 }, vol: -12 },
+      { name: 'B3',    type: 'tone', freq: 247,  osc: 'square',   env: { attack: 0.01, decay: 0.2, sustain: 0.3, release: 0.2 }, vol: -12 },
+    ];
+    const SEQ_STEPS = 16;
+
+    // Grid state: seqState[row][step] = true/false
+    let seqState = SEQ_ROWS.map(() => new Array(SEQ_STEPS).fill(false));
+
+    seqBtnEl.addEventListener('click', () => {
+      seqVisible = !seqVisible;
+      seqPanel.style.display = seqVisible ? 'block' : 'none';
+      seqBtnEl.classList.toggle('active', seqVisible);
+      if (seqVisible && seqGrid.children.length === 0) initSequencer();
+    });
+
+    async function initSequencer() {
+      await Tone.start();
+
+      // Build synth for each row
+      const seqMaster = new Tone.Gain(0.7).toDestination();
+      SEQ_ROWS.forEach((row, i) => {
+        if (row.type === 'noise') {
+          const nf = new Tone.Filter(row.freq, 'highpass').connect(seqMaster);
+          const ns = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: row.env, volume: row.vol }).connect(nf);
+          seqSynths[i] = { synth: ns, type: 'noise' };
+        } else {
+          const s = new Tone.Synth({ oscillator: { type: row.osc }, envelope: row.env, volume: row.vol }).connect(seqMaster);
+          seqSynths[i] = { synth: s, type: 'tone', freq: row.freq };
+        }
+      });
+
+      // Build grid DOM
+      seqGrid.innerHTML = '';
+      SEQ_ROWS.forEach((row, r) => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'live-seq-row';
+        const label = document.createElement('div');
+        label.className = 'live-seq-label';
+        label.textContent = row.name;
+        rowEl.appendChild(label);
+        for (let s = 0; s < SEQ_STEPS; s++) {
+          const cell = document.createElement('div');
+          cell.className = 'live-seq-cell' + (s % 4 === 0 ? ' beat' : '');
+          cell.dataset.row = r;
+          cell.dataset.step = s;
+          cell.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            toggleCell(r, s);
+          });
+          rowEl.appendChild(cell);
+        }
+        seqGrid.appendChild(rowEl);
+      });
+
+      // Step indicator
+      seqStepIndicator.innerHTML = '';
+      for (let s = 0; s < SEQ_STEPS; s++) {
+        const dot = document.createElement('div');
+        dot.className = 'live-seq-step-dot';
+        dot.dataset.step = s;
+        seqStepIndicator.appendChild(dot);
+      }
+
+      // Sync from Firebase
+      seqRef.child('grid').on('value', snap => {
+        const remote = snap.val();
+        if (!remote) return;
+        for (let r = 0; r < SEQ_ROWS.length; r++) {
+          for (let s = 0; s < SEQ_STEPS; s++) {
+            const key = `${r}-${s}`;
+            const val = !!remote[key];
+            seqState[r][s] = val;
+            const cell = seqGrid.querySelector(`[data-row="${r}"][data-step="${s}"]`);
+            if (cell) cell.classList.toggle('on', val);
+          }
+        }
+      });
+
+      // Sync transport state
+      seqRef.child('transport').on('value', snap => {
+        const t = snap.val();
+        if (!t) return;
+        if (t.playing && !seqPlaying) startSeq(t.bpm || 120);
+        else if (!t.playing && seqPlaying) stopSeq();
+        if (t.bpm) seqBPM.value = t.bpm;
+      });
+    }
+
+    function toggleCell(r, s) {
+      seqState[r][s] = !seqState[r][s];
+      const cell = seqGrid.querySelector(`[data-row="${r}"][data-step="${s}"]`);
+      if (cell) cell.classList.toggle('on', seqState[r][s]);
+      // Sync to Firebase
+      seqRef.child('grid/' + r + '-' + s).set(seqState[r][s] || null);
+    }
+
+    function startSeq(bpm) {
+      if (seqPlaying) stopSeq();
+      seqPlaying = true;
+      seqStep = 0;
+      seqPlayBtn.textContent = '❚❚';
+      const stepMs = (60000 / bpm) / 4; // 16th notes
+      seqInterval = setInterval(() => {
+        // Clear previous step highlights
+        seqGrid.querySelectorAll('.playing').forEach(c => c.classList.remove('playing'));
+        seqStepIndicator.querySelectorAll('.active').forEach(d => d.classList.remove('active'));
+
+        // Highlight current step
+        const stepDot = seqStepIndicator.querySelector(`[data-step="${seqStep}"]`);
+        if (stepDot) stepDot.classList.add('active');
+
+        // Play active cells on this step
+        for (let r = 0; r < SEQ_ROWS.length; r++) {
+          const cell = seqGrid.querySelector(`[data-row="${r}"][data-step="${seqStep}"]`);
+          if (cell) cell.classList.add('playing');
+          if (seqState[r][seqStep]) {
+            const s = seqSynths[r];
+            if (s) {
+              if (s.type === 'noise') s.synth.triggerAttackRelease('16n');
+              else s.synth.triggerAttackRelease(s.freq, '16n');
+            }
+          }
+        }
+
+        seqStep = (seqStep + 1) % SEQ_STEPS;
+      }, stepMs);
+    }
+
+    function stopSeq() {
+      seqPlaying = false;
+      if (seqInterval) { clearInterval(seqInterval); seqInterval = null; }
+      seqPlayBtn.textContent = '▷';
+      seqGrid.querySelectorAll('.playing').forEach(c => c.classList.remove('playing'));
+      seqStepIndicator.querySelectorAll('.active').forEach(d => d.classList.remove('active'));
+    }
+
+    seqPlayBtn.addEventListener('click', () => {
+      const bpm = parseInt(seqBPM.value);
+      if (seqPlaying) {
+        seqRef.child('transport').set({ playing: false, bpm });
+        stopSeq();
+      } else {
+        seqRef.child('transport').set({ playing: true, bpm });
+        startSeq(bpm);
+      }
+    });
+
+    seqBPM.addEventListener('change', () => {
+      const bpm = parseInt(seqBPM.value);
+      if (seqPlaying) {
+        seqRef.child('transport').update({ bpm });
+        stopSeq();
+        startSeq(bpm);
+      }
+    });
+
+    seqClearBtn.addEventListener('click', () => {
+      seqState = SEQ_ROWS.map(() => new Array(SEQ_STEPS).fill(false));
+      seqRef.child('grid').remove();
+      seqGrid.querySelectorAll('.on').forEach(c => c.classList.remove('on'));
+    });
+
+    function cleanupSequencer() {
+      stopSeq();
+      seqRef.child('grid').off();
+      seqRef.child('transport').off();
+      Object.values(seqSynths).forEach(s => { try { s.synth.dispose(); } catch(e){} });
+      seqSynths = {};
+    }
+
+    // ─── AUDIO-REACTIVE VISUALS ───
+    let audioReactPulse = 0;
+    function pulseVisuals() {
+      audioReactPulse = 1;
+      const nebula = document.querySelector('.nebula');
+      if (nebula) {
+        nebula.style.transition = 'opacity 0.08s';
+        nebula.style.opacity = '0.4';
+        setTimeout(() => { nebula.style.transition = 'opacity 0.6s'; nebula.style.opacity = '0.15'; }, 80);
+      }
+    }
+
+    // Hook into synth and sequencer note triggers
+    const _origLocalNoteOn = localNoteOn;
+    localNoteOn = function(noteNum) {
+      pulseVisuals();
+      _origLocalNoteOn(noteNum);
+    };
+
     function cleanupLiveSynth() {
       if (peer && peer.id) synthRef.child('players/' + peer.id).remove();
       synthRef.child('notes').off();
@@ -1127,6 +1402,7 @@
       if (isDJ) { djRef.child('state').set({ playing: false }); djRef.child('claim').remove(); }
       stopDJEngine();
       cleanupLiveSynth();
+      cleanupSequencer();
       if (canvasCtx) { canvasRef.off(); }
       djRef.off();
       if (myRef) myRef.remove();
