@@ -34,6 +34,63 @@
     .live-dj-status { text-align: center; font-family: 'JetBrains Mono',monospace; font-size: 0.65rem; color: var(--glow-warm); padding: 0.4rem; opacity: 0.8; position: relative; z-index: 1; }
     .live-dj-controls { display: flex; gap: 0.5rem; justify-content: center; align-items: center; padding: 0.4rem; position: relative; z-index: 1; flex-wrap: wrap; }
     .live-dj-select { background: rgba(18,14,10,0.8); border: 1px solid rgba(138,126,107,0.2); color: var(--parchment); font-family: 'JetBrains Mono',monospace; font-size: 0.65rem; padding: 0.3rem 0.5rem; }
+    /* ─── LIVE SYNTH JAM ─── */
+    .live-synth-panel {
+      width: 100%; padding: 0.5rem; position: relative; z-index: 1;
+      background: rgba(10,14,26,0.7); border: 1px solid rgba(0,229,255,0.08);
+    }
+    .live-synth-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.3rem 0.5rem; margin-bottom: 0.3rem;
+    }
+    .live-synth-title {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.65rem;
+      color: var(--glow); letter-spacing: 0.1em;
+    }
+    .live-synth-players {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.5rem;
+      color: var(--stone-dark);
+    }
+    .live-synth-controls {
+      display: flex; gap: 0.4rem; align-items: center;
+      padding: 0.3rem 0.5rem; flex-wrap: wrap;
+    }
+    .live-synth-octave {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.6rem;
+      color: var(--stone); padding: 0.2rem 0.5rem;
+      border: 1px solid rgba(138,126,107,0.15); background: rgba(26,18,10,0.6);
+    }
+    .live-synth-keyboard {
+      display: flex; position: relative; height: 120px;
+      margin: 0.3rem 0; user-select: none; -webkit-user-select: none;
+      touch-action: none;
+    }
+    .live-synth-key {
+      flex: 1; border: 1px solid rgba(138,126,107,0.15);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 0.3rem; cursor: pointer; transition: all 0.1s;
+      font-family: 'JetBrains Mono',monospace; font-size: 0.45rem;
+      color: rgba(138,126,107,0.4); position: relative;
+    }
+    .live-synth-key.white {
+      background: rgba(240,232,216,0.08); z-index: 1;
+    }
+    .live-synth-key.black {
+      background: rgba(10,14,26,0.9); z-index: 2;
+      width: 60%; margin: 0 -3%; height: 65%;
+      border-color: rgba(0,229,255,0.08);
+    }
+    .live-synth-key.active { background: rgba(0,229,255,0.2); border-color: var(--glow); }
+    .live-synth-key .note-pip {
+      position: absolute; top: 4px; width: 6px; height: 6px;
+      border-radius: 50%; opacity: 0.8;
+    }
+    .live-synth-activity {
+      font-family: 'JetBrains Mono',monospace; font-size: 0.5rem;
+      color: var(--stone-dark); padding: 0.2rem 0.5rem;
+      min-height: 1.2em; text-align: center;
+    }
+
     .live-toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%); background: rgba(18,14,10,0.9); border: 1px solid rgba(0,229,255,0.3); color: var(--glow); font-family: 'JetBrains Mono',monospace; font-size: 0.7rem; padding: 0.5rem 1.2rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
     .live-toast.show { opacity: 1; }
   </style>
@@ -153,6 +210,7 @@
         <button id="screenBtn" class="live-ctrl-btn" title="Share Screen">🖥 Screen</button>
         <button id="canvasBtn" class="live-ctrl-btn" title="Collaborative Canvas">🖌 Canvas</button>
         <button id="djBtn" class="live-ctrl-btn" title="DJ Mode">🎵 DJ</button>
+        <button id="synthBtn" class="live-ctrl-btn" title="Live Synth Jam">🎹 Synth</button>
         <button id="shareBtn" class="live-ctrl-btn" title="Copy Room Link">🔗 Share</button>
         <button id="leaveBtn" class="live-ctrl-btn live-ctrl-leave" title="Leave Room">✕</button>
         <span id="peerCount" class="live-peer-count">1 soul</span>
@@ -185,6 +243,36 @@
             <video id="localVideo" autoplay muted playsinline></video>
             <span class="live-tile-name" id="localName">You</span>
           </div>
+        </div>
+
+        <!-- Live Synth Jam Panel -->
+        <div id="synthPanel" class="live-synth-panel" style="display:none;">
+          <div class="live-synth-header">
+            <span class="live-synth-title">🎹 Live Synth Jam</span>
+            <span id="synthPlayers" class="live-synth-players"></span>
+          </div>
+          <div class="live-synth-controls">
+            <select id="liveSynthPreset" class="live-dj-select">
+              <option value="pad">Pad</option>
+              <option value="lead">Lead</option>
+              <option value="bass">Bass</option>
+              <option value="pluck">Pluck</option>
+              <option value="drone">Drone</option>
+              <option value="organ">Organ</option>
+              <option value="wobble">Wobble</option>
+            </select>
+            <select id="liveSynthScale" class="live-dj-select">
+              <option value="chromatic">Chromatic</option>
+              <option value="hijaz">Hijaz</option>
+              <option value="rast">Rast</option>
+              <option value="minor">Minor</option>
+              <option value="major">Major</option>
+              <option value="pentatonic">Pentatonic</option>
+            </select>
+            <span id="liveSynthOctaveDisplay" class="live-synth-octave">Oct: 4</span>
+          </div>
+          <div id="liveSynthKeyboard" class="live-synth-keyboard"></div>
+          <div id="liveSynthActivity" class="live-synth-activity"></div>
         </div>
 
         <!-- Collaborative Canvas -->
@@ -744,6 +832,293 @@
       if (!isDJ) djPlayBtn.textContent = '▷ Play';
     }
 
+    // ─── LIVE SYNTH JAM ───
+    const synthPanel = document.getElementById('synthPanel');
+    const synthBtnEl = document.getElementById('synthBtn');
+    const liveSynthKeyboard = document.getElementById('liveSynthKeyboard');
+    const liveSynthPreset = document.getElementById('liveSynthPreset');
+    const liveSynthScale = document.getElementById('liveSynthScale');
+    const liveSynthActivity = document.getElementById('liveSynthActivity');
+    const synthPlayers = document.getElementById('synthPlayers');
+    const liveSynthOctaveDisplay = document.getElementById('liveSynthOctaveDisplay');
+    const synthRef = db.ref('live-synth/' + ROOM_ID);
+
+    let synthVisible = false;
+    let liveSynth = null; // Tone.js PolySynth
+    let liveSynthReverb = null;
+    let liveSynthGain = null;
+    let liveSynthOctave = 4;
+    const liveActiveNotes = new Map(); // noteNum → { key element }
+    const PLAYER_COLORS = ['#00e5ff','#e8a87c','#7b68ee','#4ade80','#f472b6','#facc15','#fb923c','#a78bfa'];
+
+    // Scale definitions for constraining notes
+    const LIVE_SCALES = {
+      chromatic: null, // no constraint
+      hijaz:     [0, 1, 4, 5, 7, 8, 10],
+      rast:      [0, 2, 3, 5, 7, 9, 10],
+      minor:     [0, 2, 3, 5, 7, 8, 10],
+      major:     [0, 2, 4, 5, 7, 9, 11],
+      pentatonic:[0, 2, 4, 7, 9],
+    };
+
+    // Preset definitions (Tone.js synth configs)
+    const LIVE_PRESETS = {
+      pad:    { type: 'fatsawtooth', envelope: { attack: 0.8, decay: 0.3, sustain: 0.7, release: 1.5 }, volume: -12 },
+      lead:   { type: 'square', envelope: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 0.5 }, volume: -10 },
+      bass:   { type: 'sawtooth', envelope: { attack: 0.01, decay: 0.2, sustain: 0.8, release: 0.3 }, volume: -8 },
+      pluck:  { type: 'triangle', envelope: { attack: 0.001, decay: 0.4, sustain: 0, release: 0.3 }, volume: -10 },
+      drone:  { type: 'sine', envelope: { attack: 2, decay: 0.5, sustain: 1, release: 3 }, volume: -14 },
+      organ:  { type: 'sine', envelope: { attack: 0.05, decay: 0.1, sustain: 0.9, release: 0.2 }, volume: -10 },
+      wobble: { type: 'sawtooth', envelope: { attack: 0.01, decay: 0.5, sustain: 0.6, release: 0.4 }, volume: -10 },
+    };
+
+    function midiToFreq(n) { return 440 * Math.pow(2, (n - 69) / 12); }
+    function noteNumToName(n) {
+      const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+      return names[n % 12] + Math.floor(n / 12 - 1);
+    }
+
+    // Get a color for a peer based on their ID
+    function peerColor(peerId) {
+      let hash = 0;
+      for (let i = 0; i < peerId.length; i++) hash = ((hash << 5) - hash) + peerId.charCodeAt(i);
+      return PLAYER_COLORS[Math.abs(hash) % PLAYER_COLORS.length];
+    }
+
+    synthBtnEl.addEventListener('click', () => {
+      synthVisible = !synthVisible;
+      synthPanel.style.display = synthVisible ? 'block' : 'none';
+      synthBtnEl.classList.toggle('active', synthVisible);
+      if (synthVisible && !liveSynth) initLiveSynth();
+    });
+
+    async function initLiveSynth() {
+      await Tone.start();
+      buildLiveSynth('pad');
+      buildKeyboard();
+
+      // Listen for remote note events
+      synthRef.child('notes').on('child_added', snap => {
+        const data = snap.val();
+        if (!data || data.peerId === (peer && peer.id)) return; // skip own echoes
+        if (data.type === 'on') {
+          playRemoteNote(data.note, data.vel || 0.5, data.peerId, data.username);
+          highlightKey(data.note, true, peerColor(data.peerId));
+        } else {
+          releaseRemoteNote(data.note, data.peerId);
+          highlightKey(data.note, false);
+        }
+        // Clean up old events
+        snap.ref.remove();
+      });
+
+      // Track who has synth open
+      if (peer && peer.id) {
+        synthRef.child('players/' + peer.id).set({ username, color: peerColor(peer.id) });
+        synthRef.child('players/' + peer.id).onDisconnect().remove();
+      }
+
+      // Listen for player count
+      synthRef.child('players').on('value', snap => {
+        const players = snap.val();
+        if (!players) { synthPlayers.textContent = ''; return; }
+        const names = Object.values(players).map(p => p.username);
+        synthPlayers.textContent = names.length + ' playing';
+      });
+    }
+
+    function buildLiveSynth(presetName) {
+      // Dispose old synth
+      if (liveSynth) { try { liveSynth.dispose(); } catch(e){} }
+      if (liveSynthReverb) { try { liveSynthReverb.dispose(); } catch(e){} }
+      if (liveSynthGain) { try { liveSynthGain.dispose(); } catch(e){} }
+
+      const preset = LIVE_PRESETS[presetName] || LIVE_PRESETS.pad;
+      liveSynthGain = new Tone.Gain(0.6).toDestination();
+      liveSynthReverb = new Tone.Reverb({ decay: 4, wet: 0.4 }).connect(liveSynthGain);
+      liveSynth = new Tone.PolySynth(Tone.Synth, {
+        maxPolyphony: 8,
+        oscillator: { type: preset.type },
+        envelope: preset.envelope,
+        volume: preset.volume,
+      }).connect(liveSynthReverb);
+    }
+
+    // Remote note tracking
+    const remoteNotes = new Map(); // `${peerId}-${note}` → Tone.Synth
+
+    function playRemoteNote(noteNum, vel, peerId, remoteName) {
+      const key = `${peerId}-${noteNum}`;
+      if (remoteNotes.has(key)) return;
+      const preset = LIVE_PRESETS[liveSynthPreset.value] || LIVE_PRESETS.pad;
+      const synth = new Tone.Synth({
+        oscillator: { type: preset.type },
+        envelope: preset.envelope,
+        volume: preset.volume - 4,
+      }).connect(liveSynthReverb);
+      synth.triggerAttack(midiToFreq(noteNum), undefined, vel);
+      remoteNotes.set(key, synth);
+      liveSynthActivity.textContent = (remoteName || 'Someone') + ' → ' + noteNumToName(noteNum);
+    }
+
+    function releaseRemoteNote(noteNum, peerId) {
+      const key = `${peerId}-${noteNum}`;
+      const synth = remoteNotes.get(key);
+      if (synth) {
+        synth.triggerRelease();
+        setTimeout(() => { try { synth.dispose(); } catch(e){} }, 2000);
+        remoteNotes.delete(key);
+      }
+    }
+
+    // Build on-screen keyboard
+    function buildKeyboard() {
+      liveSynthKeyboard.innerHTML = '';
+      const scale = LIVE_SCALES[liveSynthScale.value];
+      const baseNote = (liveSynthOctave + 1) * 12; // C of selected octave
+
+      // Build 2 octaves of keys
+      for (let oct = 0; oct < 2; oct++) {
+        for (let i = 0; i < 12; i++) {
+          const semitone = oct * 12 + i;
+          const noteNum = baseNote + semitone;
+          const isBlack = [1,3,6,8,10].includes(i);
+
+          // If scale is set, skip notes not in the scale
+          if (scale && !scale.includes(i)) continue;
+
+          const key = document.createElement('div');
+          key.className = 'live-synth-key ' + (isBlack ? 'black' : 'white');
+          key.dataset.note = noteNum;
+          key.textContent = noteNumToName(noteNum);
+
+          // Touch events
+          key.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            localNoteOn(noteNum);
+          });
+          key.addEventListener('pointerup', (e) => {
+            e.preventDefault();
+            localNoteOff(noteNum);
+          });
+          key.addEventListener('pointerleave', (e) => {
+            if (liveActiveNotes.has(noteNum)) localNoteOff(noteNum);
+          });
+          // Support drag-playing across keys
+          key.addEventListener('pointerenter', (e) => {
+            if (e.buttons > 0) localNoteOn(noteNum);
+          });
+
+          liveSynthKeyboard.appendChild(key);
+        }
+      }
+    }
+
+    function localNoteOn(noteNum) {
+      if (liveActiveNotes.has(noteNum)) return;
+      liveActiveNotes.set(noteNum, true);
+      // Play locally
+      if (liveSynth) liveSynth.triggerAttack(midiToFreq(noteNum));
+      // Highlight
+      highlightKey(noteNum, true, peerColor(peer ? peer.id : 'local'));
+      // Broadcast
+      if (peer && peer.id) {
+        synthRef.child('notes').push({
+          type: 'on', note: noteNum, vel: 0.7,
+          peerId: peer.id, username,
+          ts: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
+    }
+
+    function localNoteOff(noteNum) {
+      if (!liveActiveNotes.has(noteNum)) return;
+      liveActiveNotes.delete(noteNum);
+      // Release locally
+      if (liveSynth) liveSynth.triggerRelease(midiToFreq(noteNum));
+      // Unhighlight
+      highlightKey(noteNum, false);
+      // Broadcast
+      if (peer && peer.id) {
+        synthRef.child('notes').push({
+          type: 'off', note: noteNum,
+          peerId: peer.id, username,
+          ts: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
+    }
+
+    function highlightKey(noteNum, on, color) {
+      const keyEl = liveSynthKeyboard.querySelector(`[data-note="${noteNum}"]`);
+      if (!keyEl) return;
+      if (on) {
+        keyEl.classList.add('active');
+        if (color) keyEl.style.borderColor = color;
+        // Add colored pip for remote players
+        if (color) {
+          let pip = keyEl.querySelector('.note-pip');
+          if (!pip) { pip = document.createElement('div'); pip.className = 'note-pip'; keyEl.appendChild(pip); }
+          pip.style.background = color;
+        }
+      } else {
+        keyEl.classList.remove('active');
+        keyEl.style.borderColor = '';
+        const pip = keyEl.querySelector('.note-pip');
+        if (pip) pip.remove();
+      }
+    }
+
+    // Computer keyboard support (same mapping as synth page)
+    const LIVE_KEY_MAP = {
+      'a':0,'w':1,'s':2,'e':3,'d':4,'f':5,'t':6,'g':7,'y':8,'h':9,'u':10,'j':11,'k':12,'o':13,'l':14
+    };
+    const liveHeldKeys = new Set();
+
+    document.addEventListener('keydown', (e) => {
+      if (!synthVisible || e.repeat) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      const key = e.key.toLowerCase();
+      if (key === 'z') { liveSynthOctave = Math.max(1, liveSynthOctave - 1); liveSynthOctaveDisplay.textContent = 'Oct: ' + liveSynthOctave; buildKeyboard(); return; }
+      if (key === 'x') { liveSynthOctave = Math.min(7, liveSynthOctave + 1); liveSynthOctaveDisplay.textContent = 'Oct: ' + liveSynthOctave; buildKeyboard(); return; }
+      if (LIVE_KEY_MAP[key] !== undefined && !liveHeldKeys.has(key)) {
+        liveHeldKeys.add(key);
+        const noteNum = (liveSynthOctave + 1) * 12 + LIVE_KEY_MAP[key];
+        localNoteOn(noteNum);
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (!synthVisible) return;
+      const key = e.key.toLowerCase();
+      if (LIVE_KEY_MAP[key] !== undefined && liveHeldKeys.has(key)) {
+        liveHeldKeys.delete(key);
+        const noteNum = (liveSynthOctave + 1) * 12 + LIVE_KEY_MAP[key];
+        localNoteOff(noteNum);
+      }
+    });
+
+    // Preset and scale changes
+    liveSynthPreset.addEventListener('change', () => {
+      buildLiveSynth(liveSynthPreset.value);
+      showToast('Synth: ' + liveSynthPreset.value);
+    });
+
+    liveSynthScale.addEventListener('change', () => {
+      buildKeyboard();
+      showToast('Scale: ' + liveSynthScale.value);
+    });
+
+    function cleanupLiveSynth() {
+      if (peer && peer.id) synthRef.child('players/' + peer.id).remove();
+      synthRef.child('notes').off();
+      synthRef.child('players').off();
+      remoteNotes.forEach((synth) => { try { synth.dispose(); } catch(e){} });
+      remoteNotes.clear();
+      if (liveSynth) { try { liveSynth.dispose(); } catch(e){} liveSynth = null; }
+      if (liveSynthReverb) { try { liveSynthReverb.dispose(); } catch(e){} liveSynthReverb = null; }
+      if (liveSynthGain) { try { liveSynthGain.dispose(); } catch(e){} liveSynthGain = null; }
+    }
+
     // ─── LEAVE / CLEANUP ───
     leaveBtn.addEventListener('click', leaveRoom);
     window.addEventListener('beforeunload', leaveRoom);
@@ -751,6 +1126,7 @@
     function leaveRoom() {
       if (isDJ) { djRef.child('state').set({ playing: false }); djRef.child('claim').remove(); }
       stopDJEngine();
+      cleanupLiveSynth();
       if (canvasCtx) { canvasRef.off(); }
       djRef.off();
       if (myRef) myRef.remove();
