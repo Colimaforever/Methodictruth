@@ -492,7 +492,7 @@
         { id: 'detune', type: 'range', min: -100, max: 100, default: 0, step: 1, label: 'Detune', unit: 'ct' },
       ],
       create(params) {
-        const osc = new Tone.Oscillator({ type: params.type, frequency: params.frequency, detune: params.detune }).start();
+        const osc = new Tone.Oscillator({ type: params.type, frequency: params.frequency, detune: params.detune });
         return { node: osc, out: osc };
       },
       update(audio, key, val) {
@@ -606,7 +606,7 @@
         { id: 'type', type: 'select', options: ['white','pink','brown'], default: 'white', label: 'Type' },
       ],
       create(params) {
-        const n = new Tone.Noise({ type: params.type }).start();
+        const n = new Tone.Noise({ type: params.type });
         return { node: n, out: n };
       },
       update(audio, key, val) {
