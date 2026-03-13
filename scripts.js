@@ -1,6 +1,5 @@
 // ─── MUSIC PLAYER ───
 const playlist = [
-  { title: 'Maqam Hejaz', src: 'audio/maqam-hejaz.ogg' },
   { title: 'Maqam Rast', src: 'audio/maqam-rast.ogg' },
   { title: 'Chahargah', src: 'audio/chahargah.ogg' },
   { title: 'Moqaddameh: Tchekad', src: 'audio/moqaddameh-tchekad.mp3' },
@@ -175,15 +174,13 @@ function maqamFreq(scale, degree, octave) {
 }
 
 function handleTrackEnded() {
-  // Flow: Tchekad (0) → generative → Sudden Truths (1)
-  if (currentTrack === 0) {
-    // After first track, start generative engine
-    startGenerativeEngine();
-  } else {
-    // After last track, loop back to beginning
-    loadTrack(0);
-    startPlaying();
+  // Auto-advance to next track in playlist
+  currentTrack++;
+  if (currentTrack >= playlist.length) {
+    currentTrack = 0; // Loop back to start of playlist
   }
+  loadTrack(currentTrack);
+  startPlaying();
 }
 
 function handlePrev() {
@@ -477,8 +474,8 @@ if (saved && saved.generative && saved.playing) {
       playerStatus.textContent = '◇ tap ▷ to resume';
     }
   } else if (!saved) {
-    // Try autoplay — if blocked (iOS), first interaction handler will start it
-    startPlaying();
+    // Default: start generative engine (ambient soundscape)
+    startGenerativeEngine();
   }
 }
 // Mark as interacted if autoplay succeeded
