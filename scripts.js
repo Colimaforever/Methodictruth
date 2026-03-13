@@ -48,10 +48,11 @@ const musicPlayer = document.getElementById('musicPlayer');
 const volumeSlider = document.getElementById('volumeSlider');
 
 // Restore state from localStorage
+// Only restore volume — always start fresh at track 0 + generative engine
 const saved = JSON.parse(localStorage.getItem('musicState') || 'null');
-if (saved) {
-  currentTrack = saved.track || 0;
-  currentVolume = saved.volume != null ? saved.volume : 0.4;
+currentTrack = 0;
+if (saved && saved.volume != null) {
+  currentVolume = saved.volume;
   audio.volume = currentVolume;
   if (volumeSlider) volumeSlider.value = currentVolume * 100;
 } else {
