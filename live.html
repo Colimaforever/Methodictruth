@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=52">
-  <script src="lib/peerjs.min.js"></script>
+  <!-- PeerJS removed — using pure WebRTC + Firebase signaling -->
   <style>
     .live-room-body { display: flex; gap: 1rem; position: relative; z-index: 1; flex-wrap: wrap; }
     .live-grid { flex: 1; min-width: min(280px, 100%); }
@@ -413,21 +413,34 @@
     const sharedCanvas = document.getElementById('sharedCanvas');
     const liveToast = document.getElementById('liveToast');
 
-    let peer = null;
     let localStream = null;
     let myRef = null;
+    let myPeerId = null;
     let username = '';
     let isMuted = false;
     let isCamOff = false;
-    const peers = {}; // peerId -> { call, conn, tile }
+    const peers = {}; // peerId -> { pc, tile, dataChannel }
+    // Provide peer-like object for synth jam compatibility
+    const peer = { get id() { return myPeerId; }, get destroyed() { return !myPeerId; } };
+
+    const ICE_SERVERS = [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun.cloudflare.com:3478' },
+      { urls: 'turn:staticauth.openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:staticauth.openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:staticauth.openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+    ];
+
+    const signalRef = db.ref('live-signal/' + ROOM_ID);
 
     function makePeerId() {
-      return ROOM_ID + '-' + Math.random().toString(36).substr(2, 9);
+      return 'p-' + Math.random().toString(36).substr(2, 9);
     }
 
     // Restore saved username
-    const saved = localStorage.getItem('live-username');
-    if (saved) usernameInput.value = saved;
+    const savedName = localStorage.getItem('live-username');
+    if (savedName) usernameInput.value = savedName;
 
     joinBtn.addEventListener('click', joinRoom);
     usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinRoom(); });
@@ -448,128 +461,109 @@
       joinScreen.style.display = 'none';
       roomScreen.style.display = 'block';
 
-      peer = new Peer(makePeerId(), {
-        debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun.cloudflare.com:3478' },
-            { urls: 'turn:staticauth.openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-            { urls: 'turn:staticauth.openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-            { urls: 'turn:staticauth.openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
-            { urls: 'turns:staticauth.openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
-          ]
+      myPeerId = makePeerId();
+      console.log('[Live] My peer ID:', myPeerId);
+      showToast('Joining room...');
+
+      // Register in Firebase
+      myRef = roomRef.child(myPeerId);
+      myRef.set({ username, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+      myRef.onDisconnect().remove();
+
+      // Clean up our signals on disconnect
+      signalRef.child(myPeerId).onDisconnect().remove();
+
+      // Listen for incoming signaling messages TO us
+      signalRef.child(myPeerId).on('child_added', async (snap) => {
+        const remotePeerId = snap.key;
+        const data = snap.val();
+        if (!data) return;
+        console.log('[Live] Signal from', remotePeerId, ':', data.type);
+
+        if (data.type === 'offer') {
+          await handleOffer(remotePeerId, data);
+        } else if (data.type === 'answer') {
+          await handleAnswer(remotePeerId, data);
+        } else if (data.type === 'ice') {
+          await handleIceCandidate(remotePeerId, data);
         }
       });
 
-      peer.on('open', (id) => {
-        console.log('[Live] PeerJS open, id:', id);
-        showToast('Connected to signaling server');
-
-        // Register in Firebase so other peers can find us
-        myRef = roomRef.child(id);
-        myRef.set({ username, joinedAt: firebase.database.ServerValue.TIMESTAMP });
-        // Remove our entry when we disconnect
-        myRef.onDisconnect().remove();
-
-        // Listen for all peers in the room
-        roomRef.on('child_added', (snap) => {
-          const remotePeerId = snap.key;
-          if (remotePeerId === id) return; // skip self
-          console.log('[Live] Peer discovered:', remotePeerId, snap.val().username);
-          showToast(snap.val().username + ' joined');
-          connectToPeer(remotePeerId, snap.val().username);
-        });
-
-        // Clean up when a peer leaves
-        roomRef.on('child_removed', (snap) => {
-          console.log('[Live] Peer left:', snap.key);
-          removePeer(snap.key);
-        });
-
-        updatePeerCount();
-      });
-
-      peer.on('call', (call) => {
-        call.answer(localStream);
-        handleCall(call);
-      });
-
-      peer.on('connection', (conn) => {
-        handleDataConnection(conn);
-      });
-
-      peer.on('error', (err) => {
-        console.error('PeerJS error:', err);
-        if (err.type === 'peer-unavailable') {
-          // Remote peer went away — will be cleaned up by Firebase child_removed
-          return;
-        }
-        if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') {
-          showToast('Connection issue — reconnecting...');
-          setTimeout(() => {
-            if (peer && peer.destroyed) {
-              // Peer was destroyed, try to rejoin
-              leaveRoom();
-              joinRoom();
-            }
-          }, 3000);
+      // Also listen for ICE updates on existing signal entries
+      signalRef.child(myPeerId).on('child_changed', async (snap) => {
+        const remotePeerId = snap.key;
+        const data = snap.val();
+        if (!data) return;
+        if (data.type === 'answer') {
+          await handleAnswer(remotePeerId, data);
+        } else if (data.type === 'ice') {
+          await handleIceCandidate(remotePeerId, data);
         }
       });
 
-      peer.on('disconnected', () => {
-        // PeerJS lost connection to signaling server — try to reconnect
-        console.warn('PeerJS disconnected from signaling server, reconnecting...');
-        showToast('Reconnecting...');
-        setTimeout(() => {
-          if (peer && !peer.destroyed) {
-            try { peer.reconnect(); } catch(e) { console.error('Reconnect failed:', e); }
+      // Listen for all peers in the room
+      roomRef.on('child_added', (snap) => {
+        const remotePeerId = snap.key;
+        if (remotePeerId === myPeerId) return;
+        const remoteData = snap.val();
+        console.log('[Live] Peer discovered:', remotePeerId, remoteData.username);
+        showToast((remoteData.username || 'Someone') + ' joined');
+
+        // Only the peer with the "lower" ID initiates the call (avoids double-calling)
+        if (myPeerId < remotePeerId) {
+          initiateCall(remotePeerId, remoteData.username);
+        }
+      });
+
+      roomRef.on('child_removed', (snap) => {
+        console.log('[Live] Peer left:', snap.key);
+        removePeer(snap.key);
+        // Clean up their signals
+        signalRef.child(myPeerId).child(snap.key).remove();
+      });
+
+      showToast('Connected — waiting for others');
+      updatePeerCount();
+    }
+
+    function createPeerConnection(remotePeerId, remoteUsername) {
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+
+      // Add our local tracks
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+      // ICE candidate handling — send to remote via Firebase
+      const iceCandidates = [];
+      pc.onicecandidate = (e) => {
+        if (e.candidate) {
+          iceCandidates.push(e.candidate.toJSON());
+          // Batch ICE candidates by writing the array
+          signalRef.child(remotePeerId).child(myPeerId).update({
+            type: 'ice', candidates: iceCandidates
+          });
+        }
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        console.log('[Live] ICE state with', remotePeerId, ':', pc.iceConnectionState);
+        if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+          showToast((remoteUsername || 'Peer') + ' connected!');
+        }
+        if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+          console.warn('[Live] ICE failed/disconnected with', remotePeerId);
+          // Try ICE restart
+          if (pc.iceConnectionState === 'failed') {
+            showToast('Reconnecting to ' + (remoteUsername || 'peer') + '...');
           }
-        }, 2000);
-      });
-    }
-
-    function connectToPeer(remotePeerId, remoteUsername) {
-      if (peers[remotePeerId] || remotePeerId === peer.id) return;
-
-      // Data connection for metadata
-      const conn = peer.connect(remotePeerId, { metadata: { username } });
-      conn.on('open', () => {
-        conn.send({ type: 'hello', username });
-      });
-      handleDataConnection(conn);
-
-      // Media call
-      const call = peer.call(remotePeerId, localStream, { metadata: { username } });
-      handleCall(call, remoteUsername);
-    }
-
-    function handleDataConnection(conn) {
-      const remotePeerId = conn.peer;
-
-      conn.on('data', (data) => {
-        if ((data.type === 'hello' || data.type === 'username') && peers[remotePeerId] && peers[remotePeerId].tile) {
-          peers[remotePeerId].tile.querySelector('.live-tile-name').textContent = data.username || 'Unknown';
         }
-      });
+      };
 
-      conn.on('open', () => {
-        conn.send({ type: 'username', username });
-      });
+      // When we receive remote tracks
+      pc.ontrack = (e) => {
+        console.log('[Live] Got remote track from', remotePeerId);
+        const remoteStream = e.streams[0];
+        if (!remoteStream) return;
 
-      if (!peers[remotePeerId]) {
-        peers[remotePeerId] = { conn };
-      } else {
-        peers[remotePeerId].conn = conn;
-      }
-    }
-
-    function handleCall(call, fallbackName) {
-      const remotePeerId = call.peer;
-      const remoteUsername = (call.metadata && call.metadata.username) || fallbackName || 'Unknown';
-
-      call.on('stream', (remoteStream) => {
         if (peers[remotePeerId] && peers[remotePeerId].tile) {
           peers[remotePeerId].tile.querySelector('video').srcObject = remoteStream;
           return;
@@ -577,26 +571,95 @@
 
         const tile = document.createElement('div');
         tile.className = 'live-tile';
-        tile.innerHTML = `<video autoplay playsinline></video><span class="live-tile-name">${escapeHtml(remoteUsername)}</span>`;
+        tile.innerHTML = `<video autoplay playsinline></video><span class="live-tile-name">${escapeHtml(remoteUsername || 'Unknown')}</span>`;
         tile.querySelector('video').srcObject = remoteStream;
         videoGrid.appendChild(tile);
 
         if (!peers[remotePeerId]) peers[remotePeerId] = {};
-        peers[remotePeerId].call = call;
         peers[remotePeerId].tile = tile;
         updatePeerCount();
+      };
+
+      if (!peers[remotePeerId]) peers[remotePeerId] = {};
+      peers[remotePeerId].pc = pc;
+      peers[remotePeerId].username = remoteUsername;
+
+      return pc;
+    }
+
+    async function initiateCall(remotePeerId, remoteUsername) {
+      if (peers[remotePeerId] && peers[remotePeerId].pc) return; // already connected
+      console.log('[Live] Initiating call to', remotePeerId);
+
+      const pc = createPeerConnection(remotePeerId, remoteUsername);
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      // Send offer via Firebase
+      signalRef.child(remotePeerId).child(myPeerId).set({
+        type: 'offer',
+        sdp: offer.sdp,
+        username: username
+      });
+    }
+
+    async function handleOffer(remotePeerId, data) {
+      console.log('[Live] Handling offer from', remotePeerId);
+
+      // Look up their username from the room
+      let remoteUsername = data.username || 'Unknown';
+
+      const pc = createPeerConnection(remotePeerId, remoteUsername);
+      await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: data.sdp }));
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      // Send answer back
+      signalRef.child(remotePeerId).child(myPeerId).set({
+        type: 'answer',
+        sdp: answer.sdp,
+        username: username
       });
 
-      call.on('close', () => {
-        removePeer(remotePeerId);
-      });
+      // Apply any ICE candidates we already received
+      if (data.candidates) {
+        for (const c of data.candidates) {
+          try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { console.warn('[Live] ICE add error:', e); }
+        }
+      }
+    }
+
+    async function handleAnswer(remotePeerId, data) {
+      const p = peers[remotePeerId];
+      if (!p || !p.pc) return;
+      if (p.pc.signalingState === 'stable') return; // already handled
+      console.log('[Live] Handling answer from', remotePeerId);
+
+      await p.pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
+
+      // Apply any ICE candidates
+      if (data.candidates) {
+        for (const c of data.candidates) {
+          try { await p.pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { console.warn('[Live] ICE add error:', e); }
+        }
+      }
+    }
+
+    async function handleIceCandidate(remotePeerId, data) {
+      const p = peers[remotePeerId];
+      if (!p || !p.pc) return;
+      if (data.candidates) {
+        for (const c of data.candidates) {
+          try { await p.pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { console.warn('[Live] ICE add error:', e); }
+        }
+      }
     }
 
     function removePeer(peerId) {
       if (peers[peerId]) {
         if (peers[peerId].tile) peers[peerId].tile.remove();
-        if (peers[peerId].call) peers[peerId].call.close();
-        if (peers[peerId].conn) peers[peerId].conn.close();
+        if (peers[peerId].pc) { try { peers[peerId].pc.close(); } catch(e){} }
         delete peers[peerId];
         updatePeerCount();
       }
@@ -644,8 +707,8 @@
         localVideo.srcObject = localStream;
         // Replace track on all peer connections
         Object.values(peers).forEach(p => {
-          if (p.call && p.call.peerConnection) {
-            const sender = p.call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (p.pc) {
+            const sender = p.pc.getSenders().find(s => s.track && s.track.kind === 'video');
             if (sender) sender.replaceTrack(screenTrack);
           }
         });
@@ -664,8 +727,8 @@
       localStream.addTrack(originalVideoTrack);
       localVideo.srcObject = localStream;
       Object.values(peers).forEach(p => {
-        if (p.call && p.call.peerConnection) {
-          const sender = p.call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+        if (p.pc) {
+          const sender = p.pc.getSenders().find(s => s.track && s.track.kind === 'video');
           if (sender) sender.replaceTrack(originalVideoTrack);
         }
       });
@@ -1450,11 +1513,12 @@
       if (canvasCtx) { canvasRef.off(); }
       djRef.off();
       if (myRef) myRef.remove();
+      if (myPeerId) { signalRef.child(myPeerId).remove(); }
+      signalRef.child(myPeerId).off();
       roomRef.off();
       Object.keys(peers).forEach(removePeer);
       if (localStream) localStream.getTracks().forEach(t => t.stop());
-      if (peer) peer.destroy();
-      peer = null; myRef = null;
+      myPeerId = null; myRef = null;
       roomScreen.style.display = 'none';
       joinScreen.style.display = 'block';
       localVideo.srcObject = null;
