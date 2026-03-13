@@ -386,7 +386,7 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const roomRef = db.ref('live-room');
+    const roomRef = db.ref('live-room/' + ROOM_ID);
 
     const joinScreen = document.getElementById('joinScreen');
     const roomScreen = document.getElementById('roomScreen');
@@ -448,9 +448,25 @@
       joinScreen.style.display = 'none';
       roomScreen.style.display = 'block';
 
-      peer = new Peer(makePeerId(), { debug: 0 });
+      peer = new Peer(makePeerId(), {
+        debug: 1,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun.cloudflare.com:3478' },
+            { urls: 'turn:staticauth.openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+            { urls: 'turn:staticauth.openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+            { urls: 'turn:staticauth.openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+            { urls: 'turns:staticauth.openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+          ]
+        }
+      });
 
       peer.on('open', (id) => {
+        console.log('[Live] PeerJS open, id:', id);
+        showToast('Connected to signaling server');
+
         // Register in Firebase so other peers can find us
         myRef = roomRef.child(id);
         myRef.set({ username, joinedAt: firebase.database.ServerValue.TIMESTAMP });
@@ -461,11 +477,14 @@
         roomRef.on('child_added', (snap) => {
           const remotePeerId = snap.key;
           if (remotePeerId === id) return; // skip self
+          console.log('[Live] Peer discovered:', remotePeerId, snap.val().username);
+          showToast(snap.val().username + ' joined');
           connectToPeer(remotePeerId, snap.val().username);
         });
 
         // Clean up when a peer leaves
         roomRef.on('child_removed', (snap) => {
+          console.log('[Live] Peer left:', snap.key);
           removePeer(snap.key);
         });
 
@@ -483,6 +502,31 @@
 
       peer.on('error', (err) => {
         console.error('PeerJS error:', err);
+        if (err.type === 'peer-unavailable') {
+          // Remote peer went away — will be cleaned up by Firebase child_removed
+          return;
+        }
+        if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') {
+          showToast('Connection issue — reconnecting...');
+          setTimeout(() => {
+            if (peer && peer.destroyed) {
+              // Peer was destroyed, try to rejoin
+              leaveRoom();
+              joinRoom();
+            }
+          }, 3000);
+        }
+      });
+
+      peer.on('disconnected', () => {
+        // PeerJS lost connection to signaling server — try to reconnect
+        console.warn('PeerJS disconnected from signaling server, reconnecting...');
+        showToast('Reconnecting...');
+        setTimeout(() => {
+          if (peer && !peer.destroyed) {
+            try { peer.reconnect(); } catch(e) { console.error('Reconnect failed:', e); }
+          }
+        }, 2000);
       });
     }
 
