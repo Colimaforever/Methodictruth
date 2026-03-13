@@ -447,37 +447,9 @@ function stopGenerativeEngine() {
   genActive = false;
 }
 
-// Initialize: restore from saved state or start fresh
-if (saved && saved.generative && saved.playing) {
-  // Was in generative mode — restore it
-  const stateAge = saved.ts ? Date.now() - saved.ts : Infinity;
-  if (stateAge < 30000) {
-    currentMaqamIndex = saved.maqamIndex || 0;
-    startGenerativeEngine();
-  } else {
-    // Stale — show resume prompt
-    loadTrack(currentTrack);
-    playerStatus.textContent = '◇ tap ▷ to resume';
-  }
-} else if (playlist.length > 0) {
-  loadTrack(currentTrack);
-  if (saved && saved.playing) {
-    const stateAge = saved.ts ? Date.now() - saved.ts : Infinity;
-    const seekTime = saved.time || 0;
-    if (stateAge < 30000) {
-      startPlaying(seekTime);
-    } else {
-      audio.src = playlist[currentTrack].src;
-      audio.addEventListener('loadedmetadata', () => {
-        audio.currentTime = seekTime;
-      }, { once: true });
-      playerStatus.textContent = '◇ tap ▷ to resume';
-    }
-  } else if (!saved) {
-    // Default: start generative engine (ambient soundscape)
-    startGenerativeEngine();
-  }
-}
+// Initialize: always start with generative engine (ambient soundscape)
+// Saved state ignored — fresh start every session
+startGenerativeEngine();
 // Mark as interacted if autoplay succeeded
 audio.addEventListener('playing', () => { hasInteracted = true; }, { once: true });
 
