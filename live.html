@@ -423,24 +423,42 @@
     // Provide peer-like object for synth jam compatibility
     const peer = { get id() { return myPeerId; }, get destroyed() { return !myPeerId; } };
 
-    // ICE servers — STUN for NAT discovery, TURN for relay fallback
-    // TURN credentials fetched dynamically from Metered API (free tier)
-    let ICE_SERVERS = [
+    // ICE servers — STUN + Metered TURN
+    const ICE_SERVERS = [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:stun3.l.google.com:19302' },
-      { urls: 'stun:stun4.l.google.com:19302' },
       { urls: 'stun:stun.cloudflare.com:3478' },
+      { urls: 'turn:a.relay.metered.ca:80', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
+      { urls: 'turn:a.relay.metered.ca:80?transport=tcp', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
+      { urls: 'turn:a.relay.metered.ca:443', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
+      { urls: 'turn:a.relay.metered.ca:443?transport=tcp', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
+      { urls: 'turns:a.relay.metered.ca:443?transport=tcp', username: 'e1879e4ae5e930124aecebf9', credential: 'gku1L_FBQLHjPDY_0dcgTQP6jlE42lVOPO2wdO2OWCukMjk-' },
     ];
 
-    // Connection diagnostics shown to user
+    // Connection diagnostics — shown directly on screen
     function showConnectionState(remotePeerId, state) {
       const name = (peers[remotePeerId] && peers[remotePeerId].username) || remotePeerId;
-      console.log('[Live] Connection to', name, ':', state);
-      if (state === 'checking') showToast('Connecting to ' + name + '...');
-      else if (state === 'connected' || state === 'completed') showToast('✓ Connected to ' + name);
-      else if (state === 'failed') showToast('✗ Connection to ' + name + ' failed — may need TURN server');
+      console.log('[Live] ICE:', name, '→', state);
+      const msg = {
+        'new': '⏳ ' + name + ': initializing...',
+        'checking': '🔄 ' + name + ': connecting...',
+        'connected': '✅ ' + name + ': connected!',
+        'completed': '✅ ' + name + ': connected!',
+        'failed': '❌ ' + name + ': connection FAILED',
+        'disconnected': '⚠️ ' + name + ': disconnected',
+        'closed': '🔴 ' + name + ': closed',
+      }[state] || (name + ': ' + state);
+      showToast(msg);
+      // Also show in debug div
+      let dbg = document.getElementById('liveDebug');
+      if (!dbg) {
+        dbg = document.createElement('div');
+        dbg.id = 'liveDebug';
+        dbg.style.cssText = 'position:fixed;bottom:8px;left:8px;font:0.5rem JetBrains Mono,monospace;color:#00e5ff;background:rgba(0,0,0,0.8);padding:4px 8px;z-index:9999;max-width:90vw;max-height:30vh;overflow:auto;border:1px solid rgba(0,229,255,0.2);';
+        document.body.appendChild(dbg);
+      }
+      dbg.innerHTML += msg + '<br>';
+      dbg.scrollTop = dbg.scrollHeight;
     }
 
     const signalRef = db.ref('live-signal/' + ROOM_ID);
@@ -476,6 +494,20 @@
       console.log('[Live] My peer ID:', myPeerId);
       showToast('Joining room...');
 
+      // Clean stale room entries (older than 60s with no heartbeat)
+      const now = Date.now();
+      roomRef.once('value', snap => {
+        if (!snap.exists()) return;
+        snap.forEach(child => {
+          const data = child.val();
+          if (data.joinedAt && (now - data.joinedAt > 120000)) {
+            logDebug('Cleaning stale peer: ' + child.key);
+            roomRef.child(child.key).remove();
+            signalRef.child(child.key).remove();
+          }
+        });
+      });
+
       // Register in Firebase
       myRef = roomRef.child(myPeerId);
       myRef.set({ username, joinedAt: firebase.database.ServerValue.TIMESTAMP });
@@ -495,7 +527,7 @@
         while (signalQueue.length > 0) {
           const { msg, ref } = signalQueue.shift();
           const remotePeerId = msg.from;
-          console.log('[Live] Processing signal:', msg.type, 'from', remotePeerId);
+          logDebug('Recv ' + msg.type + ' from ' + remotePeerId.substr(0,6));
           try {
             if (msg.type === 'offer') await handleOffer(remotePeerId, msg);
             else if (msg.type === 'answer') await handleAnswer(remotePeerId, msg);
@@ -539,10 +571,17 @@
       updatePeerCount();
     }
 
+    function logDebug(msg) {
+      console.log('[Live]', msg);
+      let dbg = document.getElementById('liveDebug');
+      if (dbg) { dbg.innerHTML += '→ ' + msg + '<br>'; dbg.scrollTop = dbg.scrollHeight; }
+    }
+
     // Send a signaling message to a remote peer (push to their queue)
     function sendSignal(toPeerId, msg) {
       msg.from = myPeerId;
       msg.ts = firebase.database.ServerValue.TIMESTAMP;
+      logDebug('Sending ' + msg.type + ' to ' + toPeerId.substr(0,6));
       signalRef.child(toPeerId).push(msg);
     }
 
@@ -573,7 +612,11 @@
       };
 
       pc.onicegatheringstatechange = () => {
-        console.log('[Live] ICE gathering:', pc.iceGatheringState, 'for', remotePeerId);
+        logDebug('ICE gather: ' + pc.iceGatheringState);
+      };
+
+      pc.onsignalingstatechange = () => {
+        logDebug('Signaling: ' + pc.signalingState);
       };
 
       // When we receive remote tracks
