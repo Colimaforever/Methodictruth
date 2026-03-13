@@ -473,32 +473,11 @@
       // Clean up our signals on disconnect
       signalRef.child(myPeerId).onDisconnect().remove();
 
-      // Listen for incoming signaling messages TO us
-      signalRef.child(myPeerId).on('child_added', async (snap) => {
+      // Listen for incoming signaling messages TO us (separate paths for offer/answer/ice)
+      signalRef.child(myPeerId).on('child_added', (snap) => {
         const remotePeerId = snap.key;
-        const data = snap.val();
-        if (!data) return;
-        console.log('[Live] Signal from', remotePeerId, ':', data.type);
-
-        if (data.type === 'offer') {
-          await handleOffer(remotePeerId, data);
-        } else if (data.type === 'answer') {
-          await handleAnswer(remotePeerId, data);
-        } else if (data.type === 'ice') {
-          await handleIceCandidate(remotePeerId, data);
-        }
-      });
-
-      // Also listen for ICE updates on existing signal entries
-      signalRef.child(myPeerId).on('child_changed', async (snap) => {
-        const remotePeerId = snap.key;
-        const data = snap.val();
-        if (!data) return;
-        if (data.type === 'answer') {
-          await handleAnswer(remotePeerId, data);
-        } else if (data.type === 'ice') {
-          await handleIceCandidate(remotePeerId, data);
-        }
+        // Listen to sub-paths for this remote peer
+        listenForSignals(remotePeerId);
       });
 
       // Listen for all peers in the room
@@ -526,20 +505,47 @@
       updatePeerCount();
     }
 
+    const listeningTo = new Set();
+    function listenForSignals(remotePeerId) {
+      if (listeningTo.has(remotePeerId)) return;
+      listeningTo.add(remotePeerId);
+      const sigPath = signalRef.child(myPeerId).child(remotePeerId);
+
+      sigPath.child('offer').on('value', async (snap) => {
+        const data = snap.val();
+        if (!data || !data.sdp) return;
+        console.log('[Live] Got offer from', remotePeerId);
+        await handleOffer(remotePeerId, data);
+      });
+
+      sigPath.child('answer').on('value', async (snap) => {
+        const data = snap.val();
+        if (!data || !data.sdp) return;
+        console.log('[Live] Got answer from', remotePeerId);
+        await handleAnswer(remotePeerId, data);
+      });
+
+      sigPath.child('ice').on('value', async (snap) => {
+        const data = snap.val();
+        if (!data || !data.candidates) return;
+        console.log('[Live] Got ICE from', remotePeerId, ':', data.candidates.length, 'candidates');
+        await handleIceCandidate(remotePeerId, data);
+      });
+    }
+
     function createPeerConnection(remotePeerId, remoteUsername) {
       const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
 
       // Add our local tracks
       localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 
-      // ICE candidate handling — send to remote via Firebase
+      // ICE candidate handling — send to remote via Firebase (separate path)
       const iceCandidates = [];
       pc.onicecandidate = (e) => {
         if (e.candidate) {
           iceCandidates.push(e.candidate.toJSON());
-          // Batch ICE candidates by writing the array
-          signalRef.child(remotePeerId).child(myPeerId).update({
-            type: 'ice', candidates: iceCandidates
+          signalRef.child(remotePeerId).child(myPeerId).child('ice').set({
+            candidates: iceCandidates
           });
         }
       };
@@ -595,9 +601,8 @@
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      // Send offer via Firebase
-      signalRef.child(remotePeerId).child(myPeerId).set({
-        type: 'offer',
+      // Send offer via Firebase (separate sub-path)
+      signalRef.child(remotePeerId).child(myPeerId).child('offer').set({
         sdp: offer.sdp,
         username: username
       });
@@ -615,44 +620,45 @@
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
 
-      // Send answer back
-      signalRef.child(remotePeerId).child(myPeerId).set({
-        type: 'answer',
+      // Send answer back (separate sub-path)
+      signalRef.child(remotePeerId).child(myPeerId).child('answer').set({
         sdp: answer.sdp,
         username: username
       });
-
-      // Apply any ICE candidates we already received
-      if (data.candidates) {
-        for (const c of data.candidates) {
-          try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { console.warn('[Live] ICE add error:', e); }
-        }
-      }
     }
 
     async function handleAnswer(remotePeerId, data) {
       const p = peers[remotePeerId];
       if (!p || !p.pc) return;
       if (p.pc.signalingState === 'stable') return; // already handled
-      console.log('[Live] Handling answer from', remotePeerId);
 
-      await p.pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
-
-      // Apply any ICE candidates
-      if (data.candidates) {
-        for (const c of data.candidates) {
-          try { await p.pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { console.warn('[Live] ICE add error:', e); }
+      try {
+        await p.pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
+        console.log('[Live] Remote description set for', remotePeerId);
+        // Flush any queued ICE candidates
+        if (p.pendingIce) {
+          for (const c of p.pendingIce) {
+            try { await p.pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {}
+          }
+          p.pendingIce = null;
         }
-      }
+      } catch(e) { console.error('[Live] setRemoteDescription error:', e); }
     }
 
     async function handleIceCandidate(remotePeerId, data) {
       const p = peers[remotePeerId];
       if (!p || !p.pc) return;
-      if (data.candidates) {
-        for (const c of data.candidates) {
-          try { await p.pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { console.warn('[Live] ICE add error:', e); }
-        }
+      if (!data.candidates) return;
+
+      // If remote description isn't set yet, queue the candidates
+      if (!p.pc.remoteDescription || !p.pc.remoteDescription.type) {
+        p.pendingIce = (p.pendingIce || []).concat(data.candidates);
+        console.log('[Live] Queuing', data.candidates.length, 'ICE candidates for', remotePeerId);
+        return;
+      }
+
+      for (const c of data.candidates) {
+        try { await p.pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) { console.warn('[Live] ICE error:', e); }
       }
     }
 
@@ -1513,8 +1519,15 @@
       if (canvasCtx) { canvasRef.off(); }
       djRef.off();
       if (myRef) myRef.remove();
-      if (myPeerId) { signalRef.child(myPeerId).remove(); }
-      signalRef.child(myPeerId).off();
+      if (myPeerId) {
+        signalRef.child(myPeerId).off();
+        signalRef.child(myPeerId).remove();
+        // Clean up signal entries we wrote to others
+        listeningTo.forEach(rp => {
+          signalRef.child(rp).child(myPeerId).remove();
+        });
+        listeningTo.clear();
+      }
       roomRef.off();
       Object.keys(peers).forEach(removePeer);
       if (localStream) localStream.getTracks().forEach(t => t.stop());
