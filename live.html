@@ -470,22 +470,37 @@
       myRef.set({ username, joinedAt: firebase.database.ServerValue.TIMESTAMP });
       myRef.onDisconnect().remove();
 
-      // Clean up our signals on disconnect
+      // Clean stale signals and set up disconnect cleanup
+      signalRef.child(myPeerId).remove(); // clear any old messages from crashed sessions
       signalRef.child(myPeerId).onDisconnect().remove();
 
+      // Serialized signal processing queue (prevents race conditions)
+      const signalQueue = [];
+      let processingSignal = false;
+
+      async function processSignalQueue() {
+        if (processingSignal) return;
+        processingSignal = true;
+        while (signalQueue.length > 0) {
+          const { msg, ref } = signalQueue.shift();
+          const remotePeerId = msg.from;
+          console.log('[Live] Processing signal:', msg.type, 'from', remotePeerId);
+          try {
+            if (msg.type === 'offer') await handleOffer(remotePeerId, msg);
+            else if (msg.type === 'answer') await handleAnswer(remotePeerId, msg);
+            else if (msg.type === 'ice') await handleIceCandidate(remotePeerId, msg);
+          } catch(e) { console.error('[Live] Signal error:', e); }
+          ref.remove();
+        }
+        processingSignal = false;
+      }
+
       // Listen for ALL incoming signaling messages addressed to us
-      signalRef.child(myPeerId).on('child_added', async (snap) => {
+      signalRef.child(myPeerId).on('child_added', (snap) => {
         const msg = snap.val();
         if (!msg || !msg.from) return;
-        const remotePeerId = msg.from;
-        console.log('[Live] Signal msg:', msg.type, 'from', remotePeerId);
-        try {
-          if (msg.type === 'offer') await handleOffer(remotePeerId, msg);
-          else if (msg.type === 'answer') await handleAnswer(remotePeerId, msg);
-          else if (msg.type === 'ice') await handleIceCandidate(remotePeerId, msg);
-        } catch(e) { console.error('[Live] Signal handling error:', e); }
-        // Delete processed message
-        snap.ref.remove();
+        signalQueue.push({ msg, ref: snap.ref });
+        processSignalQueue();
       });
 
       // Listen for all peers in the room
@@ -602,9 +617,20 @@
       let remoteUsername = data.username || 'Unknown';
       const pc = createPeerConnection(remotePeerId, remoteUsername);
       await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: data.sdp }));
+      console.log('[Live] Set remote desc (offer) for', remotePeerId);
+
+      // Flush any ICE candidates that arrived before remote desc was set
+      const p = peers[remotePeerId];
+      if (p && p.pendingIce) {
+        for (const c of p.pendingIce) {
+          try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {}
+        }
+        p.pendingIce = null;
+      }
 
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
+      console.log('[Live] Sending answer to', remotePeerId);
 
       // Send answer back via Firebase message queue
       sendSignal(remotePeerId, { type: 'answer', sdp: answer.sdp, username });
