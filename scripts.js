@@ -333,23 +333,7 @@ async function startGenerativeEngine() {
     return lfo;
   });
 
-  // Pad layer
-  eng.pad = new Tone.PolySynth(Tone.FMSynth, {
-    maxPolyphony: 4,
-    harmonicity: 2,
-    modulationIndex: 1,
-    envelope: { attack: 6, decay: 2, sustain: 0.8, release: 8 },
-    oscillator: { type: 'triangle' }
-  }).connect(eng.reverb);
-  eng.pad.volume.value = -22;
-
-  // Shimmer layer
-  eng.shimmer = new Tone.AMSynth({
-    harmonicity: 3,
-    envelope: { attack: 0.3, decay: 2, sustain: 0, release: 3 },
-    oscillator: { type: 'sine' }
-  }).connect(eng.reverb);
-  eng.shimmer.volume.value = -28;
+  // Pad and shimmer layers removed — pure drone ambient mode
 
   // Texture layer - filtered noise
   eng.noise = new Tone.Noise('brown').start();
@@ -357,25 +341,8 @@ async function startGenerativeEngine() {
   eng.noiseFilter = new Tone.AutoFilter({ frequency: 0.05, baseFrequency: 200, octaves: 3, wet: 1 }).connect(eng.reverb).start();
   eng.noise.connect(eng.noiseFilter);
 
-  // Schedule pad chord changes
+  // Pure ambient mode — drones and noise only, no melodic sequences
   eng.currentScale = scale;
-  eng.padLoop = new Tone.Loop((time) => {
-    const s = eng.currentScale;
-    const root = Math.floor(Math.random() * 3); // 0,1,2 degree
-    const chord = [0, 2, 4].map(d => maqamFreq(s, root + d, 3));
-    eng.pad.triggerAttackRelease(chord, '12s', time);
-  }, 20);
-  eng.padLoop.start(0);
-
-  // Schedule shimmer notes
-  eng.shimmerLoop = new Tone.Loop((time) => {
-    const s = eng.currentScale;
-    const deg = Math.floor(Math.random() * s.notes.length);
-    const freq = maqamFreq(s, deg, 5 + Math.floor(Math.random() * 2));
-    eng.shimmer.triggerAttackRelease(freq, '2s', time, 0.3 + Math.random() * 0.3);
-  }, 5);
-  eng.shimmerLoop.start(0);
-  eng.shimmerLoop.humanize = '2s';
 
   // Maqam rotation every 2-5 min
   eng.maqamRotation = setInterval(() => {
@@ -437,11 +404,9 @@ function stopGenerativeEngine() {
   ['drones', 'droneLFOs'].forEach(key => {
     if (genEngine[key]) genEngine[key].forEach(n => n.dispose());
   });
-  ['pad', 'shimmer', 'noise', 'noiseFilter', 'reverb', 'compressor', 'masterGain'].forEach(key => {
+  ['noise', 'noiseFilter', 'reverb', 'compressor', 'masterGain'].forEach(key => {
     if (genEngine[key]) genEngine[key].dispose();
   });
-  if (genEngine.padLoop) genEngine.padLoop.dispose();
-  if (genEngine.shimmerLoop) genEngine.shimmerLoop.dispose();
   if (genEngine.analyser) genEngine.analyser.dispose();
   genEngine = null;
   genActive = false;
