@@ -331,7 +331,84 @@ async function startGenerativeEngine() {
     return lfo;
   });
 
-  // Pad and shimmer layers removed — pure drone ambient mode
+  // ─── STRING PAD LAYER ─── slow evolving maqam chords
+  eng.stringPad = new Tone.PolySynth(Tone.FMSynth, {
+    maxPolyphony: 4,
+    voice: {
+      harmonicity: 2,
+      modulationIndex: 0.3,
+      envelope: { attack: 6, decay: 2, sustain: 0.7, release: 8 },
+      modulation: { type: 'triangle' },
+      oscillator: { type: 'sawtooth4' }
+    }
+  }).connect(eng.reverb);
+  eng.stringPad.volume.value = -24;
+
+  // String pad chord changes — every 15-30s, play 2-3 notes from scale
+  eng.stringLoop = setInterval(() => {
+    if (!genActive || !eng.stringPad) return;
+    const s = eng.currentScale;
+    eng.stringPad.releaseAll();
+    const numNotes = 2 + Math.floor(Math.random() * 2); // 2-3 notes
+    const degrees = [];
+    while (degrees.length < numNotes) {
+      const d = Math.floor(Math.random() * s.notes.length);
+      if (!degrees.includes(d)) degrees.push(d);
+    }
+    const freqs = degrees.map(d => maqamFreq(s, d, 2 + Math.floor(Math.random() * 2)));
+    const dur = 12 + Math.random() * 8;
+    freqs.forEach(f => eng.stringPad.triggerAttackRelease(f, dur));
+  }, (15 + Math.random() * 15) * 1000);
+
+  // ─── MELODIC PLUCK LAYER ─── sparse contemplative single notes
+  eng.pluck = new Tone.PluckSynth({
+    attackNoise: 1,
+    dampening: 2000,
+    resonance: 0.98
+  }).connect(eng.reverb);
+  eng.pluck.volume.value = -22;
+
+  eng.pluckLoop = setInterval(() => {
+    if (!genActive || !eng.pluck) return;
+    if (Math.random() > 0.6) return; // 40% chance to skip — keeps it sparse
+    const s = eng.currentScale;
+    const degree = Math.floor(Math.random() * s.notes.length);
+    const octave = 3 + Math.floor(Math.random() * 2);
+    eng.pluck.triggerAttack(maqamFreq(s, degree, octave));
+  }, (4 + Math.random() * 8) * 1000);
+
+  // ─── CELLO DRONE ─── deep sustained low register
+  eng.celloDrone = new Tone.FMSynth({
+    harmonicity: 1,
+    modulationIndex: 0.2,
+    envelope: { attack: 6, decay: 0, sustain: 1, release: 8 },
+    modulation: { type: 'sine' },
+    oscillator: { type: 'sawtooth4' }
+  }).connect(eng.reverb);
+  eng.celloDrone.volume.value = -26;
+  eng.celloDrone.triggerAttack(maqamFreq(scale, 0, 1)); // root, one octave below drones
+
+  eng.celloLFO = new Tone.LFO({ frequency: 0.02, min: -8, max: 8, type: 'sine' }).start();
+  eng.celloLFO.connect(eng.celloDrone.detune);
+
+  // ─── SHIMMER LAYER ─── high harmonics fading in/out
+  eng.shimmer = new Tone.FMSynth({
+    harmonicity: 3,
+    modulationIndex: 1,
+    envelope: { attack: 5, decay: 3, sustain: 0.3, release: 6 },
+    modulation: { type: 'sine' },
+    oscillator: { type: 'sine' }
+  }).connect(eng.reverb);
+  eng.shimmer.volume.value = -30;
+
+  eng.shimmerLoop = setInterval(() => {
+    if (!genActive || !eng.shimmer) return;
+    if (Math.random() > 0.5) return; // 50% skip
+    const s = eng.currentScale;
+    const degree = Math.floor(Math.random() * s.notes.length);
+    const freq = maqamFreq(s, degree, 4 + Math.floor(Math.random() * 2));
+    eng.shimmer.triggerAttackRelease(freq, 8 + Math.random() * 6);
+  }, (10 + Math.random() * 15) * 1000);
 
   // Texture layer - filtered noise
   eng.noise = new Tone.Noise('brown').start();
@@ -339,7 +416,6 @@ async function startGenerativeEngine() {
   eng.noiseFilter = new Tone.AutoFilter({ frequency: 0.05, baseFrequency: 200, octaves: 3, wet: 1 }).connect(eng.reverb).start();
   eng.noise.connect(eng.noiseFilter);
 
-  // Pure ambient mode — drones and noise only, no melodic sequences
   eng.currentScale = scale;
 
   // Maqam rotation every 2-5 min
@@ -368,6 +444,12 @@ function switchMaqam(index) {
   genEngine.drones.forEach((d, i) => {
     d.frequency.rampTo(newFreqs[i], 12);
   });
+  // Glide cello to new root
+  if (genEngine.celloDrone) {
+    genEngine.celloDrone.frequency.rampTo(maqamFreq(scale, 0, 1), 12);
+  }
+  // Release string pad so next chord uses new scale
+  if (genEngine.stringPad) genEngine.stringPad.releaseAll();
 }
 
 function pauseGenerativeEngine() {
@@ -376,8 +458,10 @@ function pauseGenerativeEngine() {
   // Immediately silence — don't rely on slow ramp
   genEngine.drones.forEach(d => { d.volume.cancelScheduledValues(Tone.now()); d.volume.value = -Infinity; });
   if (genEngine.noise) { genEngine.noise.volume.cancelScheduledValues(Tone.now()); genEngine.noise.volume.value = -Infinity; }
-  if (genEngine.pad) genEngine.pad.releaseAll();
+  if (genEngine.stringPad) genEngine.stringPad.releaseAll();
   if (genEngine.shimmer) genEngine.shimmer.triggerRelease();
+  if (genEngine.celloDrone) { genEngine.celloDrone.volume.cancelScheduledValues(Tone.now()); genEngine.celloDrone.volume.value = -Infinity; }
+  if (genEngine.pluck) { genEngine.pluck.volume.cancelScheduledValues(Tone.now()); genEngine.pluck.volume.value = -Infinity; }
   isPlaying = false;
   playBtn.textContent = '▷';
   playerStatus.textContent = '◇ paused';
@@ -389,6 +473,10 @@ function resumeGenerativeEngine() {
   Tone.Transport.start();
   genEngine.drones.forEach(d => d.volume.rampTo(-18, 1));
   if (genEngine.noise) genEngine.noise.volume.rampTo(-35, 1);
+  if (genEngine.celloDrone) genEngine.celloDrone.volume.rampTo(-26, 1);
+  if (genEngine.pluck) genEngine.pluck.volume.rampTo(-22, 1);
+  if (genEngine.stringPad) genEngine.stringPad.volume.rampTo(-24, 1);
+  if (genEngine.shimmer) genEngine.shimmer.volume.rampTo(-30, 1);
   setPlayingUI();
   playerStatus.textContent = '◈ generating';
 }
@@ -396,13 +484,16 @@ function resumeGenerativeEngine() {
 function stopGenerativeEngine() {
   if (!genEngine) return;
   if (genEngine.maqamRotation) clearInterval(genEngine.maqamRotation);
+  if (genEngine.stringLoop) clearInterval(genEngine.stringLoop);
+  if (genEngine.pluckLoop) clearInterval(genEngine.pluckLoop);
+  if (genEngine.shimmerLoop) clearInterval(genEngine.shimmerLoop);
   Tone.Transport.stop();
   Tone.Transport.cancel();
   // Dispose all nodes
   ['drones', 'droneLFOs'].forEach(key => {
     if (genEngine[key]) genEngine[key].forEach(n => n.dispose());
   });
-  ['noise', 'noiseFilter', 'reverb', 'compressor', 'masterGain'].forEach(key => {
+  ['stringPad', 'pluck', 'celloDrone', 'celloLFO', 'shimmer', 'noise', 'noiseFilter', 'reverb', 'compressor', 'masterGain'].forEach(key => {
     if (genEngine[key]) genEngine[key].dispose();
   });
   if (genEngine.analyser) genEngine.analyser.dispose();
