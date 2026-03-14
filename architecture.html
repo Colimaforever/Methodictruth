@@ -182,13 +182,12 @@
     @media (max-width: 768px) {
       .arch-container { padding: 0 0.5rem 3rem; }
       .arch-diagram-wrap {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        overflow-x: visible;
       }
       .arch-svg {
-        width: auto;
-        min-width: 700px;
-        height: 450px;
+        width: 100%;
+        height: auto;
+        min-width: unset;
       }
       .arch-detail { padding: 1.5rem; }
       .arch-detail.visible { padding: 1.5rem; }
