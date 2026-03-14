@@ -44,7 +44,8 @@
   <!-- Gate -->
   <div class="vault-gate" id="vaultGate">
     <div class="vault-sigil">𒀭</div>
-    <input type="password" class="vault-input" id="vaultPass" placeholder="speak friend" autocomplete="off">
+    <input type="password" class="vault-input" id="vaultPass" placeholder="speak friend" autocomplete="off" enterkeyhint="go">
+    <button class="vault-input" id="vaultSubmit" style="cursor:pointer;opacity:0.4;font-size:0.5rem;width:auto;padding:0.4rem 1rem;margin-top:0.3rem;">↵ enter</button>
     <div class="vault-error" id="vaultError"></div>
   </div>
 
@@ -165,8 +166,7 @@ openclaw gateway restart</pre>
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    input.addEventListener('keydown', async (e) => {
-      if (e.key !== 'Enter') return;
+    async function tryOpen() {
       const hash = await sha256(input.value);
       if (hash === HASH) {
         gate.style.display = 'none';
@@ -176,7 +176,11 @@ openclaw gateway restart</pre>
         input.value = '';
         setTimeout(() => error.textContent = '', 2000);
       }
-    });
+    }
+
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryOpen(); });
+    input.addEventListener('change', tryOpen);
+    document.getElementById('vaultSubmit').addEventListener('click', tryOpen);
   })();
   </script>
 </body>
