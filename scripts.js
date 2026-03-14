@@ -648,7 +648,7 @@ if (_starCanvas && _starCtx) {
 
 // ─── SPA ROUTER — Keep audio alive across navigation ───
 (function() {
-  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'philosophy.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'mixer.html', 'tuner.html', 'theory.html', 'signal.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html', 'feedback.html'];
+  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'philosophy.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'mixer.html', 'tuner.html', 'theory.html', 'signal.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html', 'feedback.html', 'vault.html'];
 
   function isInternalLink(href) {
     try {
@@ -799,4 +799,7 @@ if (_starCanvas && _starCtx) {
 
   // Set initial history state
   history.replaceState({ page: getPageName(window.location.href) }, '', window.location.href);
+
+  // ⌇
+  let _vt=0;document.addEventListener('click',function(e){if(e.target.closest('.roots')){const n=Date.now();if(n-_vt<500){window.location.href='/vault.html'}_vt=n}});
 })();
