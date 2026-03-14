@@ -233,11 +233,16 @@
 
     /* ─── MOBILE ─── */
     @media (max-width: 768px) {
-      .synth-toolbar { top: 40px; padding: 0.3rem 0.5rem; gap: 0.25rem; }
-      .synth-toolbar-section { border-right: none; padding-right: 0; }
-      .synth-btn { font-size: 0.5rem; padding: 0.25rem 0.4rem; }
-      .synth-module { width: 180px; }
-      .module-title { font-size: 0.6rem; }
+      .synth-toolbar {
+        top: 40px; padding: 0.2rem 0.3rem; gap: 0.15rem;
+        flex-wrap: wrap;
+      }
+      .synth-toolbar-section { border-right: none; padding-right: 0; margin-right: 0; }
+      .synth-toolbar-label { display: none; }
+      .synth-btn { font-size: 0.4rem; padding: 0.15rem 0.3rem; }
+      .synth-canvas { min-height: calc(100vh - 200px); min-height: calc(100dvh - 200px); margin-top: 40px; }
+      .synth-module { width: 155px; }
+      .module-title { font-size: 0.55rem; }
     }
 
     /* ─── KNOWLEDGE BASE PANEL ─── */
