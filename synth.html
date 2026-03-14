@@ -358,6 +358,7 @@
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label">Add:</span>
         <button class="synth-btn" data-add="oscillator">Osc</button>
+        <button class="synth-btn" data-add="fm">FM</button>
         <button class="synth-btn" data-add="filter">Filter</button>
         <button class="synth-btn" data-add="lfo">LFO</button>
         <button class="synth-btn" data-add="delay">Delay</button>
@@ -641,6 +642,44 @@
       },
       update(audio, key, val) {
         audio.node[key] = val;
+      }
+    },
+    fm: {
+      title: 'FM Synth',
+      glyph: '⟐',
+      inputs: ['mod'],
+      outputs: ['out'],
+      controls: [
+        { id: 'frequency', type: 'range', min: 20, max: 2000, default: 220, step: 1, label: 'Freq', unit: 'Hz' },
+        { id: 'harmonicity', type: 'range', min: 0.1, max: 12, default: 2, step: 0.1, label: 'Harm', unit: '' },
+        { id: 'modulationIndex', type: 'range', min: 0, max: 40, default: 5, step: 0.1, label: 'Mod Idx', unit: '' },
+        { id: 'carrierType', type: 'select', options: ['sine','sawtooth','square','triangle'], default: 'sine', label: 'Carrier' },
+        { id: 'modType', type: 'select', options: ['sine','sawtooth','square','triangle'], default: 'sine', label: 'Mod Wave' },
+        { id: 'attack', type: 'range', min: 0.001, max: 4, default: 0.5, step: 0.01, label: 'Atk', unit: 's' },
+        { id: 'release', type: 'range', min: 0.01, max: 8, default: 2, step: 0.01, label: 'Rel', unit: 's' },
+        { id: 'detune', type: 'range', min: -100, max: 100, default: 0, step: 1, label: 'Detune', unit: 'ct' },
+      ],
+      create(params) {
+        const fm = new Tone.FMSynth({
+          frequency: params.frequency,
+          harmonicity: params.harmonicity,
+          modulationIndex: params.modulationIndex,
+          oscillator: { type: params.carrierType },
+          modulation: { type: params.modType },
+          envelope: { attack: params.attack, decay: 0.2, sustain: 0.8, release: params.release },
+          modulationEnvelope: { attack: 0.1, decay: 0.2, sustain: 1, release: params.release }
+        });
+        return { node: fm, out: fm, mod: fm.frequency };
+      },
+      update(audio, key, val) {
+        if (key === 'frequency') audio.node.frequency.value = val;
+        else if (key === 'harmonicity') audio.node.harmonicity.value = val;
+        else if (key === 'modulationIndex') audio.node.modulationIndex.value = val;
+        else if (key === 'carrierType') audio.node.oscillator.type = val;
+        else if (key === 'modType') audio.node.modulation.type = val;
+        else if (key === 'attack') audio.node.envelope.attack = val;
+        else if (key === 'release') { audio.node.envelope.release = val; audio.node.modulationEnvelope.release = val; }
+        else if (key === 'detune') audio.node.detune.value = val;
       }
     },
     output: {
@@ -1304,12 +1343,29 @@
     const noteName = NOTE_NAMES[noteNum % 12] + Math.floor(noteNum / 12 - 1);
     const gain = vel / 127;
 
+    // Trigger FM synth modules
+    const fmMods = Object.values(modules).filter(m => m.type === 'fm');
+    fmMods.forEach(mod => {
+      try {
+        const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
+        if (outCables.length > 0) {
+          // Already cabled — use triggerAttackRelease through cable chain
+          mod.audio.node.triggerAttackRelease(freq, '4n', Tone.now(), gain);
+        } else {
+          // Not cabled — play direct to destination
+          mod.audio.node.toDestination();
+          mod.audio.node.triggerAttackRelease(freq, '4n', Tone.now(), gain);
+        }
+      } catch(e) {}
+    });
+
     const oscs = getOscillators();
-    if (oscs.length === 0) {
-      document.getElementById('pianoHint').textContent = '⚠ Add an oscillator module first';
+    if (oscs.length === 0 && fmMods.length === 0) {
+      document.getElementById('pianoHint').textContent = '⚠ Add an oscillator or FM module first';
       setTimeout(() => { document.getElementById('pianoHint').textContent = ''; }, 2000);
       return;
     }
+    if (oscs.length === 0) return; // FM-only, handled above
 
     if (activeNotes.has(noteNum)) noteOff(noteNum); // retrigger
 
