@@ -801,5 +801,5 @@ if (_starCanvas && _starCtx) {
   history.replaceState({ page: getPageName(window.location.href) }, '', window.location.href);
 
   // ⌇
-  let _vt=0;document.addEventListener('click',function(e){if(e.target.closest('.roots')){const n=Date.now();if(n-_vt<500){window.location.href='/vault.html'}_vt=n}});
+  let _vt=[],_vh=function(e){if(e.target.closest('.roots')){_vt.push(Date.now());if(_vt.length>=3){if(_vt[2]-_vt[0]<1500){window.location.href='/vault.html'}_vt=[]}}};document.addEventListener('click',_vh);document.addEventListener('touchend',function(e){if(e.target.closest('.roots')){e.preventDefault();_vh(e)}},{passive:false});
 })();
