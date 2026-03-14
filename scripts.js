@@ -648,7 +648,7 @@ if (_starCanvas && _starCtx) {
 
 // ─── SPA ROUTER — Keep audio alive across navigation ───
 (function() {
-  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'mixer.html', 'tuner.html', 'theory.html', 'signal.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html', 'feedback.html'];
+  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'philosophy.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'mixer.html', 'tuner.html', 'theory.html', 'signal.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html', 'feedback.html'];
 
   function isInternalLink(href) {
     try {
