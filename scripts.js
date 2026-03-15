@@ -282,11 +282,14 @@ function togglePlay() {
 playBtn.addEventListener('click', togglePlay);
 
 async function startGenerativeEngine() {
+  if (genActive || engineStarting) return; // prevent double-start
   audio.pause();
   audio.currentTime = 0;
   
   await loadToneJS();
   await Tone.start();
+  // Ensure AudioContext is running (critical for iOS)
+  if (Tone.context.state === 'suspended') await Tone.context.resume();
   
   genActive = true;
   const scale = maqamScales[currentMaqamIndex];
@@ -344,7 +347,7 @@ async function startGenerativeEngine() {
   }).connect(eng.reverb);
   eng.stringPad.volume.value = -24;
 
-  // String pad chord changes — every 15-30s, play 2-3 notes from scale
+  // String pad chord changes — every 20s, play 2-3 notes from scale
   eng.stringLoop = setInterval(() => {
     if (!genActive || !eng.stringPad) return;
     const s = eng.currentScale;
@@ -356,9 +359,9 @@ async function startGenerativeEngine() {
       if (!degrees.includes(d)) degrees.push(d);
     }
     const freqs = degrees.map(d => maqamFreq(s, d, 2 + Math.floor(Math.random() * 2)));
-    const dur = 12 + Math.random() * 8;
+    const dur = 14 + Math.random() * 6;
     freqs.forEach(f => eng.stringPad.triggerAttackRelease(f, dur));
-  }, (15 + Math.random() * 15) * 1000);
+  }, 20000);
 
   // ─── MELODIC PLUCK LAYER ─── sparse contemplative single notes
   eng.pluck = new Tone.PluckSynth({
@@ -370,12 +373,12 @@ async function startGenerativeEngine() {
 
   eng.pluckLoop = setInterval(() => {
     if (!genActive || !eng.pluck) return;
-    if (Math.random() > 0.6) return; // 40% chance to skip — keeps it sparse
+    if (Math.random() > 0.5) return; // 50% chance to skip — keeps it sparse and contemplative
     const s = eng.currentScale;
     const degree = Math.floor(Math.random() * s.notes.length);
     const octave = 3 + Math.floor(Math.random() * 2);
     eng.pluck.triggerAttack(maqamFreq(s, degree, octave));
-  }, (4 + Math.random() * 8) * 1000);
+  }, 7000);
 
   // ─── CELLO DRONE ─── deep sustained low register
   eng.celloDrone = new Tone.FMSynth({
@@ -403,12 +406,12 @@ async function startGenerativeEngine() {
 
   eng.shimmerLoop = setInterval(() => {
     if (!genActive || !eng.shimmer) return;
-    if (Math.random() > 0.5) return; // 50% skip
+    if (Math.random() > 0.45) return; // ~45% chance — rare, ethereal
     const s = eng.currentScale;
     const degree = Math.floor(Math.random() * s.notes.length);
     const freq = maqamFreq(s, degree, 4 + Math.floor(Math.random() * 2));
-    eng.shimmer.triggerAttackRelease(freq, 8 + Math.random() * 6);
-  }, (10 + Math.random() * 15) * 1000);
+    eng.shimmer.triggerAttackRelease(freq, 10 + Math.random() * 5);
+  }, 15000);
 
   // Texture layer - filtered noise
   eng.noise = new Tone.Noise('brown').start();
@@ -418,12 +421,12 @@ async function startGenerativeEngine() {
 
   eng.currentScale = scale;
 
-  // Maqam rotation every 2-5 min
+  // Maqam rotation every 3 min
   eng.maqamRotation = setInterval(() => {
     if (!genActive) return;
     currentMaqamIndex = (currentMaqamIndex + 1) % maqamScales.length;
     switchMaqam(currentMaqamIndex);
-  }, (120 + Math.random() * 180) * 1000);
+  }, 180000);
 
   // Fade in
   eng.masterGain.gain.value = 0;
@@ -501,30 +504,28 @@ function stopGenerativeEngine() {
   genActive = false;
 }
 
-// Initialize: always start with generative engine (ambient soundscape)
-// Saved state ignored — fresh start every session
-startGenerativeEngine();
-// Mark as interacted if autoplay succeeded
-audio.addEventListener('playing', () => { hasInteracted = true; }, { once: true });
-
-// ─── iOS AUTO-PLAY ON FIRST INTERACTION ───
+// ─── UNIFIED STARTUP: wait for user interaction on ALL platforms ───
+// This ensures iOS and desktop behave identically — no broken auto-start.
 let hasInteracted = false;
-function onFirstInteraction() {
+let engineStarting = false;
+
+async function onFirstInteraction() {
   if (hasInteracted) return;
   hasInteracted = true;
   // Remove all listeners
   ['touchstart', 'click', 'scroll', 'keydown'].forEach(evt => {
     document.removeEventListener(evt, onFirstInteraction, true);
   });
-  // Only auto-start if nothing is already playing and no user has explicitly paused
-  if (!isPlaying && !userPaused) {
-    // Always start with generative engine
-    startGenerativeEngine();
-  }
-  // iOS: ensure Web Audio gain exists and resume suspended contexts
+  // Resume any suspended audio contexts
   if (!volumeWritable) ensureAudioGain();
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   if (bgAudioCtx && bgAudioCtx.state === 'suspended') bgAudioCtx.resume();
+  // Start generative engine on first interaction (consistent across all platforms)
+  if (!isPlaying && !userPaused && !genActive && !engineStarting) {
+    engineStarting = true;
+    await startGenerativeEngine();
+    engineStarting = false;
+  }
 }
 ['touchstart', 'click', 'scroll', 'keydown'].forEach(evt => {
   document.addEventListener(evt, onFirstInteraction, { capture: true, once: false, passive: true });
