@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Studio · Methodic Truth</title>
+  <meta name="description" content="Analog hardware studio — SSL SiX, Focusrite Clarett, Roland, Korg, Behringer, and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=52">
+  <style>
+    .studio-container {
+      position: relative; z-index: 2;
+      max-width: 800px; margin: 0 auto;
+      padding: 0 clamp(1rem, 4vw, 2rem) 4rem;
+    }
+    .signal-chain {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: rgba(18,14,10,0.6);
+      border: 1px solid rgba(0,229,255,0.08);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(0.45rem, 1.2vw, 0.6rem);
+      color: var(--stone-dark);
+      line-height: 2;
+      overflow-x: auto;
+    }
+    .signal-chain .arrow { color: var(--glow); opacity: 0.5; }
+    .gear-section {
+      margin-bottom: 2.5rem;
+    }
+    .gear-section h2 {
+      font-family: 'Cinzel', serif;
+      color: var(--warm);
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(138,126,107,0.15);
+    }
+    .gear-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .gear-card {
+      background: rgba(18,14,10,0.5);
+      border: 1px solid rgba(138,126,107,0.1);
+      padding: 1rem 1.2rem;
+      transition: border-color 0.3s;
+    }
+    .gear-card:hover { border-color: rgba(0,229,255,0.2); }
+    .gear-card h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--glow);
+      font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+    }
+    .gear-card .gear-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--oracle);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .gear-card p {
+      font-family: 'EB Garamond', serif;
+      color: var(--stone-dark);
+      font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+      line-height: 1.5;
+    }
+    .gear-card .status-dead {
+      color: rgba(200,80,80,0.6);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+    }
+    .midi-port {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45rem;
+      color: var(--stone-dark);
+      opacity: 0.6;
+    }
+    .routing-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(0.45rem, 1.1vw, 0.55rem);
+      margin-top: 1rem;
+    }
+    .routing-table th {
+      text-align: left;
+      color: var(--glow);
+      font-weight: 300;
+      padding: 0.4rem 0.6rem;
+      border-bottom: 1px solid rgba(0,229,255,0.15);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .routing-table td {
+      padding: 0.4rem 0.6rem;
+      color: var(--stone-dark);
+      border-bottom: 1px solid rgba(138,126,107,0.06);
+    }
+    .routing-table tr:hover td { color: var(--stone); }
+  </style>
+</head>
+<body>
+
+  <div class="starfield" id="stars"></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav"></nav>
+
+  <div class="studio-container">
+    <div class="page-header" style="padding: 3.5rem 0 0.2rem;">
+      <h1 style="font-size:clamp(1.2rem,3vw,1.8rem);">The Studio</h1>
+      <p class="subtitle" style="color:var(--stone-dark);font-size:clamp(0.6rem,1.5vw,0.8rem);font-family:'JetBrains Mono',monospace;">analog signal path · hardware synthesis · no plugins</p>
+    </div>
+
+    <!-- Signal Chain -->
+    <div class="signal-chain">
+      Hardware Synths <span class="arrow">→</span> Patchbay <span class="arrow">→</span> SSL SiX <span class="arrow">→</span> Main Out <span class="arrow">→</span> Focusrite Clarett+ 8Pre (inputs 1/2) <span class="arrow">→</span> Computer<br>
+      Hardware Synths <span class="arrow">→</span> Patchbay <span class="arrow">→</span> Focusrite Clarett+ 8Pre (inputs 3-8) <span class="arrow">→</span> Computer <span class="arrow">→</span> Web
+    </div>
+
+    <!-- Mixing & Interface -->
+    <div class="gear-section">
+      <h2>𒌓 Mixing & Interface</h2>
+      <div class="gear-grid">
+        <div class="gear-card">
+          <h3>SSL SiX</h3>
+          <div class="gear-type">Analog Mixer</div>
+          <p>Solid State Logic desktop mixer. Two SuperAnalogue channel strips with EQ and dynamics. Main outs routed to Clarett inputs 1/2. The center of the signal path.</p>
+        </div>
+        <div class="gear-card">
+          <h3>Focusrite Clarett+ 8Pre</h3>
+          <div class="gear-type">Audio Interface</div>
+          <p>8 analog inputs, Thunderbolt/USB-C. Ins and outs fully routed through the patchbay. The bridge between hardware and computer — and now, the web.</p>
+        </div>
+        <div class="gear-card">
+          <h3>Patchbay</h3>
+          <div class="gear-type">Signal Routing</div>
+          <p>All audio and MIDI routed through a centralized patchbay. Normalled for standard chains, repatchable on the fly. No cable crawling.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Synthesizers -->
+    <div class="gear-section">
+      <h2>𒀭 Synthesizers</h2>
+      <div class="gear-grid">
+        <div class="gear-card">
+          <h3>Roland Juno DS</h3>
+          <div class="gear-type">Polysynth · Workstation</div>
+          <p>Versatile polysynth with deep preset library. Pads, leads, electric pianos. Routed to SSL SiX / Clarett inputs 3/4.</p>
+          <span class="midi-port">MIDI Port 4</span>
+        </div>
+        <div class="gear-card">
+          <h3>Korg Minilogue</h3>
+          <div class="gear-type">4-Voice Analog Polysynth</div>
+          <p>True analog oscillators, 4 voices. The hands-on synth — every knob is a parameter. Warm, immediate, alive.</p>
+          <span class="midi-port">MIDI Port 7</span>
+        </div>
+        <div class="gear-card">
+          <h3>Behringer VC340</h3>
+          <div class="gear-type">String Machine · Vocoder</div>
+          <p>Clone of the Roland VP-330. Lush analog strings and choir, built-in vocoder. Routed to Clarett inputs 5/6.</p>
+          <span class="midi-port">MIDI Port 5</span>
+        </div>
+        <div class="gear-card">
+          <h3>Roland JV-1010</h3>
+          <div class="gear-type">Sound Module</div>
+          <p>Half-rack sound module. Massive library of 90s/2000s sounds — orchestral, pads, world instruments. Routed to Clarett inputs 7/8.</p>
+          <span class="midi-port">MIDI Port 3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drum Machines -->
+    <div class="gear-section">
+      <h2>𒁹 Drum Machines</h2>
+      <div class="gear-grid">
+        <div class="gear-card">
+          <h3>Behringer RD-8</h3>
+          <div class="gear-type">Analog Drum Machine · 808 Clone</div>
+          <p>Analog recreation of the TR-808. Kicks that move air. Stereo output through patchbay.</p>
+          <span class="midi-port">MIDI Port 2</span>
+        </div>
+        <div class="gear-card">
+          <h3>Alesis SR-16</h3>
+          <div class="gear-type">Drum Machine</div>
+          <p>Classic digital drum machine. 233 sounds, swing control, multiple outputs. A workhorse.</p>
+          <span class="midi-port">MIDI Port 6</span>
+        </div>
+        <div class="gear-card">
+          <h3>Roland R8</h3>
+          <div class="gear-type">Drum Machine</div>
+          <p>90s flagship drum machine. Expressive, velocity-sensitive pads.</p>
+          <span class="status-dead">⚠ CURRENTLY DEAD — leverage mono output</span>
+          <br><span class="midi-port">MIDI Port 1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Effects -->
+    <div class="gear-section">
+      <h2>𒈗 Effects</h2>
+      <div class="gear-grid">
+        <div class="gear-card">
+          <h3>Yamaha R1000</h3>
+          <div class="gear-type">Digital Reverb</div>
+          <p>80s rack reverb. Warm, distinctive character. Routed through patchbay for any source.</p>
+        </div>
+        <div class="gear-card">
+          <h3>Fostex 3510</h3>
+          <div class="gear-type">Spring Reverb</div>
+          <p>Hardware spring reverb unit. The kind of character that no plugin replicates. Physical springs, real resonance.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Routing Table -->
+    <div class="gear-section">
+      <h2>𒊕 Routing</h2>
+      <table class="routing-table">
+        <tr><th>Source</th><th>Destination</th><th>MIDI Port</th></tr>
+        <tr><td>SSL SiX Main Out</td><td>Clarett Inputs 1/2</td><td>—</td></tr>
+        <tr><td>Juno DS L/R</td><td>SSL SiX / Clarett 3/4</td><td>4</td></tr>
+        <tr><td>VC340 L/R</td><td>Clarett Inputs 5/6</td><td>5</td></tr>
+        <tr><td>JV-1010 L/R</td><td>Clarett Inputs 7/8</td><td>3</td></tr>
+        <tr><td>RD-8 L/R</td><td>Patchbay → SSL SiX</td><td>2</td></tr>
+        <tr><td>SR-16 L/R</td><td>Patchbay → SSL SiX</td><td>6</td></tr>
+        <tr><td>Korg Minilogue</td><td>Patchbay → SSL SiX</td><td>7</td></tr>
+        <tr><td>Yamaha R1000</td><td>Patchbay (aux return)</td><td>—</td></tr>
+        <tr><td>Fostex 3510</td><td>Patchbay (aux return)</td><td>—</td></tr>
+      </table>
+    </div>
+
+    <div class="roots" id="vaultDoor">⌇ ⌇ ⌇ ⌇ ⌇</div>
+  </div>
+
+  <script src="scripts.js?v=53"></script>
+</body>
+</html>
