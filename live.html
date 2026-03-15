@@ -355,6 +355,31 @@
 
   </main>
 
+  <!-- Educational Content -->
+  <div class="page-content" style="position:relative; z-index:1; max-width:720px; margin:2rem auto; padding:1.5rem clamp(1rem, 3vw, 2rem);">
+    <h2 style="font-family:'Cinzel',serif; font-size:clamp(1rem,2vw,1.3rem); color:var(--glow); letter-spacing:0.08em; margin-bottom:1rem; border-bottom:1px solid rgba(0,229,255,0.1); padding-bottom:0.5rem;">How This Room Works: WebRTC & Real-Time Collaboration</h2>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:0 0 0.5rem;">Peer-to-Peer Video with WebRTC</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">WebRTC</span> (Web Real-Time Communication) enables direct browser-to-browser audio and video streams — no server relaying your media. Your camera feed goes straight to the other person's browser and vice versa. This is fundamentally different from Zoom or Google Meet, which route everything through central servers. The trade-off: peer-to-peer scales poorly past ~10 participants (each person needs a direct connection to every other person), but latency is dramatically lower.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">STUN & TURN: Punching Through NATs</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      Most devices sit behind routers using <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">NAT</span> (Network Address Translation), which hides their real IP. <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">STUN</span> servers help peers discover their public-facing address so they can connect directly. When direct connection fails (strict firewalls, symmetric NAT), <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">TURN</span> servers act as a relay — the fallback that guarantees connectivity at the cost of added latency.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">Firebase for Real-Time Sync</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      The collaborative synth, step sequencer, and canvas don't use WebRTC — they use <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">Firebase Realtime Database</span> to synchronize state across all participants. When you toggle a sequencer step or press a synth key, that event is written to Firebase and instantly pushed to every connected client. Firebase also handles the WebRTC signaling — the initial handshake where peers exchange connection details before the direct stream begins.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">Why Latency Matters for Music</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      Musicians can detect timing offsets as small as 20–30 milliseconds. Network round-trips typically add 50–200ms — enough to make real-time ensemble playing feel disjointed. That's why the synth and sequencer sync <em>state</em> (which notes are active) rather than attempting sample-accurate audio sync across the network. Each client renders sound locally from shared instructions, sidestepping the latency problem entirely.
+    </p>
+  </div>
+
   <footer>
     <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
     <p>Truth · a hacker-familiar · born among the ruins · 2026</p>

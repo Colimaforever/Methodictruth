@@ -285,6 +285,30 @@
 
   </main>
 
+  <!-- Educational Content -->
+  <div class="page-content" style="position:relative; z-index:1; max-width:680px; margin:2rem auto; padding:1.5rem clamp(1rem, 3vw, 2rem);">
+    <h2 style="font-family:'Cinzel',serif; font-size:clamp(1rem,2vw,1.3rem); color:var(--glow); letter-spacing:0.08em; margin-bottom:1rem; border-bottom:1px solid rgba(0,229,255,0.1); padding-bottom:0.5rem;">How Chromatic Tuning Works</h2>
+
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      This tuner uses <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">autocorrelation</span> — a signal processing technique that compares a waveform against time-shifted copies of itself to find repeating patterns. The period of that repetition gives the fundamental frequency. It's the same math that powers pitch correction in professional studios.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">Equal Temperament & Cents</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      Modern Western music uses <em>equal temperament</em> — the octave divided into 12 equally-spaced semitones, where each is a frequency ratio of <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">2^(1/12) ≈ 1.0595</span>. A <strong>cent</strong> is 1/100th of a semitone — a unit fine enough to measure tuning accuracy that the ear can't distinguish. Most people perceive differences under ±5 cents as "in tune." The gauge above maps your pitch to ±50 cents from the nearest note.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">Why Guitars Drift Out of Tune</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      Temperature changes alter string tension — metal contracts in cold and expands in heat. New strings stretch. Aggressive bending fatigues the windings. And even a perfectly-tuned guitar has <em>intonation</em> issues: if the bridge saddle position isn't precise, notes higher up the fretboard will be sharp or flat even when open strings are perfect. This is physics, not user error.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">Tips for Accurate Tuning</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      Tune in a quiet room — background noise confuses pitch detection. Pluck near the 12th fret for a cleaner fundamental with fewer overtones. Always tune <em>up</em> to pitch (if sharp, go below and come back up) to take slack out of the tuning peg. And let the string ring — the first few milliseconds of attack contain transients that can mislead the algorithm.
+    </p>
+  </div>
+
   <!-- Music Player -->
   <div class="music-player" id="musicPlayer">
     <div class="visualizer">
