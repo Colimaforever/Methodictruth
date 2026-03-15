@@ -843,6 +843,17 @@ if (_starCanvas && _starCtx) {
       });
       document.body.classList.toggle('no-grain', isClean);
 
+      // Hide music player on tool pages where it overlaps the UI
+      const toolPages = ['synth.html', 'mixer.html', 'signal.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
+      const mp = document.getElementById('musicPlayer');
+      if (mp) {
+        if (toolPages.includes(pageName)) {
+          mp.style.display = 'none';
+        } else {
+          mp.style.display = '';
+        }
+      }
+
       // Execute page-specific inline scripts from new page
       // Find ALL inline scripts (no src) except ones we've already loaded globally
       const skipSrc = ['scripts.js', 'tone.min.js', 'firebase-app-compat.js', 'firebase-database-compat.js', 'peerjs.min.js'];
