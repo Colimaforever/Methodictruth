@@ -543,13 +543,27 @@
       // Generate TURN credentials first
       await generateTurnCredentials();
 
+      // Try to get media — gracefully degrade if permissions denied
       try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localVideo.srcObject = localStream;
-      } catch (err) {
-        alert('Camera/mic access denied. Cannot join the room.');
-        return;
+      } catch (err1) {
+        logDebug('⚠️ Full media denied (' + err1.name + '), trying audio only...');
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+          showToast('Camera unavailable — joining with audio only');
+        } catch (err2) {
+          logDebug('⚠️ Audio denied too (' + err2.name + '), trying video only...');
+          try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            showToast('Mic unavailable — joining with video only');
+          } catch (err3) {
+            logDebug('⚠️ All media denied — joining as spectator');
+            localStream = new MediaStream(); // empty stream — spectator mode
+            showToast('No camera/mic access — joining as spectator');
+          }
+        }
       }
+      localVideo.srcObject = localStream;
 
       joinScreen.style.display = 'none';
       roomScreen.style.display = 'block';
