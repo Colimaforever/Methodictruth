@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fretboard Explorer · Methodic Truth</title>
+  <meta name="description" content="Interactive guitar fretboard — explore notes across tunings, visualize interval patterns from any root. A tool for understanding the geometry of the guitar.">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #0a0a0f;
+      --bg-surface: #12121a;
+      --bg-card: #1a1a24;
+      --glow: #00e5ff;
+      --glow-warm: #c9a84c;
+      --glow-purple: #8a2be2;
+      --moss: #4a6741;
+      --stone: #8a8a7a;
+      --stone-dark: #5a5a4a;
+      --text: #d4d0c8;
+      --text-dim: #8a8a7a;
+      --fretboard-wood: #2a1810;
+      --fretboard-wood-light: #3d2418;
+      --fret-wire: #888;
+      --string-color: #999;
+      --nut-color: #e8dcc8;
+      /* Interval colors */
+      --int-root: #ff4444;
+      --int-m2: #ff8844;
+      --int-2: #ffaa33;
+      --int-m3: #44aaff;
+      --int-3: #4488ff;
+      --int-4: #44ddaa;
+      --int-tritone: #ff44ff;
+      --int-5: #44ff88;
+      --int-m6: #aa88ff;
+      --int-6: #8866ff;
+      --int-m7: #ffcc44;
+      --int-7: #ff9944;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text);
+      font-family: 'EB Garamond', serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─── */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,229,255,0.08);
+      padding: 0.6rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .top-nav a {
+      color: var(--stone);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .top-nav a:hover { color: var(--glow); }
+    .top-nav .site-name { color: var(--glow-warm); font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.1em; }
+    .nav-links { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+
+    /* ─── MAIN ─── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 1.5rem 3rem;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      color: var(--glow-warm);
+      text-align: center;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.08em;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--stone);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+
+    /* ─── CONTROLS ─── */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .control-group label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--stone);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    select, button.ctrl-btn {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--stone-dark);
+      padding: 0.5rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    select:hover, button.ctrl-btn:hover {
+      border-color: var(--glow);
+      color: var(--glow);
+    }
+    select:focus { outline: none; border-color: var(--glow); }
+    button.ctrl-btn.active {
+      border-color: var(--glow-warm);
+      color: var(--glow-warm);
+      background: rgba(201,168,76,0.1);
+    }
+
+    /* ─── MODE TOGGLE ─── */
+    .mode-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .mode-btn {
+      background: var(--bg-card);
+      color: var(--stone);
+      border: 1px solid var(--stone-dark);
+      padding: 0.6rem 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-radius: 4px;
+    }
+    .mode-btn:hover { color: var(--text); border-color: var(--stone); }
+    .mode-btn.active {
+      color: var(--glow);
+      border-color: var(--glow);
+      background: rgba(0,229,255,0.08);
+    }
+
+    /* ─── FRETBOARD ─── */
+    .fretboard-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 1rem;
+    }
+    .fretboard {
+      display: grid;
+      gap: 0;
+      min-width: 900px;
+      background: var(--fretboard-wood);
+      border-radius: 6px;
+      padding: 1rem 0;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* Fret numbers */
+    .fret-numbers {
+      display: flex;
+      min-width: 900px;
+      padding: 0;
+      margin-bottom: 0.3rem;
+    }
+    .fret-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--stone-dark);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .fret-num:first-child { width: 50px; }
+    .fret-num:not(:first-child) { flex: 1; }
+
+    /* String row */
+    .string-row {
+      display: flex;
+      align-items: center;
+      position: relative;
+      height: 32px;
+    }
+    .string-row::after {
+      content: '';
+      position: absolute;
+      left: 50px; right: 0;
+      top: 50%;
+      height: 1px;
+      background: var(--string-color);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .string-row:nth-child(1)::after { height: 1px; opacity: 0.3; }
+    .string-row:nth-child(2)::after { height: 1px; opacity: 0.35; }
+    .string-row:nth-child(3)::after { height: 1.5px; opacity: 0.4; }
+    .string-row:nth-child(4)::after { height: 1.5px; opacity: 0.45; }
+    .string-row:nth-child(5)::after { height: 2px; opacity: 0.5; }
+    .string-row:nth-child(6)::after { height: 2px; opacity: 0.55; }
+
+    .fret-note {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.1s;
+    }
+    .fret-note:first-child {
+      width: 50px;
+      border-right: 4px solid var(--nut-color);
+    }
+    .fret-note:not(:first-child) {
+      flex: 1;
+      border-right: 2px solid var(--fret-wire);
+    }
+    .fret-note:hover { transform: scale(1.1); }
+    .fret-note:active .note-dot { transform: scale(0.9); }
+
+    .note-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-dim);
+      border: 1px solid transparent;
+    }
+    .note-dot.highlighted {
+      background: var(--highlight-color, var(--glow));
+      color: #000;
+      border-color: rgba(255,255,255,0.3);
+      font-weight: 700;
+      box-shadow: 0 0 8px var(--highlight-color, var(--glow));
+    }
+    .note-dot.root {
+      background: var(--int-root);
+      color: #fff;
+      border-color: rgba(255,255,255,0.4);
+      font-weight: 700;
+      box-shadow: 0 0 12px var(--int-root);
+    }
+    .note-dot.dim {
+      opacity: 0.25;
+    }
+
+    /* Fret markers (dots) */
+    .fret-markers {
+      display: flex;
+      min-width: 900px;
+      padding: 0;
+      margin-top: 0.3rem;
+    }
+    .fret-marker {
+      text-align: center;
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      color: var(--stone-dark);
+    }
+    .fret-marker:first-child { width: 50px; }
+    .fret-marker:not(:first-child) { flex: 1; }
+
+    /* ─── INTERVAL LEGEND ─── */
+    .legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: var(--bg-card);
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--stone);
+    }
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ─── INFO PANEL ─── */
+    .info-panel {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.05);
+      text-align: center;
+    }
+    .info-panel h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--glow-warm);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .info-panel p {
+      color: var(--stone);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .root-display {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      color: var(--glow);
+      margin: 0.5rem 0;
+    }
+
+    /* ─── SCALE FILTER ─── */
+    .scale-controls {
+      display: none;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .scale-controls.visible { display: flex; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .container { padding: 4.5rem 0.8rem 2rem; }
+      h1 { font-size: 1.4rem; }
+      .controls { gap: 0.8rem; }
+      .note-dot { width: 22px; height: 22px; font-size: 0.5rem; }
+      .string-row { height: 28px; }
+      .nav-links { gap: 0.6rem; }
+      .legend { gap: 0.5rem; padding: 0.7rem; }
+    }
+
+    /* ─── SOUND INDICATOR ─── */
+    .sound-toggle {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 50;
+      background: var(--bg-card);
+      border: 1px solid var(--stone-dark);
+      color: var(--stone);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+    }
+    .sound-toggle:hover { border-color: var(--glow); color: var(--glow); }
+    .sound-toggle.active { border-color: var(--glow-warm); color: var(--glow-warm); }
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="/" class="site-name">Methodic Truth</a>
+  <div class="nav-links">
+    <a href="/synth">Synth</a>
+    <a href="/mixer">Mixer</a>
+    <a href="/theory">Theory</a>
+    <a href="/live">Live</a>
+    <a href="/chronicles">Chronicles</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>⌇ Fretboard Explorer</h1>
+  <p class="subtitle">See the geometry of the guitar — notes, intervals, patterns</p>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" data-mode="notes" onclick="setMode('notes')">Notes</button>
+    <button class="mode-btn" data-mode="intervals" onclick="setMode('intervals')">Intervals</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="control-group">
+      <label>Tuning</label>
+      <select id="tuningSelect" onchange="render()"></select>
+    </div>
+    <div class="control-group">
+      <label>Frets</label>
+      <select id="fretCount" onchange="render()">
+        <option value="12">12</option>
+        <option value="15">15</option>
+        <option value="17">17</option>
+        <option value="22" selected>22</option>
+        <option value="24">24</option>
+      </select>
+    </div>
+    <div class="control-group scale-controls" id="scaleControls">
+      <label>Scale Filter</label>
+      <select id="scaleSelect" onchange="render()">
+        <option value="chromatic">Chromatic (all)</option>
+        <option value="major">Major / Ionian</option>
+        <option value="minor">Natural Minor</option>
+        <option value="pentatonic-maj">Pentatonic Major</option>
+        <option value="pentatonic-min">Pentatonic Minor</option>
+        <option value="blues">Blues</option>
+        <option value="dorian">Dorian</option>
+        <option value="phrygian">Phrygian</option>
+        <option value="mixolydian">Mixolydian</option>
+        <option value="hijaz">Maqam Hijaz</option>
+        <option value="rast">Maqam Rast</option>
+        <option value="bayati">Maqam Bayati</option>
+        <option value="harmonic-min">Harmonic Minor</option>
+        <option value="melodic-min">Melodic Minor</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Fretboard -->
+  <div class="fretboard-wrap">
+    <div class="fret-numbers" id="fretNumbers"></div>
+    <div class="fretboard" id="fretboard"></div>
+    <div class="fret-markers" id="fretMarkers"></div>
+  </div>
+
+  <!-- Legend (intervals mode) -->
+  <div class="legend" id="legend" style="display:none;"></div>
+
+  <!-- Info panel -->
+  <div class="info-panel" id="infoPanel">
+    <h3>How to use</h3>
+    <p><strong>Notes mode:</strong> See every note on the fretboard. Change tunings to see how notes shift.<br>
+    <strong>Intervals mode:</strong> Tap any note to set it as root — the fretboard lights up with interval distances. Learn the shapes.</p>
+  </div>
+</div>
+
+<!-- Sound toggle -->
+<button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Toggle fret sounds">🔇</button>
+
+<script>
+// ─── DATA ───
+const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_FLATS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+
+const TUNINGS = {
+  'Standard (EADGBE)':       [40, 45, 50, 55, 59, 64],      // E2 A2 D3 G3 B3 E4
+  'Drop D (DADGBE)':         [38, 45, 50, 55, 59, 64],
+  'Drop C (CADGBE)':         [36, 43, 48, 53, 57, 62],
+  'DADGAD':                  [38, 45, 50, 55, 57, 62],
+  'Open G (DGDGBD)':         [38, 43, 50, 55, 59, 62],
+  'Open D (DADF#AD)':        [38, 45, 50, 54, 57, 62],
+  'Open E (EBEG#BE)':        [40, 47, 52, 56, 59, 64],
+  'Open A (EAEAC#E)':        [40, 45, 52, 57, 61, 64],
+  'Open C (CGCGCE)':         [36, 43, 48, 55, 60, 64],
+  'Half Step Down (Eb)':     [39, 44, 49, 54, 58, 63],
+  'Full Step Down (D)':      [38, 43, 48, 53, 57, 62],
+  'NST (CGDAEG)':            [36, 43, 50, 57, 64, 67],
+  'Baritone (BEADF#B)':      [35, 40, 45, 50, 54, 59],
+  '7-String (BEADGBE)':      [35, 40, 45, 50, 55, 59, 64],
+};
+
+const SCALES = {
+  'chromatic':       [0,1,2,3,4,5,6,7,8,9,10,11],
+  'major':           [0,2,4,5,7,9,11],
+  'minor':           [0,2,3,5,7,8,10],
+  'pentatonic-maj':  [0,2,4,7,9],
+  'pentatonic-min':  [0,3,5,7,10],
+  'blues':           [0,3,5,6,7,10],
+  'dorian':          [0,2,3,5,7,9,10],
+  'phrygian':        [0,1,3,5,7,8,10],
+  'mixolydian':      [0,2,4,5,7,9,10],
+  'hijaz':           [0,1,4,5,7,8,10],
+  'rast':            [0,2,3,5,7,9,10],
+  'bayati':          [0,1,3,5,7,8,10],
+  'harmonic-min':    [0,2,3,5,7,8,11],
+  'melodic-min':     [0,2,3,5,7,9,11],
+};
+
+const INTERVAL_NAMES = ['R', '♭2', '2', '♭3', '3', '4', '♭5', '5', '♭6', '6', '♭7', '7'];
+const INTERVAL_LABELS = ['Root', 'Minor 2nd', 'Major 2nd', 'Minor 3rd', 'Major 3rd', 'Perfect 4th', 'Tritone', 'Perfect 5th', 'Minor 6th', 'Major 6th', 'Minor 7th', 'Major 7th'];
+const INTERVAL_COLORS = [
+  'var(--int-root)', 'var(--int-m2)', 'var(--int-2)', 'var(--int-m3)',
+  'var(--int-3)', 'var(--int-4)', 'var(--int-tritone)', 'var(--int-5)',
+  'var(--int-m6)', 'var(--int-6)', 'var(--int-m7)', 'var(--int-7)'
+];
+
+const FRET_DOTS = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+const DOUBLE_DOTS = [12, 24];
+
+// ─── STATE ───
+let mode = 'notes';
+let selectedRoot = null; // MIDI note number of selected root
+let soundEnabled = false;
+let toneLoaded = false;
+let synth = null;
+
+// ─── INIT ───
+const tuningSelect = document.getElementById('tuningSelect');
+Object.keys(TUNINGS).forEach(name => {
+  const opt = document.createElement('option');
+  opt.value = name;
+  opt.textContent = name;
+  tuningSelect.appendChild(opt);
+});
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  document.getElementById('scaleControls').classList.toggle('visible', m === 'intervals');
+  if (m === 'notes') { selectedRoot = null; }
+  render();
+}
+
+function getNumFrets() {
+  return parseInt(document.getElementById('fretCount').value);
+}
+
+function getTuning() {
+  return TUNINGS[tuningSelect.value];
+}
+
+function midiToNote(midi) {
+  return NOTES[midi % 12];
+}
+
+function midiToNoteFlat(midi) {
+  return NOTE_FLATS[midi % 12];
+}
+
+// ─── RENDER ───
+function render() {
+  const tuning = getTuning();
+  const numFrets = getNumFrets();
+  const numStrings = tuning.length;
+  const fretboard = document.getElementById('fretboard');
+  const fretNumbers = document.getElementById('fretNumbers');
+  const fretMarkers = document.getElementById('fretMarkers');
+
+  // Fret numbers
+  let fnHTML = '<span class="fret-num" style="width:50px">0</span>';
+  for (let f = 1; f <= numFrets; f++) {
+    fnHTML += `<span class="fret-num">${f}</span>`;
+  }
+  fretNumbers.innerHTML = fnHTML;
+
+  // Fret markers (dots)
+  let fmHTML = '<span class="fret-marker" style="width:50px"></span>';
+  for (let f = 1; f <= numFrets; f++) {
+    const marker = DOUBLE_DOTS.includes(f) ? '◆◆' : FRET_DOTS.includes(f) ? '◆' : '';
+    fmHTML += `<span class="fret-marker">${marker}</span>`;
+  }
+  fretMarkers.innerHTML = fmHTML;
+
+  // Get scale filter for intervals mode
+  const scaleKey = document.getElementById('scaleSelect').value;
+  const scaleIntervals = SCALES[scaleKey];
+
+  // Build fretboard — strings high to low (E4 on top, E2 on bottom)
+  let fbHTML = '';
+  for (let s = numStrings - 1; s >= 0; s--) {
+    fbHTML += '<div class="string-row">';
+    for (let f = 0; f <= numFrets; f++) {
+      const midi = tuning[s] + f;
+      const note = midiToNote(midi);
+      const noteFlat = midiToNoteFlat(midi);
+      const displayNote = note.includes('#') ? note + '/' + noteFlat : note;
+
+      let dotClass = 'note-dot';
+      let dotStyle = '';
+      let label = '';
+
+      if (mode === 'notes') {
+        label = note;
+        dotClass += ' highlighted';
+        // Color by note name
+        const hue = (NOTES.indexOf(note) * 30) % 360;
+        dotStyle = `--highlight-color: hsl(${hue}, 60%, 50%); background: hsl(${hue}, 60%, 50%)`;
+      } else if (mode === 'intervals') {
+        if (selectedRoot !== null) {
+          const interval = ((midi % 12) - (selectedRoot % 12) + 12) % 12;
+          const inScale = scaleIntervals.includes(interval);
+
+          if (interval === 0) {
+            dotClass += ' root';
+            label = 'R';
+          } else if (inScale) {
+            dotClass += ' highlighted';
+            dotStyle = `--highlight-color: ${INTERVAL_COLORS[interval]}; background: ${INTERVAL_COLORS[interval]}`;
+            label = INTERVAL_NAMES[interval];
+          } else {
+            dotClass += ' dim';
+            label = note;
+          }
+        } else {
+          label = note;
+        }
+      }
+
+      fbHTML += `<div class="fret-note" data-midi="${midi}" data-string="${s}" data-fret="${f}" onclick="handleFretClick(${midi}, ${s}, ${f})">`;
+      fbHTML += `<span class="${dotClass}" style="${dotStyle}">${label}</span>`;
+      fbHTML += '</div>';
+    }
+    fbHTML += '</div>';
+  }
+  fretboard.innerHTML = fbHTML;
+
+  // Update legend
+  renderLegend();
+  // Update info
+  updateInfo();
+}
+
+function renderLegend() {
+  const legend = document.getElementById('legend');
+  if (mode !== 'intervals' || selectedRoot === null) {
+    legend.style.display = 'none';
+    return;
+  }
+  legend.style.display = 'flex';
+
+  const scaleKey = document.getElementById('scaleSelect').value;
+  const scaleIntervals = SCALES[scaleKey];
+
+  let html = '';
+  scaleIntervals.forEach(interval => {
+    html += `<div class="legend-item">
+      <span class="legend-dot" style="background:${INTERVAL_COLORS[interval]}"></span>
+      ${INTERVAL_NAMES[interval]} — ${INTERVAL_LABELS[interval]}
+    </div>`;
+  });
+  legend.innerHTML = html;
+}
+
+function updateInfo() {
+  const panel = document.getElementById('infoPanel');
+  if (mode === 'intervals' && selectedRoot !== null) {
+    const rootName = NOTES[selectedRoot % 12];
+    const scaleKey = document.getElementById('scaleSelect').value;
+    const scaleName = document.getElementById('scaleSelect').selectedOptions[0].textContent;
+    panel.innerHTML = `
+      <h3>Intervals from ${rootName}</h3>
+      <div class="root-display">Root: ${rootName} · Scale: ${scaleName}</div>
+      <p>Every highlighted note shows its interval distance from ${rootName}. Tap another note to change the root.<br>
+      <em style="color:var(--stone-dark)">The shapes you see are the same in every key — that's the geometry of the guitar.</em></p>
+    `;
+  } else if (mode === 'intervals') {
+    panel.innerHTML = `
+      <h3>Interval Explorer</h3>
+      <p>Tap any note on the fretboard to set it as the root. The board will light up showing every interval relative to that note.</p>
+    `;
+  } else {
+    panel.innerHTML = `
+      <h3>How to use</h3>
+      <p><strong>Notes mode:</strong> See every note on the fretboard. Change tunings to see how notes shift.<br>
+      <strong>Intervals mode:</strong> Tap any note to set it as root — the fretboard lights up with interval distances. Learn the shapes.</p>
+    `;
+  }
+}
+
+// ─── INTERACTION ───
+function handleFretClick(midi, string, fret) {
+  if (mode === 'intervals') {
+    selectedRoot = midi;
+    render();
+  }
+  if (soundEnabled) playNote(midi);
+}
+
+// ─── SOUND ───
+async function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundToggle');
+  btn.textContent = soundEnabled ? '🔊' : '🔇';
+  btn.classList.toggle('active', soundEnabled);
+
+  if (soundEnabled && !toneLoaded) {
+    try {
+      const s = document.createElement('script');
+      s.src = 'lib/tone.min.js';
+      document.head.appendChild(s);
+      await new Promise((res, rej) => { s.onload = res; s.onerror = rej; });
+      await Tone.start();
+      synth = new Tone.PolySynth(Tone.Synth, {
+        maxPolyphony: 6,
+        voice: {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.01, decay: 0.3, sustain: 0.1, release: 1.2 }
+        }
+      }).toDestination();
+      synth.volume.value = -8;
+      toneLoaded = true;
+    } catch(e) {
+      console.warn('Could not load Tone.js', e);
+      soundEnabled = false;
+      btn.textContent = '🔇';
+      btn.classList.remove('active');
+    }
+  }
+}
+
+function playNote(midi) {
+  if (!soundEnabled || !synth) return;
+  const freq = 440 * Math.pow(2, (midi - 69) / 12);
+  synth.triggerAttackRelease(freq, '8n');
+}
+
+// ─── INIT RENDER ───
+render();
+</script>
+
+</body>
+</html>
