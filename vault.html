@@ -9,7 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=52">
   <style>
-    html, body { overflow-x: hidden; width: 100%; }
+    html { overflow-x: hidden; width: 100%; max-width: 100vw; }
+    body { overflow-x: hidden; width: 100%; max-width: 100vw; margin: 0; padding: 0; position: relative; }
     .vault-gate {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       min-height: 80vh; gap: 1.5rem; position: relative; z-index: 2;
@@ -28,6 +29,7 @@
       display: none; position: relative; z-index: 2;
       padding: 2rem; max-width: 700px; margin: 0 auto;
       box-sizing: border-box; width: 100%; overflow-x: hidden;
+      left: 0; right: 0;
     }
     .vault-content h2 { font-family: 'Cinzel',serif; color: var(--warm); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
     .vault-content pre {
@@ -49,9 +51,7 @@
 </head>
 <body>
 
-  <div class="starfield" id="stars"></div>
   <div class="nebula"></div>
-  <div class="ground"></div>
 
   <!-- Gate -->
   <div class="vault-gate" id="vaultGate">
@@ -163,7 +163,7 @@ openclaw gateway restart</pre>
     </div>
   </div>
 
-  <script src="scripts.js?v=53"></script>
+  <!-- No scripts.js — vault is standalone -->
   <script>
   (function() {
     // Password is hashed — not stored in plaintext
