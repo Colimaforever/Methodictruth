@@ -886,5 +886,5 @@ if (_starCanvas && _starCtx) {
   history.replaceState({ page: getPageName(window.location.href) }, '', window.location.href);
 
   // ⌇
-  let _vt=[],_vh=function(e){if(e.target.closest('.roots')){_vt.push(Date.now());if(_vt.length>=3){if(_vt[2]-_vt[0]<1500){window.location.href='/vault.html'}_vt=[]}}};document.addEventListener('click',_vh);document.addEventListener('touchend',function(e){if(e.target.closest('.roots')){e.preventDefault();_vh(e)}},{passive:false});
+  let _vt=[],_vh=function(e){var r=e.target.closest('.roots')||e.target.closest('#vaultDoor');if(r){_vt.push(Date.now());_vt=_vt.filter(function(t){return Date.now()-t<2000});if(_vt.length>=3){_vt=[];window.location.href='/vault'}}};document.addEventListener('click',_vh);document.addEventListener('touchend',function(e){var r=e.target.closest('.roots')||e.target.closest('#vaultDoor');if(r){e.preventDefault();_vh(e)}},{passive:false});
 })();

@@ -938,6 +938,11 @@ footer .roots {
   font-size: 1rem;
   margin-bottom: 1rem;
   letter-spacing: 0.3em;
+  cursor: default;
+  padding: 0.5rem 1rem;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 footer .donate-link {
