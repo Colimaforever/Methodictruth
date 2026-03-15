@@ -557,7 +557,7 @@ main {
   z-index: 1;
   max-width: min(800px, 92vw);
   margin: 0 auto;
-  padding: 0 clamp(0.75rem, 3vw, 2rem) clamp(3rem, 6vw, 6rem);
+  padding: 0 clamp(0.75rem, 3vw, 2rem) clamp(5rem, 8vw, 7rem);
 }
 
 /* Section divider */
@@ -702,12 +702,16 @@ main {
 }
 
 .intro-hook {
-  color: rgba(200, 180, 150, 0.45);
-  font-size: clamp(0.65rem, 1.8vw, 0.8rem);
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.08em;
-  margin-top: 1rem;
-  line-height: 1.8;
+  color: rgba(200, 180, 150, 0.35);
+  font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  margin-top: 0.8rem;
+  line-height: 1.7;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .explore-desc {
