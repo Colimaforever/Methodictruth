@@ -71,6 +71,10 @@
     .top-nav a:hover { color: var(--glow); }
     .top-nav .site-name { color: var(--glow-warm); font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.1em; }
     .nav-links { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .top-nav { justify-content: center; }
+    }
 
     /* ─── MAIN ─── */
     .container {
