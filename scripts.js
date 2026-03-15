@@ -518,13 +518,8 @@ function onFirstInteraction() {
   });
   // Only auto-start if nothing is already playing and no user has explicitly paused
   if (!isPlaying && !userPaused) {
-    if (saved && saved.generative) {
-      currentMaqamIndex = saved.maqamIndex || 0;
-      startGenerativeEngine();
-    } else if (playlist.length > 0) {
-      loadTrack(currentTrack);
-      startPlaying(saved && saved.time ? saved.time : undefined);
-    }
+    // Always start with generative engine
+    startGenerativeEngine();
   }
   // iOS: ensure Web Audio gain exists and resume suspended contexts
   if (!volumeWritable) ensureAudioGain();
