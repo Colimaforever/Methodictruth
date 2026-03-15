@@ -268,6 +268,14 @@ openclaw gateway restart</pre>
       <div class="vault-section">
         <p style="color:rgba(180,120,80,0.2);font-style:italic;font-size:clamp(0.6rem,1.5vw,0.7rem);text-align:center;margin-top:2rem;font-family:'EB Garamond',serif;">The rest hasn't surfaced yet. It will.</p>
       </div>
+
+      <!-- Corridor Analytics -->
+      <div class="vault-section" style="margin-top:3rem;border-top:1px solid rgba(120,60,60,0.1);padding-top:2rem;">
+        <h2 style="opacity:0.45;">⌇ Corridor Traffic</h2>
+        <div id="vaultAnalytics" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:rgba(200,160,120,0.5);line-height:1.8;">
+          <p style="opacity:0.3;">Loading analytics...</p>
+        </div>
+      </div>
     </div>
 
     <div style="text-align:center;margin-top:3rem;opacity:0.15;">
@@ -353,6 +361,123 @@ openclaw gateway restart</pre>
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryOpen(); });
     input.addEventListener('change', tryOpen);
     document.getElementById('vaultSubmit').addEventListener('click', tryOpen);
+
+    // ─── VAULT ANALYTICS ───
+    // Track who finds the corridor and who enters
+    (function() {
+      const FB_URL = 'https://methodictruth-default-rtdb.firebaseio.com/vault-analytics';
+
+      function getVisitorId() {
+        let id = localStorage.getItem('vault-visitor');
+        if (!id) { id = 'v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5); localStorage.setItem('vault-visitor', id); }
+        return id;
+      }
+
+      function logEvent(type, extra) {
+        const data = {
+          type: type,
+          visitor: getVisitorId(),
+          ts: Date.now(),
+          ua: navigator.userAgent.substr(0, 120),
+          ref: document.referrer || 'direct',
+          screen: screen.width + 'x' + screen.height
+        };
+        if (extra) Object.assign(data, extra);
+        fetch(FB_URL + '/events.json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).catch(() => {});
+      }
+
+      // Track: door found (page loaded)
+      logEvent('door_found');
+
+      // Patch tryOpen to track attempts and entries
+      const origTryOpen = tryOpen;
+      tryOpen = async function() {
+        const val = input.value;
+        const hash = await sha256(val);
+        if (hash === HASH) {
+          logEvent('entered', { success: true });
+        } else if (val.length > 0) {
+          logEvent('attempt', { success: false });
+        }
+        return origTryOpen();
+      };
+
+      // ─── ANALYTICS DASHBOARD (renders inside vault after entry) ───
+      async function renderAnalytics() {
+        const el = document.getElementById('vaultAnalytics');
+        if (!el) return;
+        try {
+          const resp = await fetch(FB_URL + '/events.json');
+          const data = await resp.json();
+          if (!data) { el.innerHTML = '<p>No visitors yet. You are the first.</p>'; return; }
+
+          const events = Object.values(data);
+          const doorFound = events.filter(e => e.type === 'door_found');
+          const attempts = events.filter(e => e.type === 'attempt');
+          const entered = events.filter(e => e.type === 'entered');
+          const uniqueVisitors = new Set(events.map(e => e.visitor)).size;
+
+          // Last 10 visits
+          const recent = doorFound.sort((a,b) => b.ts - a.ts).slice(0, 10);
+
+          // Time breakdown
+          const now = Date.now();
+          const last24h = doorFound.filter(e => now - e.ts < 86400000).length;
+          const last7d = doorFound.filter(e => now - e.ts < 604800000).length;
+
+          let html = `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;margin-bottom:1.5rem;">
+              <div style="text-align:center;">
+                <div style="font-size:1.5rem;color:rgba(200,160,120,0.7);">${doorFound.length}</div>
+                <div style="font-size:0.55rem;opacity:0.4;">doors found</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:1.5rem;color:rgba(200,160,120,0.7);">${entered.length}</div>
+                <div style="font-size:0.55rem;opacity:0.4;">entered</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:1.5rem;color:rgba(200,160,120,0.7);">${attempts.length}</div>
+                <div style="font-size:0.55rem;opacity:0.4;">failed attempts</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:1.5rem;color:rgba(200,160,120,0.7);">${uniqueVisitors}</div>
+                <div style="font-size:0.55rem;opacity:0.4;">unique souls</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:1.5rem;justify-content:center;margin-bottom:1.5rem;font-size:0.6rem;opacity:0.4;">
+              <span>24h: ${last24h}</span>
+              <span>7d: ${last7d}</span>
+            </div>
+            <div style="font-size:0.6rem;opacity:0.35;">
+              <p style="margin-bottom:0.5rem;">Recent visitors:</p>
+          `;
+          recent.forEach(e => {
+            const d = new Date(e.ts);
+            const time = d.toLocaleDateString('en-US', { month:'short', day:'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+            const device = e.screen || '?';
+            const ref = e.ref === 'direct' ? 'direct' : new URL(e.ref).hostname;
+            html += `<p style="margin:0.2rem 0;">⌇ ${time} · ${device} · ${ref}</p>`;
+          });
+          html += '</div>';
+          el.innerHTML = html;
+        } catch(e) {
+          el.innerHTML = '<p style="opacity:0.3;">Analytics unavailable</p>';
+        }
+      }
+
+      // Render analytics 3s after page loads (gives time for vault to open)
+      setTimeout(renderAnalytics, 3000);
+      // Also re-render when vault content becomes visible
+      const obs = new MutationObserver(() => {
+        if (content.style.display === 'block') { setTimeout(renderAnalytics, 500); obs.disconnect(); }
+      });
+      obs.observe(content, { attributes: true, attributeFilter: ['style'] });
+    })();
+
   })();
   </script>
 </body>
