@@ -12,7 +12,7 @@
     html, body { margin: 0; padding: 0; overflow-x: hidden; }
     .vault-gate {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 80vh; gap: 1.5rem; position: relative; z-index: 2;
+      min-height: 80vh; gap: 1.5rem; position: relative; z-index: 1100;
     }
     .vault-sigil { font-size: 4rem; opacity: 0.3; }
     .vault-input {
@@ -26,7 +26,7 @@
     .vault-error { color: rgba(200,80,80,0.6); font-size: 0.5rem; font-family: 'JetBrains Mono',monospace; min-height: 1em; }
     .vault-content {
       display: none; position: relative; z-index: 2;
-      margin: 0 20px; /* simple fixed margin on all devices */
+      margin: 0 20px; z-index: 1100;
     }
     .vault-content h2 { font-family: 'Cinzel',serif; color: var(--warm); font-size: clamp(0.85rem, 2.5vw, 1.1rem); margin: 1.5rem 0 0.5rem; }
     .vault-content pre {
@@ -40,7 +40,7 @@
     .vault-section { margin-bottom: 2rem; }
   </style>
 </head>
-<body>
+<body class="no-grain" style="background:var(--sky-deep,#0a0e1a);margin:0;padding:0;">
 
   <div class="nebula"></div>
 
