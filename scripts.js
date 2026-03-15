@@ -894,6 +894,9 @@ if (_starCanvas && _starCtx) {
       // Scroll to top
       window.scrollTo(0, 0);
 
+      // Track SPA page view
+      if (window.__mtTrackView) window.__mtTrackView(pageName);
+
     } catch (err) {
       console.warn('SPA nav failed, falling back:', err);
       window.location.href = href;
@@ -922,6 +925,36 @@ if (_starCanvas && _starCtx) {
 
   // Set initial history state
   history.replaceState({ page: getPageName(window.location.href) }, '', window.location.href);
+
+  // ─── SITE-WIDE PAGE VIEW ANALYTICS ───
+  (function() {
+    const FA_URL = 'https://methodictruth-default-rtdb.firebaseio.com/analytics';
+
+    function getVid() {
+      let id = localStorage.getItem('mt-vid');
+      if (!id) { id = 'v-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5); localStorage.setItem('mt-vid', id); }
+      return id;
+    }
+
+    window.__mtTrackView = function(page) {
+      const data = {
+        page: page || location.pathname.split('/').pop() || 'index.html',
+        visitor: getVid(),
+        ts: Date.now(),
+        ref: document.referrer || 'direct',
+        screen: screen.width + 'x' + screen.height,
+        ua: navigator.userAgent.substr(0, 120)
+      };
+      fetch(FA_URL + '/views.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(() => {});
+    };
+
+    // Track initial page load
+    window.__mtTrackView();
+  })();
 
   // ⌇
   let _vt=[],_vh=function(e){var r=e.target.closest('.roots')||e.target.closest('#vaultDoor');if(r){_vt.push(Date.now());_vt=_vt.filter(function(t){return Date.now()-t<2000});if(_vt.length>=3){_vt=[];window.location.href='/vault'}}};document.addEventListener('click',_vh);document.addEventListener('touchend',function(e){var r=e.target.closest('.roots')||e.target.closest('#vaultDoor');if(r){e.preventDefault();_vh(e)}},{passive:false});
