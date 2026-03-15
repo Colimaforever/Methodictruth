@@ -854,6 +854,14 @@ if (_starCanvas && _starCtx) {
         history.pushState({ page: pageName }, '', href);
       }
 
+      // Close mobile nav if open
+      const navL = document.getElementById('navLinks');
+      const navT = document.getElementById('navToggle');
+      if (navL) navL.classList.remove('open');
+      if (navT) navT.textContent = '☰';
+      // Close any open dropdowns
+      document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+
       // Scroll to top
       window.scrollTo(0, 0);
 
