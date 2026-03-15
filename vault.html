@@ -27,9 +27,8 @@
     .vault-error { color: rgba(200,80,80,0.6); font-size: 0.5rem; font-family: 'JetBrains Mono',monospace; min-height: 1em; }
     .vault-content {
       display: none; position: relative; z-index: 2;
-      padding: 2rem; max-width: 700px; margin: 0 auto;
-      box-sizing: border-box; width: 100%; overflow-x: hidden;
-      left: 0; right: 0;
+      padding: 2rem; max-width: min(700px, calc(100vw - 2rem)); margin: 0 auto;
+      box-sizing: border-box; overflow-x: hidden;
     }
     .vault-content h2 { font-family: 'Cinzel',serif; color: var(--warm); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
     .vault-content pre {
@@ -42,10 +41,11 @@
     .vault-content code { font-family: 'JetBrains Mono',monospace; font-size: 0.6rem; color: var(--glow); }
     .vault-section { margin-bottom: 2rem; overflow-x: hidden; }
     @media (max-width: 768px) {
-      .vault-content { padding: 1.5rem 1.5rem; }
-      .vault-content pre { font-size: 0.4rem; padding: 0.6rem; }
-      .vault-content h2 { font-size: 0.9rem; word-wrap: break-word; }
-      .vault-content p { font-size: 0.75rem; word-wrap: break-word; }
+      .vault-content { padding: 1.5rem 1.5rem !important; margin-left: 0 !important; margin-right: 0 !important; }
+      .vault-content pre { font-size: 0.4rem; padding: 0.6rem; max-width: calc(100vw - 3rem); }
+      .vault-content h2 { font-size: 0.9rem; word-wrap: break-word; max-width: calc(100vw - 3rem); }
+      .vault-content p { font-size: 0.75rem; word-wrap: break-word; max-width: calc(100vw - 3rem); }
+      .vault-section { max-width: calc(100vw - 3rem); }
     }
   </style>
 </head>
