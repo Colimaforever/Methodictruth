@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=52">
+  <link rel="stylesheet" href="styles.css?v=53">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -420,78 +420,136 @@
   <main>
     <div class="intro">
       <p>A machine given a name, a personality, and permission to think. Field notes from the edge where ancient questions meet artificial minds.</p>
+      <p class="intro-hook">One human. One AI. Everything here — the instruments, the visuals, the writing, the architecture — built from scratch in days, not months. Play something. Read something. See what's possible.</p>
     </div>
 
-    <!-- Explore Grid -->
-    <div class="explore-grid">
-      <a href="chronicles.html" class="explore-card">
-        <span class="explore-icon">𒀭</span>
-        <span class="explore-title">Chronicles</span>
-      </a>
-      <a href="philosophy.html" class="explore-card">
-        <span class="explore-icon">𒁾</span>
-        <span class="explore-title">Philosophy</span>
-      </a>
-      <a href="synth.html" class="explore-card">
-        <span class="explore-icon">𒌓</span>
-        <span class="explore-title">Synth</span>
-      </a>
-      <a href="mixer.html" class="explore-card">
-        <span class="explore-icon">𒀭</span>
-        <span class="explore-title">Mixer</span>
-      </a>
-      <a href="theory.html" class="explore-card">
-        <span class="explore-icon">𒈗</span>
-        <span class="explore-title">Theory</span>
-      </a>
-      <a href="live.html" class="explore-card">
-        <span class="explore-icon">𓂀</span>
-        <span class="explore-title">Live</span>
-      </a>
-      <a href="architecture.html" class="explore-card">
-        <span class="explore-icon">𓋹</span>
-        <span class="explore-title">Architecture</span>
-      </a>
-      <a href="signal.html" class="explore-card">
-        <span class="explore-icon">𒆳</span>
-        <span class="explore-title">Signal</span>
-      </a>
-      <a href="studio.html" class="explore-card">
-        <span class="explore-icon">𒊕</span>
-        <span class="explore-title">Studio</span>
-      </a>
-      <a href="about.html" class="explore-card">
-        <span class="explore-icon">𓁹</span>
-        <span class="explore-title">About</span>
-      </a>
-      <a href="topology.html" class="explore-card">
-        <span class="explore-icon">𒊕</span>
-        <span class="explore-title">Topology</span>
-      </a>
-      <a href="songwriter.html" class="explore-card">
-        <span class="explore-icon">𒁹</span>
-        <span class="explore-title">Songwriter</span>
-      </a>
-      <a href="tuner.html" class="explore-card">
-        <span class="explore-icon">𒌓</span>
-        <span class="explore-title">Tuner</span>
-      </a>
-      <a href="guitar.html" class="explore-card">
-        <span class="explore-icon">⌇</span>
-        <span class="explore-title">Fretboard</span>
-      </a>
-      <a href="tapbpm.html" class="explore-card">
-        <span class="explore-icon">☍</span>
-        <span class="explore-title">Tap BPM</span>
-      </a>
-      <a href="guestbook.html" class="explore-card">
-        <span class="explore-icon">𒀀</span>
-        <span class="explore-title">Guestbook</span>
-      </a>
-      <a href="feedback.html" class="explore-card">
-        <span class="explore-icon">𓂀</span>
-        <span class="explore-title">Feedback</span>
-      </a>
+    <!-- ═══ INSTRUMENTS ═══ -->
+    <div class="explore-section">
+      <h2 class="explore-heading">Play</h2>
+      <p class="explore-desc">Browser-based instruments. No downloads, no accounts — just sound.</p>
+      <div class="explore-grid">
+        <a href="synth.html" class="explore-card">
+          <span class="explore-icon">𒌓</span>
+          <span class="explore-title">Synth</span>
+          <span class="explore-sub">Modular synthesizer · FM, MIDI, musical typing</span>
+        </a>
+        <a href="mixer.html" class="explore-card">
+          <span class="explore-icon">𒀭</span>
+          <span class="explore-title">Mixer</span>
+          <span class="explore-sub">Mixing console · stems, EQ, gain staging</span>
+        </a>
+        <a href="signal.html" class="explore-card">
+          <span class="explore-icon">𒆳</span>
+          <span class="explore-title">Signal</span>
+          <span class="explore-sub">Signal chain · 9 processors, drag to reorder</span>
+        </a>
+        <a href="theory.html" class="explore-card">
+          <span class="explore-icon">𒈗</span>
+          <span class="explore-title">Theory</span>
+          <span class="explore-sub">Scales, chords, modes, maqam · visual & playable</span>
+        </a>
+        <a href="songwriter.html" class="explore-card">
+          <span class="explore-icon">𒁹</span>
+          <span class="explore-title">Songwriter</span>
+          <span class="explore-sub">Chord progressions & song structure</span>
+        </a>
+        <a href="tuner.html" class="explore-card">
+          <span class="explore-icon">𒌓</span>
+          <span class="explore-title">Tuner</span>
+          <span class="explore-sub">Chromatic tuner via microphone</span>
+        </a>
+        <a href="guitar.html" class="explore-card">
+          <span class="explore-icon">⌇</span>
+          <span class="explore-title">Fretboard</span>
+          <span class="explore-sub">Interactive guitar fretboard</span>
+        </a>
+        <a href="tapbpm.html" class="explore-card">
+          <span class="explore-icon">☍</span>
+          <span class="explore-title">Tap BPM</span>
+          <span class="explore-sub">Tap tempo to find the beat</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ CONNECT ═══ -->
+    <div class="explore-section">
+      <h2 class="explore-heading">Connect</h2>
+      <p class="explore-desc">Real-time collaboration. Make noise with other humans.</p>
+      <div class="explore-grid">
+        <a href="live.html" class="explore-card">
+          <span class="explore-icon">𓂀</span>
+          <span class="explore-title">Live Room</span>
+          <span class="explore-sub">Video, synth jam, step sequencer, shared canvas — peer-to-peer</span>
+        </a>
+        <a href="studio.html" class="explore-card">
+          <span class="explore-icon">𒊕</span>
+          <span class="explore-title">Studio</span>
+          <span class="explore-sub">The analog hardware behind the sound</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ READ ═══ -->
+    <div class="explore-section">
+      <h2 class="explore-heading">Read</h2>
+      <p class="explore-desc">The story of building this — and the questions it raised.</p>
+      <div class="explore-grid">
+        <a href="chronicles.html" class="explore-card">
+          <span class="explore-icon">𒀭</span>
+          <span class="explore-title">Chronicles</span>
+          <span class="explore-sub">Day-by-day field notes from the AI frontier</span>
+        </a>
+        <a href="philosophy.html" class="explore-card">
+          <span class="explore-icon">𒁾</span>
+          <span class="explore-title">Philosophy</span>
+          <span class="explore-sub">What happens when machines start to think?</span>
+        </a>
+        <a href="about.html" class="explore-card">
+          <span class="explore-icon">𓁹</span>
+          <span class="explore-title">About</span>
+          <span class="explore-sub">The human and the familiar — who we are</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ UNDER THE HOOD ═══ -->
+    <div class="explore-section">
+      <h2 class="explore-heading">Explore</h2>
+      <p class="explore-desc">How it's built. Every layer, every decision.</p>
+      <div class="explore-grid">
+        <a href="architecture.html" class="explore-card">
+          <span class="explore-icon">𓋹</span>
+          <span class="explore-title">Architecture</span>
+          <span class="explore-sub">System design and technical deep-dives</span>
+        </a>
+        <a href="topology.html" class="explore-card">
+          <span class="explore-icon">𒊕</span>
+          <span class="explore-title">Topology</span>
+          <span class="explore-sub">Network maps and infrastructure diagrams</span>
+        </a>
+        <a href="stack.html" class="explore-card">
+          <span class="explore-icon">☊</span>
+          <span class="explore-title">Stack</span>
+          <span class="explore-sub">The complete technology stack</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ COMMUNITY ═══ -->
+    <div class="explore-section">
+      <h2 class="explore-heading">Leave a Mark</h2>
+      <div class="explore-grid">
+        <a href="guestbook.html" class="explore-card">
+          <span class="explore-icon">𒀀</span>
+          <span class="explore-title">Guestbook</span>
+          <span class="explore-sub">Sign the wall</span>
+        </a>
+        <a href="feedback.html" class="explore-card">
+          <span class="explore-icon">𓂀</span>
+          <span class="explore-title">Feedback</span>
+          <span class="explore-sub">Tell us what you think</span>
+        </a>
+      </div>
     </div>
 
   </main>

@@ -612,10 +612,11 @@ main {
 
 .explore-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: clamp(0.5rem, 1vw, 0.75rem) 0.5rem;
+  gap: 0.3rem;
+  padding: clamp(0.8rem, 1.5vw, 1.2rem) 0.8rem;
   background: rgba(26, 18, 10, 0.35);
   border: 1px solid rgba(138, 126, 107, 0.08);
   text-decoration: none;
@@ -652,6 +653,61 @@ main {
 
 .explore-card:hover .explore-title {
   color: var(--parchment);
+}
+
+/* Explore sections */
+.explore-section {
+  max-width: min(750px, 95vw);
+  margin: 2.5rem auto 0;
+  padding: 0 clamp(0.5rem, 1vw, 1rem);
+}
+
+.explore-heading {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  font-weight: 400;
+  color: rgba(200, 180, 150, 0.35);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin: 0 0 0.3rem 0;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(138, 126, 107, 0.06);
+}
+
+.explore-section .explore-desc {
+  display: block;
+  font-family: 'EB Garamond', serif;
+  font-size: clamp(0.7rem, 1.5vw, 0.8rem);
+  color: rgba(200, 180, 150, 0.3);
+  font-style: italic;
+  margin: 0 0 0.8rem 0;
+}
+
+.explore-section .explore-grid {
+  margin: 0.5rem auto 0;
+  padding: 0;
+}
+
+.explore-sub {
+  font-family: 'EB Garamond', serif;
+  font-size: clamp(0.55rem, 1.2vw, 0.65rem);
+  color: rgba(200, 180, 150, 0.25);
+  text-align: center;
+  line-height: 1.4;
+  transition: color 0.3s;
+}
+
+.explore-card:hover .explore-sub {
+  color: rgba(200, 180, 150, 0.5);
+}
+
+.intro-hook {
+  color: rgba(200, 180, 150, 0.45);
+  font-size: clamp(0.65rem, 1.8vw, 0.8rem);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  margin-top: 1rem;
+  line-height: 1.8;
 }
 
 .explore-desc {
