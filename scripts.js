@@ -46,13 +46,12 @@ const playerStatus = document.getElementById('playerStatus');
 const musicPlayer = document.getElementById('musicPlayer');
 const volumeSlider = document.getElementById('volumeSlider');
 
-// Restore state from localStorage
-// Only restore volume — always start fresh at track 0 + generative engine
+// Restore state from localStorage — only volume, always start fresh with generative engine
 const saved = JSON.parse(localStorage.getItem('musicState') || 'null');
 currentTrack = 0;
-if (saved && saved.volume != null) {
+if (saved && saved.volume != null && saved.volume >= 0 && saved.volume <= 1) {
   currentVolume = saved.volume;
-  audio.volume = currentVolume;
+  try { audio.volume = currentVolume; } catch(e) {}
   if (volumeSlider) volumeSlider.value = currentVolume * 100;
 } else {
   currentVolume = 0.4;
@@ -252,11 +251,7 @@ function handleVolume(e) {
   }
 }
 
-function togglePlay() {
-  if (playlist.length === 0 && !genActive) {
-    trackName.textContent = 'Drop mp3s in /audio';
-    return;
-  }
+async function togglePlay() {
   if (genActive) {
     if (isPlaying) {
       userPaused = true;
@@ -265,6 +260,14 @@ function togglePlay() {
       userPaused = false;
       resumeGenerativeEngine();
     }
+    return;
+  }
+  // If nothing is active yet, always start with generative engine
+  if (!isPlaying && !genActive) {
+    userPaused = false;
+    engineStarting = true;
+    await startGenerativeEngine();
+    engineStarting = false;
     return;
   }
   if (isPlaying) {
@@ -282,14 +285,29 @@ function togglePlay() {
 playBtn.addEventListener('click', togglePlay);
 
 async function startGenerativeEngine() {
-  if (genActive || engineStarting) return; // prevent double-start
+  if (genActive) return; // prevent double-start
   audio.pause();
   audio.currentTime = 0;
   
-  await loadToneJS();
-  await Tone.start();
-  // Ensure AudioContext is running (critical for iOS)
-  if (Tone.context.state === 'suspended') await Tone.context.resume();
+  try {
+    await loadToneJS();
+  } catch(e) {
+    console.error('[Gen] Failed to load Tone.js:', e);
+    return;
+  }
+  try {
+    await Tone.start();
+    // Ensure AudioContext is running (critical for iOS)
+    if (Tone.context.state === 'suspended') await Tone.context.resume();
+    // Double-check it actually started
+    if (Tone.context.state !== 'running') {
+      console.warn('[Gen] AudioContext state:', Tone.context.state, '— waiting for next interaction');
+      return;
+    }
+  } catch(e) {
+    console.error('[Gen] Tone.start() failed:', e);
+    return;
+  }
   
   genActive = true;
   const scale = maqamScales[currentMaqamIndex];
