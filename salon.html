@@ -3,65 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="noindex">
   <title>The Salon — Methodic Truth</title>
-  <meta name="description" content="A digital salon for philosophy, art, sound, and ideas. No metrics, no algorithms, no noise. Just atmosphere and thought.">
+  <meta name="description" content="A digital salon for slow conversation, shared art, philosophy, and sound. No accounts, no algorithms, no metrics. Just atmosphere and ideas.">
   <meta property="og:title" content="The Salon — Methodic Truth">
-  <meta property="og:description" content="A digital salon for philosophy, art, sound, and ideas. No metrics, no algorithms, no noise. Just atmosphere and thought.">
+  <meta property="og:description" content="A digital salon for slow conversation, shared art, philosophy, and sound. No accounts, no algorithms, no metrics.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/salon.html">
   <meta property="og:image" content="https://methodictruth.com/og-image.png">
-  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=56">
   <style>
     /* ─── SALON ─── */
-    .salon-gate {
+    .salon-entrance {
       min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      position: relative; z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
       padding: 2rem 1rem;
     }
-    .salon-gate-sigil {
-      font-size: 3rem; opacity: 0.12;
-      animation: salon-pulse 8s ease-in-out infinite;
+
+    .salon-sigil {
+      font-size: 3rem;
+      opacity: 0.12;
+      margin-bottom: 1rem;
+      animation: salon-sigil-breathe 8s ease-in-out infinite;
     }
-    @keyframes salon-pulse {
-      0%, 100% { opacity: 0.08; filter: blur(0); }
-      50% { opacity: 0.18; filter: blur(1px); text-shadow: 0 0 30px rgba(0,229,255,0.1); }
+    @keyframes salon-sigil-breathe {
+      0%, 100% { opacity: 0.08; transform: scale(1); }
+      50% { opacity: 0.18; transform: scale(1.02); text-shadow: 0 0 30px rgba(0,229,255,0.06); }
     }
-    .salon-gate h1 {
+
+    .salon-title {
       font-family: 'Cinzel', serif;
       font-size: clamp(1.2rem, 4vw, 2rem);
       font-weight: 400;
       color: rgba(200, 180, 150, 0.5);
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      margin: 1rem 0 0.3rem;
-    }
-    .salon-gate-sub {
-      font-family: 'EB Garamond', serif;
-      font-size: clamp(0.75rem, 2vw, 0.9rem);
-      color: rgba(200, 180, 150, 0.2);
-      font-style: italic;
-      margin-bottom: 2rem;
+      margin: 0;
     }
 
-    /* Identity claiming */
+    .salon-epigraph {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.8rem, 2vw, 0.95rem);
+      font-style: italic;
+      color: rgba(200, 180, 150, 0.2);
+      margin: 1rem 0 2.5rem;
+      text-align: center;
+      max-width: 420px;
+      line-height: 1.7;
+    }
+
+    /* ─── IDENTITY GATE ─── */
     .salon-identity {
-      display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
-      margin-bottom: 2rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
     }
     .salon-identity-prompt {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.6rem;
       color: rgba(200, 180, 150, 0.25);
       letter-spacing: 0.15em;
+      margin-bottom: 0.8rem;
     }
     .salon-name-input {
-      background: rgba(10, 8, 5, 0.95);
+      background: rgba(10, 8, 5, 0.9);
       border: 1px solid rgba(138, 126, 107, 0.1);
       color: rgba(200, 180, 150, 0.7);
       font-family: 'JetBrains Mono', monospace;
@@ -69,8 +80,9 @@
       letter-spacing: 0.15em;
       padding: 0.6rem 1.2rem;
       text-align: center;
-      width: min(280px, 80vw);
       outline: none;
+      width: 220px;
+      box-sizing: border-box;
       transition: border-color 0.4s, box-shadow 0.4s;
     }
     .salon-name-input::placeholder {
@@ -78,437 +90,192 @@
       letter-spacing: 0.2em;
     }
     .salon-name-input:focus {
-      border-color: rgba(0, 229, 255, 0.15);
-      box-shadow: 0 0 20px rgba(0, 229, 255, 0.03);
-    }
-    .salon-enter-btn {
-      background: none;
-      border: 1px solid rgba(138, 126, 107, 0.08);
-      color: rgba(200, 180, 150, 0.3);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.2em;
-      padding: 0.4rem 1.5rem;
-      cursor: pointer;
-      transition: all 0.4s;
-    }
-    .salon-enter-btn:hover {
       border-color: rgba(0, 229, 255, 0.2);
-      color: rgba(0, 229, 255, 0.5);
       box-shadow: 0 0 15px rgba(0, 229, 255, 0.03);
     }
-    .salon-sigil-display {
-      font-size: 1.5rem;
+    .salon-identity-sigil {
+      font-size: 1.8rem;
+      margin-top: 0.6rem;
       opacity: 0.3;
-      margin-top: 0.3rem;
       transition: opacity 0.3s;
     }
-
-    /* ─── ROOMS ─── */
-    .salon-rooms {
-      display: none;
-      min-height: 100vh;
-      position: relative; z-index: 10;
-      max-width: min(900px, 95vw);
-      margin: 0 auto;
-      padding: 1.5rem 1rem 5rem;
-    }
-    .salon-rooms.active { display: block; }
-
-    .salon-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.5rem 0; margin-bottom: 1.5rem;
-      border-bottom: 1px solid rgba(138, 126, 107, 0.05);
-    }
-    .salon-header-identity {
-      font-family: 'JetBrains Mono', monospace;
+    .salon-identity-hint {
+      font-family: 'EB Garamond', serif;
       font-size: 0.6rem;
-      color: rgba(200, 180, 150, 0.3);
-      letter-spacing: 0.1em;
-    }
-    .salon-header-nav {
-      display: flex; gap: 0.3rem; flex-wrap: wrap;
-    }
-    .salon-room-tab {
-      background: none;
-      border: 1px solid rgba(138, 126, 107, 0.06);
-      color: rgba(200, 180, 150, 0.25);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.12em;
-      padding: 0.3rem 0.7rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-transform: lowercase;
-    }
-    .salon-room-tab:hover {
-      border-color: rgba(138, 126, 107, 0.15);
-      color: rgba(200, 180, 150, 0.45);
-    }
-    .salon-room-tab.active {
-      border-color: rgba(0, 229, 255, 0.15);
-      color: rgba(0, 229, 255, 0.5);
-      background: rgba(0, 229, 255, 0.02);
-    }
-
-    /* Room content area */
-    .salon-room {
-      display: none;
-    }
-    .salon-room.active { display: block; }
-
-    .salon-room-header {
-      margin-bottom: 1.5rem;
-    }
-    .salon-room-title {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(0.9rem, 2.5vw, 1.3rem);
-      font-weight: 400;
-      color: rgba(200, 180, 150, 0.35);
-      letter-spacing: 0.2em;
-    }
-    .salon-room-desc {
-      font-family: 'EB Garamond', serif;
-      font-size: clamp(0.7rem, 1.5vw, 0.8rem);
-      color: rgba(200, 180, 150, 0.18);
       font-style: italic;
-      margin-top: 0.3rem;
-    }
-
-    /* ─── STONES (posts) ─── */
-    .salon-stones {
-      display: flex; flex-direction: column; gap: 1.2rem;
-      margin-bottom: 2rem;
-    }
-    .salon-stone {
-      background: rgba(10, 8, 5, 0.4);
-      border: 1px solid rgba(138, 126, 107, 0.05);
-      padding: 1rem 1.2rem;
-      position: relative;
-      transition: border-color 0.3s;
-    }
-    .salon-stone:hover {
-      border-color: rgba(138, 126, 107, 0.1);
-    }
-    .salon-stone::before {
-      content: '';
-      position: absolute; top: 0; left: 0; width: 2px; height: 100%;
-      background: linear-gradient(180deg, rgba(0,229,255,0.06), transparent);
-    }
-    .salon-stone-meta {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 0.6rem;
-    }
-    .salon-stone-author {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
-      color: rgba(0, 229, 255, 0.3);
-      letter-spacing: 0.1em;
-    }
-    .salon-stone-sigil {
-      font-size: 0.9rem;
-      opacity: 0.2;
-    }
-    .salon-stone-time {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.5rem;
       color: rgba(200, 180, 150, 0.15);
-      letter-spacing: 0.08em;
+      margin-top: 0.4rem;
     }
-    .salon-stone-text {
-      font-family: 'EB Garamond', serif;
-      font-size: clamp(0.85rem, 1.8vw, 1rem);
-      color: rgba(200, 180, 150, 0.55);
-      line-height: 1.8;
-      white-space: pre-wrap;
-    }
-    .salon-stone-reply-btn {
-      background: none; border: none;
-      color: rgba(200, 180, 150, 0.12);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.5rem;
-      letter-spacing: 0.1em;
-      cursor: pointer;
-      margin-top: 0.5rem;
-      padding: 0.2rem 0;
-      transition: color 0.3s;
-    }
-    .salon-stone-reply-btn:hover {
-      color: rgba(200, 180, 150, 0.35);
+    .salon-identity.claimed .salon-identity-sigil { opacity: 0.6; }
+    .salon-identity.claimed .salon-name-input { border-color: rgba(74, 124, 89, 0.2); }
+
+    /* ─── ROOM GRID ─── */
+    .salon-rooms {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(200px, 80vw), 1fr));
+      gap: 1px;
+      max-width: 660px;
+      width: 100%;
+      margin: 0 auto;
     }
 
-    /* Replies — nested stones */
-    .salon-replies {
-      margin-left: 1.2rem;
-      padding-left: 0.8rem;
-      border-left: 1px solid rgba(138, 126, 107, 0.04);
-      display: flex; flex-direction: column; gap: 0.8rem;
-      margin-top: 0.6rem;
-    }
-    .salon-replies .salon-stone {
-      background: rgba(10, 8, 5, 0.25);
-      padding: 0.7rem 1rem;
-    }
-    .salon-replies .salon-stone::before { display: none; }
-
-    /* ─── COMPOSE ─── */
-    .salon-compose {
-      background: rgba(10, 8, 5, 0.5);
-      border: 1px solid rgba(138, 126, 107, 0.05);
-      padding: 1rem 1.2rem;
+    .salon-room-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(1.2rem, 3vw, 2rem) 1rem;
+      background: rgba(10, 8, 5, 0.4);
+      border: 1px solid rgba(138, 126, 107, 0.04);
+      text-decoration: none;
+      transition: all 0.5s ease;
       position: relative;
+      overflow: hidden;
+      cursor: pointer;
     }
-    .salon-compose::before {
+    .salon-room-card::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.06), transparent);
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--room-accent, rgba(138,126,107,0.06)), transparent);
+      transition: opacity 0.4s;
+      opacity: 0;
     }
-    .salon-compose-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.5rem;
-      color: rgba(0, 229, 255, 0.2);
+    .salon-room-card:hover::before { opacity: 1; }
+    .salon-room-card:hover {
+      background: rgba(10, 8, 5, 0.6);
+      border-color: var(--room-accent, rgba(138,126,107,0.08));
+    }
+
+    .salon-room-glyph {
+      font-size: 1.6rem;
+      opacity: 0.2;
+      margin-bottom: 0.6rem;
+      transition: opacity 0.4s, text-shadow 0.4s;
+    }
+    .salon-room-card:hover .salon-room-glyph {
+      opacity: 0.5;
+      text-shadow: 0 0 15px var(--room-accent, rgba(200,180,150,0.1));
+    }
+
+    .salon-room-name {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.7rem, 2vw, 0.85rem);
+      color: rgba(200, 180, 150, 0.4);
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
+      transition: color 0.3s;
     }
-    .salon-compose textarea {
-      width: 100%;
-      min-height: 100px;
-      background: rgba(5, 3, 2, 0.6);
-      border: 1px solid rgba(138, 126, 107, 0.06);
-      color: rgba(200, 180, 150, 0.6);
-      font-family: 'EB Garamond', serif;
-      font-size: clamp(0.85rem, 1.8vw, 1rem);
-      line-height: 1.8;
-      padding: 0.8rem;
-      resize: vertical;
-      outline: none;
-      transition: border-color 0.3s;
-      box-sizing: border-box;
-    }
-    .salon-compose textarea::placeholder {
-      color: rgba(200, 180, 150, 0.12);
-      font-style: italic;
-    }
-    .salon-compose textarea:focus {
-      border-color: rgba(0, 229, 255, 0.1);
-    }
-    .salon-compose-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 0.5rem;
-    }
-    .salon-compose-hint {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.45rem;
-      color: rgba(200, 180, 150, 0.12);
-      letter-spacing: 0.08em;
-    }
-    .salon-compose-send {
-      background: none;
-      border: 1px solid rgba(138, 126, 107, 0.08);
-      color: rgba(200, 180, 150, 0.25);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.15em;
-      padding: 0.35rem 1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .salon-compose-send:hover {
-      border-color: rgba(0, 229, 255, 0.2);
-      color: rgba(0, 229, 255, 0.5);
-    }
-    .salon-compose-send:disabled {
-      opacity: 0.3; cursor: not-allowed;
-    }
-    .salon-compose-charcount {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.45rem;
-      color: rgba(200, 180, 150, 0.1);
+    .salon-room-card:hover .salon-room-name {
+      color: rgba(200, 180, 150, 0.65);
     }
 
-    /* ─── EMPTY STATE ─── */
-    .salon-empty {
-      text-align: center;
-      padding: 3rem 1rem;
-    }
-    .salon-empty-glyph {
-      font-size: 2rem;
-      opacity: 0.08;
-      margin-bottom: 0.5rem;
-    }
-    .salon-empty-text {
+    .salon-room-desc {
       font-family: 'EB Garamond', serif;
-      font-size: 0.85rem;
+      font-size: clamp(0.6rem, 1.5vw, 0.7rem);
       font-style: italic;
       color: rgba(200, 180, 150, 0.15);
+      text-align: center;
+      line-height: 1.5;
+      max-width: 180px;
     }
 
-    /* ─── TOAST ─── */
-    .salon-toast {
-      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
-      background: rgba(10, 8, 5, 0.95);
-      border: 1px solid rgba(0, 229, 255, 0.15);
-      color: rgba(200, 180, 150, 0.5);
+    .salon-room-count {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.1em;
-      padding: 0.5rem 1.2rem;
-      z-index: 9999;
-      opacity: 0; transition: opacity 0.4s;
-      pointer-events: none;
+      font-size: 0.45rem;
+      color: rgba(0, 229, 255, 0.15);
+      letter-spacing: 0.15em;
+      margin-top: 0.5rem;
+      transition: color 0.3s;
     }
-    .salon-toast.show { opacity: 1; }
+    .salon-room-card:hover .salon-room-count {
+      color: rgba(0, 229, 255, 0.3);
+    }
 
-    /* Mobile */
-    @media (max-width: 600px) {
-      .salon-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
-      .salon-replies { margin-left: 0.5rem; padding-left: 0.5rem; }
+    /* Room accent colors */
+    .salon-room-card[data-room="agora"] { --room-accent: rgba(0, 229, 255, 0.08); }
+    .salon-room-card[data-room="gallery"] { --room-accent: rgba(200, 160, 120, 0.08); }
+    .salon-room-card[data-room="workshop"] { --room-accent: rgba(74, 124, 89, 0.08); }
+    .salon-room-card[data-room="sound"] { --room-accent: rgba(123, 104, 238, 0.08); }
+    .salon-room-card[data-room="library"] { --room-accent: rgba(180, 140, 100, 0.08); }
+
+    /* ─── FOOTER ─── */
+    .salon-footer {
+      margin-top: 3rem;
+      text-align: center;
+    }
+    .salon-footer-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem;
+      color: rgba(200, 180, 150, 0.1);
+      letter-spacing: 0.3em;
     }
   </style>
 </head>
 <body>
-  <nav class="site-nav">
-    <div class="nav-brand"><a href="index.html">Methodic Truth</a></div>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
-    <div class="nav-links" id="navLinks">
-      <a href="chronicles.html">Chronicles</a>
-      <a href="salon.html" class="active">Salon</a>
-      <a href="synth.html">Synth</a>
-      <a href="live.html">Live</a>
-      <a href="about.html">About</a>
-      <div class="nav-dropdown">
-        <button class="nav-dropdown-btn">More ▾</button>
-        <div class="nav-dropdown-content">
-          <a href="mixer.html">Mixer</a>
-          <a href="theory.html">Theory</a>
-          <a href="signal.html">Signal</a>
-          <a href="philosophy.html">Philosophy</a>
-          <a href="architecture.html">Architecture</a>
-          <a href="topology.html">Topology</a>
-          <a href="stack.html">Stack</a>
-          <a href="studio.html">Studio</a>
-          <a href="songwriter.html">Songwriter</a>
-          <a href="tuner.html">Tuner</a>
-          <a href="guitar.html">Fretboard</a>
-          <a href="tapbpm.html">Tap BPM</a>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div class="salon-entrance">
+    <div class="salon-sigil">𓁹</div>
+    <h1 class="salon-title">The Salon</h1>
+    <p class="salon-epigraph">A place for those who think slowly in a world that scrolls fast.</p>
 
-  <!-- ═══ GATE ═══ -->
-  <div id="salonGate" class="salon-gate">
-    <div class="salon-gate-sigil">𒀭</div>
-    <h1>The Salon</h1>
-    <div class="salon-gate-sub">a place for those who think slowly</div>
-
-    <div class="salon-identity">
-      <div class="salon-identity-prompt">what do they call you?</div>
-      <input type="text" id="salonNameInput" class="salon-name-input" placeholder="choose a name..." maxlength="20" autocomplete="off">
-      <div id="salonSigil" class="salon-sigil-display"></div>
-      <button id="salonEnterBtn" class="salon-enter-btn">enter</button>
-    </div>
-  </div>
-
-  <!-- ═══ ROOMS ═══ -->
-  <div id="salonRooms" class="salon-rooms">
-    <div class="salon-header">
-      <div class="salon-header-identity">
-        <span id="salonUserSigil"></span>
-        <span id="salonUserName"></span>
-      </div>
-      <div class="salon-header-nav">
-        <button class="salon-room-tab active" data-room="agora">agora</button>
-        <button class="salon-room-tab" data-room="gallery">gallery</button>
-        <button class="salon-room-tab" data-room="workshop">workshop</button>
-        <button class="salon-room-tab" data-room="library">library</button>
-      </div>
+    <!-- Identity -->
+    <div class="salon-identity" id="identitySection">
+      <div class="salon-identity-prompt">what shall we call you?</div>
+      <input type="text" id="salonName" class="salon-name-input" placeholder="a name..." maxlength="20" autocomplete="off">
+      <div class="salon-identity-sigil" id="salonSigil"></div>
+      <div class="salon-identity-hint">your mark in this place</div>
     </div>
 
-    <!-- AGORA -->
-    <div id="room-agora" class="salon-room active">
-      <div class="salon-room-header">
-        <div class="salon-room-title">The Agora</div>
-        <div class="salon-room-desc">Philosophy, ideas, questions that don't have answers yet.</div>
-      </div>
-      <div id="stones-agora" class="salon-stones"></div>
-      <div class="salon-compose">
-        <div class="salon-compose-label">⌇ leave a stone</div>
-        <textarea id="compose-agora" placeholder="Write something worth reading tomorrow..."></textarea>
-        <div class="salon-compose-footer">
-          <span class="salon-compose-hint">take your time</span>
-          <span id="charcount-agora" class="salon-compose-charcount"></span>
-          <button class="salon-compose-send" data-room="agora">place stone</button>
-        </div>
-      </div>
-    </div>
+    <!-- Rooms -->
+    <div class="salon-rooms">
+      <a href="agora.html" class="salon-room-card" data-room="agora">
+        <div class="salon-room-glyph">𒀭</div>
+        <div class="salon-room-name">The Agora</div>
+        <div class="salon-room-desc">Philosophy, ideas, and the questions that don't have answers</div>
+        <div class="salon-room-count" id="count-agora"></div>
+      </a>
 
-    <!-- GALLERY -->
-    <div id="room-gallery" class="salon-room">
-      <div class="salon-room-header">
-        <div class="salon-room-title">The Gallery</div>
+      <a href="gallery.html" class="salon-room-card" data-room="gallery">
+        <div class="salon-room-glyph">𓋹</div>
+        <div class="salon-room-name">The Gallery</div>
         <div class="salon-room-desc">Art speaks. We listen.</div>
-      </div>
-      <div id="stones-gallery" class="salon-stones"></div>
-      <div class="salon-compose">
-        <div class="salon-compose-label">⌇ hang something</div>
-        <textarea id="compose-gallery" placeholder="Share a piece, a link, a vision..."></textarea>
-        <div class="salon-compose-footer">
-          <span class="salon-compose-hint">let it breathe</span>
-          <span id="charcount-gallery" class="salon-compose-charcount"></span>
-          <button class="salon-compose-send" data-room="gallery">place stone</button>
-        </div>
-      </div>
+        <div class="salon-room-count" id="count-gallery"></div>
+      </a>
+
+      <a href="workshop.html" class="salon-room-card" data-room="workshop">
+        <div class="salon-room-glyph">⌇</div>
+        <div class="salon-room-name">The Workshop</div>
+        <div class="salon-room-desc">Show what you're building. No pitches, no decks — just work.</div>
+        <div class="salon-room-count" id="count-workshop"></div>
+      </a>
+
+      <a href="live.html" class="salon-room-card" data-room="sound">
+        <div class="salon-room-glyph">𒌓</div>
+        <div class="salon-room-name">The Sound Room</div>
+        <div class="salon-room-desc">Instruments, jam sessions, generative music. Plug in.</div>
+        <div class="salon-room-count" id="count-sound"></div>
+      </a>
+
+      <a href="library.html" class="salon-room-card" data-room="library">
+        <div class="salon-room-glyph">𒁾</div>
+        <div class="salon-room-name">The Library</div>
+        <div class="salon-room-desc">Long-form writing, essays, and things worth reading twice.</div>
+        <div class="salon-room-count" id="count-library"></div>
+      </a>
     </div>
 
-    <!-- WORKSHOP -->
-    <div id="room-workshop" class="salon-room">
-      <div class="salon-room-header">
-        <div class="salon-room-title">The Workshop</div>
-        <div class="salon-room-desc">Show what you're building. No judgment, only craft.</div>
-      </div>
-      <div id="stones-workshop" class="salon-stones"></div>
-      <div class="salon-compose">
-        <div class="salon-compose-label">⌇ show your work</div>
-        <textarea id="compose-workshop" placeholder="What are you making?"></textarea>
-        <div class="salon-compose-footer">
-          <span class="salon-compose-hint">works in progress welcome</span>
-          <span id="charcount-workshop" class="salon-compose-charcount"></span>
-          <button class="salon-compose-send" data-room="workshop">place stone</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- LIBRARY -->
-    <div id="room-library" class="salon-room">
-      <div class="salon-room-header">
-        <div class="salon-room-title">The Library</div>
-        <div class="salon-room-desc">Long-form thought. Essays, readings, things worth keeping.</div>
-      </div>
-      <div id="stones-library" class="salon-stones"></div>
-      <div class="salon-compose">
-        <div class="salon-compose-label">⌇ add to the collection</div>
-        <textarea id="compose-library" placeholder="Something that changed how you think..."></textarea>
-        <div class="salon-compose-footer">
-          <span class="salon-compose-hint">depth over speed</span>
-          <span id="charcount-library" class="salon-compose-charcount"></span>
-          <button class="salon-compose-send" data-room="library">place stone</button>
-        </div>
-      </div>
+    <div class="salon-footer">
+      <div class="salon-footer-line">no algorithms · no metrics · no noise</div>
     </div>
   </div>
-
-  <!-- Toast -->
-  <div id="salonToast" class="salon-toast"></div>
 
   <!-- Firebase -->
   <script src="lib/firebase-app-compat.js"></script>
   <script src="lib/firebase-database-compat.js"></script>
-
   <script>
   (function() {
-    // ─── FIREBASE ───
     const firebaseConfig = {
       apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
       authDomain: "methodictruth.firebaseapp.com",
@@ -521,279 +288,73 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ─── SIGILS ─── randomly assigned marks
-    const SIGILS = ['𒀭','𒌓','𒈗','𒆳','𓋹','𓂀','𓁹','☍','☊','𒁾','𒊕','𒀀','𒁹','◬','◇','⬡','⌇','△','◎','⊘'];
+    // ─── SIGIL SYSTEM ───
+    const SIGILS = ['𓁹','𓂀','𓋹','𓃭','𓅓','𓆣','𓇳','𓈖','𓊝','𓌙','𒀭','𒁾','𒆳','𒈗','𒌓','☊','☍','⌇','◈','◇','⬡','⏦','⊹','⊿','⋮','⌬'];
 
-    function assignSigil(name) {
-      // Deterministic from name so it's consistent
-      let hash = 0;
-      for (let i = 0; i < name.length; i++) hash = ((hash << 5) - hash) + name.charCodeAt(i);
-      return SIGILS[Math.abs(hash) % SIGILS.length];
+    function hashStr(s) {
+      let h = 0;
+      for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+      return Math.abs(h);
+    }
+
+    function getSigil(name) {
+      return SIGILS[hashStr(name) % SIGILS.length];
     }
 
     // ─── IDENTITY ───
-    const gate = document.getElementById('salonGate');
-    const rooms = document.getElementById('salonRooms');
-    const nameInput = document.getElementById('salonNameInput');
-    const enterBtn = document.getElementById('salonEnterBtn');
-    const sigilDisplay = document.getElementById('salonSigil');
-    const userSigil = document.getElementById('salonUserSigil');
-    const userName = document.getElementById('salonUserName');
+    const nameInput = document.getElementById('salonName');
+    const sigilEl = document.getElementById('salonSigil');
+    const identitySection = document.getElementById('identitySection');
 
-    let currentUser = { name: '', sigil: '' };
-    let currentRoom = 'agora';
-
-    // Restore identity
-    const savedName = localStorage.getItem('salon-name');
-    if (savedName) {
-      nameInput.value = savedName;
-      sigilDisplay.textContent = assignSigil(savedName);
-      sigilDisplay.style.opacity = '0.4';
+    // Load saved identity
+    let salonIdentity = JSON.parse(localStorage.getItem('salon-identity') || 'null');
+    if (salonIdentity) {
+      nameInput.value = salonIdentity.name;
+      sigilEl.textContent = salonIdentity.sigil;
+      identitySection.classList.add('claimed');
     }
 
     nameInput.addEventListener('input', () => {
       const name = nameInput.value.trim();
       if (name.length > 0) {
-        sigilDisplay.textContent = assignSigil(name);
-        sigilDisplay.style.opacity = '0.4';
+        const sigil = getSigil(name);
+        sigilEl.textContent = sigil;
+        identitySection.classList.add('claimed');
+        salonIdentity = { name, sigil, created: Date.now() };
+        localStorage.setItem('salon-identity', JSON.stringify(salonIdentity));
+        // Register in Firebase
+        const vid = localStorage.getItem('mt-vid') || ('v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5));
+        localStorage.setItem('mt-vid', vid);
+        db.ref('salon/identities/' + vid).set({ name, sigil, lastSeen: firebase.database.ServerValue.TIMESTAMP });
       } else {
-        sigilDisplay.textContent = '';
+        sigilEl.textContent = '';
+        identitySection.classList.remove('claimed');
       }
     });
 
-    function enterSalon() {
-      const name = nameInput.value.trim();
-      if (!name) { nameInput.focus(); return; }
-
-      currentUser.name = name;
-      currentUser.sigil = assignSigil(name);
-      localStorage.setItem('salon-name', name);
-
-      userSigil.textContent = currentUser.sigil;
-      userName.textContent = name;
-
-      // Transition
-      gate.style.transition = 'opacity 1.2s ease';
-      gate.style.opacity = '0';
-      setTimeout(() => {
-        gate.style.display = 'none';
-        rooms.classList.add('active');
-        rooms.style.opacity = '0';
-        rooms.style.transition = 'opacity 1.5s ease';
-        requestAnimationFrame(() => { rooms.style.opacity = '1'; });
-        loadRoom(currentRoom);
-      }, 1200);
-    }
-
-    enterBtn.addEventListener('click', enterSalon);
-    nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') enterSalon(); });
-
-    // ─── ROOM TABS ───
-    document.querySelectorAll('.salon-room-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.salon-room-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.salon-room').forEach(r => r.classList.remove('active'));
-        tab.classList.add('active');
-        const room = tab.dataset.room;
-        document.getElementById('room-' + room).classList.add('active');
-        currentRoom = room;
-        loadRoom(room);
-      });
-    });
-
-    // ─── TIME FORMATTING ───
-    function timeAgo(ts) {
-      const diff = Date.now() - ts;
-      const mins = Math.floor(diff / 60000);
-      const hours = Math.floor(diff / 3600000);
-      const days = Math.floor(diff / 86400000);
-      if (mins < 1) return 'just now';
-      if (mins < 60) return mins + ' min ago';
-      if (hours < 24) return hours + (hours === 1 ? ' hour ago' : ' hours ago');
-      if (days < 7) return days + (days === 1 ? ' day ago' : ' days ago');
-      if (days < 30) return Math.floor(days / 7) + (Math.floor(days/7) === 1 ? ' week ago' : ' weeks ago');
-      return Math.floor(days / 30) + (Math.floor(days/30) === 1 ? ' moon ago' : ' moons ago');
-    }
-
-    // ─── RENDER STONE ───
-    function renderStone(data, id, isReply) {
-      const stone = document.createElement('div');
-      stone.className = 'salon-stone';
-      stone.dataset.id = id;
-      stone.innerHTML = `
-        <div class="salon-stone-meta">
-          <span class="salon-stone-author"><span class="salon-stone-sigil">${data.sigil || '◇'}</span> ${escapeHtml(data.name || 'anonymous')}</span>
-          <span class="salon-stone-time">${timeAgo(data.ts)}</span>
-        </div>
-        <div class="salon-stone-text">${escapeHtml(data.text)}</div>
-        ${!isReply ? '<button class="salon-stone-reply-btn" data-id="' + id + '">respond</button>' : ''}
-      `;
-
-      if (!isReply) {
-        const replyBtn = stone.querySelector('.salon-stone-reply-btn');
-        replyBtn.addEventListener('click', () => toggleReplyCompose(id, stone));
-      }
-
-      return stone;
-    }
-
-    function toggleReplyCompose(parentId, stoneEl) {
-      // Remove existing reply compose if any
-      const existing = stoneEl.querySelector('.salon-reply-compose');
-      if (existing) { existing.remove(); return; }
-
-      const compose = document.createElement('div');
-      compose.className = 'salon-reply-compose';
-      compose.style.cssText = 'margin-top:0.6rem;';
-      compose.innerHTML = `
-        <textarea style="width:100%;min-height:60px;background:rgba(5,3,2,0.6);border:1px solid rgba(138,126,107,0.06);color:rgba(200,180,150,0.6);font-family:'EB Garamond',serif;font-size:0.85rem;line-height:1.7;padding:0.6rem;resize:vertical;outline:none;box-sizing:border-box;" placeholder="respond thoughtfully..."></textarea>
-        <button style="margin-top:0.3rem;background:none;border:1px solid rgba(138,126,107,0.08);color:rgba(200,180,150,0.25);font-family:'JetBrains Mono',monospace;font-size:0.5rem;letter-spacing:0.15em;padding:0.3rem 0.8rem;cursor:pointer;" class="salon-reply-send">place stone</button>
-      `;
-      stoneEl.appendChild(compose);
-
-      const sendBtn = compose.querySelector('.salon-reply-send');
-      const textarea = compose.querySelector('textarea');
-      sendBtn.addEventListener('click', () => {
-        const text = textarea.value.trim();
-        if (!text || text.length < 2) return;
-        submitStone(currentRoom, text, parentId);
-        compose.remove();
-      });
-    }
-
-    // ─── LOAD ROOM ───
-    function loadRoom(room) {
-      const container = document.getElementById('stones-' + room);
-      container.innerHTML = '';
-
-      const ref = db.ref('salon/' + room).orderByChild('ts').limitToLast(50);
-
-      // Clear previous listeners
-      if (loadRoom._unsub) loadRoom._unsub();
-
-      ref.on('value', (snap) => {
-        container.innerHTML = '';
+    // ─── ROOM COUNTS ───
+    const rooms = ['agora', 'gallery', 'workshop', 'library'];
+    rooms.forEach(room => {
+      db.ref('salon/rooms/' + room).on('value', snap => {
         const data = snap.val();
-        if (!data) {
-          container.innerHTML = '<div class="salon-empty"><div class="salon-empty-glyph">𒀀</div><div class="salon-empty-text">This room is quiet. Be the first voice.</div></div>';
-          return;
+        const count = data ? Object.keys(data).length : 0;
+        const el = document.getElementById('count-' + room);
+        if (el) {
+          if (count === 0) el.textContent = 'quiet';
+          else if (count === 1) el.textContent = '1 stone';
+          else el.textContent = count + ' stones';
         }
-
-        // Separate top-level and replies
-        const posts = {};
-        const replies = {};
-        Object.entries(data).forEach(([id, post]) => {
-          if (post.replyTo) {
-            if (!replies[post.replyTo]) replies[post.replyTo] = [];
-            replies[post.replyTo].push({ id, ...post });
-          } else {
-            posts[id] = post;
-          }
-        });
-
-        // Render top-level stones sorted by time (newest last)
-        const sorted = Object.entries(posts).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
-        sorted.forEach(([id, post]) => {
-          const stone = renderStone(post, id, false);
-          container.appendChild(stone);
-
-          // Render replies
-          if (replies[id]) {
-            const repliesDiv = document.createElement('div');
-            repliesDiv.className = 'salon-replies';
-            replies[id].sort((a, b) => a.ts - b.ts).forEach(r => {
-              repliesDiv.appendChild(renderStone(r, r.id, true));
-            });
-            stone.appendChild(repliesDiv);
-          }
-        });
-
-        // Scroll to bottom
-        container.scrollTop = container.scrollHeight;
-      });
-
-      loadRoom._unsub = () => ref.off();
-    }
-
-    // ─── SUBMIT STONE ───
-    let lastPostTime = 0;
-    const COOLDOWN = 30000; // 30 seconds between posts
-
-    function submitStone(room, text, replyTo) {
-      if (!currentUser.name) return;
-      if (text.length < 2) return;
-      if (text.length > 2000) { showToast('too many words — keep it under 2000'); return; }
-
-      const now = Date.now();
-      if (now - lastPostTime < COOLDOWN) {
-        const wait = Math.ceil((COOLDOWN - (now - lastPostTime)) / 1000);
-        showToast('breathe — ' + wait + 's before your next stone');
-        return;
-      }
-
-      const post = {
-        name: currentUser.name,
-        sigil: currentUser.sigil,
-        text: text,
-        ts: now,
-        room: room
-      };
-      if (replyTo) post.replyTo = replyTo;
-
-      db.ref('salon/' + room).push(post).then(() => {
-        lastPostTime = now;
-        showToast('stone placed');
-      }).catch((e) => {
-        showToast('something broke — try again');
-        console.error('[Salon]', e);
-      });
-    }
-
-    // ─── COMPOSE BUTTONS ───
-    document.querySelectorAll('.salon-compose-send').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const room = btn.dataset.room;
-        const textarea = document.getElementById('compose-' + room);
-        const text = textarea.value.trim();
-        if (!text) return;
-        submitStone(room, text);
-        textarea.value = '';
-        updateCharCount(room);
       });
     });
 
-    // Character counts
-    function updateCharCount(room) {
-      const textarea = document.getElementById('compose-' + room);
-      const counter = document.getElementById('charcount-' + room);
-      if (textarea && counter) {
-        const len = textarea.value.length;
-        counter.textContent = len > 0 ? len + '/2000' : '';
-        counter.style.color = len > 1800 ? 'rgba(200,60,40,0.3)' : 'rgba(200,180,150,0.1)';
-      }
-    }
-    ['agora', 'gallery', 'workshop', 'library'].forEach(room => {
-      const ta = document.getElementById('compose-' + room);
-      if (ta) ta.addEventListener('input', () => updateCharCount(room));
-    });
-
-    // ─── TOAST ───
-    const toast = document.getElementById('salonToast');
-    function showToast(msg) {
-      toast.textContent = msg;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-
-    // ─── UTILS ───
-    function escapeHtml(str) {
-      const d = document.createElement('div');
-      d.textContent = str;
-      return d.innerHTML;
-    }
-
-    // ─── ANALYTICS ───
-    (function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'salon.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})();
+    // Track salon visit
+    const vid = localStorage.getItem('mt-vid') || ('v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5));
+    localStorage.setItem('mt-vid', vid);
+    fetch('https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: 'salon.html', visitor: vid, ts: Date.now(), ref: document.referrer || 'direct', screen: screen.width+'x'+screen.height })
+    }).catch(() => {});
 
   })();
   </script>

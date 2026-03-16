@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>The Agora — Methodic Truth</title>
+  <meta name="description" content="Slow conversation about philosophy, ideas, and the questions that don't have answers. Leave a thought. Return for the reply.">
+  <meta property="og:title" content="The Agora — Methodic Truth">
+  <meta property="og:description" content="Slow conversation about philosophy, ideas, and the questions that don't have answers.">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=56">
+  <style>
+    /* ─── AGORA ─── */
+    .agora {
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 2rem clamp(1rem, 4vw, 2rem) 6rem;
+    }
+
+    /* Header */
+    .agora-header {
+      text-align: center;
+      padding: 2rem 0 1.5rem;
+      border-bottom: 1px solid rgba(138, 126, 107, 0.04);
+      margin-bottom: 2rem;
+    }
+    .agora-glyph {
+      font-size: 2rem;
+      opacity: 0.12;
+      animation: salon-sigil-breathe 8s ease-in-out infinite;
+    }
+    @keyframes salon-sigil-breathe {
+      0%, 100% { opacity: 0.08; }
+      50% { opacity: 0.18; text-shadow: 0 0 30px rgba(0,229,255,0.05); }
+    }
+    .agora-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      font-weight: 400;
+      color: rgba(200, 180, 150, 0.45);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin: 0.5rem 0 0.3rem;
+    }
+    .agora-sub {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+      font-style: italic;
+      color: rgba(200, 180, 150, 0.15);
+    }
+    .agora-back {
+      display: inline-block;
+      margin-top: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: rgba(200, 180, 150, 0.15);
+      text-decoration: none;
+      letter-spacing: 0.15em;
+      transition: color 0.3s;
+    }
+    .agora-back:hover { color: rgba(200, 180, 150, 0.4); }
+
+    /* ─── COMPOSE ─── */
+    .agora-compose {
+      margin-bottom: 2.5rem;
+      padding: 1.2rem;
+      background: rgba(10, 8, 5, 0.4);
+      border: 1px solid rgba(0, 229, 255, 0.03);
+      position: relative;
+    }
+    .agora-compose::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.06), transparent);
+    }
+    .agora-compose-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: rgba(0, 229, 255, 0.2);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+    .agora-textarea {
+      width: 100%;
+      min-height: 100px;
+      background: rgba(5, 3, 2, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.06);
+      color: rgba(200, 180, 150, 0.65);
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      line-height: 1.8;
+      padding: 0.8rem;
+      resize: vertical;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.4s;
+    }
+    .agora-textarea::placeholder {
+      color: rgba(138, 126, 107, 0.15);
+      font-style: italic;
+    }
+    .agora-textarea:focus {
+      border-color: rgba(0, 229, 255, 0.1);
+    }
+    .agora-compose-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .agora-char-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45rem;
+      color: rgba(200, 180, 150, 0.15);
+      letter-spacing: 0.1em;
+    }
+    .agora-submit {
+      background: rgba(10, 8, 5, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.08);
+      color: rgba(200, 180, 150, 0.3);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .agora-submit:hover {
+      border-color: rgba(0, 229, 255, 0.2);
+      color: rgba(200, 180, 150, 0.6);
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.03);
+    }
+    .agora-submit:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+    .agora-cooldown {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45rem;
+      color: rgba(200, 120, 40, 0.3);
+      text-align: center;
+      margin-top: 0.3rem;
+    }
+    .agora-identity-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .agora-identity-sigil {
+      font-size: 1rem;
+      opacity: 0.35;
+    }
+    .agora-identity-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: rgba(200, 180, 150, 0.3);
+      letter-spacing: 0.1em;
+    }
+    .agora-identity-change {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem;
+      color: rgba(200, 180, 150, 0.12);
+      cursor: pointer;
+      text-decoration: none;
+      margin-left: auto;
+      transition: color 0.3s;
+    }
+    .agora-identity-change:hover { color: rgba(200, 180, 150, 0.35); }
+
+    /* ─── STONES (posts) ─── */
+    .agora-stones {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .agora-stone {
+      padding: 1.2rem;
+      background: rgba(10, 8, 5, 0.25);
+      border-left: 1px solid rgba(138, 126, 107, 0.04);
+      border-bottom: 1px solid rgba(138, 126, 107, 0.02);
+      position: relative;
+      transition: background 0.3s;
+    }
+    .agora-stone:hover {
+      background: rgba(10, 8, 5, 0.4);
+    }
+    .agora-stone-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .agora-stone-sigil {
+      font-size: 0.9rem;
+      opacity: 0.25;
+    }
+    .agora-stone-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: rgba(200, 180, 150, 0.3);
+      letter-spacing: 0.08em;
+    }
+    .agora-stone-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem;
+      color: rgba(200, 180, 150, 0.12);
+      letter-spacing: 0.08em;
+      margin-left: auto;
+    }
+    .agora-stone-text {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      color: rgba(200, 180, 150, 0.55);
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .agora-stone-reply-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem;
+      color: rgba(200, 180, 150, 0.1);
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0.3rem 0;
+      margin-top: 0.3rem;
+      transition: color 0.3s;
+    }
+    .agora-stone-reply-btn:hover { color: rgba(200, 180, 150, 0.3); }
+
+    /* Reply stones */
+    .agora-stone.reply {
+      margin-left: 1.5rem;
+      border-left-color: rgba(0, 229, 255, 0.04);
+    }
+    .agora-stone.reply::before {
+      content: '└';
+      position: absolute;
+      left: -1rem;
+      top: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: rgba(138, 126, 107, 0.08);
+    }
+
+    /* Reply compose inline */
+    .agora-reply-compose {
+      margin: 0.5rem 0 0 1.5rem;
+      padding: 0.6rem;
+      background: rgba(5, 3, 2, 0.4);
+      border: 1px solid rgba(0, 229, 255, 0.03);
+    }
+    .agora-reply-textarea {
+      width: 100%;
+      min-height: 60px;
+      background: rgba(5, 3, 2, 0.5);
+      border: 1px solid rgba(138, 126, 107, 0.04);
+      color: rgba(200, 180, 150, 0.6);
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+      line-height: 1.7;
+      padding: 0.5rem;
+      resize: vertical;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .agora-reply-textarea::placeholder { color: rgba(138, 126, 107, 0.12); font-style: italic; }
+    .agora-reply-actions {
+      display: flex; gap: 0.3rem; margin-top: 0.3rem;
+    }
+    .agora-reply-submit {
+      background: rgba(10, 8, 5, 0.5);
+      border: 1px solid rgba(138, 126, 107, 0.06);
+      color: rgba(200, 180, 150, 0.25);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45rem;
+      letter-spacing: 0.1em;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .agora-reply-submit:hover { border-color: rgba(0,229,255,0.15); color: rgba(200,180,150,0.5); }
+    .agora-reply-cancel {
+      background: none; border: none;
+      color: rgba(200, 180, 150, 0.12);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45rem;
+      cursor: pointer;
+    }
+    .agora-reply-cancel:hover { color: rgba(200,180,150,0.3); }
+
+    /* ─── EMPTY STATE ─── */
+    .agora-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .agora-empty-glyph {
+      font-size: 2rem;
+      opacity: 0.08;
+      margin-bottom: 0.8rem;
+    }
+    .agora-empty-text {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.85rem;
+      font-style: italic;
+      color: rgba(200, 180, 150, 0.15);
+    }
+
+    /* ─── LOADING ─── */
+    .agora-loading {
+      text-align: center;
+      padding: 2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: rgba(200, 180, 150, 0.12);
+      letter-spacing: 0.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="agora">
+    <!-- Header -->
+    <div class="agora-header">
+      <div class="agora-glyph">𒀭</div>
+      <h1 class="agora-title">The Agora</h1>
+      <div class="agora-sub">thoughts left like stones. others may place theirs beside yours.</div>
+      <a href="salon.html" class="agora-back">← the salon</a>
+    </div>
+
+    <!-- Compose -->
+    <div class="agora-compose" id="composeSection">
+      <div class="agora-identity-bar" id="identityBar">
+        <span class="agora-identity-sigil" id="composeSigil"></span>
+        <span class="agora-identity-name" id="composeName">unnamed</span>
+        <a class="agora-identity-change" id="changeName">change</a>
+      </div>
+      <div class="agora-compose-label">leave a stone</div>
+      <textarea class="agora-textarea" id="composeText" placeholder="A thought worth leaving..." maxlength="2000"></textarea>
+      <div class="agora-compose-footer">
+        <span class="agora-char-count" id="charCount">0 / 2000</span>
+        <button class="agora-submit" id="submitBtn" disabled>place stone</button>
+      </div>
+      <div class="agora-cooldown" id="cooldownMsg"></div>
+    </div>
+
+    <!-- Stones -->
+    <div class="agora-loading" id="loadingMsg">listening...</div>
+    <div class="agora-stones" id="stonesContainer"></div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="lib/firebase-app-compat.js"></script>
+  <script src="lib/firebase-database-compat.js"></script>
+  <script>
+  (function() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
+      authDomain: "methodictruth.firebaseapp.com",
+      databaseURL: "https://methodictruth-default-rtdb.firebaseio.com",
+      projectId: "methodictruth",
+      storageBucket: "methodictruth.firebasestorage.app",
+      messagingSenderId: "415814328505",
+      appId: "1:415814328505:web:6f8ad89f05d944d4087b68"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const roomRef = db.ref('salon/rooms/agora');
+
+    // ─── SIGIL SYSTEM ───
+    const SIGILS = ['𓁹','𓂀','𓋹','𓃭','𓅓','𓆣','𓇳','𓈖','𓊝','𓌙','𒀭','𒁾','𒆳','𒈗','𒌓','☊','☍','⌇','◈','◇','⬡','⏦','⊹','⊿','⋮','⌬'];
+    function hashStr(s) { let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return Math.abs(h); }
+    function getSigil(name) { return SIGILS[hashStr(name) % SIGILS.length]; }
+
+    // ─── IDENTITY ───
+    let identity = JSON.parse(localStorage.getItem('salon-identity') || 'null');
+    const composeSigil = document.getElementById('composeSigil');
+    const composeName = document.getElementById('composeName');
+    const changeName = document.getElementById('changeName');
+
+    function updateIdentityBar() {
+      if (identity) {
+        composeSigil.textContent = identity.sigil;
+        composeName.textContent = identity.name;
+      } else {
+        composeSigil.textContent = '◇';
+        composeName.textContent = 'unnamed';
+      }
+    }
+    updateIdentityBar();
+
+    changeName.addEventListener('click', () => {
+      const name = prompt('What shall we call you?', identity ? identity.name : '');
+      if (name && name.trim()) {
+        identity = { name: name.trim(), sigil: getSigil(name.trim()), created: Date.now() };
+        localStorage.setItem('salon-identity', JSON.stringify(identity));
+        updateIdentityBar();
+      }
+    });
+
+    // ─── COMPOSE ───
+    const composeText = document.getElementById('composeText');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+    const cooldownMsg = document.getElementById('cooldownMsg');
+    const MIN_CHARS = 20;
+    const COOLDOWN_MS = 60000; // 1 minute between posts
+    let lastPostTime = parseInt(localStorage.getItem('agora-last-post') || '0');
+
+    composeText.addEventListener('input', () => {
+      const len = composeText.value.length;
+      charCount.textContent = len + ' / 2000';
+      submitBtn.disabled = len < MIN_CHARS || !identity;
+      if (!identity) charCount.textContent += ' · name required';
+      else if (len < MIN_CHARS) charCount.textContent += ' · ' + (MIN_CHARS - len) + ' more';
+    });
+
+    submitBtn.addEventListener('click', async () => {
+      if (!identity) { alert('Claim a name first.'); return; }
+      const text = composeText.value.trim();
+      if (text.length < MIN_CHARS) return;
+
+      // Cooldown check
+      const now = Date.now();
+      if (now - lastPostTime < COOLDOWN_MS) {
+        const remaining = Math.ceil((COOLDOWN_MS - (now - lastPostTime)) / 1000);
+        cooldownMsg.textContent = 'breathe. ' + remaining + 's';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const vid = localStorage.getItem('mt-vid') || ('v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5));
+      localStorage.setItem('mt-vid', vid);
+
+      await roomRef.push({
+        name: identity.name,
+        sigil: identity.sigil,
+        text: text,
+        ts: firebase.database.ServerValue.TIMESTAMP,
+        visitor: vid,
+        replyTo: null
+      });
+
+      lastPostTime = Date.now();
+      localStorage.setItem('agora-last-post', lastPostTime.toString());
+      composeText.value = '';
+      charCount.textContent = '0 / 2000';
+      cooldownMsg.textContent = '';
+    });
+
+    // ─── TIME FORMATTING ───
+    function relativeTime(ts) {
+      const diff = Date.now() - ts;
+      const mins = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + ' min ago';
+      if (hours < 24) return hours + 'h ago';
+      if (days < 7) return days + 'd ago';
+      if (days < 30) return Math.floor(days/7) + ' weeks ago';
+      if (days < 365) return Math.floor(days/30) + ' moons ago';
+      return Math.floor(days/365) + ' years ago';
+    }
+
+    // ─── RENDER STONES ───
+    const stonesContainer = document.getElementById('stonesContainer');
+    const loadingMsg = document.getElementById('loadingMsg');
+    let allStones = {};
+
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function renderStones() {
+      const entries = Object.entries(allStones);
+      if (entries.length === 0) {
+        stonesContainer.innerHTML = `
+          <div class="agora-empty">
+            <div class="agora-empty-glyph">𒀭</div>
+            <div class="agora-empty-text">The agora is quiet. Be the first to leave a stone.</div>
+          </div>`;
+        return;
+      }
+
+      // Separate roots and replies
+      const roots = entries.filter(([id, s]) => !s.replyTo).sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0));
+      const replies = entries.filter(([id, s]) => s.replyTo);
+
+      let html = '';
+      roots.forEach(([id, stone]) => {
+        html += renderStone(id, stone, false);
+        // Find replies to this stone
+        const stoneReplies = replies.filter(([rid, r]) => r.replyTo === id).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+        stoneReplies.forEach(([rid, reply]) => {
+          html += renderStone(rid, reply, true);
+        });
+      });
+
+      stonesContainer.innerHTML = html;
+
+      // Bind reply buttons
+      stonesContainer.querySelectorAll('.agora-stone-reply-btn').forEach(btn => {
+        btn.addEventListener('click', () => openReply(btn.dataset.stoneId));
+      });
+    }
+
+    function renderStone(id, stone, isReply) {
+      return `
+        <div class="agora-stone${isReply ? ' reply' : ''}" data-id="${id}">
+          <div class="agora-stone-meta">
+            <span class="agora-stone-sigil">${escapeHtml(stone.sigil || '◇')}</span>
+            <span class="agora-stone-name">${escapeHtml(stone.name || 'unnamed')}</span>
+            <span class="agora-stone-time">${relativeTime(stone.ts || Date.now())}</span>
+          </div>
+          <div class="agora-stone-text">${escapeHtml(stone.text || '')}</div>
+          ${!isReply ? `<button class="agora-stone-reply-btn" data-stone-id="${id}">reply</button>` : ''}
+        </div>`;
+    }
+
+    function openReply(stoneId) {
+      // Remove any existing reply compose
+      document.querySelectorAll('.agora-reply-compose').forEach(el => el.remove());
+
+      const stoneEl = stonesContainer.querySelector(`[data-id="${stoneId}"]`);
+      if (!stoneEl) return;
+
+      const replyDiv = document.createElement('div');
+      replyDiv.className = 'agora-reply-compose';
+      replyDiv.innerHTML = `
+        <textarea class="agora-reply-textarea" placeholder="Your reply..." maxlength="1000"></textarea>
+        <div class="agora-reply-actions">
+          <button class="agora-reply-submit">place</button>
+          <button class="agora-reply-cancel">cancel</button>
+        </div>`;
+
+      stoneEl.after(replyDiv);
+
+      const textarea = replyDiv.querySelector('textarea');
+      const submitReply = replyDiv.querySelector('.agora-reply-submit');
+      const cancelReply = replyDiv.querySelector('.agora-reply-cancel');
+
+      textarea.focus();
+
+      cancelReply.addEventListener('click', () => replyDiv.remove());
+
+      submitReply.addEventListener('click', async () => {
+        if (!identity) { alert('Claim a name first.'); return; }
+        const text = textarea.value.trim();
+        if (text.length < 5) return;
+
+        const now = Date.now();
+        if (now - lastPostTime < COOLDOWN_MS) {
+          const remaining = Math.ceil((COOLDOWN_MS - (now - lastPostTime)) / 1000);
+          alert('Breathe. ' + remaining + 's remaining.');
+          return;
+        }
+
+        const vid = localStorage.getItem('mt-vid');
+        await roomRef.push({
+          name: identity.name,
+          sigil: identity.sigil,
+          text: text,
+          ts: firebase.database.ServerValue.TIMESTAMP,
+          visitor: vid,
+          replyTo: stoneId
+        });
+
+        lastPostTime = Date.now();
+        localStorage.setItem('agora-last-post', lastPostTime.toString());
+        replyDiv.remove();
+      });
+    }
+
+    // ─── LIVE LISTENER ───
+    roomRef.orderByChild('ts').on('value', (snap) => {
+      loadingMsg.style.display = 'none';
+      allStones = snap.val() || {};
+      renderStones();
+    });
+
+    // ─── ANALYTICS ───
+    const vid = localStorage.getItem('mt-vid') || ('v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5));
+    localStorage.setItem('mt-vid', vid);
+    fetch('https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: 'agora.html', visitor: vid, ts: Date.now(), ref: document.referrer || 'direct', screen: screen.width+'x'+screen.height })
+    }).catch(() => {});
+
+  })();
+  </script>
+</body>
+</html>
