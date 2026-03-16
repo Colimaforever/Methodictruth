@@ -1711,9 +1711,18 @@
   // Keyboard toggle
   tapHandler(document.getElementById('kbToggleBtn'), toggleKeyboard);
 
-  // Prevent range sliders from stealing keyboard focus
-  document.addEventListener('mouseup', (e) => {
-    if (e.target.type === 'range') e.target.blur();
+  // Prevent ANY module interaction from stealing keyboard focus
+  // Blur all inputs after any mouse interaction so musical typing always works
+  document.addEventListener('mouseup', () => {
+    if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+      document.activeElement.blur();
+    }
+  });
+  // Also catch touchend for mobile
+  document.addEventListener('touchend', () => {
+    if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+      document.activeElement.blur();
+    }
   });
 
   </script>
