@@ -1516,7 +1516,7 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    if ((e.target.tagName === 'INPUT' && e.target.type !== 'range') || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
     const key = e.key.toLowerCase();
 
     if (!MAPPED_KEYS.has(key)) return;
@@ -1710,6 +1710,11 @@
 
   // Keyboard toggle
   tapHandler(document.getElementById('kbToggleBtn'), toggleKeyboard);
+
+  // Prevent range sliders from stealing keyboard focus
+  document.addEventListener('mouseup', (e) => {
+    if (e.target.type === 'range') e.target.blur();
+  });
 
   </script>
 <!-- Analytics -->
