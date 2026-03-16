@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=54">
+  <link rel="stylesheet" href="styles.css?v=55">
   <!-- PeerJS removed — using pure WebRTC + Firebase signaling -->
   <style>
     .live-room-body { display: flex; gap: 1rem; position: relative; z-index: 1; flex-wrap: wrap; }
@@ -236,9 +236,27 @@
         <p>Join the open room. No accounts, no passwords — just a name and a connection. WebRTC peer-to-peer, max ~10 souls.</p>
         <div class="live-join-form">
           <input type="text" id="usernameInput" class="live-input" placeholder="Your name..." maxlength="24" autocomplete="off">
+          <!-- Audio Input Selector -->
+          <div class="live-input-select-wrap">
+            <select id="audioInputSelect" class="live-input-select">
+              <option value="">Default Microphone</option>
+            </select>
+            <button id="refreshAudioBtn" class="live-ctrl-btn" style="font-size:0.6rem;padding:0.2rem 0.4rem;" title="Refresh devices">⟲</button>
+          </div>
+          <!-- Instrument Mode -->
+          <label class="live-instrument-toggle">
+            <input type="checkbox" id="instrumentMode">
+            <span class="live-toggle-label">🎸 Instrument Mode</span>
+            <span class="live-toggle-hint">Raw signal — no echo cancel, no noise gate, low latency</span>
+          </label>
+          <!-- Input Level Meter -->
+          <div id="inputMeterWrap" class="live-input-meter-wrap" style="display:none;">
+            <div class="live-input-meter-bar"><div id="inputMeterLevel" class="live-input-meter-level"></div></div>
+            <span id="inputMeterLabel" class="live-input-meter-label">-∞ dB</span>
+          </div>
           <button id="joinBtn" class="live-btn">⏦ Join Room</button>
         </div>
-        <p class="live-note">Camera & microphone access required</p>
+        <p class="live-note">Camera & microphone access required · Plug in instruments via audio interface</p>
       </article>
     </div>
 
@@ -252,9 +270,16 @@
         <button id="djBtn" class="live-ctrl-btn" title="DJ Mode">🎵 DJ</button>
         <button id="synthBtn" class="live-ctrl-btn" title="Live Synth Jam">🎹 Synth</button>
         <button id="seqBtn" class="live-ctrl-btn" title="Step Sequencer">⬡ Seq</button>
+        <button id="instModeBtn" class="live-ctrl-btn" title="Toggle Instrument Mode">🎸 Inst</button>
         <button id="shareBtn" class="live-ctrl-btn" title="Copy Room Link">🔗 Share</button>
         <button id="leaveBtn" class="live-ctrl-btn live-ctrl-leave" title="Leave Room">✕</button>
         <span id="peerCount" class="live-peer-count">1 soul</span>
+      </div>
+
+      <!-- Input Level (visible in room) -->
+      <div id="roomMeterWrap" class="live-input-meter-wrap" style="max-width:300px;margin:0.3rem auto;">
+        <div class="live-input-meter-bar"><div id="roomMeterLevel" class="live-input-meter-level"></div></div>
+        <span id="roomMeterLabel" class="live-input-meter-label">-∞ dB</span>
       </div>
 
       <!-- Peer Roster -->
@@ -438,13 +463,137 @@
     const sharedCanvas = document.getElementById('sharedCanvas');
     const liveToast = document.getElementById('liveToast');
 
+    const audioInputSelect = document.getElementById('audioInputSelect');
+    const refreshAudioBtn = document.getElementById('refreshAudioBtn');
+    const instrumentModeCheck = document.getElementById('instrumentMode');
+    const inputMeterWrap = document.getElementById('inputMeterWrap');
+    const inputMeterLevel = document.getElementById('inputMeterLevel');
+    const inputMeterLabel = document.getElementById('inputMeterLabel');
+
     let localStream = null;
     let myRef = null;
     let myPeerId = null;
     let username = '';
     let isMuted = false;
     let isCamOff = false;
+    let isInstrumentMode = false;
+    let meterAnimFrame = null;
+    let meterAnalyser = null;
+    let meterCtx = null;
     const peers = {}; // peerId -> { pc, tile, dataChannel }
+
+    // ─── AUDIO INPUT DEVICE ENUMERATION ───
+    async function enumerateAudioInputs() {
+      try {
+        // Need a temp stream to get labels (browsers hide labels until permission granted)
+        let tempStream = null;
+        try { tempStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch(e) {}
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputs = devices.filter(d => d.kind === 'audioinput');
+        const current = audioInputSelect.value;
+        audioInputSelect.innerHTML = '<option value="">Default Microphone</option>';
+        audioInputs.forEach((d, i) => {
+          const opt = document.createElement('option');
+          opt.value = d.deviceId;
+          opt.textContent = d.label || ('Input ' + (i + 1));
+          audioInputSelect.appendChild(opt);
+        });
+        if (current) audioInputSelect.value = current;
+        if (tempStream) tempStream.getTracks().forEach(t => t.stop());
+      } catch(e) { console.warn('[Live] Device enum:', e); }
+    }
+    enumerateAudioInputs();
+    refreshAudioBtn.addEventListener('click', enumerateAudioInputs);
+
+    // ─── INPUT LEVEL METER ───
+    function startInputMeter(stream) {
+      stopInputMeter();
+      try {
+        meterCtx = new (window.AudioContext || window.webkitAudioContext)();
+        meterAnalyser = meterCtx.createAnalyser();
+        meterAnalyser.fftSize = 256;
+        meterAnalyser.smoothingTimeConstant = 0.5;
+        const source = meterCtx.createMediaStreamSource(stream);
+        source.connect(meterAnalyser);
+        inputMeterWrap.style.display = 'flex';
+        const dataArray = new Float32Array(meterAnalyser.fftSize);
+        function draw() {
+          meterAnimFrame = requestAnimationFrame(draw);
+          meterAnalyser.getFloatTimeDomainData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i] * dataArray[i];
+          const rms = Math.sqrt(sum / dataArray.length);
+          const db = 20 * Math.log10(Math.max(rms, 0.00001));
+          const pct = Math.min(100, Math.max(0, ((db + 60) / 60) * 100));
+          inputMeterLevel.style.width = pct + '%';
+          inputMeterLevel.classList.toggle('hot', pct > 85);
+          inputMeterLabel.textContent = (db > -60 ? db.toFixed(1) : '-∞') + ' dB';
+          // Mirror to room meter
+          const rml = document.getElementById('roomMeterLevel');
+          const rmlab = document.getElementById('roomMeterLabel');
+          if (rml) { rml.style.width = pct + '%'; rml.classList.toggle('hot', pct > 85); }
+          if (rmlab) rmlab.textContent = (db > -60 ? db.toFixed(1) : '-∞') + ' dB';
+        }
+        draw();
+      } catch(e) { console.warn('[Live] Meter:', e); }
+    }
+    function stopInputMeter() {
+      if (meterAnimFrame) cancelAnimationFrame(meterAnimFrame);
+      meterAnimFrame = null;
+      if (meterCtx) { meterCtx.close().catch(()=>{}); meterCtx = null; }
+      meterAnalyser = null;
+    }
+
+    // ─── INSTRUMENT MODE TOGGLE ───
+    instrumentModeCheck.addEventListener('change', async () => {
+      isInstrumentMode = instrumentModeCheck.checked;
+      // If we already have a stream, re-acquire with new constraints
+      if (localStream) {
+        const audioTrack = localStream.getAudioTracks()[0];
+        if (audioTrack) {
+          try {
+            await audioTrack.applyConstraints(getAudioConstraints());
+            showToast(isInstrumentMode ? '🎸 Instrument mode — raw signal, low latency' : '🎙 Voice mode — echo cancellation on');
+          } catch(e) {
+            console.warn('[Live] Constraint apply failed, re-acquiring stream');
+            // Fallback: re-acquire entire audio
+            const newStream = await navigator.mediaDevices.getUserMedia({ audio: getAudioConstraints() });
+            const newTrack = newStream.getAudioTracks()[0];
+            localStream.removeTrack(audioTrack);
+            audioTrack.stop();
+            localStream.addTrack(newTrack);
+            // Replace track on all peer connections
+            for (const pid in peers) {
+              const sender = peers[pid].pc?.getSenders().find(s => s.track?.kind === 'audio');
+              if (sender) sender.replaceTrack(newTrack);
+            }
+            startInputMeter(localStream);
+          }
+        }
+      }
+    });
+
+    function getAudioConstraints() {
+      const deviceId = audioInputSelect.value;
+      if (isInstrumentMode) {
+        return {
+          deviceId: deviceId ? { exact: deviceId } : undefined,
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          latency: 0,
+          channelCount: { ideal: 2 },
+          sampleRate: { ideal: 48000 },
+          sampleSize: { ideal: 24 }
+        };
+      }
+      return {
+        deviceId: deviceId ? { exact: deviceId } : undefined,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      };
+    }
     // Provide peer-like object for synth jam compatibility
     const peer = { get id() { return myPeerId; }, get destroyed() { return !myPeerId; } };
 
@@ -543,13 +692,17 @@
       // Generate TURN credentials first
       await generateTurnCredentials();
 
+      // Check instrument mode
+      isInstrumentMode = instrumentModeCheck.checked;
+      const audioConstraints = getAudioConstraints();
+
       // Try to get media — gracefully degrade if permissions denied
       try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: audioConstraints });
       } catch (err1) {
         logDebug('⚠️ Full media denied (' + err1.name + '), trying audio only...');
         try {
-          localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+          localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: audioConstraints });
           showToast('Camera unavailable — joining with audio only');
         } catch (err2) {
           logDebug('⚠️ Audio denied too (' + err2.name + '), trying video only...');
@@ -563,6 +716,10 @@
           }
         }
       }
+
+      // Start input level meter
+      if (localStream.getAudioTracks().length > 0) startInputMeter(localStream);
+      if (isInstrumentMode) showToast('🎸 Instrument mode — raw signal, low latency');
       localVideo.srcObject = localStream;
 
       joinScreen.style.display = 'none';
@@ -683,8 +840,9 @@
           console.warn('[Live] ICE FAILED with', remotePeerId, '— attempting restart');
           pc.restartIce();
           pc.createOffer({ iceRestart: true }).then(offer => {
-            pc.setLocalDescription(offer);
-            sendSignal(remotePeerId, { type: 'offer', sdp: offer.sdp, username });
+            const opt = new RTCSessionDescription({ type: offer.type, sdp: optimizeSdp(offer.sdp) });
+            pc.setLocalDescription(opt);
+            sendSignal(remotePeerId, { type: 'offer', sdp: opt.sdp, username });
           }).catch(e => console.error('[Live] ICE restart error:', e));
         }
       };
@@ -710,10 +868,17 @@
 
         const tile = document.createElement('div');
         tile.className = 'live-tile';
-        tile.innerHTML = `<video autoplay playsinline muted></video><span class="live-tile-name">${escapeHtml(remoteUsername || 'Unknown')}</span>`;
+        tile.innerHTML = `<video autoplay playsinline muted></video><span class="live-tile-name">${escapeHtml(remoteUsername || 'Unknown')}</span><div class="live-tile-volume"><span>🔊</span><input type="range" min="0" max="100" value="100" title="Volume"><span class="vol-label">100%</span></div>`;
         const vid = tile.querySelector('video');
         vid.srcObject = remoteStream;
         vid.play().then(() => { vid.muted = false; }).catch(() => {});
+        // Per-peer volume control
+        const volSlider = tile.querySelector('input[type=range]');
+        const volLabel = tile.querySelector('.vol-label');
+        volSlider.addEventListener('input', () => {
+          vid.volume = volSlider.value / 100;
+          volLabel.textContent = volSlider.value + '%';
+        });
         videoGrid.appendChild(tile);
 
         if (!peers[remotePeerId]) peers[remotePeerId] = {};
@@ -728,16 +893,50 @@
       return pc;
     }
 
+    // ─── SDP OPTIMIZATION for low-latency audio ───
+    function optimizeSdp(sdp) {
+      if (!isInstrumentMode) return sdp;
+      let lines = sdp.split('\r\n');
+      lines = lines.map(line => {
+        // Set Opus to max quality: 48kHz stereo, high bitrate, no DTX, no FEC, lowest ptime
+        if (line.startsWith('a=fmtp:111')) {
+          return line.replace(/useinbandfec=\d/, 'useinbandfec=0')
+                     .replace(/usedtx=\d/, 'usedtx=0')
+                     + ';stereo=1;sprop-stereo=1;maxaveragebitrate=510000;cbr=1';
+        }
+        // Minimize packet time for lowest latency
+        if (line.startsWith('a=ptime:')) return 'a=ptime:10';
+        if (line.startsWith('a=maxptime:')) return 'a=maxptime:10';
+        return line;
+      });
+      // Add ptime if not present
+      if (!lines.some(l => l.startsWith('a=ptime:'))) {
+        const audioIdx = lines.findIndex(l => l.startsWith('m=audio'));
+        if (audioIdx > -1) {
+          // Insert after the audio m= line section
+          const nextM = lines.findIndex((l, i) => i > audioIdx && l.startsWith('m='));
+          const insertAt = nextM > -1 ? nextM : lines.length - 1;
+          lines.splice(insertAt, 0, 'a=ptime:10', 'a=maxptime:10');
+        }
+      }
+      return lines.join('\r\n');
+    }
+
     async function initiateCall(remotePeerId, remoteUsername) {
       if (peers[remotePeerId] && peers[remotePeerId].pc) return; // already connected
       console.log('[Live] Initiating call to', remotePeerId);
 
       const pc = createPeerConnection(remotePeerId, remoteUsername);
       const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
+      // Optimize SDP for instrument mode
+      const optimizedOffer = new RTCSessionDescription({
+        type: offer.type,
+        sdp: optimizeSdp(offer.sdp)
+      });
+      await pc.setLocalDescription(optimizedOffer);
 
       // Send offer via Firebase message queue
-      sendSignal(remotePeerId, { type: 'offer', sdp: offer.sdp, username });
+      sendSignal(remotePeerId, { type: 'offer', sdp: optimizedOffer.sdp, username });
     }
 
     async function handleOffer(remotePeerId, data) {
@@ -764,11 +963,15 @@
       }
 
       const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
+      const optimizedAnswer = new RTCSessionDescription({
+        type: answer.type,
+        sdp: optimizeSdp(answer.sdp)
+      });
+      await pc.setLocalDescription(optimizedAnswer);
       console.log('[Live] Sending answer to', remotePeerId);
 
       // Send answer back via Firebase message queue
-      sendSignal(remotePeerId, { type: 'answer', sdp: answer.sdp, username });
+      sendSignal(remotePeerId, { type: 'answer', sdp: optimizedAnswer.sdp, username });
     }
 
     async function handleAnswer(remotePeerId, data) {
@@ -888,6 +1091,15 @@
     shareBtn.addEventListener('click', () => {
       const url = window.location.origin + '/live.html?room=' + encodeURIComponent(ROOM_ID);
       navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => showToast('Copy failed'));
+    });
+
+    // ─── INSTRUMENT MODE TOGGLE (in-room) ───
+    const instModeBtn = document.getElementById('instModeBtn');
+    instModeBtn.addEventListener('click', () => {
+      instrumentModeCheck.checked = !instrumentModeCheck.checked;
+      instrumentModeCheck.dispatchEvent(new Event('change'));
+      instModeBtn.style.borderColor = instrumentModeCheck.checked ? 'rgba(0,229,255,0.5)' : '';
+      instModeBtn.style.color = instrumentModeCheck.checked ? 'var(--glow)' : '';
     });
 
     // ─── PEER ROSTER ───

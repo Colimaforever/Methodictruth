@@ -1263,6 +1263,70 @@ footer .donate-link:hover {
   margin-top: 1rem;
 }
 
+/* Instrument Mode / Audio Input */
+.live-input-select-wrap {
+  display: flex; gap: 0.3rem; align-items: center; width: 100%;
+}
+.live-input-select {
+  flex: 1; background: rgba(18,14,10,0.9); border: 1px solid rgba(138,126,107,0.2);
+  color: var(--parchment); font-family: 'JetBrains Mono',monospace; font-size: 0.65rem;
+  padding: 0.4rem 0.5rem;
+}
+.live-instrument-toggle {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem;
+  cursor: pointer; padding: 0.4rem 0; width: 100%;
+}
+.live-instrument-toggle input { display: none; }
+.live-toggle-label {
+  font-family: 'JetBrains Mono',monospace; font-size: 0.7rem;
+  color: var(--stone); letter-spacing: 0.08em; transition: color 0.2s;
+  padding: 0.3rem 0.6rem; border: 1px solid rgba(138,126,107,0.15);
+  background: rgba(18,14,10,0.6);
+}
+.live-instrument-toggle input:checked ~ .live-toggle-label {
+  color: var(--glow); border-color: rgba(0,229,255,0.3);
+  background: rgba(0,229,255,0.05);
+}
+.live-toggle-hint {
+  font-family: 'EB Garamond',serif; font-size: 0.65rem; font-style: italic;
+  color: rgba(200,180,150,0.3); flex-basis: 100%;
+}
+.live-input-meter-wrap {
+  display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.2rem 0;
+}
+.live-input-meter-bar {
+  flex: 1; height: 6px; background: rgba(18,14,10,0.8);
+  border: 1px solid rgba(138,126,107,0.1); overflow: hidden;
+}
+.live-input-meter-level {
+  height: 100%; width: 0%; background: linear-gradient(90deg, rgba(74,124,89,0.8), rgba(0,229,255,0.8));
+  transition: width 0.05s linear;
+}
+.live-input-meter-level.hot { background: linear-gradient(90deg, rgba(200,120,40,0.8), rgba(200,40,40,0.8)); }
+.live-input-meter-label {
+  font-family: 'JetBrains Mono',monospace; font-size: 0.55rem;
+  color: var(--stone-dark); min-width: 45px; text-align: right;
+}
+
+/* Per-peer volume slider */
+.live-tile-volume {
+  position: absolute; bottom: 24px; left: 4px; right: 4px;
+  display: flex; align-items: center; gap: 0.3rem; opacity: 0;
+  transition: opacity 0.2s; z-index: 2;
+}
+.live-tile:hover .live-tile-volume { opacity: 1; }
+.live-tile-volume input[type=range] {
+  flex: 1; height: 3px; -webkit-appearance: none; appearance: none;
+  background: rgba(200,180,150,0.2); outline: none; cursor: pointer;
+}
+.live-tile-volume input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(0,229,255,0.7); cursor: pointer;
+}
+.live-tile-volume span {
+  font-family: 'JetBrains Mono',monospace; font-size: 0.5rem; color: var(--stone-dark);
+}
+
 .live-room {
   max-width: min(1100px, 96vw);
   margin: 0 auto;
