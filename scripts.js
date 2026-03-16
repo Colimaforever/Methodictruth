@@ -923,8 +923,8 @@ if (_starCanvas && _starCtx) {
           if (playBtn) playBtn.textContent = '▷';
           if (playerStatus) playerStatus.textContent = '◇ idle';
           mp.classList.remove('playing');
-          // Silence Tone.js destination in case anything lingers
-          try { Tone.Destination.volume.value = -Infinity; } catch(e) {}
+          // Reset Tone.js destination volume so tool pages can use Tone.js fresh
+          try { Tone.Destination.volume.value = 0; } catch(e) {}
         } else {
           mp.style.display = '';
         }

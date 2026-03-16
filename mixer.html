@@ -355,7 +355,7 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=65"></script>
+  <script src="scripts.js?v=66"></script>
   <script src="lib/tone.min.js"></script>
   <script>
   (function() {
@@ -517,7 +517,7 @@
       if (t.panner) t.panner.dispose();
       if (t.meter) t.meter.dispose();
 
-      t.buffer = new Tone.ToneAudioBuffer(audioBuffer);
+      t.buffer = new Tone.Buffer(audioBuffer);
       t.player = new Tone.Player(t.buffer);
       t.player.sync().start(0);
       t.gain = new Tone.Gain(faderToGain(parseInt(document.getElementById('chFader' + trackIdx).value)));
