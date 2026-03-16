@@ -517,14 +517,14 @@
       if (t.panner) t.panner.dispose();
       if (t.meter) t.meter.dispose();
 
-      t.buffer = new Tone.ToneAudioBuffer().fromArray(audioBuffer);
-      t.player = new Tone.Player(t.buffer).sync();
+      t.buffer = new Tone.ToneAudioBuffer(audioBuffer);
+      t.player = new Tone.Player(t.buffer);
+      t.player.sync().start(0);
       t.gain = new Tone.Gain(faderToGain(parseInt(document.getElementById('chFader' + trackIdx).value)));
       t.panner = new Tone.Panner(parseInt(document.getElementById('chPan' + trackIdx).value) / 100);
       t.meter = new Tone.Meter({ normalRange: true });
 
       t.player.chain(t.gain, t.panner, t.meter, masterGain);
-      t.player.start(0);
       t.loaded = true;
 
       // Update UI
