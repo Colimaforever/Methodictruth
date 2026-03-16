@@ -586,8 +586,10 @@ async function onFirstInteraction(e) {
   // Small delay to let iOS audio system settle
   await new Promise(r => setTimeout(r, 100));
 
-  // Start generative engine
-  if (!isPlaying && !userPaused && !genActive && !engineStarting) {
+  // Start generative engine — but NOT on audio tool pages
+  const currentNav = (location.pathname.split('/').pop() || 'index.html');
+  const toolPagesCheck = ['synth.html', 'mixer.html', 'signal.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
+  if (!isPlaying && !userPaused && !genActive && !engineStarting && !toolPagesCheck.includes(currentNav)) {
     engineStarting = true;
     await startGenerativeEngine();
     engineStarting = false;
@@ -601,7 +603,9 @@ async function onFirstInteraction(e) {
 
 // iOS fallback: if Tone.start fails in the engine, retry on next touch
 document.addEventListener('touchstart', function iosRetry() {
-  if (hasInteracted && !genActive && !engineStarting && !isPlaying && !userPaused) {
+  const curPage = (location.pathname.split('/').pop() || 'index.html');
+  const toolPgs = ['synth.html', 'mixer.html', 'signal.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
+  if (hasInteracted && !genActive && !engineStarting && !isPlaying && !userPaused && !toolPgs.includes(curPage)) {
     unlockiOSAudio();
     engineStarting = true;
     startGenerativeEngine().then(() => { engineStarting = false; }).catch(() => { engineStarting = false; });
@@ -909,13 +913,18 @@ if (_starCanvas && _starCtx) {
       if (mp) {
         if (toolPages.includes(pageName)) {
           mp.style.display = 'none';
-          // Stop all audio — playlist and generative
+          // Kill all audio — playlist and generative engine
           audio.pause();
-          if (genActive) pauseGenerativeEngine();
+          audio.src = '';
+          if (genActive) stopGenerativeEngine();
           isPlaying = false;
+          genActive = false;
           userPaused = true; // prevent auto-resume
           if (playBtn) playBtn.textContent = '▷';
+          if (playerStatus) playerStatus.textContent = '◇ idle';
           mp.classList.remove('playing');
+          // Silence Tone.js destination in case anything lingers
+          try { Tone.Destination.volume.value = -Infinity; } catch(e) {}
         } else {
           mp.style.display = '';
         }
