@@ -1,3 +1,9 @@
+// ─── AUDIO TOOL PAGE DETECTION ───
+// On pages with their own audio engines, suppress background music
+const audioToolPages = ['synth.html', 'mixer.html', 'guitar.html', 'live.html', 'signal.html', 'songwriter.html'];
+const currentPage = location.pathname.split('/').pop() || 'index.html';
+const isAudioToolPage = audioToolPages.includes(currentPage);
+
 // ─── MUSIC PLAYER ───
 const playlist = [
   { title: 'Moqaddameh: Tchekad', src: 'audio/moqaddameh-tchekad.mp3' },
@@ -45,6 +51,13 @@ const trackName = document.getElementById('trackName');
 const playerStatus = document.getElementById('playerStatus');
 const musicPlayer = document.getElementById('musicPlayer');
 const volumeSlider = document.getElementById('volumeSlider');
+
+// On audio tool pages, hide the music player and stop
+if (isAudioToolPage) {
+  if (musicPlayer) musicPlayer.style.display = 'none';
+  audio.pause();
+  audio.src = '';
+}
 
 // Restore state from localStorage — only volume, always start fresh with generative engine
 const saved = JSON.parse(localStorage.getItem('musicState') || 'null');
@@ -252,6 +265,7 @@ function handleVolume(e) {
 }
 
 async function togglePlay() {
+  if (isAudioToolPage) return; // don't play background music on tool pages
   if (genActive) {
     if (isPlaying) {
       userPaused = true;
