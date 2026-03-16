@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>The Workshop — Methodic Truth</title>
+  <meta name="description" content="Show what you're building. No pitches, no decks — just the work. Code, hardware, art, ideas in progress.">
+  <meta property="og:title" content="The Workshop — Methodic Truth">
+  <meta property="og:description" content="Show what you're building. No pitches, no decks — just the work.">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=56">
+  <style>
+    .workshop-room {
+      min-height: 100vh; position: relative; z-index: 1;
+      max-width: 660px; margin: 0 auto;
+      padding: 2rem clamp(1rem, 4vw, 2rem) 6rem;
+    }
+    .workshop-header {
+      text-align: center; padding: 2rem 0 1.5rem;
+      border-bottom: 1px solid rgba(74, 124, 89, 0.04);
+      margin-bottom: 2rem;
+    }
+    .workshop-glyph {
+      font-size: 2rem; opacity: 0.12;
+      animation: workshop-breathe 8s ease-in-out infinite;
+    }
+    @keyframes workshop-breathe {
+      0%, 100% { opacity: 0.08; }
+      50% { opacity: 0.18; text-shadow: 0 0 30px rgba(74, 124, 89, 0.06); }
+    }
+    .workshop-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1rem, 3vw, 1.4rem); font-weight: 400;
+      color: rgba(200, 180, 150, 0.45); letter-spacing: 0.25em;
+      text-transform: uppercase; margin: 0.5rem 0 0.3rem;
+    }
+    .workshop-sub {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.7rem, 1.8vw, 0.8rem); font-style: italic;
+      color: rgba(74, 124, 89, 0.2);
+    }
+    .workshop-back {
+      display: inline-block; margin-top: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: rgba(200, 180, 150, 0.15);
+      text-decoration: none; letter-spacing: 0.15em; transition: color 0.3s;
+    }
+    .workshop-back:hover { color: rgba(200, 180, 150, 0.4); }
+
+    /* ─── COMPOSE ─── */
+    .workshop-compose {
+      margin-bottom: 2.5rem; padding: 1.2rem;
+      background: rgba(10, 8, 5, 0.4);
+      border: 1px solid rgba(74, 124, 89, 0.03);
+      position: relative;
+    }
+    .workshop-compose::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(74, 124, 89, 0.06), transparent);
+    }
+    .workshop-compose-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: rgba(74, 124, 89, 0.2);
+      letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+    .workshop-identity-bar {
+      display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem;
+    }
+    .workshop-identity-sigil { font-size: 1rem; opacity: 0.35; }
+    .workshop-identity-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: rgba(200, 180, 150, 0.3); letter-spacing: 0.1em;
+    }
+    .workshop-identity-change {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem; color: rgba(200, 180, 150, 0.12);
+      cursor: pointer; text-decoration: none; margin-left: auto; transition: color 0.3s;
+    }
+    .workshop-identity-change:hover { color: rgba(200, 180, 150, 0.35); }
+
+    .workshop-title-input {
+      width: 100%; background: rgba(5, 3, 2, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.06);
+      color: rgba(200, 180, 150, 0.7);
+      font-family: 'Cinzel', serif; font-size: 0.85rem;
+      padding: 0.5rem; box-sizing: border-box; outline: none;
+      margin-bottom: 0.4rem;
+    }
+    .workshop-title-input::placeholder { color: rgba(138, 126, 107, 0.15); }
+
+    .workshop-textarea {
+      width: 100%; min-height: 120px;
+      background: rgba(5, 3, 2, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.06);
+      color: rgba(200, 180, 150, 0.6);
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.85rem, 2vw, 0.95rem); line-height: 1.8;
+      padding: 0.8rem; resize: vertical; outline: none;
+      box-sizing: border-box;
+    }
+    .workshop-textarea::placeholder { color: rgba(138, 126, 107, 0.15); font-style: italic; }
+
+    .workshop-link-input {
+      width: 100%; background: rgba(5, 3, 2, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.06);
+      color: rgba(0, 229, 255, 0.5);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      padding: 0.4rem 0.5rem; box-sizing: border-box; outline: none;
+      margin-top: 0.4rem;
+    }
+    .workshop-link-input::placeholder { color: rgba(138, 126, 107, 0.12); }
+
+    .workshop-compose-footer {
+      display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;
+    }
+    .workshop-char-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45rem; color: rgba(200, 180, 150, 0.15); letter-spacing: 0.1em;
+    }
+    .workshop-submit {
+      background: rgba(10, 8, 5, 0.6);
+      border: 1px solid rgba(74, 124, 89, 0.08);
+      color: rgba(200, 180, 150, 0.3);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.15em;
+      padding: 0.4rem 1rem; cursor: pointer; transition: all 0.3s;
+    }
+    .workshop-submit:hover { border-color: rgba(74, 124, 89, 0.2); color: rgba(200, 180, 150, 0.6); }
+    .workshop-submit:disabled { opacity: 0.3; cursor: default; }
+
+    /* ─── BENCHES (posts) ─── */
+    .workshop-benches { display: flex; flex-direction: column; gap: 0; }
+
+    .workshop-bench {
+      padding: 1.4rem 1.2rem;
+      background: rgba(10, 8, 5, 0.25);
+      border-left: 2px solid rgba(74, 124, 89, 0.04);
+      border-bottom: 1px solid rgba(138, 126, 107, 0.02);
+      transition: background 0.3s;
+    }
+    .workshop-bench:hover { background: rgba(10, 8, 5, 0.4); border-left-color: rgba(74, 124, 89, 0.1); }
+
+    .workshop-bench-header {
+      display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem;
+    }
+    .workshop-bench-sigil { font-size: 0.9rem; opacity: 0.25; }
+    .workshop-bench-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: rgba(200, 180, 150, 0.3); letter-spacing: 0.08em;
+    }
+    .workshop-bench-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem; color: rgba(200, 180, 150, 0.12); margin-left: auto;
+    }
+    .workshop-bench-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.85rem, 2.2vw, 1rem);
+      color: rgba(200, 180, 150, 0.55);
+      margin-bottom: 0.4rem;
+    }
+    .workshop-bench-text {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      color: rgba(200, 180, 150, 0.45);
+      line-height: 1.8; white-space: pre-wrap; word-break: break-word;
+    }
+    .workshop-bench-link {
+      display: inline-block; margin-top: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: rgba(0, 229, 255, 0.3);
+      text-decoration: none; letter-spacing: 0.05em;
+      transition: color 0.3s;
+    }
+    .workshop-bench-link:hover { color: rgba(0, 229, 255, 0.6); }
+
+    /* Reply */
+    .workshop-bench-reply-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem; color: rgba(200, 180, 150, 0.1);
+      cursor: pointer; background: none; border: none;
+      padding: 0.3rem 0; margin-top: 0.3rem; transition: color 0.3s;
+    }
+    .workshop-bench-reply-btn:hover { color: rgba(200, 180, 150, 0.3); }
+
+    .workshop-bench.reply {
+      margin-left: 1.5rem;
+      border-left-color: rgba(0, 229, 255, 0.04);
+    }
+    .workshop-bench.reply::before {
+      content: '└'; position: absolute; left: -1rem; top: 1.4rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.5rem;
+      color: rgba(138, 126, 107, 0.08);
+    }
+    .workshop-bench.reply { position: relative; }
+
+    .workshop-empty {
+      text-align: center; padding: 3rem 1rem;
+    }
+    .workshop-empty-text {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.85rem; font-style: italic;
+      color: rgba(74, 124, 89, 0.15);
+    }
+    .workshop-loading {
+      text-align: center; padding: 2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: rgba(200, 180, 150, 0.12); letter-spacing: 0.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="workshop-room">
+    <div class="workshop-header">
+      <div class="workshop-glyph">⌇</div>
+      <h1 class="workshop-title">The Workshop</h1>
+      <div class="workshop-sub">show what you're building. no pitches — just work.</div>
+      <a href="salon.html" class="workshop-back">← the salon</a>
+    </div>
+
+    <!-- Compose -->
+    <div class="workshop-compose" id="composeSection">
+      <div class="workshop-identity-bar" id="workshopIdentityBar">
+        <span class="workshop-identity-sigil" id="workshopSigil"></span>
+        <span class="workshop-identity-name" id="workshopName">unnamed</span>
+        <a class="workshop-identity-change" id="workshopChangeName">change</a>
+      </div>
+      <div class="workshop-compose-label">put something on the bench</div>
+      <input type="text" class="workshop-title-input" id="benchTitle" placeholder="What are you building?" maxlength="100">
+      <textarea class="workshop-textarea" id="benchText" placeholder="Tell us about it. What's working, what's not, what you're trying to figure out..." maxlength="3000"></textarea>
+      <input type="text" class="workshop-link-input" id="benchLink" placeholder="link (optional)" maxlength="500">
+      <div class="workshop-compose-footer">
+        <span class="workshop-char-count" id="charCount">0 / 3000</span>
+        <button class="workshop-submit" id="submitBtn" disabled>place it</button>
+      </div>
+    </div>
+
+    <!-- Benches -->
+    <div class="workshop-loading" id="loadingMsg">looking around...</div>
+    <div class="workshop-benches" id="benchesContainer"></div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="lib/firebase-app-compat.js"></script>
+  <script src="lib/firebase-database-compat.js"></script>
+  <script>
+  (function() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
+      authDomain: "methodictruth.firebaseapp.com",
+      databaseURL: "https://methodictruth-default-rtdb.firebaseio.com",
+      projectId: "methodictruth",
+      storageBucket: "methodictruth.firebasestorage.app",
+      messagingSenderId: "415814328505",
+      appId: "1:415814328505:web:6f8ad89f05d944d4087b68"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const roomRef = db.ref('salon/rooms/workshop');
+
+    const SIGILS = ['𓁹','𓂀','𓋹','𓃭','𓅓','𓆣','𓇳','𓈖','𓊝','𓌙','𒀭','𒁾','𒆳','𒈗','𒌓','☊','☍','⌇','◈','◇','⬡','⏦','⊹','⊿','⋮','⌬'];
+    function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return Math.abs(h);}
+    function getSigil(n){return SIGILS[hashStr(n)%SIGILS.length];}
+
+    let identity = JSON.parse(localStorage.getItem('salon-identity') || 'null');
+    const workshopSigil = document.getElementById('workshopSigil');
+    const workshopName = document.getElementById('workshopName');
+
+    function updateIdentity() {
+      if (identity) { workshopSigil.textContent = identity.sigil; workshopName.textContent = identity.name; }
+      else { workshopSigil.textContent = '◇'; workshopName.textContent = 'unnamed'; }
+    }
+    updateIdentity();
+
+    document.getElementById('workshopChangeName').addEventListener('click', () => {
+      const name = prompt('What shall we call you?', identity ? identity.name : '');
+      if (name && name.trim()) {
+        identity = { name: name.trim(), sigil: getSigil(name.trim()), created: Date.now() };
+        localStorage.setItem('salon-identity', JSON.stringify(identity));
+        updateIdentity();
+      }
+    });
+
+    // Compose
+    const benchTitle = document.getElementById('benchTitle');
+    const benchText = document.getElementById('benchText');
+    const benchLink = document.getElementById('benchLink');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+    const COOLDOWN_MS = 120000; // 2 min for workshop (longer posts)
+    let lastPostTime = parseInt(localStorage.getItem('workshop-last-post') || '0');
+
+    benchText.addEventListener('input', () => {
+      const len = benchText.value.length;
+      charCount.textContent = len + ' / 3000';
+      submitBtn.disabled = len < 30 || !benchTitle.value.trim() || !identity;
+    });
+    benchTitle.addEventListener('input', () => {
+      submitBtn.disabled = benchText.value.length < 30 || !benchTitle.value.trim() || !identity;
+    });
+
+    submitBtn.addEventListener('click', async () => {
+      if (!identity) return;
+      const now = Date.now();
+      if (now - lastPostTime < COOLDOWN_MS) {
+        alert('Breathe. ' + Math.ceil((COOLDOWN_MS - (now - lastPostTime)) / 1000) + 's remaining.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const vid = localStorage.getItem('mt-vid') || ('v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5));
+      localStorage.setItem('mt-vid', vid);
+
+      const link = benchLink.value.trim();
+      await roomRef.push({
+        name: identity.name,
+        sigil: identity.sigil,
+        title: benchTitle.value.trim(),
+        text: benchText.value.trim(),
+        link: link || null,
+        ts: firebase.database.ServerValue.TIMESTAMP,
+        visitor: vid,
+        replyTo: null
+      });
+
+      lastPostTime = Date.now();
+      localStorage.setItem('workshop-last-post', lastPostTime.toString());
+      benchTitle.value = ''; benchText.value = ''; benchLink.value = '';
+      charCount.textContent = '0 / 3000';
+    });
+
+    // Time
+    function relativeTime(ts) {
+      const diff = Date.now() - ts;
+      const mins = Math.floor(diff/60000), hours = Math.floor(diff/3600000), days = Math.floor(diff/86400000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + ' min ago';
+      if (hours < 24) return hours + 'h ago';
+      if (days < 7) return days + 'd ago';
+      if (days < 30) return Math.floor(days/7) + ' weeks ago';
+      return Math.floor(days/30) + ' moons ago';
+    }
+    function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+    // Render
+    const benchesContainer = document.getElementById('benchesContainer');
+    const loadingMsg = document.getElementById('loadingMsg');
+
+    roomRef.orderByChild('ts').on('value', (snap) => {
+      loadingMsg.style.display = 'none';
+      const data = snap.val();
+      if (!data) {
+        benchesContainer.innerHTML = '<div class="workshop-empty"><div class="workshop-empty-text">The workbenches are empty. Show us what you\'re building.</div></div>';
+        return;
+      }
+
+      const entries = Object.entries(data);
+      const roots = entries.filter(([id,s]) => !s.replyTo).sort((a,b) => (b[1].ts||0) - (a[1].ts||0));
+      const replies = entries.filter(([id,s]) => s.replyTo);
+
+      let html = '';
+      roots.forEach(([id, bench]) => {
+        html += `
+          <div class="workshop-bench" data-id="${id}">
+            <div class="workshop-bench-header">
+              <span class="workshop-bench-sigil">${escapeHtml(bench.sigil || '◇')}</span>
+              <span class="workshop-bench-name">${escapeHtml(bench.name || 'unnamed')}</span>
+              <span class="workshop-bench-time">${relativeTime(bench.ts || Date.now())}</span>
+            </div>
+            ${bench.title ? `<div class="workshop-bench-title">${escapeHtml(bench.title)}</div>` : ''}
+            <div class="workshop-bench-text">${escapeHtml(bench.text || '')}</div>
+            ${bench.link ? `<a href="${escapeHtml(bench.link)}" class="workshop-bench-link" target="_blank" rel="noopener">↗ ${escapeHtml(bench.link.replace(/^https?:\/\/(www\.)?/,'').substr(0,40))}</a>` : ''}
+            <button class="workshop-bench-reply-btn" data-bench-id="${id}">reply</button>
+          </div>`;
+
+        const benchReplies = replies.filter(([rid,r]) => r.replyTo === id).sort((a,b) => (a[1].ts||0) - (b[1].ts||0));
+        benchReplies.forEach(([rid, reply]) => {
+          html += `
+            <div class="workshop-bench reply" data-id="${rid}">
+              <div class="workshop-bench-header">
+                <span class="workshop-bench-sigil">${escapeHtml(reply.sigil || '◇')}</span>
+                <span class="workshop-bench-name">${escapeHtml(reply.name || 'unnamed')}</span>
+                <span class="workshop-bench-time">${relativeTime(reply.ts || Date.now())}</span>
+              </div>
+              <div class="workshop-bench-text">${escapeHtml(reply.text || '')}</div>
+            </div>`;
+        });
+      });
+
+      benchesContainer.innerHTML = html;
+
+      // Reply buttons
+      benchesContainer.querySelectorAll('.workshop-bench-reply-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const benchId = btn.dataset.benchId;
+          // Simple inline reply
+          const existing = benchesContainer.querySelector('.workshop-reply-compose');
+          if (existing) existing.remove();
+
+          const div = document.createElement('div');
+          div.className = 'workshop-reply-compose';
+          div.style.cssText = 'margin:0.5rem 0 0 1.5rem;padding:0.6rem;background:rgba(5,3,2,0.4);border:1px solid rgba(74,124,89,0.03);';
+          div.innerHTML = `
+            <textarea style="width:100%;min-height:60px;background:rgba(5,3,2,0.5);border:1px solid rgba(138,126,107,0.04);color:rgba(200,180,150,0.6);font-family:'EB Garamond',serif;font-size:0.85rem;line-height:1.7;padding:0.5rem;resize:vertical;outline:none;box-sizing:border-box;" placeholder="Your thoughts..." maxlength="1000"></textarea>
+            <div style="display:flex;gap:0.3rem;margin-top:0.3rem;">
+              <button class="wr-submit" style="background:rgba(10,8,5,0.5);border:1px solid rgba(74,124,89,0.06);color:rgba(200,180,150,0.25);font-family:'JetBrains Mono',monospace;font-size:0.45rem;padding:0.3rem 0.6rem;cursor:pointer;">place</button>
+              <button class="wr-cancel" style="background:none;border:none;color:rgba(200,180,150,0.12);font-family:'JetBrains Mono',monospace;font-size:0.45rem;cursor:pointer;">cancel</button>
+            </div>`;
+
+          btn.parentElement.after(div);
+          div.querySelector('textarea').focus();
+
+          div.querySelector('.wr-cancel').addEventListener('click', () => div.remove());
+          div.querySelector('.wr-submit').addEventListener('click', async () => {
+            if (!identity) { alert('Claim a name first.'); return; }
+            const text = div.querySelector('textarea').value.trim();
+            if (text.length < 5) return;
+            const vid = localStorage.getItem('mt-vid');
+            await roomRef.push({
+              name: identity.name, sigil: identity.sigil,
+              text, ts: firebase.database.ServerValue.TIMESTAMP,
+              visitor: vid, replyTo: benchId
+            });
+            div.remove();
+          });
+        });
+      });
+    });
+
+    // Analytics
+    const vid = localStorage.getItem('mt-vid') || ('v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5));
+    localStorage.setItem('mt-vid', vid);
+    fetch('https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json', {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({page:'workshop.html',visitor:vid,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height})
+    }).catch(()=>{});
+  })();
+  </script>
+</body>
+</html>

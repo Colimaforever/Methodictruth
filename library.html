@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>The Library — Methodic Truth</title>
+  <meta name="description" content="Long-form writing, essays, and things worth reading twice. A quiet room for deep thought.">
+  <meta property="og:title" content="The Library — Methodic Truth">
+  <meta property="og:description" content="Long-form writing, essays, and things worth reading twice.">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=56">
+  <style>
+    .library-room {
+      min-height: 100vh; position: relative; z-index: 1;
+      max-width: 620px; margin: 0 auto;
+      padding: 2rem clamp(1rem, 4vw, 2rem) 6rem;
+    }
+    .library-header {
+      text-align: center; padding: 2rem 0 1.5rem;
+      border-bottom: 1px solid rgba(180, 140, 100, 0.04);
+      margin-bottom: 2rem;
+    }
+    .library-glyph {
+      font-size: 2rem; opacity: 0.12;
+      animation: library-breathe 10s ease-in-out infinite;
+    }
+    @keyframes library-breathe {
+      0%, 100% { opacity: 0.06; }
+      50% { opacity: 0.15; text-shadow: 0 0 30px rgba(180, 140, 100, 0.04); }
+    }
+    .library-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1rem, 3vw, 1.4rem); font-weight: 400;
+      color: rgba(200, 180, 150, 0.45); letter-spacing: 0.25em;
+      text-transform: uppercase; margin: 0.5rem 0 0.3rem;
+    }
+    .library-sub {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.7rem, 1.8vw, 0.8rem); font-style: italic;
+      color: rgba(180, 140, 100, 0.15);
+    }
+    .library-back {
+      display: inline-block; margin-top: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: rgba(200, 180, 150, 0.15);
+      text-decoration: none; letter-spacing: 0.15em; transition: color 0.3s;
+    }
+    .library-back:hover { color: rgba(200, 180, 150, 0.4); }
+
+    /* ─── COMPOSE ─── */
+    .library-compose {
+      margin-bottom: 2.5rem; padding: 1.2rem;
+      background: rgba(10, 8, 5, 0.35);
+      border: 1px solid rgba(180, 140, 100, 0.03);
+      position: relative;
+    }
+    .library-compose::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(180, 140, 100, 0.05), transparent);
+    }
+    .library-compose-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: rgba(180, 140, 100, 0.18);
+      letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.6rem;
+    }
+    .library-identity-bar {
+      display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem;
+    }
+    .library-identity-sigil { font-size: 1rem; opacity: 0.35; }
+    .library-identity-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: rgba(200, 180, 150, 0.3); letter-spacing: 0.1em;
+    }
+    .library-identity-change {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem; color: rgba(200, 180, 150, 0.12);
+      cursor: pointer; text-decoration: none; margin-left: auto; transition: color 0.3s;
+    }
+    .library-identity-change:hover { color: rgba(200, 180, 150, 0.35); }
+
+    .library-title-input {
+      width: 100%; background: rgba(5, 3, 2, 0.5);
+      border: 1px solid rgba(138, 126, 107, 0.05);
+      color: rgba(200, 180, 150, 0.65);
+      font-family: 'Cinzel', serif; font-size: 1rem;
+      padding: 0.6rem; box-sizing: border-box; outline: none;
+      margin-bottom: 0.4rem;
+    }
+    .library-title-input::placeholder { color: rgba(138, 126, 107, 0.12); }
+
+    .library-textarea {
+      width: 100%; min-height: 200px;
+      background: rgba(5, 3, 2, 0.5);
+      border: 1px solid rgba(138, 126, 107, 0.05);
+      color: rgba(200, 180, 150, 0.6);
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.9rem, 2.2vw, 1rem); line-height: 2;
+      padding: 1rem; resize: vertical; outline: none; box-sizing: border-box;
+    }
+    .library-textarea::placeholder { color: rgba(138, 126, 107, 0.12); font-style: italic; }
+
+    .library-compose-footer {
+      display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;
+    }
+    .library-char-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45rem; color: rgba(200, 180, 150, 0.12); letter-spacing: 0.1em;
+    }
+    .library-submit {
+      background: rgba(10, 8, 5, 0.5);
+      border: 1px solid rgba(180, 140, 100, 0.06);
+      color: rgba(200, 180, 150, 0.25);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.15em;
+      padding: 0.4rem 1rem; cursor: pointer; transition: all 0.3s;
+    }
+    .library-submit:hover { border-color: rgba(180, 140, 100, 0.15); color: rgba(200, 180, 150, 0.5); }
+    .library-submit:disabled { opacity: 0.3; cursor: default; }
+
+    /* ─── SCROLLS (posts) ─── */
+    .library-scrolls { display: flex; flex-direction: column; gap: 0; }
+
+    .library-scroll {
+      padding: 2rem 1.2rem;
+      background: rgba(10, 8, 5, 0.2);
+      border-bottom: 1px solid rgba(180, 140, 100, 0.03);
+      transition: background 0.3s;
+    }
+    .library-scroll:hover { background: rgba(10, 8, 5, 0.35); }
+
+    .library-scroll-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: rgba(200, 180, 150, 0.55);
+      margin-bottom: 0.5rem;
+    }
+    .library-scroll-meta {
+      display: flex; align-items: center; gap: 0.4rem;
+      margin-bottom: 1rem; padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(138, 126, 107, 0.03);
+    }
+    .library-scroll-sigil { font-size: 0.8rem; opacity: 0.2; }
+    .library-scroll-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: rgba(200, 180, 150, 0.25); letter-spacing: 0.08em;
+    }
+    .library-scroll-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem; color: rgba(200, 180, 150, 0.1); margin-left: auto;
+    }
+    .library-scroll-reading {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.4rem; color: rgba(180, 140, 100, 0.12); letter-spacing: 0.08em;
+    }
+    .library-scroll-text {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+      color: rgba(200, 180, 150, 0.5);
+      line-height: 2; white-space: pre-wrap; word-break: break-word;
+    }
+
+    .library-empty {
+      text-align: center; padding: 4rem 1rem;
+    }
+    .library-empty-glyph { font-size: 2rem; opacity: 0.06; margin-bottom: 0.8rem; }
+    .library-empty-text {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.85rem; font-style: italic;
+      color: rgba(180, 140, 100, 0.12);
+    }
+    .library-loading {
+      text-align: center; padding: 2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; color: rgba(200, 180, 150, 0.1); letter-spacing: 0.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="library-room">
+    <div class="library-header">
+      <div class="library-glyph">𒁾</div>
+      <h1 class="library-title">The Library</h1>
+      <div class="library-sub">long-form writing and things worth reading twice.</div>
+      <a href="salon.html" class="library-back">← the salon</a>
+    </div>
+
+    <!-- Compose -->
+    <div class="library-compose" id="composeSection">
+      <div class="library-identity-bar">
+        <span class="library-identity-sigil" id="librarySigil"></span>
+        <span class="library-identity-name" id="libraryName">unnamed</span>
+        <a class="library-identity-change" id="libraryChangeName">change</a>
+      </div>
+      <div class="library-compose-label">add to the collection</div>
+      <input type="text" class="library-title-input" id="scrollTitle" placeholder="Title" maxlength="150">
+      <textarea class="library-textarea" id="scrollText" placeholder="Write something worth the silence of this room..." maxlength="10000"></textarea>
+      <div class="library-compose-footer">
+        <span class="library-char-count" id="charCount">0 / 10000</span>
+        <button class="library-submit" id="submitBtn" disabled>shelve it</button>
+      </div>
+    </div>
+
+    <!-- Scrolls -->
+    <div class="library-loading" id="loadingMsg">turning pages...</div>
+    <div class="library-scrolls" id="scrollsContainer"></div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="lib/firebase-app-compat.js"></script>
+  <script src="lib/firebase-database-compat.js"></script>
+  <script>
+  (function() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
+      authDomain: "methodictruth.firebaseapp.com",
+      databaseURL: "https://methodictruth-default-rtdb.firebaseio.com",
+      projectId: "methodictruth",
+      storageBucket: "methodictruth.firebasestorage.app",
+      messagingSenderId: "415814328505",
+      appId: "1:415814328505:web:6f8ad89f05d944d4087b68"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const roomRef = db.ref('salon/rooms/library');
+
+    const SIGILS = ['𓁹','𓂀','𓋹','𓃭','𓅓','𓆣','𓇳','𓈖','𓊝','𓌙','𒀭','𒁾','𒆳','𒈗','𒌓','☊','☍','⌇','◈','◇','⬡','⏦','⊹','⊿','⋮','⌬'];
+    function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return Math.abs(h);}
+    function getSigil(n){return SIGILS[hashStr(n)%SIGILS.length];}
+
+    let identity = JSON.parse(localStorage.getItem('salon-identity') || 'null');
+    const libSigil = document.getElementById('librarySigil');
+    const libName = document.getElementById('libraryName');
+
+    function updateIdentity() {
+      if (identity) { libSigil.textContent = identity.sigil; libName.textContent = identity.name; }
+      else { libSigil.textContent = '◇'; libName.textContent = 'unnamed'; }
+    }
+    updateIdentity();
+
+    document.getElementById('libraryChangeName').addEventListener('click', () => {
+      const name = prompt('What shall we call you?', identity ? identity.name : '');
+      if (name && name.trim()) {
+        identity = { name: name.trim(), sigil: getSigil(name.trim()), created: Date.now() };
+        localStorage.setItem('salon-identity', JSON.stringify(identity));
+        updateIdentity();
+      }
+    });
+
+    const scrollTitle = document.getElementById('scrollTitle');
+    const scrollText = document.getElementById('scrollText');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+    const MIN_CHARS = 100; // Library demands substance
+
+    scrollText.addEventListener('input', () => {
+      const len = scrollText.value.length;
+      charCount.textContent = len + ' / 10000';
+      const readTime = Math.max(1, Math.ceil(len / 1000));
+      if (len > 0) charCount.textContent += ' · ~' + readTime + ' min read';
+      submitBtn.disabled = len < MIN_CHARS || !scrollTitle.value.trim() || !identity;
+      if (len < MIN_CHARS && len > 0) charCount.textContent += ' · ' + (MIN_CHARS - len) + ' more';
+    });
+    scrollTitle.addEventListener('input', () => {
+      submitBtn.disabled = scrollText.value.length < MIN_CHARS || !scrollTitle.value.trim() || !identity;
+    });
+
+    submitBtn.addEventListener('click', async () => {
+      if (!identity) return;
+      submitBtn.disabled = true;
+      const vid = localStorage.getItem('mt-vid') || ('v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5));
+      localStorage.setItem('mt-vid', vid);
+
+      await roomRef.push({
+        name: identity.name,
+        sigil: identity.sigil,
+        title: scrollTitle.value.trim(),
+        text: scrollText.value.trim(),
+        ts: firebase.database.ServerValue.TIMESTAMP,
+        visitor: vid
+      });
+
+      scrollTitle.value = ''; scrollText.value = '';
+      charCount.textContent = '0 / 10000';
+    });
+
+    function relativeTime(ts) {
+      const diff = Date.now() - ts;
+      const mins = Math.floor(diff/60000), hours = Math.floor(diff/3600000), days = Math.floor(diff/86400000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + ' min ago';
+      if (hours < 24) return hours + 'h ago';
+      if (days < 7) return days + 'd ago';
+      if (days < 30) return Math.floor(days/7) + ' weeks ago';
+      return Math.floor(days/30) + ' moons ago';
+    }
+    function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+    const scrollsContainer = document.getElementById('scrollsContainer');
+    const loadingMsg = document.getElementById('loadingMsg');
+
+    roomRef.orderByChild('ts').on('value', (snap) => {
+      loadingMsg.style.display = 'none';
+      const data = snap.val();
+      if (!data) {
+        scrollsContainer.innerHTML = `
+          <div class="library-empty">
+            <div class="library-empty-glyph">𒁾</div>
+            <div class="library-empty-text">The shelves are empty. Write something worthy of the silence.</div>
+          </div>`;
+        return;
+      }
+
+      const scrolls = Object.entries(data).sort((a,b) => (b[1].ts||0) - (a[1].ts||0));
+      scrollsContainer.innerHTML = scrolls.map(([id, s]) => {
+        const readTime = Math.max(1, Math.ceil((s.text || '').length / 1000));
+        return `
+          <div class="library-scroll" data-id="${id}">
+            <div class="library-scroll-title">${escapeHtml(s.title || 'Untitled')}</div>
+            <div class="library-scroll-meta">
+              <span class="library-scroll-sigil">${escapeHtml(s.sigil || '◇')}</span>
+              <span class="library-scroll-name">${escapeHtml(s.name || 'unnamed')}</span>
+              <span class="library-scroll-reading">~${readTime} min</span>
+              <span class="library-scroll-time">${relativeTime(s.ts || Date.now())}</span>
+            </div>
+            <div class="library-scroll-text">${escapeHtml(s.text || '')}</div>
+          </div>`;
+      }).join('');
+    });
+
+    // Analytics
+    const vid = localStorage.getItem('mt-vid') || ('v-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5));
+    localStorage.setItem('mt-vid', vid);
+    fetch('https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json', {
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({page:'library.html',visitor:vid,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height})
+    }).catch(()=>{});
+  })();
+  </script>
+</body>
+</html>
