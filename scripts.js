@@ -903,12 +903,19 @@ if (_starCanvas && _starCtx) {
       });
       document.body.classList.toggle('no-grain', isClean);
 
-      // Hide music player on tool pages where it overlaps the UI
+      // Hide music player AND pause audio on tool pages
       const toolPages = ['synth.html', 'mixer.html', 'signal.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
       const mp = document.getElementById('musicPlayer');
       if (mp) {
         if (toolPages.includes(pageName)) {
           mp.style.display = 'none';
+          // Stop all audio — playlist and generative
+          audio.pause();
+          if (genActive) pauseGenerativeEngine();
+          isPlaying = false;
+          userPaused = true; // prevent auto-resume
+          if (playBtn) playBtn.textContent = '▷';
+          mp.classList.remove('playing');
         } else {
           mp.style.display = '';
         }
