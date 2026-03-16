@@ -296,16 +296,22 @@ async function startGenerativeEngine() {
     return;
   }
   try {
+    // On iOS, set Tone's context to our already-unlocked one if available
+    if (iosUnlockCtx && iosUnlockCtx.state === 'running' && Tone.context.state !== 'running') {
+      try { Tone.setContext(iosUnlockCtx); } catch(e) { console.warn('[Gen] setContext:', e); }
+    }
     await Tone.start();
     // Ensure AudioContext is running (critical for iOS)
     if (Tone.context.state === 'suspended') await Tone.context.resume();
     // Double-check it actually started
     if (Tone.context.state !== 'running') {
       console.warn('[Gen] AudioContext state:', Tone.context.state, '— waiting for next interaction');
+      genActive = false;
       return;
     }
   } catch(e) {
     console.error('[Gen] Tone.start() failed:', e);
+    genActive = false;
     return;
   }
   
@@ -523,31 +529,71 @@ function stopGenerativeEngine() {
 }
 
 // ─── UNIFIED STARTUP: wait for user interaction on ALL platforms ───
-// This ensures iOS and desktop behave identically — no broken auto-start.
+// iOS Safari ONLY unlocks audio on direct touch/click handlers (not scroll/keydown).
+// We create a silent AudioContext on first touch to "unlock" audio, then start the engine.
 let hasInteracted = false;
 let engineStarting = false;
+let iosUnlockCtx = null;
 
-async function onFirstInteraction() {
-  if (hasInteracted) return;
-  hasInteracted = true;
-  // Remove all listeners
-  ['touchstart', 'click', 'scroll', 'keydown'].forEach(evt => {
-    document.removeEventListener(evt, onFirstInteraction, true);
-  });
-  // Resume any suspended audio contexts
+function unlockiOSAudio() {
+  // Create + resume a silent AudioContext synchronously inside gesture handler
+  // This permanently unlocks audio on iOS Safari
+  try {
+    if (!iosUnlockCtx) {
+      iosUnlockCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (iosUnlockCtx.state === 'suspended') iosUnlockCtx.resume();
+    // Also play a silent buffer to fully unlock the audio hardware
+    const silentBuf = iosUnlockCtx.createBuffer(1, 1, 22050);
+    const source = iosUnlockCtx.createBufferSource();
+    source.buffer = silentBuf;
+    source.connect(iosUnlockCtx.destination);
+    source.start(0);
+  } catch(e) { console.warn('[iOS] Audio unlock:', e); }
+
+  // Resume any existing audio contexts
   if (!volumeWritable) ensureAudioGain();
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   if (bgAudioCtx && bgAudioCtx.state === 'suspended') bgAudioCtx.resume();
-  // Start generative engine on first interaction (consistent across all platforms)
+}
+
+async function onFirstInteraction(e) {
+  if (hasInteracted) return;
+  hasInteracted = true;
+
+  // Remove all listeners
+  ['touchstart', 'touchend', 'click', 'scroll', 'keydown'].forEach(evt => {
+    document.removeEventListener(evt, onFirstInteraction, true);
+  });
+
+  // Unlock iOS audio synchronously FIRST (must be in gesture call stack)
+  unlockiOSAudio();
+
+  // Small delay to let iOS audio system settle
+  await new Promise(r => setTimeout(r, 100));
+
+  // Start generative engine
   if (!isPlaying && !userPaused && !genActive && !engineStarting) {
     engineStarting = true;
     await startGenerativeEngine();
     engineStarting = false;
   }
 }
-['touchstart', 'click', 'scroll', 'keydown'].forEach(evt => {
+
+// touchstart + touchend for iOS, click for desktop, scroll + keydown as fallbacks
+['touchstart', 'touchend', 'click', 'scroll', 'keydown'].forEach(evt => {
   document.addEventListener(evt, onFirstInteraction, { capture: true, once: false, passive: true });
 });
+
+// iOS fallback: if Tone.start fails in the engine, retry on next touch
+document.addEventListener('touchstart', function iosRetry() {
+  if (hasInteracted && !genActive && !engineStarting && !isPlaying && !userPaused) {
+    unlockiOSAudio();
+    engineStarting = true;
+    startGenerativeEngine().then(() => { engineStarting = false; }).catch(() => { engineStarting = false; });
+    document.removeEventListener('touchstart', iosRetry, true);
+  }
+}, { capture: true, passive: true });
 
 // ─── BACKGROUND OSCILLOSCOPE ───
 const bgOsc = document.getElementById('bgOscilloscope');
