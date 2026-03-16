@@ -390,6 +390,12 @@
       <div class="synth-toolbar-section">
         <button class="synth-btn danger" id="clearAllBtn">✕ Clear</button>
       </div>
+      <div class="synth-toolbar-section" style="margin-left:auto;">
+        <span class="synth-toolbar-label">Vol</span>
+        <input type="range" id="masterVol" min="0" max="100" value="70"
+          style="width:60px;height:4px;accent-color:var(--glow);cursor:pointer;vertical-align:middle;">
+        <span id="masterVolVal" style="font-size:0.5rem;color:var(--stone-dark);min-width:2ch;text-align:right;">70</span>
+      </div>
     </div>
 
     <!-- Canvas -->
@@ -1671,6 +1677,20 @@
       fn();
     });
   }
+
+  // Master volume slider
+  const masterVolSlider = document.getElementById('masterVol');
+  const masterVolVal = document.getElementById('masterVolVal');
+  masterVolSlider.addEventListener('input', () => {
+    const v = parseInt(masterVolSlider.value);
+    masterVolVal.textContent = v;
+    // Map 0-100 to -Infinity..0 dB (log scale)
+    if (v === 0) {
+      Tone.Destination.volume.value = -Infinity;
+    } else {
+      Tone.Destination.volume.value = 20 * Math.log10(v / 100);
+    }
+  });
 
   // Start Audio
   tapHandler(document.getElementById('startAudioBtn'), startAudio);
