@@ -863,7 +863,10 @@
         if (!remoteStream) { logDebug('⚠️ No stream in ontrack event!'); return; }
 
         if (peers[remotePeerId] && peers[remotePeerId].tile) {
-          peers[remotePeerId].tile.querySelector('video').srcObject = remoteStream;
+          const existingVid = peers[remotePeerId].tile.querySelector('video');
+          existingVid.srcObject = remoteStream;
+          existingVid.muted = false;
+          existingVid.volume = 1;
           return;
         }
 
@@ -872,7 +875,16 @@
         tile.innerHTML = `<video autoplay playsinline muted></video><span class="live-tile-name">${escapeHtml(remoteUsername || 'Unknown')}</span><div class="live-tile-volume"><span>🔊</span><input type="range" min="0" max="100" value="100" title="Volume"><span class="vol-label">100%</span></div>`;
         const vid = tile.querySelector('video');
         vid.srcObject = remoteStream;
-        vid.play().then(() => { vid.muted = false; }).catch(() => {});
+        vid.volume = 1;
+        vid.play().then(() => {
+          vid.muted = false;
+          logDebug('🔊 Unmuted remote video for ' + (remotePeerId || 'unknown').substr(0,6));
+        }).catch((err) => {
+          logDebug('⚠️ Remote play failed: ' + err.message + ' — will unmute on next click');
+          // Browser blocked unmuted autoplay — unmute on next user interaction
+          const unmute = () => { vid.muted = false; vid.play().catch(() => {}); document.removeEventListener('click', unmute); };
+          document.addEventListener('click', unmute, { once: true });
+        });
         // Per-peer volume control
         const volSlider = tile.querySelector('input[type=range]');
         const volLabel = tile.querySelector('.vol-label');
