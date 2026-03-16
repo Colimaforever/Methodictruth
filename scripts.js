@@ -3,6 +3,8 @@
 const audioToolPages = ['synth.html', 'mixer.html', 'guitar.html', 'live.html', 'signal.html', 'songwriter.html'];
 const currentPage = location.pathname.split('/').pop() || 'index.html';
 const isAudioToolPage = audioToolPages.includes(currentPage);
+// Mutable flag — SPA router sets this on navigation
+let musicSuppressed = isAudioToolPage;
 
 // ─── MUSIC PLAYER ───
 const playlist = [
@@ -265,7 +267,7 @@ function handleVolume(e) {
 }
 
 async function togglePlay() {
-  if (isAudioToolPage) return; // don't play background music on tool pages
+  if (musicSuppressed) return; // don't play background music on tool pages
   if (genActive) {
     if (isPlaying) {
       userPaused = true;
@@ -299,7 +301,7 @@ async function togglePlay() {
 playBtn.addEventListener('click', togglePlay);
 
 async function startGenerativeEngine() {
-  if (genActive) return; // prevent double-start
+  if (genActive || musicSuppressed) return; // prevent double-start or starting on tool pages
   audio.pause();
   audio.currentTime = 0;
   
@@ -587,9 +589,7 @@ async function onFirstInteraction(e) {
   await new Promise(r => setTimeout(r, 100));
 
   // Start generative engine — but NOT on audio tool pages
-  const currentNav = (location.pathname.split('/').pop() || 'index.html');
-  const toolPagesCheck = ['synth.html', 'mixer.html', 'signal.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
-  if (!isPlaying && !userPaused && !genActive && !engineStarting && !toolPagesCheck.includes(currentNav)) {
+  if (!isPlaying && !userPaused && !genActive && !engineStarting && !musicSuppressed) {
     engineStarting = true;
     await startGenerativeEngine();
     engineStarting = false;
@@ -603,9 +603,7 @@ async function onFirstInteraction(e) {
 
 // iOS fallback: if Tone.start fails in the engine, retry on next touch
 document.addEventListener('touchstart', function iosRetry() {
-  const curPage = (location.pathname.split('/').pop() || 'index.html');
-  const toolPgs = ['synth.html', 'mixer.html', 'signal.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
-  if (hasInteracted && !genActive && !engineStarting && !isPlaying && !userPaused && !toolPgs.includes(curPage)) {
+  if (hasInteracted && !genActive && !engineStarting && !isPlaying && !userPaused && !musicSuppressed) {
     unlockiOSAudio();
     engineStarting = true;
     startGenerativeEngine().then(() => { engineStarting = false; }).catch(() => { engineStarting = false; });
@@ -907,27 +905,29 @@ if (_starCanvas && _starCtx) {
       });
       document.body.classList.toggle('no-grain', isClean);
 
-      // Hide music player AND pause audio on tool pages
+      // Hide music player AND kill audio on tool pages
       const toolPages = ['synth.html', 'mixer.html', 'signal.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
       const mp = document.getElementById('musicPlayer');
-      if (mp) {
-        if (toolPages.includes(pageName)) {
-          mp.style.display = 'none';
-          // Kill all audio — playlist and generative engine
-          audio.pause();
-          audio.src = '';
-          if (genActive) stopGenerativeEngine();
-          isPlaying = false;
-          genActive = false;
-          userPaused = true; // prevent auto-resume
-          if (playBtn) playBtn.textContent = '▷';
-          if (playerStatus) playerStatus.textContent = '◇ idle';
-          mp.classList.remove('playing');
-          // Reset Tone.js destination volume so tool pages can use Tone.js fresh
-          try { Tone.Destination.volume.value = 0; } catch(e) {}
-        } else {
-          mp.style.display = '';
-        }
+      if (toolPages.includes(pageName)) {
+        musicSuppressed = true;
+        if (mp) mp.style.display = 'none';
+        // Kill all audio — playlist and generative engine
+        audio.pause();
+        audio.src = '';
+        if (genActive) stopGenerativeEngine();
+        isPlaying = false;
+        genActive = false;
+        userPaused = true;
+        if (playBtn) playBtn.textContent = '▷';
+        if (playerStatus) playerStatus.textContent = '◇ idle';
+        if (mp) mp.classList.remove('playing');
+        // Reset Tone destination so tool pages can use it
+        try { Tone.Destination.volume.value = 0; } catch(e) {}
+        // Kill Tone Transport in case generative scheduled events linger
+        try { Tone.Transport.stop(); Tone.Transport.cancel(); } catch(e) {}
+      } else {
+        musicSuppressed = false;
+        if (mp) mp.style.display = '';
       }
 
       // Execute page-specific inline scripts from new page
