@@ -1263,68 +1263,197 @@ footer .donate-link:hover {
   margin-top: 1rem;
 }
 
-/* Instrument Mode / Audio Input */
+/* ─── Signal Path Config Panel ─── */
+.live-signal-config {
+  width: 100%;
+  margin: 0.8rem 0 0.6rem;
+  padding: 0.8rem;
+  background: rgba(10, 8, 5, 0.5);
+  border: 1px solid rgba(138, 126, 107, 0.06);
+  position: relative;
+}
+.live-signal-config::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.08), transparent);
+}
+.live-signal-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  color: rgba(0, 229, 255, 0.25);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  text-align: left;
+}
+
+/* ─── Instrument Mode / Audio Input ─── */
 .live-input-select-wrap {
-  display: flex; gap: 0.3rem; align-items: center; width: 100%;
+  display: flex; gap: 0.4rem; align-items: center; width: 100%;
+  margin: 0.4rem 0;
 }
 .live-input-select {
-  flex: 1; background: rgba(18,14,10,0.9); border: 1px solid rgba(138,126,107,0.2);
-  color: var(--parchment); font-family: 'JetBrains Mono',monospace; font-size: 0.65rem;
-  padding: 0.4rem 0.5rem;
+  flex: 1;
+  background: rgba(10, 8, 5, 0.95);
+  border: 1px solid rgba(138, 126, 107, 0.12);
+  color: rgba(200, 180, 150, 0.7);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  padding: 0.45rem 0.6rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(138,126,107,0.3)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  padding-right: 1.8rem;
 }
+.live-input-select:focus {
+  border-color: rgba(0, 229, 255, 0.25);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.04);
+  outline: none;
+}
+.live-input-select option {
+  background: #0a0806;
+  color: rgba(200, 180, 150, 0.8);
+}
+
+/* Instrument Mode Toggle */
 .live-instrument-toggle {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem;
-  cursor: pointer; padding: 0.4rem 0; width: 100%;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+  cursor: pointer; padding: 0.6rem 0; width: 100%;
+  border-top: 1px solid rgba(138, 126, 107, 0.06);
+  margin-top: 0.3rem;
 }
 .live-instrument-toggle input { display: none; }
 .live-toggle-label {
-  font-family: 'JetBrains Mono',monospace; font-size: 0.7rem;
-  color: var(--stone); letter-spacing: 0.08em; transition: color 0.2s;
-  padding: 0.3rem 0.6rem; border: 1px solid rgba(138,126,107,0.15);
-  background: rgba(18,14,10,0.6);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(200, 180, 150, 0.4);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(138, 126, 107, 0.1);
+  background: rgba(10, 8, 5, 0.6);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.live-toggle-label::before {
+  content: '';
+  position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.04), transparent);
+  transition: left 0.6s ease;
 }
 .live-instrument-toggle input:checked ~ .live-toggle-label {
-  color: var(--glow); border-color: rgba(0,229,255,0.3);
-  background: rgba(0,229,255,0.05);
+  color: rgba(0, 229, 255, 0.8);
+  border-color: rgba(0, 229, 255, 0.25);
+  background: rgba(0, 229, 255, 0.03);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.05), inset 0 0 15px rgba(0, 229, 255, 0.02);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.15);
+}
+.live-instrument-toggle input:checked ~ .live-toggle-label::before {
+  left: 100%;
 }
 .live-toggle-hint {
-  font-family: 'EB Garamond',serif; font-size: 0.65rem; font-style: italic;
-  color: rgba(200,180,150,0.3); flex-basis: 100%;
+  font-family: 'EB Garamond', serif;
+  font-size: 0.65rem;
+  font-style: italic;
+  color: rgba(200, 180, 150, 0.2);
+  flex-basis: 100%;
+  padding-left: 0.2rem;
+  transition: color 0.3s;
 }
-.live-input-meter-wrap {
-  display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.2rem 0;
-}
-.live-input-meter-bar {
-  flex: 1; height: 6px; background: rgba(18,14,10,0.8);
-  border: 1px solid rgba(138,126,107,0.1); overflow: hidden;
-}
-.live-input-meter-level {
-  height: 100%; width: 0%; background: linear-gradient(90deg, rgba(74,124,89,0.8), rgba(0,229,255,0.8));
-  transition: width 0.05s linear;
-}
-.live-input-meter-level.hot { background: linear-gradient(90deg, rgba(200,120,40,0.8), rgba(200,40,40,0.8)); }
-.live-input-meter-label {
-  font-family: 'JetBrains Mono',monospace; font-size: 0.55rem;
-  color: var(--stone-dark); min-width: 45px; text-align: right;
+.live-instrument-toggle input:checked ~ .live-toggle-hint {
+  color: rgba(0, 229, 255, 0.2);
 }
 
-/* Per-peer volume slider */
+/* Input Level Meter */
+.live-input-meter-wrap {
+  display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.3rem 0;
+}
+.live-input-meter-bar {
+  flex: 1; height: 4px;
+  background: rgba(10, 8, 5, 0.9);
+  border: 1px solid rgba(138, 126, 107, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+.live-input-meter-bar::after {
+  content: '';
+  position: absolute; top: 0; right: 15%; width: 1px; height: 100%;
+  background: rgba(200, 120, 40, 0.15);
+}
+.live-input-meter-level {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg,
+    rgba(74, 124, 89, 0.5) 0%,
+    rgba(0, 229, 255, 0.6) 60%,
+    rgba(0, 229, 255, 0.8) 100%
+  );
+  transition: width 0.05s linear;
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.15);
+}
+.live-input-meter-level.hot {
+  background: linear-gradient(90deg,
+    rgba(200, 160, 40, 0.6) 0%,
+    rgba(200, 60, 30, 0.8) 80%,
+    rgba(220, 40, 40, 0.9) 100%
+  );
+  box-shadow: 0 0 8px rgba(200, 40, 40, 0.2);
+}
+.live-input-meter-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem;
+  color: rgba(200, 180, 150, 0.3);
+  min-width: 42px;
+  text-align: right;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Per-peer volume slider ─── */
 .live-tile-volume {
-  position: absolute; bottom: 24px; left: 4px; right: 4px;
-  display: flex; align-items: center; gap: 0.3rem; opacity: 0;
-  transition: opacity 0.2s; z-index: 2;
+  position: absolute; bottom: 22px; left: 6px; right: 6px;
+  display: flex; align-items: center; gap: 0.3rem;
+  opacity: 0; transition: opacity 0.3s ease;
+  z-index: 2;
+  background: linear-gradient(transparent, rgba(5, 2, 8, 0.7));
+  padding: 0.3rem 0.2rem 0.15rem;
 }
 .live-tile:hover .live-tile-volume { opacity: 1; }
 .live-tile-volume input[type=range] {
-  flex: 1; height: 3px; -webkit-appearance: none; appearance: none;
-  background: rgba(200,180,150,0.2); outline: none; cursor: pointer;
+  flex: 1; height: 2px;
+  -webkit-appearance: none; appearance: none;
+  background: rgba(200, 180, 150, 0.12);
+  outline: none; cursor: pointer;
+  border-radius: 1px;
 }
 .live-tile-volume input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%;
-  background: rgba(0,229,255,0.7); cursor: pointer;
+  -webkit-appearance: none;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 229, 255, 0.6);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.2);
+  transition: background 0.2s;
+}
+.live-tile-volume input[type=range]::-webkit-slider-thumb:hover {
+  background: rgba(0, 229, 255, 0.9);
+}
+.live-tile-volume input[type=range]::-moz-range-thumb {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 229, 255, 0.6);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  cursor: pointer;
 }
 .live-tile-volume span {
-  font-family: 'JetBrains Mono',monospace; font-size: 0.5rem; color: var(--stone-dark);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.45rem;
+  color: rgba(200, 180, 150, 0.3);
+  letter-spacing: 0.05em;
 }
 
 .live-room {

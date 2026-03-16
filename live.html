@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=55">
+  <link rel="stylesheet" href="styles.css?v=56">
   <!-- PeerJS removed — using pure WebRTC + Firebase signaling -->
   <style>
     .live-room-body { display: flex; gap: 1rem; position: relative; z-index: 1; flex-wrap: wrap; }
@@ -236,27 +236,28 @@
         <p>Join the open room. No accounts, no passwords — just a name and a connection. WebRTC peer-to-peer, max ~10 souls.</p>
         <div class="live-join-form">
           <input type="text" id="usernameInput" class="live-input" placeholder="Your name..." maxlength="24" autocomplete="off">
-          <!-- Audio Input Selector -->
-          <div class="live-input-select-wrap">
-            <select id="audioInputSelect" class="live-input-select">
-              <option value="">Default Microphone</option>
-            </select>
-            <button id="refreshAudioBtn" class="live-ctrl-btn" style="font-size:0.6rem;padding:0.2rem 0.4rem;" title="Refresh devices">⟲</button>
+          <!-- Signal Path -->
+          <div class="live-signal-config">
+            <div class="live-signal-header">⌇ signal path</div>
+            <div class="live-input-select-wrap">
+              <select id="audioInputSelect" class="live-input-select">
+                <option value="">Default Microphone</option>
+              </select>
+              <button id="refreshAudioBtn" class="live-ctrl-btn" style="font-size:0.55rem;padding:0.2rem 0.5rem;letter-spacing:0.1em;" title="Refresh devices">↻</button>
+            </div>
+            <label class="live-instrument-toggle">
+              <input type="checkbox" id="instrumentMode">
+              <span class="live-toggle-label">🎸 instrument mode</span>
+              <span class="live-toggle-hint">bypass echo cancellation · bypass noise gate · raw signal · lowest latency</span>
+            </label>
+            <div id="inputMeterWrap" class="live-input-meter-wrap" style="display:none;">
+              <div class="live-input-meter-bar"><div id="inputMeterLevel" class="live-input-meter-level"></div></div>
+              <span id="inputMeterLabel" class="live-input-meter-label">-∞ dB</span>
+            </div>
           </div>
-          <!-- Instrument Mode -->
-          <label class="live-instrument-toggle">
-            <input type="checkbox" id="instrumentMode">
-            <span class="live-toggle-label">🎸 Instrument Mode</span>
-            <span class="live-toggle-hint">Raw signal — no echo cancel, no noise gate, low latency</span>
-          </label>
-          <!-- Input Level Meter -->
-          <div id="inputMeterWrap" class="live-input-meter-wrap" style="display:none;">
-            <div class="live-input-meter-bar"><div id="inputMeterLevel" class="live-input-meter-level"></div></div>
-            <span id="inputMeterLabel" class="live-input-meter-label">-∞ dB</span>
-          </div>
-          <button id="joinBtn" class="live-btn">⏦ Join Room</button>
+          <button id="joinBtn" class="live-btn">⏦ Enter</button>
         </div>
-        <p class="live-note">Camera & microphone access required · Plug in instruments via audio interface</p>
+        <p class="live-note">Plug in instruments via audio interface · WebRTC peer-to-peer</p>
       </article>
     </div>
 
