@@ -13,6 +13,9 @@ const playlist = [
 ];
 
 const audio = new Audio();
+// Configure audio element for better quality
+audio.preload = 'metadata'; // Preload metadata to prevent buffering issues
+audio.crossOrigin = 'anonymous'; // Enable CORS for audio analysis if needed
 let currentTrack = 0;
 let isPlaying = false;
 let currentVolume = 0.4;

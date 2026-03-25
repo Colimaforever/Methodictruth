@@ -380,6 +380,11 @@
     let masterGain, masterEqLow, masterEqMid, masterEqHigh, masterMeter, masterLimiter;
     const tracks = [];
 
+    // ─── AUDIO CONFIGURATION ───
+    // Configure Tone.js for optimal audio quality and prevent crackling
+    Tone.context.latencyHint = 'balanced';
+    Tone.context.lookAhead = 0.1;
+
     // ─── INIT TONE.JS CHAIN ───
     async function initAudio() {
       await Tone.start();

@@ -1102,29 +1102,51 @@ footer .donate-link:hover {
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
-  width: 50px;
-  height: 2px;
-  background: var(--stone-dark);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--stone-dark) 0%, rgba(0, 229, 255, 0.15) 100%);
   outline: none;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.volume-slider:hover {
+  height: 4px;
+  background: linear-gradient(90deg, var(--stone-dark) 0%, rgba(0, 229, 255, 0.3) 100%);
 }
 
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   background: var(--glow);
   border-radius: 50%;
   cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+  transition: all 0.2s;
+}
+
+.volume-slider:hover::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
 }
 
 .volume-slider::-moz-range-thumb {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   background: var(--glow);
   border-radius: 50%;
   border: none;
   cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+  transition: all 0.2s;
+}
+
+.volume-slider:hover::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
 }
 
 .bg-oscilloscope {
