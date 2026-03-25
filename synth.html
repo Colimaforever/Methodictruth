@@ -392,7 +392,7 @@
       </div>
       <div class="synth-toolbar-section" style="margin-left:auto;">
         <span class="synth-toolbar-label">Vol</span>
-        <input type="range" id="masterVol" min="0" max="100" value="70"
+        <input type="range" id="masterVol" min="0" max="100" value="40"
           style="width:60px;height:4px;accent-color:var(--glow);cursor:pointer;vertical-align:middle;">
         <span id="masterVolVal" style="font-size:0.5rem;color:var(--stone-dark);min-width:2ch;text-align:right;">70</span>
       </div>
@@ -504,6 +504,16 @@
   let pendingPort = null; // {moduleId, portName, type, el}
   let cableColorIdx = 0;
   const CABLE_COLORS = ['#00e5ff', '#7b68ee', '#e8a87c'];
+
+  // ─── AUDIO CONFIGURATION ───
+  // Configure Tone.js for optimal audio quality and prevent crackling
+  Tone.context.latencyHint = 'balanced'; // balanced latency for better audio quality
+  Tone.context.lookAhead = 0.1; // reduce lookahead to minimize latency
+  
+  // Add a soft limiter to prevent clipping
+  const masterLimiter = new Tone.Limiter(-0.5).toDestination();
+  Tone.Destination.disconnect();
+  Tone.Destination.connect(masterLimiter);
 
   // ─── AUDIO START ───
   async function startAudio() {
@@ -1684,13 +1694,18 @@
   masterVolSlider.addEventListener('input', () => {
     const v = parseInt(masterVolSlider.value);
     masterVolVal.textContent = v;
-    // Map 0-100 to -Infinity..0 dB (log scale)
+    // Map 0-100 to -Infinity..-6 dB (log scale with headroom to prevent clipping)
     if (v === 0) {
       Tone.Destination.volume.value = -Infinity;
     } else {
-      Tone.Destination.volume.value = 20 * Math.log10(v / 100);
+      // Max at -6dB to leave headroom and prevent clipping
+      const dbValue = 20 * Math.log10(v / 100) - 6;
+      Tone.Destination.volume.value = dbValue;
     }
   });
+  
+  // Set initial volume
+  masterVolSlider.dispatchEvent(new Event('input'));
 
   // Start Audio
   tapHandler(document.getElementById('startAudioBtn'), startAudio);
