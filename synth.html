@@ -417,6 +417,10 @@
       <span class="piano-info-item" id="pianoOctave">Oct: 4</span>
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
       <span class="piano-info-hint" id="pianoHint"></span>
+      <div class="chord-display" id="chordDisplay">
+        <span class="chord-root" id="chordRoot"></span>
+        <span class="chord-name" id="chordName"></span>
+      </div>
     </div>
     <div class="piano-keys" id="pianoKeys"></div>
   </div>
@@ -489,6 +493,7 @@
   </div>
 
   <script src="lib/tone.min.js"></script>
+  <script src="chord-theory.js?v=1"></script>
   <script>
   /* ═══════════════════════════════════════════════
      MODULAR SYNTH ENGINE — methodictruth.com
@@ -1441,6 +1446,7 @@
 
     activeNotes.set(noteNum, synthNodes);
     highlightPianoKey(noteNum, true);
+    updateChordDisplay();
   }
 
   // Trigger a note off
@@ -1456,6 +1462,28 @@
     });
     activeNotes.delete(noteNum);
     highlightPianoKey(noteNum, false);
+    updateChordDisplay();
+  }
+
+  // ─── CHORD DISPLAY ───
+  function updateChordDisplay() {
+    const chordDisplay = document.getElementById('chordDisplay');
+    const chordRoot = document.getElementById('chordRoot');
+    const chordName = document.getElementById('chordName');
+    
+    const currentNotes = Array.from(activeNotes.keys());
+    
+    if (currentNotes.length === 0) {
+      chordDisplay.classList.remove('active');
+      return;
+    }
+    
+    const chord = identifyChord(currentNotes);
+    
+    chordRoot.textContent = chord.root;
+    chordName.textContent = chord.name;
+    chordName.title = chord.fullName;
+    chordDisplay.classList.add('active');
   }
 
   // ─── MIDI SETUP ───

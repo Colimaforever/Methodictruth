@@ -470,6 +470,60 @@
         </div>
       </div>
 
+      <!-- ═══ SECTION: CHORD BUILDER ═══ -->
+      <div class="theory-section">
+        <div class="theory-section-label">Chord Builder</div>
+        <div class="theory-section-title" style="text-align:center;">Build & Identify Chords</div>
+        <p class="deeper-desc" style="text-align:center; margin-bottom:1.5rem;">
+          Click intervals to build a chord from the root, or see what metal's favorite two-note power moves sound like.
+        </p>
+
+        <div class="chord-builder-controls">
+          <div class="theory-select-group">
+            <label class="theory-select-label">Root Note</label>
+            <select class="theory-select" id="chordBuilderRoot">
+              <option value="C">C</option>
+              <option value="C#">C# / D♭</option>
+              <option value="D">D</option>
+              <option value="D#">D# / E♭</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="F#">F# / G♭</option>
+              <option value="G">G</option>
+              <option value="G#">G# / A♭</option>
+              <option value="A">A</option>
+              <option value="A#">A# / B♭</option>
+              <option value="B">B</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="interval-buttons" id="intervalButtons">
+          <button class="interval-btn" data-semitone="0">Root</button>
+          <button class="interval-btn" data-semitone="1">♭2</button>
+          <button class="interval-btn" data-semitone="2">2</button>
+          <button class="interval-btn" data-semitone="3">♭3</button>
+          <button class="interval-btn" data-semitone="4">3</button>
+          <button class="interval-btn" data-semitone="5">4</button>
+          <button class="interval-btn" data-semitone="6">♭5</button>
+          <button class="interval-btn" data-semitone="7">5</button>
+          <button class="interval-btn" data-semitone="8">♭6</button>
+          <button class="interval-btn" data-semitone="9">6</button>
+          <button class="interval-btn" data-semitone="10">♭7</button>
+          <button class="interval-btn" data-semitone="11">7</button>
+        </div>
+
+        <div class="chord-builder-result" id="chordBuilderResult">
+          <div class="chord-builder-name" id="chordBuilderName">—</div>
+          <div class="chord-builder-fullname" id="chordBuilderFullName">Select intervals to build a chord</div>
+        </div>
+
+        <div class="chord-builder-actions">
+          <button class="theory-btn" id="playBuiltChord">▶ Play Chord</button>
+          <button class="theory-btn" id="clearBuiltChord">Clear</button>
+        </div>
+      </div>
+
       <!-- ═══ SECTION 3: GO DEEPER ═══ -->
       <div class="theory-section" style="background:none; border:none; padding:0;">
         <div class="theory-section-label" style="padding-left:1.5rem;">③ Go Deeper</div>
@@ -530,6 +584,7 @@
     </footer>
   </div>
 
+  <script src="chord-theory.js?v=1"></script>
   <script>
   // ═══════════════════════════════════════════════════════════
   // MUSIC THEORY ENGINE
@@ -1208,6 +1263,126 @@
 
   // Initial render
   update();
+
+  // ═══════════════════════════════════════════════════════════
+  // CHORD BUILDER
+  // ═══════════════════════════════════════════════════════════
+  let chordBuilderRoot = 'C';
+  let chordBuilderIntervals = [0]; // Always include root
+  let chordBuilderAudioContext = null;
+
+  function initChordBuilder() {
+    const rootSelect = document.getElementById('chordBuilderRoot');
+    const intervalButtons = document.querySelectorAll('.interval-btn');
+    const playBtn = document.getElementById('playBuiltChord');
+    const clearBtn = document.getElementById('clearBuiltChord');
+
+    rootSelect.addEventListener('change', () => {
+      chordBuilderRoot = rootSelect.value;
+      updateChordBuilderDisplay();
+    });
+
+    intervalButtons.forEach(btn => {
+      const semitone = parseInt(btn.dataset.semitone);
+      if (semitone === 0) {
+        btn.classList.add('active'); // Root always active
+      }
+      
+      btn.addEventListener('click', () => {
+        if (semitone === 0) return; // Can't deselect root
+        
+        if (chordBuilderIntervals.includes(semitone)) {
+          chordBuilderIntervals = chordBuilderIntervals.filter(i => i !== semitone);
+          btn.classList.remove('active');
+        } else {
+          chordBuilderIntervals.push(semitone);
+          chordBuilderIntervals.sort((a, b) => a - b);
+          btn.classList.add('active');
+        }
+        updateChordBuilderDisplay();
+      });
+    });
+
+    playBtn.addEventListener('click', playBuiltChord);
+    clearBtn.addEventListener('click', () => {
+      chordBuilderIntervals = [0];
+      intervalButtons.forEach(btn => {
+        if (parseInt(btn.dataset.semitone) === 0) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      updateChordBuilderDisplay();
+    });
+
+    updateChordBuilderDisplay();
+  }
+
+  function updateChordBuilderDisplay() {
+    const rootIdx = noteIndex(chordBuilderRoot);
+    const midiNotes = chordBuilderIntervals.map(i => (rootIdx + i) % 12);
+    
+    // Use the chord identification from chord-theory.js (if available)
+    let chord;
+    if (typeof identifyChord === 'function') {
+      chord = identifyChord(chordBuilderIntervals);
+      chord.root = chordBuilderRoot;
+    } else {
+      // Fallback if chord-theory.js not loaded
+      chord = {
+        root: chordBuilderRoot,
+        name: chordBuilderIntervals.length === 1 ? '' : '?',
+        fullName: chordBuilderIntervals.length === 1 ? 'Single Note' : 'Chord'
+      };
+    }
+    
+    const nameEl = document.getElementById('chordBuilderName');
+    const fullnameEl = document.getElementById('chordBuilderFullName');
+    
+    if (chordBuilderIntervals.length === 1) {
+      nameEl.textContent = chord.root;
+      fullnameEl.textContent = 'Single Note';
+    } else {
+      nameEl.textContent = chord.root + chord.name;
+      fullnameEl.textContent = chord.fullName;
+    }
+  }
+
+  function playBuiltChord() {
+    if (!chordBuilderAudioContext) {
+      chordBuilderAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    const ctx = chordBuilderAudioContext;
+    const rootIdx = noteIndex(chordBuilderRoot);
+    const now = ctx.currentTime;
+
+    // Play each interval as a note
+    chordBuilderIntervals.forEach(interval => {
+      const midiNote = 60 + rootIdx + interval; // C4 + root + interval
+      const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+      
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+      
+      osc.start(now);
+      osc.stop(now + 1.5);
+    });
+  }
+
+  // Initialize chord builder when DOM loads
+  if (document.getElementById('chordBuilderRoot')) {
+    initChordBuilder();
+  }
 
   // ─── STARFIELD ───
   (function(){
