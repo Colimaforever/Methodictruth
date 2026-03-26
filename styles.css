@@ -2288,6 +2288,39 @@ footer .donate-link:hover {
   letter-spacing: 0.05em;
 }
 
+.chord-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 2px;
+  min-width: 120px;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.chord-display.active {
+  opacity: 1;
+}
+
+.chord-root {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+  font-weight: 700;
+  color: var(--glow);
+  letter-spacing: 0.05em;
+}
+
+.chord-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.55rem, 0.9vw, 0.7rem);
+  color: var(--glow-warm);
+  letter-spacing: 0.08em;
+}
+
 .piano-keys {
   display: flex;
   position: relative;
@@ -2367,5 +2400,109 @@ footer .donate-link:hover {
     margin-left: 0;
     width: 100%;
     text-align: center;
+  }
+}
+
+/* ─── CHORD BUILDER (theory.html) ─── */
+.chord-builder-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.interval-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 0.5rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+}
+
+.interval-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.7rem 0.5rem;
+  background: rgba(10, 14, 26, 0.6);
+  border: 1px solid rgba(138, 126, 107, 0.2);
+  color: var(--stone);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.interval-btn:hover {
+  border-color: var(--glow);
+  color: var(--glow);
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.interval-btn.active {
+  border-color: var(--glow);
+  color: var(--glow);
+  background: rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+}
+
+.interval-btn[data-semitone="0"] {
+  border-color: rgba(0, 229, 255, 0.4);
+  color: var(--glow);
+  background: rgba(0, 229, 255, 0.08);
+}
+
+.chord-builder-result {
+  text-align: center;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  background: rgba(0, 229, 255, 0.03);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+}
+
+.chord-builder-name {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: var(--glow);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4rem;
+}
+
+.chord-builder-fullname {
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  color: var(--stone);
+  font-style: italic;
+}
+
+.chord-builder-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.theory-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.6rem 1.2rem;
+  background: rgba(10, 14, 26, 0.8);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: var(--glow);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.1em;
+}
+
+.theory-btn:hover {
+  border-color: var(--glow);
+  background: rgba(0, 229, 255, 0.08);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+}
+
+@media (max-width: 600px) {
+  .interval-buttons {
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 0.3rem;
+  }
+  .interval-btn {
+    font-size: 0.65rem;
+    padding: 0.5rem 0.3rem;
   }
 }
