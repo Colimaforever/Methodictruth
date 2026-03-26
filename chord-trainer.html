@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord-Tone Trainer — Methodic Truth</title>
+    <link rel="stylesheet" href="styles.css?v=17">
+    <style>
+        .trainer-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .controls {
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            color: var(--accent);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        select, input[type="number"] {
+            background: rgba(10, 10, 20, 0.9);
+            border: 1px solid var(--primary);
+            color: var(--text);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--bg);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .btn.active {
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .progression-display {
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .current-chord {
+            font-size: 4rem;
+            color: var(--accent);
+            text-shadow: 0 0 30px var(--accent);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .chord-info {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chord-tones {
+            color: var(--text);
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .keyboard-container {
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .piano {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            height: 200px;
+            margin: 2rem 0;
+        }
+
+        .key {
+            position: relative;
+            border: 1px solid #000;
+            cursor: pointer;
+            transition: all 0.1s;
+            user-select: none;
+        }
+
+        .white-key {
+            width: 50px;
+            height: 200px;
+            background: linear-gradient(to bottom, #fff 0%, #e8e8e8 100%);
+            z-index: 1;
+        }
+
+        .white-key:hover {
+            background: linear-gradient(to bottom, #f0f0f0 0%, #d8d8d8 100%);
+        }
+
+        .white-key.active {
+            background: linear-gradient(to bottom, #d0d0d0 0%, #b0b0b0 100%);
+        }
+
+        .black-key {
+            width: 30px;
+            height: 120px;
+            background: linear-gradient(to bottom, #000 0%, #333 100%);
+            position: absolute;
+            z-index: 2;
+            margin-left: -15px;
+        }
+
+        .black-key:hover {
+            background: linear-gradient(to bottom, #222 0%, #444 100%);
+        }
+
+        .black-key.active {
+            background: linear-gradient(to bottom, #444 0%, #666 100%);
+        }
+
+        .key.chord-tone {
+            box-shadow: 0 0 20px var(--accent), inset 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .key.hit-correct {
+            animation: correct-hit 0.5s ease-out;
+        }
+
+        @keyframes correct-hit {
+            0% { box-shadow: 0 0 30px #00ff00; }
+            100% { box-shadow: none; }
+        }
+
+        .key-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .black-key .key-label {
+            color: #aaa;
+            bottom: 5px;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .stats {
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            color: var(--accent);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .instructions {
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .instructions h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .instructions ul {
+            list-style-position: inside;
+            color: var(--text);
+        }
+
+        .two-note-mode {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+        }
+
+        .note-selector {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+
+    <nav>
+        <div class="logo">
+            <a href="index.html">METHODIC TRUTH</a>
+        </div>
+        <div class="nav-links">
+            <a href="chronicles.html">Chronicles</a>
+            <a href="synth.html">Synth</a>
+            <a href="mixer.html">Live</a>
+            <a href="architecture.html">Theory</a>
+        </div>
+    </nav>
+
+    <div class="trainer-container">
+        <h1 style="text-align: center; margin-bottom: 2rem;">🎯 Chord-Tone Trainer</h1>
+
+        <div class="instructions">
+            <h3>How It Works</h3>
+            <p style="margin-bottom: 1rem; color: var(--text); opacity: 0.9;">
+                This tool helps you learn to <strong>hear harmonic movement</strong> and play <strong>chord tones</strong> — the notes that define each chord.
+                Your friend's two-note concept is built in: restrict yourself to just two notes and make melodies through rhythm and emphasis.
+            </p>
+            <ul>
+                <li><strong>1. Press Start</strong> — A I → IV progression loops in your chosen key</li>
+                <li><strong>2. Play along</strong> — Use computer keyboard (a, s, d, f...) or click piano keys</li>
+                <li><strong>3. Watch the glow</strong> — Chord tones light up on the piano (Beginner mode). Keys flash green when you nail a chord tone.</li>
+                <li><strong>4. Try two-note mode</strong> — Pick two notes. Make melodies. Emphasize the chord tone, accent with the other.</li>
+                <li><strong>5. Increase difficulty</strong> — Intermediate hides the tone names. Advanced hides everything. Pure ear.</li>
+            </ul>
+        </div>
+
+        <div class="controls">
+            <div class="control-row">
+                <div class="control-group">
+                    <label>Key</label>
+                    <select id="keySelect">
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Tempo (BPM)</label>
+                    <input type="number" id="tempoInput" value="80" min="40" max="180" step="5">
+                </div>
+
+                <div class="control-group">
+                    <label>Bars per Chord</label>
+                    <input type="number" id="barsInput" value="2" min="1" max="4">
+                </div>
+
+                <div class="control-group" style="justify-content: flex-end;">
+                    <button class="btn" id="startBtn">Start</button>
+                </div>
+            </div>
+
+            <div class="two-note-mode">
+                <label>
+                    <input type="checkbox" id="twoNoteMode"> Two-Note Challenge Mode
+                </label>
+                <div class="note-selector" id="noteSelector" style="display: none;">
+                    <span>Note 1:</span>
+                    <select id="note1Select"></select>
+                    <span>Note 2:</span>
+                    <select id="note2Select"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="progression-display">
+            <div class="current-chord" id="currentChord">—</div>
+            <div class="chord-info" id="chordInfo">Press Start to begin</div>
+            <div class="chord-tones" id="chordTones"></div>
+            
+            <div class="difficulty-buttons">
+                <button class="btn active" data-difficulty="beginner">Beginner</button>
+                <button class="btn" data-difficulty="intermediate">Intermediate</button>
+                <button class="btn" data-difficulty="advanced">Advanced</button>
+            </div>
+        </div>
+
+        <div class="keyboard-container">
+            <div class="piano" id="piano"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">Chord Tones Hit</div>
+                <div class="stat-value" id="chordTonesHit">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Total Notes Played</div>
+                <div class="stat-value" id="totalNotes">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Accuracy</div>
+                <div class="stat-value" id="accuracy">—</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="lib/tone.js"></script>
+    <script>
+        // Theory
+        const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11]; // intervals
+        
+        function getScale(root) {
+            const rootIdx = NOTES.indexOf(root);
+            return MAJOR_SCALE.map(interval => NOTES[(rootIdx + interval) % 12]);
+        }
+
+        function getChord(root, degree) {
+            const scale = getScale(root);
+            const chordRoot = scale[degree - 1];
+            const rootIdx = NOTES.indexOf(chordRoot);
+            return [
+                NOTES[rootIdx],
+                NOTES[(rootIdx + 4) % 12], // major third
+                NOTES[(rootIdx + 7) % 12]  // perfect fifth
+            ];
+        }
+
+        // State
+        let synth = new Tone.PolySynth(Tone.Synth).toDestination();
+        synth.set({
+            oscillator: { type: 'triangle' },
+            envelope: { attack: 0.02, decay: 0.1, sustain: 0.3, release: 1 }
+        });
+
+        let chordSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+        chordSynth.set({
+            oscillator: { type: 'sine' },
+            envelope: { attack: 0.1, decay: 0.3, sustain: 0.5, release: 2 }
+        });
+        chordSynth.volume.value = -12;
+
+        let key = 'C';
+        let tempo = 80;
+        let barsPerChord = 2;
+        let difficulty = 'beginner';
+        let isPlaying = false;
+        let currentChordDegree = 1;
+        let currentChordTones = [];
+        let loop = null;
+        let stats = { chordTonesHit: 0, totalNotes: 0 };
+        let twoNoteMode = false;
+        let allowedNotes = [];
+
+        const keyboardMap = {
+            'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
+            'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
+            'u': 'A#4', 'j': 'B4', 'k': 'C5', 'o': 'C#5', 'l': 'D5'
+        };
+
+        // Build piano
+        const piano = document.getElementById('piano');
+        const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        const blackKeys = { 'C#': 1, 'D#': 2, 'F#': 4, 'G#': 5, 'A#': 6 };
+
+        function buildPiano() {
+            piano.innerHTML = '';
+            
+            // One octave starting from C4
+            whiteKeys.forEach((note, idx) => {
+                const key = document.createElement('div');
+                key.className = 'key white-key';
+                key.dataset.note = note + '4';
+                
+                const label = document.createElement('div');
+                label.className = 'key-label';
+                label.textContent = note;
+                key.appendChild(label);
+                
+                key.addEventListener('mousedown', () => playNote(note + '4'));
+                key.addEventListener('mouseup', () => stopNote(note + '4'));
+                key.addEventListener('mouseleave', () => stopNote(note + '4'));
+                
+                piano.appendChild(key);
+            });
+
+            // Add black keys
+            Object.entries(blackKeys).forEach(([note, position]) => {
+                const key = document.createElement('div');
+                key.className = 'key black-key';
+                key.dataset.note = note + '4';
+                key.style.left = (position * 50 - 15) + 'px';
+                
+                const label = document.createElement('div');
+                label.className = 'key-label';
+                label.textContent = note;
+                key.appendChild(label);
+                
+                key.addEventListener('mousedown', () => playNote(note + '4'));
+                key.addEventListener('mouseup', () => stopNote(note + '4'));
+                key.addEventListener('mouseleave', () => stopNote(note + '4'));
+                
+                piano.appendChild(key);
+            });
+
+            // Add C5 at the end
+            const c5 = document.createElement('div');
+            c5.className = 'key white-key';
+            c5.dataset.note = 'C5';
+            const c5label = document.createElement('div');
+            c5label.className = 'key-label';
+            c5label.textContent = 'C';
+            c5.appendChild(c5label);
+            c5.addEventListener('mousedown', () => playNote('C5'));
+            c5.addEventListener('mouseup', () => stopNote('C5'));
+            c5.addEventListener('mouseleave', () => stopNote('C5'));
+            piano.appendChild(c5);
+        }
+
+        function playNote(note) {
+            if (twoNoteMode && !allowedNotes.includes(note)) return;
+
+            const key = piano.querySelector(`[data-note="${note}"]`);
+            if (!key) return;
+            
+            key.classList.add('active');
+            synth.triggerAttack(note);
+
+            // Check if it's a chord tone
+            const noteBase = note.replace(/[0-9]/g, '');
+            const isChordTone = currentChordTones.includes(noteBase);
+            
+            stats.totalNotes++;
+            if (isChordTone) {
+                stats.chordTonesHit++;
+                key.classList.add('hit-correct');
+                setTimeout(() => key.classList.remove('hit-correct'), 500);
+            }
+
+            updateStats();
+        }
+
+        function stopNote(note) {
+            const key = piano.querySelector(`[data-note="${note}"]`);
+            if (key) key.classList.remove('active');
+            synth.triggerRelease(note);
+        }
+
+        function updateChordDisplay() {
+            currentChordTones = getChord(key, currentChordDegree);
+            const chordName = currentChordDegree === 1 ? 'I' : 'IV';
+            const fullChordName = currentChordTones[0] + ' Major';
+
+            document.getElementById('currentChord').textContent = chordName;
+            
+            if (difficulty === 'beginner') {
+                document.getElementById('chordInfo').textContent = fullChordName;
+                document.getElementById('chordTones').textContent = 
+                    'Chord Tones: ' + currentChordTones.join(', ');
+            } else if (difficulty === 'intermediate') {
+                document.getElementById('chordInfo').textContent = fullChordName;
+                document.getElementById('chordTones').textContent = '';
+            } else {
+                document.getElementById('chordInfo').textContent = '';
+                document.getElementById('chordTones').textContent = '';
+            }
+
+            highlightChordTones();
+        }
+
+        function highlightChordTones() {
+            document.querySelectorAll('.key').forEach(k => k.classList.remove('chord-tone'));
+            
+            if (difficulty === 'beginner') {
+                currentChordTones.forEach(note => {
+                    const key4 = piano.querySelector(`[data-note="${note}4"]`);
+                    const key5 = piano.querySelector(`[data-note="${note}5"]`);
+                    if (key4) key4.classList.add('chord-tone');
+                    if (key5) key5.classList.add('chord-tone');
+                });
+            }
+        }
+
+        function playChord() {
+            const chordNotes = currentChordTones.map(n => n + '3');
+            chordSynth.triggerAttackRelease(chordNotes, '2n');
+        }
+
+        function togglePlayback() {
+            if (isPlaying) {
+                Tone.Transport.stop();
+                if (loop) loop.dispose();
+                isPlaying = false;
+                document.getElementById('startBtn').textContent = 'Start';
+                return;
+            }
+
+            Tone.start();
+            Tone.Transport.bpm.value = tempo;
+            
+            const pattern = [1, 4]; // I - IV progression
+            let patternIdx = 0;
+
+            loop = new Tone.Loop((time) => {
+                currentChordDegree = pattern[patternIdx];
+                patternIdx = (patternIdx + 1) % pattern.length;
+                
+                Tone.Draw.schedule(() => {
+                    updateChordDisplay();
+                    playChord();
+                }, time);
+            }, `${barsPerChord}m`);
+
+            loop.start(0);
+            Tone.Transport.start();
+            isPlaying = true;
+            document.getElementById('startBtn').textContent = 'Stop';
+
+            // Initialize first chord
+            updateChordDisplay();
+        }
+
+        function updateStats() {
+            document.getElementById('chordTonesHit').textContent = stats.chordTonesHit;
+            document.getElementById('totalNotes').textContent = stats.totalNotes;
+            
+            if (stats.totalNotes > 0) {
+                const accuracy = ((stats.chordTonesHit / stats.totalNotes) * 100).toFixed(1);
+                document.getElementById('accuracy').textContent = accuracy + '%';
+            }
+        }
+
+        function populateNoteSelectors() {
+            const allNotes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5'];
+            const note1 = document.getElementById('note1Select');
+            const note2 = document.getElementById('note2Select');
+            
+            note1.innerHTML = allNotes.map(n => `<option value="${n}">${n}</option>`).join('');
+            note2.innerHTML = allNotes.map(n => `<option value="${n}">${n}</option>`).join('');
+            
+            note1.value = 'C4';
+            note2.value = 'E4';
+            
+            updateAllowedNotes();
+        }
+
+        function updateAllowedNotes() {
+            allowedNotes = [
+                document.getElementById('note1Select').value,
+                document.getElementById('note2Select').value
+            ];
+            
+            // Visual feedback on keyboard
+            document.querySelectorAll('.key').forEach(k => {
+                if (twoNoteMode) {
+                    k.style.opacity = allowedNotes.includes(k.dataset.note) ? '1' : '0.3';
+                } else {
+                    k.style.opacity = '1';
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', togglePlayback);
+        
+        document.getElementById('keySelect').addEventListener('change', (e) => {
+            key = e.target.value;
+            if (isPlaying) updateChordDisplay();
+        });
+
+        document.getElementById('tempoInput').addEventListener('change', (e) => {
+            tempo = parseInt(e.target.value);
+            if (isPlaying) Tone.Transport.bpm.value = tempo;
+        });
+
+        document.getElementById('barsInput').addEventListener('change', (e) => {
+            barsPerChord = parseInt(e.target.value);
+            if (isPlaying) {
+                togglePlayback();
+                setTimeout(togglePlayback, 100);
+            }
+        });
+
+        document.querySelectorAll('[data-difficulty]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-difficulty]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                difficulty = btn.dataset.difficulty;
+                updateChordDisplay();
+            });
+        });
+
+        document.getElementById('twoNoteMode').addEventListener('change', (e) => {
+            twoNoteMode = e.target.checked;
+            document.getElementById('noteSelector').style.display = twoNoteMode ? 'flex' : 'none';
+            updateAllowedNotes();
+        });
+
+        document.getElementById('note1Select').addEventListener('change', updateAllowedNotes);
+        document.getElementById('note2Select').addEventListener('change', updateAllowedNotes);
+
+        // Keyboard input
+        document.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            const note = keyboardMap[e.key.toLowerCase()];
+            if (note) playNote(note);
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const note = keyboardMap[e.key.toLowerCase()];
+            if (note) stopNote(note);
+        });
+
+        // Initialize
+        buildPiano();
+        populateNoteSelectors();
+    </script>
+
+    <script src="stars.js"></script>
+</body>
+</html>
