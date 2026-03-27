@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Analyzer — Methodic Truth</title>
+    <link rel="stylesheet" href="styles.css?v=17">
+    <style>
+        .analyzer-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .input-section {
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: rgba(10, 10, 20, 0.9);
+            border: 1px solid var(--primary);
+            color: var(--text);
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--bg);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results {
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 2rem;
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .song-title {
+            color: var(--accent);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 15px var(--accent);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric {
+            background: rgba(10, 10, 20, 0.5);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+        }
+
+        .metric-label {
+            color: var(--primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            color: var(--accent);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .description {
+            background: rgba(10, 10, 20, 0.5);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(123, 104, 238, 0.2);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .chord-progression {
+            background: rgba(10, 10, 20, 0.5);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(232, 168, 124, 0.2);
+        }
+
+        .progression-title {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .chord-timeline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .chord-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .chord-name {
+            color: var(--accent);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .chord-time {
+            color: var(--text);
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+
+        .loading.visible {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 229, 255, 0.2);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text);
+            margin-top: 1rem;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .error.visible {
+            display: block;
+        }
+
+        .info-box {
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .info-box h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+
+    <nav>
+        <div class="logo">
+            <a href="index.html">METHODIC TRUTH</a>
+        </div>
+        <div class="nav-links">
+            <a href="chronicles.html">Chronicles</a>
+            <a href="synth.html">Synth</a>
+            <a href="mixer.html">Live</a>
+            <a href="architecture.html">Theory</a>
+        </div>
+    </nav>
+
+    <div class="analyzer-container">
+        <h1 style="text-align: center; margin-bottom: 2rem;">🎵 Song Analyzer</h1>
+
+        <div class="info-box">
+            <h3>What This Does</h3>
+            <p>Paste a YouTube link and get instant musical analysis:</p>
+            <ul>
+                <li><strong>Chord Progression</strong> — What chords are being played and when</li>
+                <li><strong>BPM</strong> — Beats per minute (tempo)</li>
+                <li><strong>Key</strong> — Musical key (e.g., C Major, A Minor)</li>
+                <li><strong>Description</strong> — AI-generated musical summary</li>
+            </ul>
+            <p style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
+                Works with any public YouTube video. Analysis takes 1-2 minutes depending on song length.
+            </p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="youtubeUrl" 
+                    placeholder="Paste YouTube URL here (e.g., https://www.youtube.com/watch?v=...)"
+                >
+                <button class="btn" id="analyzeBtn">Analyze</button>
+            </div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Analyzing song... This may take 1-2 minutes.</div>
+        </div>
+
+        <div class="results" id="results">
+            <div class="song-title" id="songTitle"></div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-label">BPM</div>
+                    <div class="metric-value" id="bpmValue">—</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Key</div>
+                    <div class="metric-value" id="keyValue">—</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Duration</div>
+                    <div class="metric-value" id="durationValue">—</div>
+                </div>
+            </div>
+
+            <div class="description" id="description"></div>
+
+            <div class="chord-progression">
+                <div class="progression-title">Chord Progression</div>
+                <div class="chord-timeline" id="chordTimeline"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://api.methodictruth.com/analyze'; // Cloudflare Tunnel endpoint
+
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeVideo);
+        document.getElementById('youtubeUrl').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') analyzeVideo();
+        });
+
+        async function analyzeVideo() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            
+            if (!url) {
+                showError('Please enter a YouTube URL');
+                return;
+            }
+
+            // Validate YouTube URL
+            if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
+                showError('Please enter a valid YouTube URL');
+                return;
+            }
+
+            // Reset UI
+            document.getElementById('error').classList.remove('visible');
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('loading').classList.add('visible');
+            document.getElementById('analyzeBtn').disabled = true;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Analysis failed. Please try again.');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('visible');
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            document.getElementById('songTitle').textContent = data.title;
+            document.getElementById('bpmValue').textContent = data.bpm;
+            document.getElementById('keyValue').textContent = data.key;
+            
+            const minutes = Math.floor(data.duration / 60);
+            const seconds = data.duration % 60;
+            document.getElementById('durationValue').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('description').textContent = data.description;
+
+            // Display chord progression
+            const timeline = document.getElementById('chordTimeline');
+            timeline.innerHTML = '';
+
+            data.chords.forEach((chord, idx) => {
+                const item = document.createElement('div');
+                item.className = 'chord-item';
+                
+                const name = document.createElement('div');
+                name.className = 'chord-name';
+                name.textContent = chord.chord;
+                
+                const time = document.createElement('div');
+                time.className = 'chord-time';
+                const mins = Math.floor(chord.timestamp / 60);
+                const secs = chord.timestamp % 60;
+                time.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                item.appendChild(name);
+                item.appendChild(time);
+                timeline.appendChild(item);
+
+                // Add arrow between chords (except last)
+                if (idx < data.chords.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.style.color = 'var(--primary)';
+                    arrow.style.alignSelf = 'center';
+                    arrow.textContent = '→';
+                    timeline.appendChild(arrow);
+                }
+            });
+
+            document.getElementById('results').classList.add('visible');
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.classList.add('visible');
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+    </script>
+
+    <script src="stars.js"></script>
+</body>
+</html>
