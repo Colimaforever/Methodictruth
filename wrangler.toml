@@ -1,0 +1,11 @@
+name = "methodictruth-page"
+main = "functions/analyze.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+YOUTUBE_API_KEY = "AIzaSyAimEQ7sMiohbUwAto8UvTQZfFQFXne4ts"
+
+# Route configuration for static assets + functions
+[[routes]]
+pattern = "methodictruth.com/*"
+zone_name = "methodictruth.com"
