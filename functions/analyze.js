@@ -47,6 +47,9 @@ export async function onRequestGet(context) {
 }
 
 async function getVideoInfo(videoId, apiKey) {
+    if (!apiKey) {
+        throw new Error('YouTube API key not configured');
+    }
     const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet,contentDetails`;
     
     const response = await fetch(url);
