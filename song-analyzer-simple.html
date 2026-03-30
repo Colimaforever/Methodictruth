@@ -308,6 +308,102 @@
         .note strong {
             color: var(--glow);
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .analyzer-container {
+                padding: 1rem;
+                margin: 1rem auto;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .page-header .subtitle {
+                font-size: 1rem;
+            }
+
+            .input-section {
+                padding: 1.5rem;
+            }
+
+            .url-input {
+                padding: 1rem;
+                font-size: 0.95rem;
+            }
+
+            .analyze-btn {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+
+            .video-embed iframe {
+                height: 250px;
+            }
+
+            .video-info {
+                padding: 1.5rem;
+            }
+
+            .video-info h2 {
+                font-size: 1.4rem;
+            }
+
+            .music-data {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .data-card {
+                padding: 1.2rem;
+            }
+
+            .data-card .value {
+                font-size: 1.5rem;
+            }
+
+            .analysis-section {
+                padding: 1.5rem;
+            }
+
+            .analysis-section h3 {
+                font-size: 1.3rem;
+            }
+
+            .analysis-section::before {
+                font-size: 2rem;
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .analysis-text {
+                font-size: 1rem;
+            }
+
+            .note {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 1.7rem;
+            }
+
+            .video-embed iframe {
+                height: 200px;
+            }
+
+            .video-info h2 {
+                font-size: 1.2rem;
+            }
+
+            .data-card .value {
+                font-size: 1.3rem;
+            }
+        }
     </style>
 </head>
 <body>
