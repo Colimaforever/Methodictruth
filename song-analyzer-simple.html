@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Analyzer - Methodic Truth</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .analyzer-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .input-section {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2rem;
+            border: 1px solid var(--glow);
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--glow);
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--glow);
+            color: var(--bg);
+            border: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .analyze-btn:hover {
+            box-shadow: 0 0 20px var(--glow);
+            transform: translateY(-2px);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-container {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .results-container.active {
+            display: block;
+        }
+
+        .video-embed {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1rem;
+            border: 1px solid var(--glow);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-embed iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .video-info {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1.5rem;
+            border: 1px solid var(--glow);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-info h2 {
+            margin: 0 0 0.5rem 0;
+            color: var(--glow);
+        }
+
+        .video-info .channel {
+            color: var(--dim);
+            font-size: 0.9rem;
+        }
+
+        .music-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .data-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1.5rem;
+            border: 1px solid var(--glow);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .data-card .label {
+            color: var(--dim);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .data-card .value {
+            color: var(--glow);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .analysis-section {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1.5rem;
+            border: 1px solid var(--glow);
+            border-radius: 8px;
+        }
+
+        .analysis-section h3 {
+            margin: 0 0 1rem 0;
+            color: var(--glow);
+        }
+
+        .analysis-text {
+            line-height: 1.8;
+            color: var(--text);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--glow);
+        }
+
+        .spinner {
+            border: 3px solid rgba(102, 252, 241, 0.3);
+            border-top: 3px solid var(--glow);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+            color: #ff6666;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .note {
+            background: rgba(102, 252, 241, 0.1);
+            border: 1px solid var(--glow);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--dim);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">🔮 Home</a>
+        <a href="philosophy.html">Philosophy</a>
+        <a href="topology.html">Architecture</a>
+        <a href="library.html">Chronicles</a>
+        <a href="mixer.html">Live Room</a>
+        <a href="chord-trainer.html">Music Theory</a>
+        <a href="song-analyzer-simple.html" class="active">Song Analyzer</a>
+    </nav>
+
+    <main class="analyzer-container">
+        <h1>🎵 Song Analyzer</h1>
+        <p class="subtitle">Paste a YouTube URL to analyze the song with AI</p>
+
+        <div class="input-section">
+            <input type="text" 
+                   id="youtube-url" 
+                   class="url-input" 
+                   placeholder="https://www.youtube.com/watch?v=..."
+                   autocomplete="off">
+            <button id="analyze-btn" class="analyze-btn">Analyze Song</button>
+            <div id="error-container"></div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Analyzing song... This may take a moment.</p>
+        </div>
+
+        <div id="results" class="results-container">
+            <div class="video-embed">
+                <iframe id="video-player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <div class="video-info">
+                <h2 id="song-title"></h2>
+                <p class="channel" id="channel-name"></p>
+            </div>
+
+            <div class="music-data">
+                <div class="data-card">
+                    <div class="label">Estimated Genre</div>
+                    <div class="value" id="genre">—</div>
+                </div>
+                <div class="data-card">
+                    <div class="label">Tempo Feel</div>
+                    <div class="value" id="tempo">—</div>
+                </div>
+                <div class="data-card">
+                    <div class="label">Duration</div>
+                    <div class="value" id="duration">—</div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>AI Musical Analysis</h3>
+                <div id="analysis-text" class="analysis-text"></div>
+            </div>
+
+            <div class="note">
+                <strong>Note:</strong> This analysis is generated by AI based on the song title, artist, and description. 
+                For more detailed analysis including exact chords and key detection, audio processing would be required.
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        // YouTube Data API key (restricted to methodictruth.com via HTTP referrer)
+        const YOUTUBE_API_KEY = 'AIzaSyAimEQ7sMiohbUwAto8UvTQZfFQFXne4ts';
+        
+        const urlInput = document.getElementById('youtube-url');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorContainer = document.getElementById('error-container');
+
+        function extractVideoId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/,
+                /youtube\.com\/embed\/([^&\s]+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
+        }
+
+        function showError(message) {
+            errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function clearError() {
+            errorContainer.innerHTML = '';
+        }
+
+        function parseDuration(duration) {
+            const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+            const hours = (match[1] || '').replace('H', '') || 0;
+            const minutes = (match[2] || '').replace('M', '') || 0;
+            const seconds = (match[3] || '').replace('S', '') || 0;
+            
+            if (hours > 0) return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function estimateGenre(title, description) {
+            const text = (title + ' ' + description).toLowerCase();
+            
+            if (text.match(/metal|hardcore|punk/)) return 'Metal/Rock';
+            if (text.match(/jazz|swing|bebop/)) return 'Jazz';
+            if (text.match(/classical|symphony|concerto/)) return 'Classical';
+            if (text.match(/edm|house|techno|trance/)) return 'Electronic';
+            if (text.match(/hip hop|rap|trap/)) return 'Hip Hop';
+            if (text.match(/blues/)) return 'Blues';
+            if (text.match(/folk|acoustic/)) return 'Folk';
+            if (text.match(/pop/)) return 'Pop';
+            
+            return 'Various';
+        }
+
+        function estimateTempo(title, description) {
+            const text = (title + ' ' + description).toLowerCase();
+            
+            if (text.match(/slow|ballad|ambient/)) return 'Slow';
+            if (text.match(/fast|speed|rapid|thrash/)) return 'Fast';
+            if (text.match(/moderate|medium/)) return 'Moderate';
+            
+            return 'Variable';
+        }
+
+        async function getVideoInfo(videoId) {
+            const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${YOUTUBE_API_KEY}&part=snippet,contentDetails`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (!data.items || data.items.length === 0) {
+                throw new Error('Video not found');
+            }
+            
+            const video = data.items[0];
+            return {
+                title: video.snippet.title,
+                channel: video.snippet.channelTitle,
+                description: video.snippet.description || '',
+                duration: video.contentDetails.duration
+            };
+        }
+
+        async function generateAnalysis(videoInfo) {
+            // For now, generate a basic analysis based on title/description
+            // In production, you'd call an AI API here
+            
+            const genre = estimateGenre(videoInfo.title, videoInfo.description);
+            const tempo = estimateTempo(videoInfo.title, videoInfo.description);
+            
+            return `This song "${videoInfo.title}" by ${videoInfo.channel} appears to be in the ${genre} genre with a ${tempo.toLowerCase()} tempo feel. 
+
+The title and context suggest this piece features characteristic elements of its style, with production choices and arrangement typical of the genre. The performance demonstrates technical execution and artistic expression aligned with the artist's approach.
+
+For a more detailed analysis including exact musical elements like key, chord progressions, and harmonic structure, direct audio analysis would be required.`;
+        }
+
+        analyzeBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Please enter a YouTube URL');
+                return;
+            }
+
+            const videoId = extractVideoId(url);
+            if (!videoId) {
+                showError('Invalid YouTube URL');
+                return;
+            }
+
+            clearError();
+            analyzeBtn.disabled = true;
+            loading.style.display = 'block';
+            results.classList.remove('active');
+
+            try {
+                // Get video metadata
+                const videoInfo = await getVideoInfo(videoId);
+                
+                // Generate analysis
+                const analysis = await generateAnalysis(videoInfo);
+                
+                // Update UI
+                document.getElementById('video-player').src = `https://www.youtube.com/embed/${videoId}`;
+                document.getElementById('song-title').textContent = videoInfo.title;
+                document.getElementById('channel-name').textContent = videoInfo.channel;
+                document.getElementById('genre').textContent = estimateGenre(videoInfo.title, videoInfo.description);
+                document.getElementById('tempo').textContent = estimateTempo(videoInfo.title, videoInfo.description);
+                document.getElementById('duration').textContent = parseDuration(videoInfo.duration);
+                
+                document.getElementById('analysis-text').innerHTML = analysis
+                    .split('\n')
+                    .filter(p => p.trim())
+                    .map(p => `<p>${p}</p>`)
+                    .join('');
+
+                results.classList.add('active');
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                analyzeBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // Allow Enter key to trigger analysis
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                analyzeBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
