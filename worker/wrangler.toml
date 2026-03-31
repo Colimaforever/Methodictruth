@@ -1,0 +1,13 @@
+name = "song-analyzer-api"
+main = "song-analyzer-worker.js"
+compatibility_date = "2024-03-01"
+
+# Worker will be deployed to workers.dev subdomain
+# or can be mapped to api.methodictruth.com via Cloudflare DNS
+
+# Optional: Add YouTube API key as environment variable
+# [vars]
+# YOUTUBE_API_KEY = "your-key-here"
+
+# For production, use secrets instead:
+# Run: wrangler secret put YOUTUBE_API_KEY
