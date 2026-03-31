@@ -179,6 +179,29 @@
             z-index: 2;
         }
 
+        /* Override nav styling for Byzantine theme */
+        nav {
+            background: rgba(20, 12, 8, 0.95) !important;
+            border-bottom: 2px solid rgba(212, 165, 116, 0.3) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 40px rgba(212, 165, 116, 0.1) !important;
+        }
+
+        nav .logo a {
+            color: #d4a574 !important;
+            text-shadow: 0 0 20px rgba(212, 165, 116, 0.6) !important;
+        }
+
+        nav .nav-links a {
+            color: #c9a882 !important;
+            text-decoration: none !important;
+            transition: all 0.3s !important;
+        }
+
+        nav .nav-links a:hover {
+            color: #d4a574 !important;
+            text-shadow: 0 0 15px rgba(212, 165, 116, 0.5) !important;
+        }
+
         .analyzer-container {
             max-width: 900px;
             margin: 2rem auto;
