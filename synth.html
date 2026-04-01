@@ -392,7 +392,7 @@
       </div>
       <div class="synth-toolbar-section" style="margin-left:auto;">
         <span class="synth-toolbar-label">Vol</span>
-        <input type="range" id="masterVol" min="0" max="100" value="40"
+        <input type="range" id="masterVol" min="0" max="100" value="70"
           style="width:60px;height:4px;accent-color:var(--glow);cursor:pointer;vertical-align:middle;">
         <span id="masterVolVal" style="font-size:0.5rem;color:var(--stone-dark);min-width:2ch;text-align:right;">70</span>
       </div>
@@ -417,15 +417,11 @@
       <span class="piano-info-item" id="pianoOctave">Oct: 4</span>
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
       <span class="piano-info-hint" id="pianoHint"></span>
-      <div class="chord-display" id="chordDisplay">
-        <span class="chord-root" id="chordRoot"></span>
-        <span class="chord-name" id="chordName"></span>
-      </div>
     </div>
     <div class="piano-keys" id="pianoKeys"></div>
   </div>
 
-  <div class="audio-status" id="audioStatus" onclick="Tone.start().then(() => { this.textContent = '◈ audio running'; this.classList.add('running'); })" style="cursor: pointer; padding: 1rem; font-size: 1.2rem; background: rgba(255,100,100,0.2); border: 2px solid #ff6b6b;">◇ TAP HERE TO START AUDIO</div>
+  <div class="audio-status" id="audioStatus">◇ audio suspended</div>
 
   <!-- Knowledge Base -->
   <button class="kb-toggle" id="kbToggle" title="Synth Guide">📖</button>
@@ -493,7 +489,6 @@
   </div>
 
   <script src="lib/tone.min.js"></script>
-  <script src="chord-theory.js?v=1"></script>
   <script>
   /* ═══════════════════════════════════════════════
      MODULAR SYNTH ENGINE — methodictruth.com
@@ -509,16 +504,6 @@
   let pendingPort = null; // {moduleId, portName, type, el}
   let cableColorIdx = 0;
   const CABLE_COLORS = ['#00e5ff', '#7b68ee', '#e8a87c'];
-
-  // ─── AUDIO CONFIGURATION ───
-  // Configure Tone.js for optimal audio quality and prevent crackling
-  Tone.context.latencyHint = 'balanced'; // balanced latency for better audio quality
-  Tone.context.lookAhead = 0.1; // reduce lookahead to minimize latency
-  
-  // Add a soft limiter to prevent clipping
-  const masterLimiter = new Tone.Limiter(-0.5).toDestination();
-  Tone.Destination.disconnect();
-  Tone.Destination.connect(masterLimiter);
 
   // ─── AUDIO START ───
   async function startAudio() {
@@ -1446,7 +1431,6 @@
 
     activeNotes.set(noteNum, synthNodes);
     highlightPianoKey(noteNum, true);
-    updateChordDisplay();
   }
 
   // Trigger a note off
@@ -1462,28 +1446,6 @@
     });
     activeNotes.delete(noteNum);
     highlightPianoKey(noteNum, false);
-    updateChordDisplay();
-  }
-
-  // ─── CHORD DISPLAY ───
-  function updateChordDisplay() {
-    const chordDisplay = document.getElementById('chordDisplay');
-    const chordRoot = document.getElementById('chordRoot');
-    const chordName = document.getElementById('chordName');
-    
-    const currentNotes = Array.from(activeNotes.keys());
-    
-    if (currentNotes.length === 0) {
-      chordDisplay.classList.remove('active');
-      return;
-    }
-    
-    const chord = identifyChord(currentNotes);
-    
-    chordRoot.textContent = chord.root;
-    chordName.textContent = chord.name;
-    chordName.title = chord.fullName;
-    chordDisplay.classList.add('active');
   }
 
   // ─── MIDI SETUP ───
@@ -1722,18 +1684,13 @@
   masterVolSlider.addEventListener('input', () => {
     const v = parseInt(masterVolSlider.value);
     masterVolVal.textContent = v;
-    // Map 0-100 to -Infinity..-6 dB (log scale with headroom to prevent clipping)
+    // Map 0-100 to -Infinity..0 dB (log scale)
     if (v === 0) {
       Tone.Destination.volume.value = -Infinity;
     } else {
-      // Max at -6dB to leave headroom and prevent clipping
-      const dbValue = 20 * Math.log10(v / 100) - 6;
-      Tone.Destination.volume.value = dbValue;
+      Tone.Destination.volume.value = 20 * Math.log10(v / 100);
     }
   });
-  
-  // Set initial volume
-  masterVolSlider.dispatchEvent(new Event('input'));
 
   // Start Audio
   tapHandler(document.getElementById('startAudioBtn'), startAudio);
