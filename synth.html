@@ -1673,19 +1673,43 @@
   // Add a default oscillator and start audio automatically
   setTimeout(async () => {
     if (Object.keys(modules).length === 0) {
-      await startAudio(); // Start audio context first
+      // Start audio first
+      await Tone.start();
+      
+      // Add default oscillator module
       addModule('oscillator');
       
-      // Connect the default oscillator to destination after a brief delay
+      // Make sure master volume is up
+      const masterVolSlider = document.getElementById('masterVol');
+      if (masterVolSlider && parseInt(masterVolSlider.value) < 50) {
+        masterVolSlider.value = 70;
+        masterVolSlider.dispatchEvent(new Event('input'));
+      }
+      
+      // Force connect and start the oscillator
       setTimeout(() => {
         const oscModules = Object.values(modules).filter(m => m.type === 'oscillator');
-        if (oscModules.length > 0 && oscModules[0].audio && oscModules[0].audio.node) {
-          oscModules[0].audio.node.toDestination();
-          oscModules[0].audio.node.start();
+        if (oscModules.length > 0) {
+          const osc = oscModules[0].audio.node;
+          if (osc) {
+            try {
+              // Disconnect any existing connections
+              osc.disconnect();
+              // Connect directly to destination
+              osc.connect(Tone.Destination);
+              // Start it
+              if (osc.state !== 'started') {
+                osc.start();
+              }
+              console.log('Default oscillator connected and started');
+            } catch(e) {
+              console.error('Error starting oscillator:', e);
+            }
+          }
         }
-      }, 100);
+      }, 200);
     }
-  }, 500);
+  }, 600);
 
   // ─── KNOWLEDGE BASE TOGGLE ───
   document.getElementById('kbToggle').addEventListener('click', () => {
