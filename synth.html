@@ -361,6 +361,7 @@
     <div class="synth-toolbar">
       <div class="synth-toolbar-section">
         <button class="synth-btn start-audio" id="startAudioBtn">◈ Start Audio</button>
+        <button class="synth-btn" id="testSoundBtn" style="background: #ff6b6b;">TEST SOUND</button>
       </div>
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label">Add:</span>
@@ -1676,6 +1677,23 @@
 
   // Wire up Start Audio button
   document.getElementById('startAudioBtn').addEventListener('click', startAudio);
+  
+  // Test sound button
+  document.getElementById('testSoundBtn').addEventListener('click', async () => {
+    try {
+      await Tone.start();
+      console.log('Playing test beep...');
+      const testOsc = new Tone.Oscillator(440, 'sine').toDestination();
+      testOsc.start();
+      setTimeout(() => {
+        testOsc.stop();
+        testOsc.dispose();
+        console.log('Test beep finished');
+      }, 500);
+    } catch(e) {
+      console.error('Test sound failed:', e);
+    }
+  });
   
   // Wire up overlay start button
   document.getElementById('startAudioOverlayBtn').addEventListener('click', async () => {
