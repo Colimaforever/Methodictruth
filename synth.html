@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=56">
+  <link rel="stylesheet" href="styles.css?v=52">
   <style>
     /* ─── SYNTH LAYOUT ─── */
     .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 110px; }
@@ -358,7 +358,6 @@
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label">Add:</span>
         <button class="synth-btn" data-add="oscillator">Osc</button>
-        <button class="synth-btn" data-add="fm">FM</button>
         <button class="synth-btn" data-add="filter">Filter</button>
         <button class="synth-btn" data-add="lfo">LFO</button>
         <button class="synth-btn" data-add="delay">Delay</button>
@@ -389,12 +388,6 @@
       </div>
       <div class="synth-toolbar-section">
         <button class="synth-btn danger" id="clearAllBtn">✕ Clear</button>
-      </div>
-      <div class="synth-toolbar-section" style="margin-left:auto;">
-        <span class="synth-toolbar-label">Vol</span>
-        <input type="range" id="masterVol" min="0" max="100" value="70"
-          style="width:60px;height:4px;accent-color:var(--glow);cursor:pointer;vertical-align:middle;">
-        <span id="masterVolVal" style="font-size:0.5rem;color:var(--stone-dark);min-width:2ch;text-align:right;">70</span>
       </div>
     </div>
 
@@ -462,30 +455,6 @@
       <li><strong>Bass:</strong> Square osc → LP filter → short attack, med sustain</li>
       <li><strong>Lead:</strong> Saw osc → BP filter (high resonance) → short attack, med release</li>
     </ul>
-  </div>
-
-  <!-- Educational Content -->
-  <div class="page-content" style="position:relative; z-index:1; max-width:820px; margin:2rem auto; padding:1.5rem clamp(1rem, 3vw, 2rem);">
-    <h2 style="font-family:'Cinzel',serif; font-size:clamp(1.1rem,2vw,1.4rem); color:var(--glow); letter-spacing:0.08em; margin-bottom:1rem; border-bottom:1px solid rgba(0,229,255,0.1); padding-bottom:0.5rem;">The Architecture of Sound: Understanding Modular Synthesis</h2>
-
-    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
-      Modular synthesis is sound design from first principles. Instead of a fixed instrument with predetermined behavior, you build your sound by connecting discrete modules — oscillators, filters, envelopes, effects — through <em>patch cables</em>. Every connection is a deliberate choice. The routing <em>is</em> the instrument.
-    </p>
-
-    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1.2rem 0 0.5rem;">How FM Synthesis Works</h3>
-    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
-      FM (Frequency Modulation) synthesis uses one oscillator — the <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">modulator</span> — to rapidly vary the pitch of another — the <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">carrier</span>. This doesn't just create vibrato; at audio-rate speeds it generates entirely new harmonic spectra. The <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">harmonicity</span> ratio determines the relationship between carrier and modulator frequencies — integer ratios (1, 2, 3) produce harmonic, musical timbres; non-integer ratios create metallic, bell-like, or inharmonic textures. The <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--glow);">modulation index</span> controls intensity — low values add subtle brightness, high values produce complex, evolving tones. Yamaha's DX7 brought FM synthesis to the masses in 1983, defining the sound of an entire decade.
-    </p>
-
-    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1.2rem 0 0.5rem;">A Brief History</h3>
-    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
-      Robert Moog and Don Buchla independently invented the modular synthesizer in the mid-1960s — Moog on the East Coast with keyboard-oriented designs, Buchla on the West Coast favoring sequencers and touch plates. Their philosophical split echoes through synthesis to this day: structured composition versus exploratory patching. Hardware modular systems (Eurorack) experienced a massive revival in the 2010s, but software modular — like this browser-based synth — democratizes the experience. You don't need a $10,000 rack to understand signal flow.
-    </p>
-
-    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1.2rem 0 0.5rem;">Why Patching Matters</h3>
-    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
-      In a modular system, nothing is connected by default. An oscillator makes no sound until you route it somewhere. A filter processes nothing until a signal enters it. This forces you to think about <em>signal flow</em> — the path audio takes from generation to your speakers. That mental model is the foundation of all audio engineering: synthesis, mixing, live sound, and studio production all depend on understanding what connects to what, and why.
-    </p>
   </div>
 
   <script src="lib/tone.min.js"></script>
@@ -672,44 +641,6 @@
       },
       update(audio, key, val) {
         audio.node[key] = val;
-      }
-    },
-    fm: {
-      title: 'FM Synth',
-      glyph: '⟐',
-      inputs: ['mod'],
-      outputs: ['out'],
-      controls: [
-        { id: 'frequency', type: 'range', min: 20, max: 2000, default: 220, step: 1, label: 'Freq', unit: 'Hz' },
-        { id: 'harmonicity', type: 'range', min: 0.1, max: 12, default: 2, step: 0.1, label: 'Harm', unit: '' },
-        { id: 'modulationIndex', type: 'range', min: 0, max: 40, default: 5, step: 0.1, label: 'Mod Idx', unit: '' },
-        { id: 'carrierType', type: 'select', options: ['sine','sawtooth','square','triangle'], default: 'sine', label: 'Carrier' },
-        { id: 'modType', type: 'select', options: ['sine','sawtooth','square','triangle'], default: 'sine', label: 'Mod Wave' },
-        { id: 'attack', type: 'range', min: 0.001, max: 4, default: 0.5, step: 0.01, label: 'Atk', unit: 's' },
-        { id: 'release', type: 'range', min: 0.01, max: 8, default: 2, step: 0.01, label: 'Rel', unit: 's' },
-        { id: 'detune', type: 'range', min: -100, max: 100, default: 0, step: 1, label: 'Detune', unit: 'ct' },
-      ],
-      create(params) {
-        const fm = new Tone.FMSynth({
-          frequency: params.frequency,
-          harmonicity: params.harmonicity,
-          modulationIndex: params.modulationIndex,
-          oscillator: { type: params.carrierType },
-          modulation: { type: params.modType },
-          envelope: { attack: params.attack, decay: 0.2, sustain: 0.8, release: params.release },
-          modulationEnvelope: { attack: 0.1, decay: 0.2, sustain: 1, release: params.release }
-        });
-        return { node: fm, out: fm, mod: fm.frequency };
-      },
-      update(audio, key, val) {
-        if (key === 'frequency') audio.node.frequency.value = val;
-        else if (key === 'harmonicity') audio.node.harmonicity.value = val;
-        else if (key === 'modulationIndex') audio.node.modulationIndex.value = val;
-        else if (key === 'carrierType') audio.node.oscillator.type = val;
-        else if (key === 'modType') audio.node.modulation.type = val;
-        else if (key === 'attack') audio.node.envelope.attack = val;
-        else if (key === 'release') { audio.node.envelope.release = val; audio.node.modulationEnvelope.release = val; }
-        else if (key === 'detune') audio.node.detune.value = val;
       }
     },
     output: {
@@ -1373,29 +1304,12 @@
     const noteName = NOTE_NAMES[noteNum % 12] + Math.floor(noteNum / 12 - 1);
     const gain = vel / 127;
 
-    // Trigger FM synth modules
-    const fmMods = Object.values(modules).filter(m => m.type === 'fm');
-    fmMods.forEach(mod => {
-      try {
-        const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
-        if (outCables.length > 0) {
-          // Already cabled — use triggerAttackRelease through cable chain
-          mod.audio.node.triggerAttackRelease(freq, '4n', Tone.now(), gain);
-        } else {
-          // Not cabled — play direct to destination
-          mod.audio.node.toDestination();
-          mod.audio.node.triggerAttackRelease(freq, '4n', Tone.now(), gain);
-        }
-      } catch(e) {}
-    });
-
     const oscs = getOscillators();
-    if (oscs.length === 0 && fmMods.length === 0) {
-      document.getElementById('pianoHint').textContent = '⚠ Add an oscillator or FM module first';
+    if (oscs.length === 0) {
+      document.getElementById('pianoHint').textContent = '⚠ Add an oscillator module first';
       setTimeout(() => { document.getElementById('pianoHint').textContent = ''; }, 2000);
       return;
     }
-    if (oscs.length === 0) return; // FM-only, handled above
 
     if (activeNotes.has(noteNum)) noteOff(noteNum); // retrigger
 
@@ -1516,7 +1430,7 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    if ((e.target.tagName === 'INPUT' && e.target.type !== 'range') || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
     const key = e.key.toLowerCase();
 
     if (!MAPPED_KEYS.has(key)) return;
@@ -1678,20 +1592,6 @@
     });
   }
 
-  // Master volume slider
-  const masterVolSlider = document.getElementById('masterVol');
-  const masterVolVal = document.getElementById('masterVolVal');
-  masterVolSlider.addEventListener('input', () => {
-    const v = parseInt(masterVolSlider.value);
-    masterVolVal.textContent = v;
-    // Map 0-100 to -Infinity..0 dB (log scale)
-    if (v === 0) {
-      Tone.Destination.volume.value = -Infinity;
-    } else {
-      Tone.Destination.volume.value = 20 * Math.log10(v / 100);
-    }
-  });
-
   // Start Audio
   tapHandler(document.getElementById('startAudioBtn'), startAudio);
 
@@ -1711,22 +1611,6 @@
   // Keyboard toggle
   tapHandler(document.getElementById('kbToggleBtn'), toggleKeyboard);
 
-  // Prevent ANY module interaction from stealing keyboard focus
-  // Blur all inputs after any mouse interaction so musical typing always works
-  document.addEventListener('mouseup', () => {
-    if (document.activeElement && document.activeElement.tagName === 'INPUT') {
-      document.activeElement.blur();
-    }
-  });
-  // Also catch touchend for mobile
-  document.addEventListener('touchend', () => {
-    if (document.activeElement && document.activeElement.tagName === 'INPUT') {
-      document.activeElement.blur();
-    }
-  });
-
   </script>
-<!-- Analytics -->
-<script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
 </body>
 </html>
