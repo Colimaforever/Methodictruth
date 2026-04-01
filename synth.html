@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-version="2026-03-31-v2">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>Browser Synth — Free Online Modular Synthesizer with MIDI Support</title>
   <meta name="keywords" content="online synthesizer, browser synth, web audio synth, MIDI synthesizer, free synth, modular synth, tone.js, virtual instrument">
   <meta name="description" content="Play a browser-based modular synthesizer with oscillators, filters, reverb, delay, and MIDI controller support. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
@@ -308,13 +305,6 @@
 </head>
 <body>
 
-  <!-- Audio Start Overlay -->
-  <div id="audioStartOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2rem;">
-    <div style="font-size: 3rem; color: var(--accent); text-shadow: 0 0 30px var(--accent);">🎹 Modular Synth</div>
-    <button id="startAudioOverlayBtn" style="font-size: 1.5rem; padding: 1.5rem 3rem; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 0 40px var(--accent);">CLICK TO START AUDIO</button>
-    <div style="color: var(--text); opacity: 0.7; font-size: 0.9rem;">Browsers require user interaction to enable sound</div>
-  </div>
-
   <!-- Starfield -->
   <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
   <div class="nebula"></div>
@@ -332,12 +322,12 @@
     <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
     <div class="nav-links" id="navLinks">
       <a href="index.html">Home</a>
-      <a href="chronicles">Chronicles</a>
+      <a href="chronicles.html">Chronicles</a>
       <div class="nav-dropdown">
         <button class="nav-drop-btn">Music ▾</button>
         <div class="nav-drop-menu">
-          <a href="synth">Synth</a>
-          <a href="mixer">Mixer</a>
+          <a href="synth.html">Synth</a>
+          <a href="mixer.html">Mixer</a>
           <a href="tuner.html">Tuner</a>
           <a href="theory.html">Theory</a>
           <a href="signal.html">Signal</a>
@@ -348,7 +338,7 @@
       <div class="nav-dropdown">
         <button class="nav-drop-btn">Systems ▾</button>
         <div class="nav-drop-menu">
-          <a href="architecture">Architecture</a>
+          <a href="architecture.html">Architecture</a>
           <a href="stack.html">Stack</a>
         </div>
       </div>
@@ -364,7 +354,6 @@
     <div class="synth-toolbar">
       <div class="synth-toolbar-section">
         <button class="synth-btn start-audio" id="startAudioBtn">◈ Start Audio</button>
-        <button class="synth-btn" id="testSoundBtn" style="background: #ff6b6b;">TEST SOUND</button>
       </div>
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label">Add:</span>
@@ -503,7 +492,7 @@
     </p>
   </div>
 
-  <script src="lib/tone.min.js?v=2"></script>
+  <script src="lib/tone.min.js"></script>
   <script src="chord-theory.js?v=1"></script>
   <script>
   /* ═══════════════════════════════════════════════
@@ -1395,15 +1384,12 @@
 
   // Trigger a note on
   function noteOn(noteNum, vel) {
-    console.log('noteOn called:', noteNum, 'velocity:', vel);
     const freq = midiToFreq(noteNum);
     const noteName = NOTE_NAMES[noteNum % 12] + Math.floor(noteNum / 12 - 1);
     const gain = vel / 127;
-    console.log('Frequency:', freq, 'Gain:', gain);
 
     // Trigger FM synth modules
     const fmMods = Object.values(modules).filter(m => m.type === 'fm');
-    console.log('FM modules:', fmMods.length);
     fmMods.forEach(mod => {
       try {
         const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
@@ -1419,10 +1405,7 @@
     });
 
     const oscs = getOscillators();
-    console.log('Oscillator modules found:', oscs.length);
-    
     if (oscs.length === 0 && fmMods.length === 0) {
-      console.warn('No oscillators or FM modules!');
       document.getElementById('pianoHint').textContent = '⚠ Add an oscillator or FM module first';
       setTimeout(() => { document.getElementById('pianoHint').textContent = ''; }, 2000);
       return;
@@ -1433,9 +1416,7 @@
 
     // For each oscillator, create a temporary clone that plays this note
     const synthNodes = [];
-    console.log('Creating temp oscillators for', oscs.length, 'modules');
-    oscs.forEach((mod, idx) => {
-      console.log('Processing oscillator', idx, 'type:', mod.params.type);
+    oscs.forEach(mod => {
       const origOsc = mod.audio.node;
       const tempOsc = new Tone.Oscillator({
         type: origOsc.type,
@@ -1457,15 +1438,11 @@
           }
         });
       } else {
-        console.log('No cables, connecting to destination');
         tempGain.toDestination();
       }
-      console.log('Starting temp oscillator at', freq, 'Hz');
       tempOsc.start();
       synthNodes.push({ osc: tempOsc, gain: tempGain });
     });
-    
-    console.log('Created', synthNodes.length, 'synth nodes for note', noteNum);
 
     activeNotes.set(noteNum, synthNodes);
     highlightPianoKey(noteNum, true);
@@ -1689,88 +1666,6 @@
   // Init
   buildPiano();
   initMIDI();
-
-  // Wire up Start Audio button
-  document.getElementById('startAudioBtn').addEventListener('click', startAudio);
-  
-  // Test sound button - uses same code path as keys
-  document.getElementById('testSoundBtn').addEventListener('click', async () => {
-    try {
-      await Tone.start();
-      console.log('Test: Checking modules...');
-      console.log('Modules:', Object.keys(modules));
-      console.log('Module count:', Object.keys(modules).length);
-      
-      // If no oscillator, add one
-      if (Object.keys(modules).length === 0) {
-        console.log('Test: Adding oscillator module');
-        const modId = addModule('oscillator');
-        console.log('Test: Module added:', modId);
-        await new Promise(r => setTimeout(r, 200));
-      }
-      
-      console.log('Test: Triggering note 60 (middle C)');
-      noteOn(60, 100);
-      
-      setTimeout(() => {
-        console.log('Test: Note off');
-        noteOff(60);
-      }, 1000);
-    } catch(e) {
-      console.error('Test failed:', e);
-      alert('Test failed: ' + e.message + '\nCheck console for details');
-    }
-  });
-  
-  // Wire up overlay start button
-  document.getElementById('startAudioOverlayBtn').addEventListener('click', async () => {
-    try {
-      await Tone.start();
-      console.log('Audio started from overlay, state:', Tone.context.state);
-      
-      // Hide overlay
-      document.getElementById('audioStartOverlay').style.display = 'none';
-      
-      // Update button
-      document.getElementById('startAudioBtn').textContent = '◈ Audio Running';
-      document.getElementById('startAudioBtn').classList.add('active');
-      
-      // Set volume
-      const masterVolSlider = document.getElementById('masterVol');
-      if (masterVolSlider) {
-        masterVolSlider.value = 70;
-        const dbValue = -60 + (70 / 100) * 54;
-        Tone.Destination.volume.value = dbValue;
-        document.getElementById('masterVolVal').textContent = 70;
-      }
-      
-      // Add default oscillator with verification
-      setTimeout(() => {
-        if (Object.keys(modules).length === 0) {
-          console.log('Adding default oscillator...');
-          const modId = addModule('oscillator');
-          console.log('Default oscillator added with ID:', modId);
-          console.log('Total modules now:', Object.keys(modules).length);
-          
-          // Verify it exists
-          setTimeout(() => {
-            const oscMods = Object.values(modules).filter(m => m.type === 'oscillator');
-            console.log('Oscillator modules after add:', oscMods.length);
-            if (oscMods.length === 0) {
-              alert('ERROR: Failed to create oscillator module!\nPlease click the "+ Osc" button manually.');
-            } else {
-              console.log('✓ Oscillator module successfully created');
-            }
-          }, 100);
-        }
-      }, 300);
-    } catch(e) {
-      console.error('Failed to start audio:', e);
-      alert('Failed to start audio: ' + e.message);
-    }
-  });
-
-
 
   // ─── KNOWLEDGE BASE TOGGLE ───
   document.getElementById('kbToggle').addEventListener('click', () => {
