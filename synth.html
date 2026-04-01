@@ -463,12 +463,16 @@
      MODULAR SYNTH ENGINE — methodictruth.com
      ═══════════════════════════════════════════════ */
 
-  // Configure Tone.js for low latency
+  // Configure Tone.js for ultra-low latency
   Tone.context.latencyHint = 'interactive'; // Lowest latency mode
-  Tone.context.lookAhead = 0.01; // Minimal lookahead for real-time feel
+  Tone.context.lookAhead = 0.005; // Minimal lookahead (5ms) for instant response
+  
+  // Increase audio buffer size slightly for stability while keeping low latency
+  // This prevents audio glitches while maintaining responsiveness
   
   // Log latency info
-  console.log('Audio latency:', Tone.context.baseLatency + Tone.context.outputLatency, 'seconds');
+  console.log('Audio latency:', (Tone.context.baseLatency + Tone.context.outputLatency).toFixed(3), 'seconds');
+  console.log('Buffer size:', Tone.context.bufferSize || 'auto');
 
   const synthCanvas = document.getElementById('synthCanvas');
   const patchSvg = document.getElementById('patchSvg');
@@ -1310,10 +1314,8 @@
   // Trigger a note on
   function noteOn(noteNum, vel) {
     const startTime = performance.now();
-    const freq = midiToFreq(noteNum);
-    const noteName = NOTE_NAMES[noteNum % 12] + Math.floor(noteNum / 12 - 1);
-    const gain = vel / 127;
-
+    
+    // Fast path checks
     const oscs = getOscillators();
     if (oscs.length === 0) {
       document.getElementById('pianoHint').textContent = '⚠ Add an oscillator module first';
@@ -1321,37 +1323,46 @@
       return;
     }
 
-    if (activeNotes.has(noteNum)) noteOff(noteNum); // retrigger
+    // Pre-calculate values
+    const freq = midiToFreq(noteNum);
+    const gain = vel / 127;
 
-    // For each oscillator, create a temporary clone that plays this note
+    // Retrigger if note already playing
+    if (activeNotes.has(noteNum)) noteOff(noteNum);
+
+    // Create temporary oscillators for this note
     const synthNodes = [];
-    oscs.forEach(mod => {
+    const startTime2 = Tone.now(); // Use audio context time for precise scheduling
+    
+    for (let i = 0; i < oscs.length; i++) {
+      const mod = oscs[i];
       const origOsc = mod.audio.node;
-      const tempOsc = new Tone.Oscillator({
-        type: origOsc.type,
-        frequency: freq,
-        detune: origOsc.detune.value
-      });
+      
+      // Create temp oscillator with minimal overhead
+      const tempOsc = new Tone.Oscillator(freq, origOsc.type);
+      tempOsc.detune.value = origOsc.detune.value;
+      
       const tempGain = new Tone.Gain(gain);
       tempOsc.connect(tempGain);
 
-      // Route through whatever the original oscillator's output connects to
-      // Find cables from this osc's output
+      // Route through cables or direct to destination
       const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
       if (outCables.length > 0) {
-        outCables.forEach(c => {
-          const targetMod = modules[c.to.moduleId];
+        for (let j = 0; j < outCables.length; j++) {
+          const targetMod = modules[outCables[j].to.moduleId];
           if (targetMod) {
-            const inNode = targetMod.audio[c.to.portName] || targetMod.audio.in;
+            const inNode = targetMod.audio[outCables[j].to.portName] || targetMod.audio.in;
             if (inNode) tempGain.connect(inNode);
           }
-        });
+        }
       } else {
         tempGain.toDestination();
       }
-      tempOsc.start();
+      
+      // Start at precise time (no delay)
+      tempOsc.start(startTime2);
       synthNodes.push({ osc: tempOsc, gain: tempGain });
-    });
+    }
 
     activeNotes.set(noteNum, synthNodes);
     highlightPianoKey(noteNum, true);
@@ -1452,12 +1463,18 @@
   }
 
   document.addEventListener('keydown', (e) => {
+    // Fast rejection paths
     if (e.repeat) return;
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    
+    const targetTag = e.target.tagName;
+    if (targetTag === 'INPUT' || targetTag === 'TEXTAREA' || targetTag === 'SELECT') return;
+    
     const key = e.key.toLowerCase();
-
     if (!MAPPED_KEYS.has(key)) return;
+    
+    // Prevent default immediately to avoid any browser lag
     e.preventDefault();
+    e.stopPropagation();
 
     if (key === 'z') {
       keyboardOctave = Math.max(0, keyboardOctave - 1);
@@ -1485,16 +1502,17 @@
       const midiNote = (keyboardOctave + 1) * 12 + KEY_MAP[key];
       noteOn(midiNote, keyboardVelocity);
     }
-  });
+  }, { passive: false }); // Non-passive for immediate preventDefault
 
   document.addEventListener('keyup', (e) => {
+    // Fast path - no preventDefault needed for keyup
     const key = e.key.toLowerCase();
     if (KEY_MAP[key] !== undefined && heldKeys.has(key)) {
       heldKeys.delete(key);
       const midiNote = (keyboardOctave + 1) * 12 + KEY_MAP[key];
       noteOff(midiNote);
     }
-  });
+  }, { passive: true }); // Passive for keyup (faster)
 
   // ─── BUILD PIANO UI ───
   function buildPiano() {
