@@ -495,6 +495,7 @@
     document.getElementById('startAudioBtn').classList.remove('start-audio');
     audioStatusEl.textContent = '◈ audio running';
     audioStatusEl.classList.add('running');
+    if (window.Analytics) Analytics.Synth.audioStarted();
   }
 
   // ─── MODULE DEFINITIONS ───
@@ -758,6 +759,7 @@
 
     modules[id] = { id, type, def, params, audio, el };
     setupDrag(el, id);
+    if (window.Analytics) Analytics.Synth.moduleAdded(type);
     return id;
   }
 
@@ -768,6 +770,7 @@
     if (typeof value === 'string' && !isNaN(value)) value = parseFloat(value);
     mod.params[paramId] = value;
     mod.def.update(mod.audio, paramId, value);
+    if (window.Analytics) Analytics.Synth.paramChanged(mod.type, paramId);
   }
 
   // ─── REMOVE MODULE ───
@@ -786,6 +789,7 @@
     // Dispose audio
     try { mod.audio.node.dispose(); } catch(e) {}
     mod.el.remove();
+    if (window.Analytics) Analytics.Synth.moduleRemoved(mod.type);
     delete modules[id];
   }
 
@@ -796,6 +800,7 @@
     cables = [];
     pendingPort = null;
     moduleIdCounter = 0;
+    if (window.Analytics) Analytics.Synth.clearAll();
   }
 
   // ─── PORT HANDLING ───
@@ -858,6 +863,7 @@
     from.el.classList.add('connected');
     to.el.classList.add('connected');
 
+    if (window.Analytics) Analytics.Synth.cableCreated(from.moduleId, to.moduleId);
     updateCablePositions();
   }
 
@@ -877,6 +883,7 @@
     disconnectCable(cable);
     if (cable.el) cable.el.remove();
     cables = cables.filter(c => c !== cable);
+    if (window.Analytics) Analytics.Synth.cableRemoved();
   }
 
   // ─── CABLE POSITIONS ───
@@ -957,6 +964,7 @@
       audioStatusEl.classList.add('running');
     }
     clearAll();
+    if (window.Analytics) Analytics.Synth.presetLoaded(name);
     if (name === 'drone') {
       const osc = addModule('oscillator', 60, 40);
       setParam(osc, 'type', 'sawtooth');
@@ -1312,7 +1320,7 @@
   }
 
   // Trigger a note on
-  function noteOn(noteNum, vel) {
+  function noteOn(noteNum, vel, source) {
     const startTime = performance.now();
     
     // Fast path checks
@@ -1321,6 +1329,11 @@
       document.getElementById('pianoHint').textContent = '⚠ Add an oscillator module first';
       setTimeout(() => { document.getElementById('pianoHint').textContent = ''; }, 2000);
       return;
+    }
+
+    // Track note trigger (debounced to avoid spam)
+    if (window.Analytics && source) {
+      Analytics.trackDebounced('note_triggered', { source: source }, 5000);
     }
 
     // Pre-calculate values
@@ -1415,6 +1428,7 @@
     if (connected > 0) {
       midiBadge.textContent = 'MIDI: Connected';
       midiBadge.classList.add('connected');
+      if (window.Analytics) Analytics.Synth.midiConnected();
     } else {
       midiBadge.textContent = 'MIDI: None';
       midiBadge.classList.remove('connected');
@@ -1433,7 +1447,7 @@
     }
 
     if (cmd === 0x90 && data2 > 0) {
-      noteOn(data1, data2);
+      noteOn(data1, data2, 'midi');
     } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
       noteOff(data1);
     } else if (cmd === 0xb0) {
@@ -1460,6 +1474,7 @@
     const btn = document.getElementById('kbToggleBtn');
     const minimized = pianoContainer.classList.toggle('minimized');
     btn.textContent = minimized ? '⌨ Keyboard' : '⌨ Minimize';
+    if (window.Analytics) Analytics.Synth.kbToggled(!minimized);
   }
 
   document.addEventListener('keydown', (e) => {
@@ -1500,7 +1515,7 @@
     if (KEY_MAP[key] !== undefined && !heldKeys.has(key)) {
       heldKeys.add(key);
       const midiNote = (keyboardOctave + 1) * 12 + KEY_MAP[key];
-      noteOn(midiNote, keyboardVelocity);
+      noteOn(midiNote, keyboardVelocity, 'keyboard');
     }
   }, { passive: false }); // Non-passive for immediate preventDefault
 
@@ -1542,7 +1557,7 @@
       keyEl.addEventListener('mousedown', (e) => {
         e.preventDefault();
         const midiNote = (keyboardOctave + 1) * 12 + i;
-        noteOn(midiNote, keyboardVelocity);
+        noteOn(midiNote, keyboardVelocity, 'mouse');
         keyEl.dataset.mouseHeld = '1';
       });
       keyEl.addEventListener('mouseup', () => {
@@ -1560,7 +1575,7 @@
       keyEl.addEventListener('touchstart', (e) => {
         e.preventDefault();
         const midiNote = (keyboardOctave + 1) * 12 + i;
-        noteOn(midiNote, keyboardVelocity);
+        noteOn(midiNote, keyboardVelocity, 'touch');
       }, { passive: false });
       keyEl.addEventListener('touchend', (e) => {
         e.preventDefault();
@@ -1587,7 +1602,9 @@
   // ─── KNOWLEDGE BASE TOGGLE ───
   document.getElementById('kbToggle').addEventListener('click', () => {
     const panel = document.getElementById('kbPanel');
+    const wasOpen = panel.classList.contains('open');
     panel.classList.toggle('open');
+    if (!wasOpen && window.Analytics) Analytics.Synth.kbPanelOpened();
   });
 
   // ─── STARFIELD (shared with site) ───
@@ -1652,6 +1669,21 @@
   // Keyboard toggle
   tapHandler(document.getElementById('kbToggleBtn'), toggleKeyboard);
 
+  </script>
+
+  <!-- Analytics -->
+  <script src="lib/firebase-app-compat.js"></script>
+  <script src="lib/firebase-database-compat.js"></script>
+  <script src="analytics.js"></script>
+  <script>
+    // Init analytics (safe fallback if Firebase fails to load)
+    if (window.Analytics) {
+      try {
+        Analytics.init();
+      } catch(err) {
+        console.warn('Analytics init failed:', err);
+      }
+    }
   </script>
 </body>
 </html>
