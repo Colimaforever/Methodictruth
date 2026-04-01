@@ -463,6 +463,13 @@
      MODULAR SYNTH ENGINE — methodictruth.com
      ═══════════════════════════════════════════════ */
 
+  // Configure Tone.js for low latency
+  Tone.context.latencyHint = 'interactive'; // Lowest latency mode
+  Tone.context.lookAhead = 0.01; // Minimal lookahead for real-time feel
+  
+  // Log latency info
+  console.log('Audio latency:', Tone.context.baseLatency + Tone.context.outputLatency, 'seconds');
+
   const synthCanvas = document.getElementById('synthCanvas');
   const patchSvg = document.getElementById('patchSvg');
   const audioStatusEl = document.getElementById('audioStatus');
@@ -477,6 +484,8 @@
   // ─── AUDIO START ───
   async function startAudio() {
     await Tone.start();
+    console.log('Audio context state:', Tone.context.state);
+    console.log('Sample rate:', Tone.context.sampleRate, 'Hz');
     document.getElementById('startAudioBtn').textContent = '◈ Audio Running';
     document.getElementById('startAudioBtn').classList.add('active');
     document.getElementById('startAudioBtn').classList.remove('start-audio');
@@ -1300,6 +1309,7 @@
 
   // Trigger a note on
   function noteOn(noteNum, vel) {
+    const startTime = performance.now();
     const freq = midiToFreq(noteNum);
     const noteName = NOTE_NAMES[noteNum % 12] + Math.floor(noteNum / 12 - 1);
     const gain = vel / 127;
@@ -1345,6 +1355,12 @@
 
     activeNotes.set(noteNum, synthNodes);
     highlightPianoKey(noteNum, true);
+    
+    // Log processing time for first few notes
+    const processingTime = performance.now() - startTime;
+    if (activeNotes.size <= 3) {
+      console.log('noteOn processing time:', processingTime.toFixed(2), 'ms');
+    }
   }
 
   // Trigger a note off
@@ -1397,6 +1413,13 @@
   function handleMIDIMessage(msg) {
     const [status, data1, data2] = msg.data;
     const cmd = status & 0xf0;
+    const timestamp = msg.timeStamp;
+    const latency = performance.now() - timestamp;
+    
+    // Log MIDI latency (only for note events)
+    if ((cmd === 0x90 || cmd === 0x80) && latency > 5) {
+      console.log('MIDI latency:', latency.toFixed(2), 'ms');
+    }
 
     if (cmd === 0x90 && data2 > 0) {
       noteOn(data1, data2);
