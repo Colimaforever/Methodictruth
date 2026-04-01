@@ -1741,11 +1741,26 @@
         document.getElementById('masterVolVal').textContent = 70;
       }
       
-      // Add default oscillator
-      if (Object.keys(modules).length === 0) {
-        const modId = addModule('oscillator');
-        console.log('Default oscillator added:', modId);
-      }
+      // Add default oscillator with verification
+      setTimeout(() => {
+        if (Object.keys(modules).length === 0) {
+          console.log('Adding default oscillator...');
+          const modId = addModule('oscillator');
+          console.log('Default oscillator added with ID:', modId);
+          console.log('Total modules now:', Object.keys(modules).length);
+          
+          // Verify it exists
+          setTimeout(() => {
+            const oscMods = Object.values(modules).filter(m => m.type === 'oscillator');
+            console.log('Oscillator modules after add:', oscMods.length);
+            if (oscMods.length === 0) {
+              alert('ERROR: Failed to create oscillator module!\nPlease click the "+ Osc" button manually.');
+            } else {
+              console.log('✓ Oscillator module successfully created');
+            }
+          }, 100);
+        }
+      }, 300);
     } catch(e) {
       console.error('Failed to start audio:', e);
       alert('Failed to start audio: ' + e.message);
