@@ -817,7 +817,7 @@ if (_starCanvas && _starCtx) {
 
 // ─── SPA ROUTER — Keep audio alive across navigation ───
 (function() {
-  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'philosophy.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'mixer.html', 'tuner.html', 'theory.html', 'signal.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html', 'feedback.html', 'vault.html', 'studio.html', 'guitar.html', 'salon.html', 'agora.html', 'gallery.html', 'workshop.html', 'library.html'];
+  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'philosophy.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'mixer.html', 'tuner.html', 'theory.html', 'signal.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html', 'feedback.html', 'r54a3a48a000156c0.html', 'studio.html', 'guitar.html', 'salon.html', 'agora.html', 'gallery.html', 'workshop.html', 'library.html'];
 
   function isInternalLink(href) {
     try {
@@ -1036,5 +1036,5 @@ if (_starCanvas && _starCtx) {
   })();
 
   // ⌇
-  let _vt=[],_vh=function(e){var r=e.target.closest('.roots')||e.target.closest('#vaultDoor');if(r){_vt.push(Date.now());_vt=_vt.filter(function(t){return Date.now()-t<2000});if(_vt.length>=3){_vt=[];window.location.href='/vault'}}};document.addEventListener('click',_vh);document.addEventListener('touchend',function(e){var r=e.target.closest('.roots')||e.target.closest('#vaultDoor');if(r){e.preventDefault();_vh(e)}},{passive:false});
+  let _vt=[],_vh=function(e){var r=e.target.closest('.roots')||e.target.closest('#vaultDoor');if(r){_vt.push(Date.now());_vt=_vt.filter(function(t){return Date.now()-t<2000});if(_vt.length>=3){_vt=[];window.location.href='/r54a3a48a000156c0'}}};document.addEventListener('click',_vh);document.addEventListener('touchend',function(e){var r=e.target.closest('.roots')||e.target.closest('#vaultDoor');if(r){e.preventDefault();_vh(e)}},{passive:false});
 })();
