@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guitar Chord Voicings — Methodic Truth</title>
+  <meta name="description" content="Learn multiple fingerings for every chord. Save your hands from barre chord fatigue and discover moveable voicing patterns across the fretboard.">
+  <link rel="stylesheet" href="styles.css?v=17">
+  <style>
+    body {
+      background: linear-gradient(180deg, #0a0604 0%, #1a0f08 50%, #0a0604 100%);
+    }
+
+    .voicings-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 2.5rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text);
+      opacity: 0.8;
+      margin-bottom: 3rem;
+      font-size: 1.1rem;
+    }
+
+    .chord-selector {
+      background: rgba(20, 12, 8, 0.9);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .selector-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .selector-label {
+      color: var(--primary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      min-width: 80px;
+    }
+
+    .note-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .note-btn {
+      background: rgba(10, 6, 4, 0.8);
+      border: 2px solid rgba(0, 229, 255, 0.3);
+      color: var(--text);
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .note-btn:hover {
+      border-color: var(--accent);
+      background: rgba(20, 12, 8, 0.9);
+    }
+
+    .note-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent);
+    }
+
+    .quality-btn {
+      border-color: rgba(123, 104, 238, 0.3);
+    }
+
+    .quality-btn.active {
+      background: #7b68ee;
+    }
+
+    .voicings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .voicing-card {
+      background: rgba(20, 12, 8, 0.9);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .voicing-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+      transform: translateY(-5px);
+    }
+
+    .voicing-title {
+      color: var(--accent);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .voicing-position {
+      color: var(--text);
+      opacity: 0.7;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .fretboard {
+      background: rgba(10, 6, 4, 0.8);
+      border-radius: 8px;
+      padding: 1.5rem 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .fret-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .string-label {
+      color: var(--text);
+      opacity: 0.5;
+      width: 30px;
+      font-size: 0.8rem;
+    }
+
+    .fret-dots {
+      display: flex;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .fret-dot {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(0, 229, 255, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .fret-dot.fingered {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+
+    .fret-dot.muted {
+      background: rgba(255, 100, 100, 0.3);
+      border-color: rgba(255, 100, 100, 0.5);
+    }
+
+    .fret-dot.open {
+      border-color: var(--primary);
+    }
+
+    .voicing-notes {
+      text-align: center;
+      color: var(--text);
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 1rem;
+    }
+
+    .voicing-tips {
+      background: rgba(123, 104, 238, 0.1);
+      border-left: 3px solid #7b68ee;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+
+    .knowledge-section {
+      background: rgba(20, 12, 8, 0.9);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .knowledge-section h2 {
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+
+    .knowledge-section h3 {
+      color: var(--primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .knowledge-section p, .knowledge-section ul {
+      color: var(--text);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .knowledge-section ul {
+      margin-left: 1.5rem;
+    }
+
+    .knowledge-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    .tip-box {
+      background: rgba(0, 229, 255, 0.1);
+      border-left: 3px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .practice-routine {
+      background: rgba(232, 168, 124, 0.1);
+      border: 2px solid #e8a87c;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .practice-routine h4 {
+      color: #e8a87c;
+      margin-bottom: 1rem;
+    }
+
+    .practice-routine ol {
+      margin-left: 1.5rem;
+    }
+
+    .practice-routine li {
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles">Chronicles</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="mixer">Mixer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+        </div>
+      </div>
+      <a href="about.html">About</a>
+    </div>
+  </nav>
+
+  <div class="voicings-container">
+    <h1>Guitar Chord Voicings</h1>
+    <p class="subtitle">Save your hands. Learn multiple ways to play every chord.</p>
+
+    <div class="chord-selector">
+      <div class="selector-row">
+        <span class="selector-label">Root:</span>
+        <div class="note-buttons" id="rootButtons"></div>
+      </div>
+      <div class="selector-row">
+        <span class="selector-label">Quality:</span>
+        <div class="note-buttons" id="qualityButtons"></div>
+      </div>
+    </div>
+
+    <div id="voicingsDisplay" class="voicings-grid"></div>
+
+    <div class="knowledge-section">
+      <h2>🎸 Why Learn Multiple Voicings?</h2>
+      
+      <p><strong>Barre chords are exhausting.</strong> They're powerful, but if they're all you know, your hand fatigues fast and your playing stays locked in one area of the neck.</p>
+
+      <p>Learning multiple voicings for the same chord gives you:</p>
+      <ul>
+        <li><strong>Physical relief</strong> — Easier fingerings that give your hand a break</li>
+        <li><strong>Tonal variety</strong> — Different voicings have different textures (bright, warm, thick, thin)</li>
+        <li><strong>Fretboard freedom</strong> — Play the same progression in multiple positions</li>
+        <li><strong>Voice leading</strong> — Smooth transitions between chords with minimal hand movement</li>
+      </ul>
+
+      <div class="tip-box">
+        <strong>💡 The Pattern:</strong> Most chord shapes can be moved up and down the neck. A shape learned at the 3rd fret works at the 7th fret too — just different notes.
+      </div>
+
+      <h3>How to Actually Use This</h3>
+      <p>Don't just memorize shapes. <strong>Train your ear and muscle memory together.</strong></p>
+
+      <div class="practice-routine">
+        <h4>5-Minute Daily Practice Routine</h4>
+        <ol>
+          <li><strong>Pick one chord</strong> (start simple — C major, G major, D major)</li>
+          <li><strong>Play 3 different voicings</strong> of that chord up the neck</li>
+          <li><strong>Listen to the difference</strong> — Which sounds brighter? Warmer? Fuller?</li>
+          <li><strong>Connect them</strong> — Practice moving smoothly between voicings</li>
+          <li><strong>Use them in a song</strong> — Take a progression you know and try substituting voicings</li>
+        </ol>
+      </div>
+
+      <h3>Voicing Families (The Practical System)</h3>
+      
+      <p><strong>CAGED System</strong> — Five shapes that cover the entire fretboard:</p>
+      <ul>
+        <li><strong>C shape</strong> — Open C major chord form, moveable</li>
+        <li><strong>A shape</strong> — Based on open A major, often barred</li>
+        <li><strong>G shape</strong> — Open G major form, trickier but useful</li>
+        <li><strong>E shape</strong> — The classic barre chord, root on 6th string</li>
+        <li><strong>D shape</strong> — Based on open D major, root on 4th string</li>
+      </ul>
+
+      <div class="tip-box">
+        <strong>💡 Start Here:</strong> Learn the E and A shapes first (they're the most common barre chords). Then add D shape voicings — they're easier on your hand and sound great for rhythm playing.
+      </div>
+
+      <h3>Voice Leading: The Secret to Smooth Playing</h3>
+      
+      <p><strong>Voice leading</strong> means choosing voicings where notes move as little as possible between chords.</p>
+      
+      <p><strong>Example:</strong> Playing C → Am → F → G</p>
+      <ul>
+        <li><strong>Bad:</strong> Open C → 5th fret Am barre → 1st fret F barre → Open G (hand jumps all over)</li>
+        <li><strong>Good:</strong> 3rd fret C shape → 5th fret Am → 1st fret F → 3rd fret G (smooth movement, minimal jumping)</li>
+      </ul>
+
+      <p>When you pick voicings that are <strong>close together on the neck</strong>, chord changes feel effortless and sound connected.</p>
+
+      <h3>Practical Tips for Learning</h3>
+      
+      <p><strong>1. Start with triads (3-note chords)</strong><br>
+      They're easier to finger and you can move them around faster than full 6-string chords.</p>
+
+      <p><strong>2. Focus on string sets</strong><br>
+      Practice voicings on just the top 4 strings (D-G-B-E), or middle 4 strings (A-D-G-B). This makes chord changes cleaner in context.</p>
+
+      <p><strong>3. Use them in songs immediately</strong><br>
+      Don't drill shapes in isolation. Take a song you know and experiment with different voicings for each chord.</p>
+
+      <p><strong>4. Notice what sounds good</strong><br>
+      Some voicings are bright and jangly (open strings, high register). Others are thick and warm (low register, no open strings). Use this intentionally.</p>
+
+      <div class="practice-routine">
+        <h4>2-Week Challenge</h4>
+        <ol>
+          <li><strong>Week 1:</strong> Learn 3 voicings for C, G, and D major. Practice connecting them smoothly.</li>
+          <li><strong>Week 2:</strong> Take a simple song (e.g., "Let It Be", "Wonderwall", "Horse With No Name") and play it using voicings up the neck instead of open chords.</li>
+        </ol>
+        <p><strong>Result:</strong> You'll start hearing the fretboard as a landscape of possibilities instead of fixed shapes.</p>
+      </div>
+
+      <h3>When to Use Each Voicing Type</h3>
+      
+      <p><strong>Open voicings (with open strings):</strong><br>
+      Bright, ringing, great for acoustic and clean electric. Hard to move around.</p>
+
+      <p><strong>Barre chords:</strong><br>
+      Moveable, full-sounding, but tiring. Use when you need power or need to move quickly.</p>
+
+      <p><strong>Partial chords (3-4 strings):</strong><br>
+      Easier to finger, cleaner in a band mix, perfect for rhythm playing and funk.</p>
+
+      <p><strong>High-register voicings (above 7th fret):</strong><br>
+      Bright, cutting, great for leads or when you want chords to sit above a bass line.</p>
+
+      <div class="tip-box">
+        <strong>💡 The Real Goal:</strong> You want to be able to see a chord symbol (e.g., "Dm7") and instantly have 3-5 places you could play it on the neck. Then you choose based on context — what came before, what's coming next, and what tone you want.
+      </div>
+    </div>
+
+  </div>
+
+  <script src="stars.js"></script>
+  <script>
+    const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const QUALITIES = [
+      { name: 'Major', suffix: '' },
+      { name: 'Minor', suffix: 'm' },
+      { name: 'Dominant 7', suffix: '7' },
+      { name: 'Major 7', suffix: 'maj7' },
+      { name: 'Minor 7', suffix: 'm7' },
+      { name: 'Suspended 2', suffix: 'sus2' },
+      { name: 'Suspended 4', suffix: 'sus4' }
+    ];
+
+    let selectedRoot = 'C';
+    let selectedQuality = '';
+
+    // Chord voicing database (simplified - real version would have many more)
+    const VOICINGS = {
+      'C': [
+        { name: 'Open Position', position: 'Frets 0-3', strings: ['x', '3', '2', '0', '1', '0'], notes: 'C-E-G-C-E', tip: 'Classic open C. Bright and full.' },
+        { name: 'Barre (8th fret)', position: 'Frets 8-11', strings: ['8', '10', '10', '9', '8', '8'], notes: 'C-G-C-E-G-C', tip: 'E-shape barre. Moveable pattern.' },
+        { name: 'D-shape (10th fret)', position: 'Frets 10-12', strings: ['x', '10', '12', '12', '12', 'x'], notes: 'C-G-C-E', tip: 'Lighter than barre, easier on the hand.' }
+      ],
+      'Cm': [
+        { name: 'Barre (3rd fret)', position: 'Frets 3-6', strings: ['x', '3', '5', '5', '4', '3'], notes: 'C-G-C-Eb-G', tip: 'A-shape minor barre. Standard position.' },
+        { name: 'Barre (8th fret)', position: 'Frets 8-11', strings: ['8', '10', '10', '8', '8', '8'], notes: 'C-G-C-Eb-G-C', tip: 'E-shape minor. Fuller sound.' },
+        { name: 'Partial (8th fret)', position: 'Frets 8-10', strings: ['x', 'x', '10', '8', '8', '8'], notes: 'C-Eb-G-C', tip: 'Top 4 strings. Clean and easy.' }
+      ],
+      'C7': [
+        { name: 'Open Position', position: 'Frets 0-3', strings: ['x', '3', '2', '3', '1', '0'], notes: 'C-E-Bb-C-E', tip: 'Open dom7. Bluesy sound.' },
+        { name: 'Barre (8th fret)', position: 'Frets 8-11', strings: ['8', '10', '8', '9', '8', '8'], notes: 'C-G-Bb-E-G-C', tip: 'E-shape dom7. Moveable.' }
+      ],
+      // Add more chord types as needed
+    };
+
+    function initUI() {
+      const rootContainer = document.getElementById('rootButtons');
+      const qualityContainer = document.getElementById('qualityButtons');
+
+      NOTES.forEach(note => {
+        const btn = document.createElement('button');
+        btn.className = 'note-btn';
+        btn.textContent = note;
+        btn.onclick = () => selectRoot(note);
+        rootContainer.appendChild(btn);
+      });
+
+      QUALITIES.forEach(q => {
+        const btn = document.createElement('button');
+        btn.className = 'note-btn quality-btn';
+        btn.textContent = q.name;
+        btn.onclick = () => selectQuality(q.suffix);
+        qualityContainer.appendChild(btn);
+      });
+
+      selectRoot('C');
+      selectQuality('');
+    }
+
+    function selectRoot(note) {
+      selectedRoot = note;
+      document.querySelectorAll('#rootButtons .note-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === note);
+      });
+      updateVoicings();
+    }
+
+    function selectQuality(suffix) {
+      selectedQuality = suffix;
+      document.querySelectorAll('#qualityButtons .note-btn').forEach(btn => {
+        const quality = QUALITIES.find(q => q.suffix === suffix);
+        btn.classList.toggle('active', btn.textContent === quality.name);
+      });
+      updateVoicings();
+    }
+
+    function updateVoicings() {
+      const chordKey = selectedRoot + selectedQuality;
+      const voicings = VOICINGS[chordKey] || [];
+      
+      const container = document.getElementById('voicingsDisplay');
+      
+      if (voicings.length === 0) {
+        container.innerHTML = `<p style="color: var(--text); opacity: 0.7; grid-column: 1 / -1; text-align: center; padding: 2rem;">Voicings for ${chordKey} coming soon. Try C, Cm, or C7 for now.</p>`;
+        return;
+      }
+
+      container.innerHTML = voicings.map(v => `
+        <div class="voicing-card">
+          <div class="voicing-title">${chordKey} — ${v.name}</div>
+          <div class="voicing-position">${v.position}</div>
+          <div class="fretboard">
+            ${renderFretboard(v.strings)}
+          </div>
+          <div class="voicing-notes">Notes: ${v.notes}</div>
+          <div class="voicing-tips">${v.tip}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderFretboard(strings) {
+      const stringLabels = ['E', 'A', 'D', 'G', 'B', 'e'];
+      return strings.map((fret, idx) => {
+        let dotClass = '';
+        let dotText = '';
+        
+        if (fret === 'x') {
+          dotClass = 'muted';
+          dotText = 'X';
+        } else if (fret === '0') {
+          dotClass = 'open';
+          dotText = 'O';
+        } else {
+          dotClass = 'fingered';
+          dotText = fret;
+        }
+
+        return `
+          <div class="fret-row">
+            <div class="string-label">${stringLabels[idx]}</div>
+            <div class="fret-dots">
+              <div class="fret-dot ${dotClass}">${dotText}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    initUI();
+  </script>
+</body>
+</html>
