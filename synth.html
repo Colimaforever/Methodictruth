@@ -425,7 +425,7 @@
     <div class="piano-keys" id="pianoKeys"></div>
   </div>
 
-  <div class="audio-status" id="audioStatus">◇ audio suspended</div>
+  <div class="audio-status" id="audioStatus" onclick="Tone.start().then(() => { this.textContent = '◈ audio running'; this.classList.add('running'); })" style="cursor: pointer; padding: 1rem; font-size: 1.2rem; background: rgba(255,100,100,0.2); border: 2px solid #ff6b6b;">◇ TAP HERE TO START AUDIO</div>
 
   <!-- Knowledge Base -->
   <button class="kb-toggle" id="kbToggle" title="Synth Guide">📖</button>
