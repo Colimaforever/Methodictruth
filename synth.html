@@ -1690,20 +1690,32 @@
   // Wire up Start Audio button
   document.getElementById('startAudioBtn').addEventListener('click', startAudio);
   
-  // Test sound button
+  // Test sound button - uses same code path as keys
   document.getElementById('testSoundBtn').addEventListener('click', async () => {
     try {
       await Tone.start();
-      console.log('Playing test beep...');
-      const testOsc = new Tone.Oscillator(440, 'sine').toDestination();
-      testOsc.start();
+      console.log('Test: Checking modules...');
+      console.log('Modules:', Object.keys(modules));
+      console.log('Module count:', Object.keys(modules).length);
+      
+      // If no oscillator, add one
+      if (Object.keys(modules).length === 0) {
+        console.log('Test: Adding oscillator module');
+        const modId = addModule('oscillator');
+        console.log('Test: Module added:', modId);
+        await new Promise(r => setTimeout(r, 200));
+      }
+      
+      console.log('Test: Triggering note 60 (middle C)');
+      noteOn(60, 100);
+      
       setTimeout(() => {
-        testOsc.stop();
-        testOsc.dispose();
-        console.log('Test beep finished');
-      }, 500);
+        console.log('Test: Note off');
+        noteOff(60);
+      }, 1000);
     } catch(e) {
-      console.error('Test sound failed:', e);
+      console.error('Test failed:', e);
+      alert('Test failed: ' + e.message + '\nCheck console for details');
     }
   });
   
