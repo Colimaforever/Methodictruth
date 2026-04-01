@@ -1667,10 +1667,23 @@
   buildPiano();
   initMIDI();
 
-  // Add a default oscillator so sound works immediately
-  setTimeout(() => {
+  // Wire up Start Audio button
+  document.getElementById('startAudioBtn').addEventListener('click', startAudio);
+
+  // Add a default oscillator and start audio automatically
+  setTimeout(async () => {
     if (Object.keys(modules).length === 0) {
-      addModule('oscillator', { type: 'sine', frequency: 440, detune: 0 });
+      await startAudio(); // Start audio context first
+      addModule('oscillator');
+      
+      // Connect the default oscillator to destination after a brief delay
+      setTimeout(() => {
+        const oscModules = Object.values(modules).filter(m => m.type === 'oscillator');
+        if (oscModules.length > 0 && oscModules[0].audio && oscModules[0].audio.node) {
+          oscModules[0].audio.node.toDestination();
+          oscModules[0].audio.node.start();
+        }
+      }, 100);
     }
   }, 500);
 
