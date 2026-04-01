@@ -1672,44 +1672,37 @@
 
   // Add a default oscillator and start audio automatically
   setTimeout(async () => {
-    if (Object.keys(modules).length === 0) {
-      // Start audio first
+    try {
+      // Start audio context
       await Tone.start();
+      console.log('Tone.js started, context state:', Tone.context.state);
       
-      // Add default oscillator module
-      addModule('oscillator');
-      
-      // Make sure master volume is up
+      // Set master volume to 70%
       const masterVolSlider = document.getElementById('masterVol');
-      if (masterVolSlider && parseInt(masterVolSlider.value) < 50) {
+      if (masterVolSlider) {
         masterVolSlider.value = 70;
-        masterVolSlider.dispatchEvent(new Event('input'));
+        const v = 70;
+        const dbValue = v === 0 ? -Infinity : -60 + (v / 100) * 54;
+        Tone.Destination.volume.value = dbValue;
+        document.getElementById('masterVolVal').textContent = v;
+        console.log('Master volume set to 70%');
       }
       
-      // Force connect and start the oscillator
-      setTimeout(() => {
-        const oscModules = Object.values(modules).filter(m => m.type === 'oscillator');
-        if (oscModules.length > 0) {
-          const osc = oscModules[0].audio.node;
-          if (osc) {
-            try {
-              // Disconnect any existing connections
-              osc.disconnect();
-              // Connect directly to destination
-              osc.connect(Tone.Destination);
-              // Start it
-              if (osc.state !== 'started') {
-                osc.start();
-              }
-              console.log('Default oscillator connected and started');
-            } catch(e) {
-              console.error('Error starting oscillator:', e);
-            }
-          }
-        }
-      }, 200);
+      // Add default oscillator if none exist
+      if (Object.keys(modules).length === 0) {
+        const moduleId = addModule('oscillator');
+        console.log('Added default oscillator module:', moduleId);
+        
+        // Verify it was created
+        setTimeout(() => {
+          console.log('All modules:', Object.keys(modules));
+          console.log('Module count:', Object.keys(modules).length);
+        }, 100);
+      }
+    } catch(e) {
+      console.error('Error in initialization:', e);
     }
-  }, 600);
+  }, 800);
 
   // ─── KNOWLEDGE BASE TOGGLE ───
   document.getElementById('kbToggle').addEventListener('click', () => {
