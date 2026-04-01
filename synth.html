@@ -305,6 +305,13 @@
 </head>
 <body>
 
+  <!-- Audio Start Overlay -->
+  <div id="audioStartOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 2rem;">
+    <div style="font-size: 3rem; color: var(--accent); text-shadow: 0 0 30px var(--accent);">🎹 Modular Synth</div>
+    <button id="startAudioOverlayBtn" style="font-size: 1.5rem; padding: 1.5rem 3rem; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 0 40px var(--accent);">CLICK TO START AUDIO</button>
+    <div style="color: var(--text); opacity: 0.7; font-size: 0.9rem;">Browsers require user interaction to enable sound</div>
+  </div>
+
   <!-- Starfield -->
   <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
   <div class="nebula"></div>
@@ -1669,40 +1676,41 @@
 
   // Wire up Start Audio button
   document.getElementById('startAudioBtn').addEventListener('click', startAudio);
-
-  // Add a default oscillator and start audio automatically
-  setTimeout(async () => {
+  
+  // Wire up overlay start button
+  document.getElementById('startAudioOverlayBtn').addEventListener('click', async () => {
     try {
-      // Start audio context
       await Tone.start();
-      console.log('Tone.js started, context state:', Tone.context.state);
+      console.log('Audio started from overlay, state:', Tone.context.state);
       
-      // Set master volume to 70%
+      // Hide overlay
+      document.getElementById('audioStartOverlay').style.display = 'none';
+      
+      // Update button
+      document.getElementById('startAudioBtn').textContent = '◈ Audio Running';
+      document.getElementById('startAudioBtn').classList.add('active');
+      
+      // Set volume
       const masterVolSlider = document.getElementById('masterVol');
       if (masterVolSlider) {
         masterVolSlider.value = 70;
-        const v = 70;
-        const dbValue = v === 0 ? -Infinity : -60 + (v / 100) * 54;
+        const dbValue = -60 + (70 / 100) * 54;
         Tone.Destination.volume.value = dbValue;
-        document.getElementById('masterVolVal').textContent = v;
-        console.log('Master volume set to 70%');
+        document.getElementById('masterVolVal').textContent = 70;
       }
       
-      // Add default oscillator if none exist
+      // Add default oscillator
       if (Object.keys(modules).length === 0) {
-        const moduleId = addModule('oscillator');
-        console.log('Added default oscillator module:', moduleId);
-        
-        // Verify it was created
-        setTimeout(() => {
-          console.log('All modules:', Object.keys(modules));
-          console.log('Module count:', Object.keys(modules).length);
-        }, 100);
+        const modId = addModule('oscillator');
+        console.log('Default oscillator added:', modId);
       }
     } catch(e) {
-      console.error('Error in initialization:', e);
+      console.error('Failed to start audio:', e);
+      alert('Failed to start audio: ' + e.message);
     }
-  }, 800);
+  });
+
+
 
   // ─── KNOWLEDGE BASE TOGGLE ───
   document.getElementById('kbToggle').addEventListener('click', () => {
