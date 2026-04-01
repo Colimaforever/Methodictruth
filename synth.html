@@ -1392,12 +1392,15 @@
 
   // Trigger a note on
   function noteOn(noteNum, vel) {
+    console.log('noteOn called:', noteNum, 'velocity:', vel);
     const freq = midiToFreq(noteNum);
     const noteName = NOTE_NAMES[noteNum % 12] + Math.floor(noteNum / 12 - 1);
     const gain = vel / 127;
+    console.log('Frequency:', freq, 'Gain:', gain);
 
     // Trigger FM synth modules
     const fmMods = Object.values(modules).filter(m => m.type === 'fm');
+    console.log('FM modules:', fmMods.length);
     fmMods.forEach(mod => {
       try {
         const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
@@ -1413,7 +1416,10 @@
     });
 
     const oscs = getOscillators();
+    console.log('Oscillator modules found:', oscs.length);
+    
     if (oscs.length === 0 && fmMods.length === 0) {
+      console.warn('No oscillators or FM modules!');
       document.getElementById('pianoHint').textContent = '⚠ Add an oscillator or FM module first';
       setTimeout(() => { document.getElementById('pianoHint').textContent = ''; }, 2000);
       return;
@@ -1424,7 +1430,9 @@
 
     // For each oscillator, create a temporary clone that plays this note
     const synthNodes = [];
-    oscs.forEach(mod => {
+    console.log('Creating temp oscillators for', oscs.length, 'modules');
+    oscs.forEach((mod, idx) => {
+      console.log('Processing oscillator', idx, 'type:', mod.params.type);
       const origOsc = mod.audio.node;
       const tempOsc = new Tone.Oscillator({
         type: origOsc.type,
@@ -1446,11 +1454,15 @@
           }
         });
       } else {
+        console.log('No cables, connecting to destination');
         tempGain.toDestination();
       }
+      console.log('Starting temp oscillator at', freq, 'Hz');
       tempOsc.start();
       synthNodes.push({ osc: tempOsc, gain: tempGain });
     });
+    
+    console.log('Created', synthNodes.length, 'synth nodes for note', noteNum);
 
     activeNotes.set(noteNum, synthNodes);
     highlightPianoKey(noteNum, true);
