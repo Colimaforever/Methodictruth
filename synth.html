@@ -1667,6 +1667,13 @@
   buildPiano();
   initMIDI();
 
+  // Add a default oscillator so sound works immediately
+  setTimeout(() => {
+    if (Object.keys(modules).length === 0) {
+      addModule('oscillator', { type: 'sine', frequency: 440, detune: 0 });
+    }
+  }, 500);
+
   // ─── KNOWLEDGE BASE TOGGLE ───
   document.getElementById('kbToggle').addEventListener('click', () => {
     const panel = document.getElementById('kbPanel');
