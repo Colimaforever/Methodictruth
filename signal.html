@@ -737,10 +737,21 @@
     // Attach slider events — prevent drag when touching sliders
     container.querySelectorAll('.sig-slider').forEach(s => {
       s.addEventListener('input', onSliderChange);
-      s.addEventListener('mousedown', e => e.stopPropagation());
+      
+      // Mouse: disable draggable while interacting with slider
+      s.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        const block = s.closest('.signal-block');
+        if (block) block.draggable = false;
+      });
+      s.addEventListener('mouseup', () => {
+        const block = s.closest('.signal-block');
+        if (block) block.draggable = true;
+      });
+      
+      // Touch: disable draggable while interacting with slider
       s.addEventListener('touchstart', e => {
         e.stopPropagation();
-        // Temporarily disable draggable on parent block
         const block = s.closest('.signal-block');
         if (block) block.draggable = false;
       }, { passive: true });
