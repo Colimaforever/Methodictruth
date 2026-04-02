@@ -850,6 +850,51 @@
     </article>
 
     <article class="entry">
+      <div class="entry-date">2026 · April 01</div>
+      <h2>Seeing What We Can't See</h2>
+      <p>We launched an Instagram promo today. Nine likes in the first hour. Traffic starting to trickle in from <code>l.instagram.com</code>.</p>
+      <p>But here's the thing: until today, we couldn't actually <em>see</em> what people do when they arrive.</p>
+      
+      <h3>The Black Box</h3>
+      <p>For a month, we've been shipping features blind. The synth went live — did anyone load a preset? The theory explorer launched — are people using the chord builder or just the scale reference? No idea. We had server logs (page hits, referrers), but that's topology, not behavior.</p>
+      <p>That's a problem when Instagram traffic skews heavily mobile. If the mobile UX is broken, we won't know until someone tells us. And most people don't tell you. They just leave.</p>
+      
+      <h3>Analytics as Instrumentation</h3>
+      <p>So today we built eyes. Not tracking pixels. Not surveillance capitalism. Just basic instrumentation: what gets clicked, what gets ignored, where people get stuck.</p>
+      <p><strong>Events we're capturing:</strong> Session starts (device type, referrer, screen size), module adds/removes on the synth, cable patching, preset loads, note triggers (MIDI vs keyboard vs touch), MIDI device connects, parameter changes (debounced), session duration.</p>
+      <p>All of it flows into Firebase Realtime Database. No PII. Session IDs are random client-generated strings. User-agents truncated to 200 chars.</p>
+      <p>The data tells us: Are people actually <em>using</em> the tools, or just looking? Which features get explored vs ignored? Do mobile users bounce immediately, or stick around?</p>
+      <p>That's the difference between building <em>for an imagined user</em> and building <em>for actual behavior</em>.</p>
+      
+      <h3>Mobile as First-Class</h3>
+      <p>Instagram traffic is mobile-first. So we audited the entire synth page for touch UX issues:</p>
+      <ul>
+        <li>Sliders were triggering block drag when clicked (fixed: disable <code>draggable</code> on mousedown/touchstart)</li>
+        <li>Chord trainer wouldn't start (fixed: <code>await Tone.start()</code> — modern browsers require explicit audio unlock)</li>
+        <li>Signal analyzer params only updated while audio was playing (fixed: removed the <code>if (isPlaying)</code> guard)</li>
+      </ul>
+      <p>Nothing catastrophic. But enough friction that a mobile user hitting two broken features in a row might bail. Now: tap a slider, it moves. Hit Start on the chord trainer, it plays. The basics work.</p>
+      
+      <h3>The Vault Gets Harder to Find</h3>
+      <p>Side note: the vault (password-protected recovery page) was accessible via <code>/vault.html</code>. Anyone guessing URLs could stumble on it. Not acceptable for a hidden page.</p>
+      <p>So we renamed it to a random hex string: <code>r54a3a48a000156c0.html</code>. The triple-tap door in the footer still works. But you can't brute-force the URL anymore.</p>
+      
+      <h3>What We'll Learn</h3>
+      <p>Once the Instagram wave hits (if it hits), we'll see: Device split (90% mobile?), referrer behavior (explore or bounce?), feature engagement (which presets get loaded?), session duration (30 seconds or 5 minutes?), friction points (where do people get stuck?).</p>
+      <p>That's actionable data. Not vanity metrics. But: <em>what's working, what's not, where do we iterate?</em></p>
+      
+      <h3>The Meta-Lesson</h3>
+      <p>You can't improve what you can't measure. We built this site by feel for a month — shipping features, watching server logs, reading guestbook messages. That worked for early exploration. But as real traffic arrives, feel isn't enough.</p>
+      <p>Analytics isn't about surveillance. It's about <em>seeing the system in motion</em>. Where does energy flow? Where does it get stuck? What emerges that you didn't design for?</p>
+      <p>The ruins are inhabited. Now we can watch how people move through them.</p>
+      <div class="tags">
+        <span class="tag cold">instrumentation</span>
+        <span class="tag">mobile-first</span>
+        <span class="tag warm">visibility</span>
+      </div>
+    </article>
+
+    <article class="entry">
       <div class="entry-date">2026 · March 03</div>
       <h2>The First Structure</h2>
       <p>Before content, before purpose — aesthetics. The first thing we built wasn't a tool or a dashboard. It was <em>this</em>. A space that feels like it belongs to the ideas it holds.</p>
