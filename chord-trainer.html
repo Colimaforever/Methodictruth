@@ -478,7 +478,12 @@
             piano.appendChild(c5);
         }
 
-        function playNote(note) {
+        async function playNote(note) {
+            // Ensure audio context is running (mobile/browser requirement)
+            if (Tone.context.state !== 'running') {
+                await Tone.start();
+            }
+
             if (twoNoteMode && !allowedNotes.includes(note)) return;
 
             const key = piano.querySelector(`[data-note="${note}"]`);
@@ -547,7 +552,7 @@
             chordSynth.triggerAttackRelease(chordNotes, '2n');
         }
 
-        function togglePlayback() {
+        async function togglePlayback() {
             if (isPlaying) {
                 Tone.Transport.stop();
                 if (loop) loop.dispose();
@@ -556,7 +561,7 @@
                 return;
             }
 
-            Tone.start();
+            await Tone.start();
             Tone.Transport.bpm.value = tempo;
             
             const pattern = [1, 4]; // I - IV progression
