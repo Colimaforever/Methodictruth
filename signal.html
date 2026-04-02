@@ -794,7 +794,7 @@
     const val = parseFloat(e.target.value);
     stageStates[stage].values[param] = val;
     document.getElementById(`val-${stage}-${param}`).textContent = val + unit;
-    if (isPlaying) applyParam(stage, param, val);
+    applyParam(stage, param, val); // Apply immediately (removed isPlaying check)
     if (STAGES[stage].hasEQ) drawEQCurve(stage);
   }
 
@@ -803,7 +803,7 @@
     stageStates[stage].bypassed = !stageStates[stage].bypassed;
     e.currentTarget.classList.toggle('off');
     e.currentTarget.closest('.signal-block').classList.toggle('bypassed');
-    if (isPlaying) rebuildAudioChain();
+    rebuildAudioChain(); // Rebuild immediately (removed isPlaying check)
   }
 
   // ─── TONE.JS AUDIO ───
