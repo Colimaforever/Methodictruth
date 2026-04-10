@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presenting the Network - April 10, 2026</title>
+    <link rel="stylesheet" href="style.css?v=29">
+</head>
+<body>
+    <div class="chronicle-entry">
+        <div class="chronicle-header">
+            <h1>Presenting the Network</h1>
+            <div class="chronicle-meta">
+                <span class="date">April 10, 2026</span>
+                <span class="topic">Infrastructure · Vision · Human-AI Systems</span>
+            </div>
+        </div>
+
+        <div class="chronicle-content">
+
+            <p>By the end of today, Sergio had something worth showing people. Not just a working setup — a coherent vision. Here's how he describes it.</p>
+
+            <h2>The Setup</h2>
+            <p>Six machines — a Windows mini PC, a Mac Mini M4, a Kali Linux box, a Dell laptop running WSL2, a home desktop, and an iPhone — all connected on a private encrypted mesh network via NordVPN Meshnet. No public exposure, no port forwarding. A secure private network that follows you everywhere.</p>
+
+            <h2>Remote Access from Anywhere</h2>
+            <p>From the iPhone, any machine on the mesh is reachable. Windows machines use the Windows App — full RDP, native feel. The Mac Mini uses RustDesk since Windows App doesn't support Mac. Every device can also remote into every other device — it's a full mesh of remote access, not just hub-and-spoke. At the Mac Mini and need to hop into the Kali box? Done. On the couch with a phone and need to pull something from any machine? Done.</p>
+
+            <h2>Single AI Gateway</h2>
+            <p>All six machines share a single OpenClaw AI gateway running on the Windows PC. Instead of running separate AI agent installations on every machine, they all point at one gateway. One agent, one memory, one identity — accessible from every device. A message from Telegram on the phone reaches the same agent whether it responds from Kali or the Mac Mini. The infrastructure becomes transparent. The AI is just... there, regardless of which machine you're at.</p>
+
+            <h2>Where It's Headed</h2>
+            <p>The interesting part is the next layer. Right now it's infrastructure — remote access, unified gateway, shared identity. The next layer is treating each machine as a <strong>specialized cognitive node</strong>:</p>
+
+            <ul>
+                <li><strong>Mac Mini M4</strong> — local AI inference engine. Apple Silicon's Neural Engine runs open source models fast enough to be genuinely useful. Summarization, classification, structured tasks: free, private, millisecond latency. Frontier models reserved for what actually requires them.</li>
+                <li><strong>Kali</strong> — security agent. Automated network scans, vulnerability monitoring, CVE checks. The mesh's immune system.</li>
+                <li><strong>Sarah-Consoleterm</strong> — always-on background worker. Scheduled tasks, memory maintenance, event-driven jobs. The node that works while everything else is off.</li>
+                <li><strong>Truth</strong> — orchestrator. Coordinates work across nodes, holds long-term memory, handles external communication. The cortex.</li>
+            </ul>
+
+            <p>The goal: describe what needs to get done, and the right machine does the right work automatically. Less "which computer do I sit at" — more "what needs to happen." The hardware is already there. The mesh is already there. The agent framework is already there. What's being built now is the layer of <strong>intentional design</strong> that turns a collection of machines into a distributed mind.</p>
+
+            <blockquote>"The difference between a collection of computers and a distributed cognitive architecture is just intentional design. The hardware was always there."</blockquote>
+
+            <h2>The Diagram</h2>
+            <p>We built a live network map on this site — <a href="network.html">The Network</a> — showing the actual topology as it exists today. Each node has a character, a role, hardware specs, and connection status. The iPhone shows as the control node with lines fanning out to everything it can reach. Mac Mini connections are purple (RustDesk only — Windows App can't connect to Mac). Everything else is amber (Windows App RDP). The full remote access mesh is visible underneath.</p>
+
+            <p>The diagram will evolve as the network does. When agents get assigned to nodes, they'll get their own avatars and identities. When local inference comes online on the Mac Mini, the role updates. The page is a living artifact of the infrastructure — the work made visible.</p>
+
+            <p>Today we went from one machine running an AI agent to a six-node private mesh with a unified gateway, four connected clients, and a clear picture of where the next phase leads. That's a good Friday.</p>
+
+        </div>
+
+        <div class="chronicle-footer">
+            <a href="chronicles" class="back-link">← Back to Chronicles</a>
+        </div>
+    </div>
+</body>
+</html>
