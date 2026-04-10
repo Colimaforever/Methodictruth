@@ -483,66 +483,73 @@
         </text>
 
         <!-- ═══ REMOTE DESKTOP LAYER ═══ -->
+        <!-- AMBER = Windows App (RDP) | PURPLE = RustDesk -->
+        <!-- Rule: anything → Mac Mini MUST use RustDesk -->
         <g id="rdpLayer">
 
-          <!-- Sergio controller node -->
-          <circle cx="500" cy="75" r="22" fill="rgba(255,160,80,0.08)" stroke="rgba(255,160,80,0.5)" stroke-width="1.5"/>
-          <circle cx="500" cy="75" r="22" fill="none" stroke="rgba(255,160,80,0.2)" stroke-width="1">
-            <animate attributeName="r" values="22;32;22" dur="3s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.4;0;0.4" dur="3s" repeatCount="indefinite"/>
+          <!-- Legend badges -->
+          <rect x="20" y="48" width="95" height="16" rx="4" fill="rgba(255,160,80,0.12)" stroke="rgba(255,160,80,0.5)" stroke-width="1"/>
+          <text x="67" y="59" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="rgba(255,160,80,0.9)">▬ Win App</text>
+          <rect x="125" y="48" width="95" height="16" rx="4" fill="rgba(160,100,240,0.12)" stroke="rgba(160,100,240,0.5)" stroke-width="1"/>
+          <text x="172" y="59" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="rgba(160,100,240,0.9)">▬ RustDesk</text>
+
+          <!-- NODE POSITIONS:
+               Truth:   500,281  Kali:    155,165
+               MacMini: 790,140  Sarah:   175,430
+               HomePC:  820,430  iPhone:  500,500 -->
+
+          <!-- ══ CROSS-DEVICE MESH (dim background layer) ══ -->
+          <!-- Win→Win: amber | Any→Mac: purple -->
+
+          <!-- Truth ↔ Kali: Win App -->
+          <line x1="478" y1="270" x2="172" y2="172" stroke="rgba(255,160,80,0.18)" stroke-width="1" class="rdp-line"/>
+          <!-- Truth ↔ Sarah: Win App -->
+          <line x1="478" y1="292" x2="192" y2="420" stroke="rgba(255,160,80,0.18)" stroke-width="1" class="rdp-line"/>
+          <!-- Truth ↔ HomePC: Win App -->
+          <line x1="522" y1="292" x2="803" y2="420" stroke="rgba(255,160,80,0.18)" stroke-width="1" class="rdp-line"/>
+          <!-- Truth ↔ MacMini: RustDesk -->
+          <line x1="522" y1="268" x2="773" y2="152" stroke="rgba(160,100,240,0.25)" stroke-width="1" class="rdp-line"/>
+          <!-- Kali ↔ MacMini: RustDesk -->
+          <line x1="180" y1="155" x2="768" y2="148" stroke="rgba(160,100,240,0.15)" stroke-width="1" class="rdp-line"/>
+          <!-- Kali ↔ Sarah: RustDesk -->
+          <line x1="158" y1="183" x2="163" y2="412" stroke="rgba(160,100,240,0.15)" stroke-width="1" class="rdp-line"/>
+          <!-- Kali ↔ HomePC: RustDesk -->
+          <line x1="174" y1="178" x2="806" y2="418" stroke="rgba(160,100,240,0.12)" stroke-width="1" class="rdp-line"/>
+          <!-- Sarah ↔ MacMini: RustDesk -->
+          <line x1="200" y1="416" x2="768" y2="158" stroke="rgba(160,100,240,0.15)" stroke-width="1" class="rdp-line"/>
+          <!-- Sarah ↔ HomePC: Win App -->
+          <line x1="210" y1="435" x2="805" y2="435" stroke="rgba(255,160,80,0.15)" stroke-width="1" class="rdp-line"/>
+          <!-- MacMini ↔ HomePC: RustDesk (Mac only uses RustDesk) -->
+          <line x1="790" y1="160" x2="820" y2="410" stroke="rgba(160,100,240,0.15)" stroke-width="1" class="rdp-line"/>
+
+          <!-- ══ iPHONE — CONTROLS ALL NODES ══ -->
+          <!-- Glowing pulsing ring on iPhone node -->
+          <circle cx="500" cy="500" r="22" fill="rgba(255,160,80,0.1)" stroke="rgba(255,160,80,0.85)" stroke-width="2.5" filter="url(#glow)"/>
+          <circle cx="500" cy="500" r="22" fill="none" stroke="rgba(255,160,80,0.35)" stroke-width="1">
+            <animate attributeName="r" values="22;38;22" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.7;0;0.7" dur="2s" repeatCount="indefinite"/>
           </circle>
-          <text x="500" y="79" text-anchor="middle"
-            font-family="'JetBrains Mono', monospace" font-size="10"
-            fill="rgba(255,160,80,0.9)">SERGIO</text>
+          <text x="500" y="503" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="rgba(255,160,80,1)" font-weight="bold">ALL</text>
 
-          <!-- RDP line: Sergio → Truth (Windows App) -->
-          <line x1="500" y1="97" x2="500" y2="248"
-            stroke="rgba(255,160,80,0.5)" stroke-width="1.5"
-            class="rdp-line" filter="url(#glow)"/>
-          <text x="515" y="175" font-family="'JetBrains Mono', monospace" font-size="8.5"
-            fill="rgba(255,160,80,0.7)">Win App</text>
+          <!-- iPhone → Truth: Win App (amber, bright) -->
+          <line x1="500" y1="478" x2="500" y2="304" stroke="rgba(255,160,80,0.7)" stroke-width="2" class="rdp-line" filter="url(#glow)"/>
+          <text x="516" y="400" font-family="'JetBrains Mono', monospace" font-size="8" fill="rgba(255,160,80,0.85)">Win App</text>
 
-          <!-- RDP line: Sergio → Kali (RustDesk) -->
-          <line x1="483" y1="92" x2="178" y2="165"
-            stroke="rgba(255,160,80,0.45)" stroke-width="1.2"
-            class="rdp-line" filter="url(#glow)"/>
-          <text x="295" y="118" font-family="'JetBrains Mono', monospace" font-size="8.5"
-            fill="rgba(255,160,80,0.65)">RustDesk</text>
+          <!-- iPhone → Kali: Win App (amber) -->
+          <line x1="483" y1="481" x2="168" y2="183" stroke="rgba(255,160,80,0.55)" stroke-width="1.6" class="rdp-line" filter="url(#glow)"/>
+          <text x="295" y="355" font-family="'JetBrains Mono', monospace" font-size="8" fill="rgba(255,160,80,0.75)">Win App</text>
 
-          <!-- RDP line: Sergio → MacMini (Windows App) -->
-          <line x1="517" y1="92" x2="768" y2="140"
-            stroke="rgba(255,160,80,0.45)" stroke-width="1.2"
-            class="rdp-line" filter="url(#glow)"/>
-          <text x="660" y="105" font-family="'JetBrains Mono', monospace" font-size="8.5"
-            fill="rgba(255,160,80,0.65)">Win App</text>
+          <!-- iPhone → MacMini: RustDesk (purple, bright — ONLY option) -->
+          <line x1="517" y1="481" x2="776" y2="162" stroke="rgba(160,100,240,0.8)" stroke-width="2" class="rdp-line" filter="url(#glow)"/>
+          <text x="682" y="348" font-family="'JetBrains Mono', monospace" font-size="8" fill="rgba(160,100,240,1)" font-weight="bold">RustDesk</text>
 
-          <!-- RDP line: Sergio → Sarah (RustDesk) -->
-          <line x1="486" y1="96" x2="195" y2="415"
-            stroke="rgba(255,160,80,0.45)" stroke-width="1.2"
-            class="rdp-line" filter="url(#glow)"/>
-          <text x="295" y="290" font-family="'JetBrains Mono', monospace" font-size="8.5"
-            fill="rgba(255,160,80,0.65)">RustDesk</text>
+          <!-- iPhone → Sarah: Win App (amber) -->
+          <line x1="482" y1="483" x2="192" y2="450" stroke="rgba(255,160,80,0.55)" stroke-width="1.6" class="rdp-line" filter="url(#glow)"/>
+          <text x="290" y="477" font-family="'JetBrains Mono', monospace" font-size="8" fill="rgba(255,160,80,0.75)">Win App</text>
 
-          <!-- RDP line: Sergio → Home Computer (RustDesk, dim) -->
-          <line x1="514" y1="96" x2="798" y2="415"
-            stroke="rgba(255,160,80,0.2)" stroke-width="1"
-            class="rdp-line"/>
-          <text x="688" y="290" font-family="'JetBrains Mono', monospace" font-size="8.5"
-            fill="rgba(255,160,80,0.3)">RustDesk?</text>
-
-          <!-- iPhone RDP indicator — prominent -->
-          <circle cx="500" cy="500" r="18" fill="rgba(255,160,80,0.15)" stroke="rgba(255,160,80,0.7)" stroke-width="2"/>
-          <text x="500" y="504" text-anchor="middle"
-            font-family="'JetBrains Mono', monospace" font-size="9"
-            fill="rgba(255,160,80,1)">RDP</text>
-          <!-- iPhone lines to all nodes -->
-          <line x1="500" y1="482" x2="500" y2="314" stroke="rgba(255,160,80,0.5)" stroke-width="1.2" class="rdp-line" filter="url(#glow)"/>
-          <line x1="484" y1="484" x2="185" y2="188" stroke="rgba(255,160,80,0.4)" stroke-width="1" class="rdp-line"/>
-          <line x1="516" y1="484" x2="778" y2="162" stroke="rgba(255,160,80,0.4)" stroke-width="1" class="rdp-line"/>
-          <line x1="484" y1="487" x2="195" y2="448" stroke="rgba(255,160,80,0.4)" stroke-width="1" class="rdp-line"/>
-          <line x1="516" y1="487" x2="798" y2="448" stroke="rgba(255,160,80,0.25)" stroke-width="1" class="rdp-line"/>
-          <text x="430" y="492" font-family="'JetBrains Mono', monospace" font-size="8"
-            fill="rgba(255,160,80,0.8)">Windows App</text>
+          <!-- iPhone → HomePC: Win App (amber, dim — not yet confirmed) -->
+          <line x1="518" y1="483" x2="808" y2="450" stroke="rgba(255,160,80,0.3)" stroke-width="1.2" class="rdp-line"/>
+          <text x="700" y="476" font-family="'JetBrains Mono', monospace" font-size="8" fill="rgba(255,160,80,0.45)">Win App?</text>
 
         </g><!-- /rdpLayer -->
 
