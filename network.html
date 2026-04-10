@@ -278,6 +278,11 @@
       100% { stroke-dashoffset: -40; }
     }
 
+    @keyframes rdpPulse {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: 30; }
+    }
+
     .conn-line {
       stroke-dasharray: 6 4;
       animation: connPulse 2s linear infinite;
@@ -287,6 +292,45 @@
       stroke-dasharray: 4 6;
       animation: connPulse 3s linear infinite;
       opacity: 0.3;
+    }
+
+    .rdp-line {
+      stroke-dasharray: 5 5;
+      animation: rdpPulse 1.5s linear infinite;
+    }
+
+    /* Layer toggle */
+    .layer-toggle {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin: 0 0 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .layer-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.3rem 0.9rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.45);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.06em;
+    }
+
+    .layer-btn.active {
+      border-color: rgba(255,160,80,0.6);
+      color: #ffa050;
+      background: rgba(255,160,80,0.08);
+    }
+
+    .layer-btn.mesh-btn.active {
+      border-color: rgba(0,229,255,0.6);
+      color: #00e5ff;
+      background: rgba(0,229,255,0.08);
     }
   </style>
 </head>
@@ -353,6 +397,12 @@
       </div>
     </div>
 
+    <!-- Layer Toggles -->
+    <div class="layer-toggle">
+      <button class="layer-btn mesh-btn active" onclick="toggleLayer('mesh',this)">⬡ Meshnet / Gateway</button>
+      <button class="layer-btn active" onclick="toggleLayer('rdp',this)">🖥 Remote Desktop</button>
+    </div>
+
     <!-- Network Diagram -->
     <div class="diagram-canvas" id="diagramCanvas">
 
@@ -387,7 +437,7 @@
           stroke="rgba(0,229,255,0.35)" stroke-width="1.5"
           class="conn-line" filter="url(#glow)"/>
 
-        <!-- Connection: Truth → Communisst (pending) -->
+        <!-- Connection: Truth → Home Computer (pending) -->
         <line x1="500" y1="281" x2="820" y2="430"
           stroke="rgba(232,168,124,0.3)" stroke-width="1"
           class="conn-line pending"/>
@@ -416,6 +466,57 @@
           fill="rgba(255,255,255,0.2)" letter-spacing="3">
           NORD MESHNET — PRIVATE ENCRYPTED MESH
         </text>
+
+        <!-- ═══ REMOTE DESKTOP LAYER ═══ -->
+        <g id="rdpLayer">
+
+          <!-- Sergio controller node -->
+          <circle cx="500" cy="75" r="22" fill="rgba(255,160,80,0.08)" stroke="rgba(255,160,80,0.5)" stroke-width="1.5"/>
+          <circle cx="500" cy="75" r="22" fill="none" stroke="rgba(255,160,80,0.2)" stroke-width="1">
+            <animate attributeName="r" values="22;32;22" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.4;0;0.4" dur="3s" repeatCount="indefinite"/>
+          </circle>
+          <text x="500" y="79" text-anchor="middle"
+            font-family="'JetBrains Mono', monospace" font-size="10"
+            fill="rgba(255,160,80,0.9)">SERGIO</text>
+
+          <!-- RDP line: Sergio → Truth (Windows App) -->
+          <line x1="500" y1="97" x2="500" y2="248"
+            stroke="rgba(255,160,80,0.5)" stroke-width="1.5"
+            class="rdp-line" filter="url(#glow)"/>
+          <text x="515" y="175" font-family="'JetBrains Mono', monospace" font-size="8.5"
+            fill="rgba(255,160,80,0.7)">Win App</text>
+
+          <!-- RDP line: Sergio → Kali (RustDesk) -->
+          <line x1="483" y1="92" x2="178" y2="165"
+            stroke="rgba(255,160,80,0.45)" stroke-width="1.2"
+            class="rdp-line" filter="url(#glow)"/>
+          <text x="295" y="118" font-family="'JetBrains Mono', monospace" font-size="8.5"
+            fill="rgba(255,160,80,0.65)">RustDesk</text>
+
+          <!-- RDP line: Sergio → MacMini (Windows App) -->
+          <line x1="517" y1="92" x2="768" y2="140"
+            stroke="rgba(255,160,80,0.45)" stroke-width="1.2"
+            class="rdp-line" filter="url(#glow)"/>
+          <text x="660" y="105" font-family="'JetBrains Mono', monospace" font-size="8.5"
+            fill="rgba(255,160,80,0.65)">Win App</text>
+
+          <!-- RDP line: Sergio → Sarah (RustDesk) -->
+          <line x1="486" y1="96" x2="195" y2="415"
+            stroke="rgba(255,160,80,0.45)" stroke-width="1.2"
+            class="rdp-line" filter="url(#glow)"/>
+          <text x="295" y="290" font-family="'JetBrains Mono', monospace" font-size="8.5"
+            fill="rgba(255,160,80,0.65)">RustDesk</text>
+
+          <!-- RDP line: Sergio → Home Computer (RustDesk, dim) -->
+          <line x1="514" y1="96" x2="798" y2="415"
+            stroke="rgba(255,160,80,0.2)" stroke-width="1"
+            class="rdp-line"/>
+          <text x="688" y="290" font-family="'JetBrains Mono', monospace" font-size="8.5"
+            fill="rgba(255,160,80,0.3)">RustDesk?</text>
+
+        </g><!-- /rdpLayer -->
+
       </svg>
 
       <!-- Node Cards -->
@@ -458,9 +559,9 @@
 
       <!-- COMMUNISST — bottom right -->
       <div class="node-card pending" style="left:82%;top:76.5%"
-           onclick="showDetail('communisst')">
+           onclick="showDetail('homepc')">
         <div class="node-icon">❓</div>
-        <div class="node-name">Communisst</div>
+        <div class="node-name">Home Computer</div>
         <div class="node-os">unknown</div>
         <div class="node-status status-pending">NOT YET PAIRED</div>
       </div>
@@ -493,6 +594,10 @@
       <div class="legend-item">
         <div class="legend-dot" style="background:#7b68ee"></div>
         Mobile / edge node
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#ffa050"></div>
+        Remote desktop (Win App / RustDesk)
       </div>
       <div class="legend-item" style="color:rgba(255,255,255,0.25)">
         Click any node to explore its role
@@ -556,15 +661,15 @@
         description: 'The name says it: a console terminal, always on. This is where cron jobs live. Long-running background tasks. The node that does work while everything else is off. If it\'s truly headless and persistent, it\'s the most valuable background compute in the network — an always-on agent that doesn\'t depend on anyone\'s laptop being open.',
         future: 'Scheduled agent tasks. Memory maintenance jobs. Backup gateway candidate. Event-driven workflows.'
       },
-      communisst: {
-        name: 'Communisst',
+      homepc: {
+        name: 'Home Computer',
         icon: '❓',
         os: 'Unknown',
         ip: '100.107.48.80',
         role: 'TBD',
         openclaw: 'not paired',
         status: 'Not yet paired',
-        description: 'The unknown node. The name is suggestive — shared resources, collective access. What does this machine do? What OS is it running? What\'s its role in the network? Understanding Communisst is the next step in mapping the full architecture.',
+        description: 'The unknown node. The name is suggestive — shared resources, collective access. What does this machine do? What OS is it running? What\'s its role in the network? Understanding Home Computer is the next step in mapping the full architecture.',
         future: 'Role TBD. Could be a media server, dev machine, or dedicated compute node. Needs investigation.'
       },
       iphone: {
@@ -579,6 +684,21 @@
         future: 'Mobile agent interface. Location-aware triggers. Push alerts from any node in the network.'
       }
     };
+
+    const layers = { mesh: true, rdp: true };
+
+    function toggleLayer(name, btn) {
+      layers[name] = !layers[name];
+      btn.classList.toggle('active', layers[name]);
+      if (name === 'mesh') {
+        document.querySelectorAll('.conn-line').forEach(el => el.style.display = layers.mesh ? '' : 'none');
+        document.querySelectorAll('.conn-line.pending').forEach(el => el.style.display = layers.mesh ? '' : 'none');
+      }
+      if (name === 'rdp') {
+        const rdpLayer = document.getElementById('rdpLayer');
+        if (rdpLayer) rdpLayer.style.display = layers.rdp ? '' : 'none';
+      }
+    }
 
     function showDetail(id) {
       const node = NODES[id];
