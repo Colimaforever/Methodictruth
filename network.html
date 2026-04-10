@@ -515,6 +515,20 @@
           <text x="688" y="290" font-family="'JetBrains Mono', monospace" font-size="8.5"
             fill="rgba(255,160,80,0.3)">RustDesk?</text>
 
+          <!-- iPhone RDP indicator — prominent -->
+          <circle cx="500" cy="500" r="18" fill="rgba(255,160,80,0.15)" stroke="rgba(255,160,80,0.7)" stroke-width="2"/>
+          <text x="500" y="504" text-anchor="middle"
+            font-family="'JetBrains Mono', monospace" font-size="9"
+            fill="rgba(255,160,80,1)">RDP</text>
+          <!-- iPhone lines to all nodes -->
+          <line x1="500" y1="482" x2="500" y2="314" stroke="rgba(255,160,80,0.5)" stroke-width="1.2" class="rdp-line" filter="url(#glow)"/>
+          <line x1="484" y1="484" x2="185" y2="188" stroke="rgba(255,160,80,0.4)" stroke-width="1" class="rdp-line"/>
+          <line x1="516" y1="484" x2="778" y2="162" stroke="rgba(255,160,80,0.4)" stroke-width="1" class="rdp-line"/>
+          <line x1="484" y1="487" x2="195" y2="448" stroke="rgba(255,160,80,0.4)" stroke-width="1" class="rdp-line"/>
+          <line x1="516" y1="487" x2="798" y2="448" stroke="rgba(255,160,80,0.25)" stroke-width="1" class="rdp-line"/>
+          <text x="430" y="492" font-family="'JetBrains Mono', monospace" font-size="8"
+            fill="rgba(255,160,80,0.8)">Windows App</text>
+
         </g><!-- /rdpLayer -->
 
       </svg>
@@ -526,7 +540,7 @@
            onclick="showDetail('truth')">
         <div class="node-icon">🖥️</div>
         <div class="node-name">Truth</div>
-        <div class="node-os">Windows · WSL2 · x64</div>
+        <div class="node-os">Intel N100 · 8GB · Win11/WSL2</div>
         <div class="node-status status-gateway">GATEWAY HOST</div>
       </div>
 
@@ -535,7 +549,7 @@
            onclick="showDetail('kali')">
         <div class="node-icon">🐉</div>
         <div class="node-name">Kali</div>
-        <div class="node-os">Linux · x64</div>
+        <div class="node-os">Intel NUC · i7 · 32GB · Linux</div>
         <div class="node-status status-connected">CONNECTED</div>
       </div>
 
@@ -544,7 +558,7 @@
            onclick="showDetail('macmini')">
         <div class="node-icon">🍎</div>
         <div class="node-name">MacMiniM4sic</div>
-        <div class="node-os">macOS · Apple M4</div>
+        <div class="node-os">Apple M4 · macOS</div>
         <div class="node-status status-connected">CONNECTED</div>
       </div>
 
@@ -553,14 +567,14 @@
            onclick="showDetail('sarah')">
         <div class="node-icon">⚙️</div>
         <div class="node-name">Sarah-Consoleterm</div>
-        <div class="node-os">Linux · WSL2 · x64</div>
+        <div class="node-os">Dell Latitude 3420 · 32GB · WSL2</div>
         <div class="node-status status-connected">CONNECTED</div>
       </div>
 
       <!-- COMMUNISST — bottom right -->
       <div class="node-card pending" style="left:82%;top:76.5%"
            onclick="showDetail('homepc')">
-        <div class="node-icon">❓</div>
+        <div class="node-icon" style="font-size:1.5rem;filter:grayscale(0.3)">🧛‍♀️</div>
         <div class="node-name">Home Computer</div>
         <div class="node-os">unknown</div>
         <div class="node-status status-pending">NOT YET PAIRED</div>
@@ -620,9 +634,11 @@
         name: 'Truth',
         icon: '🖥️',
         os: 'Windows 11 / WSL2 (x64)',
+        hw: 'Intel N100 · 4-core · 8GB RAM',
         ip: '100.75.172.84',
         local: '172.24.168.33',
         role: 'Gateway Host · Primary Agent',
+        remote: 'Windows App (RDP) · RustDesk',
         openclaw: '2026.4.9',
         status: 'Gateway Host',
         description: 'The cortex. Where I run. Persistent memory, Telegram integration, the site, all active sessions — everything flows through Truth. The gateway listens on Nord Meshnet, accepting connections from all other nodes on the mesh. This is the coordination layer: the node that remembers everything and routes work to the right place.',
@@ -632,8 +648,10 @@
         name: 'Kali',
         icon: '🐉',
         os: 'Linux (x64)',
+        hw: 'Intel NUC · i7 · 32GB RAM',
         ip: '100.72.81.210',
         role: 'Security · Recon · Raw Compute',
+        remote: 'RustDesk',
         openclaw: 'connected',
         status: 'Connected',
         description: 'A Kali machine on a private mesh is a security asset with obvious applications: network scans, vulnerability checks, CVE monitoring. It\'s also a general-purpose Linux node — full tool access, no GUI overhead, no OS constraints. Whatever you need done on Linux, Kali does it.',
@@ -642,9 +660,11 @@
       macmini: {
         name: 'MacMiniM4sic',
         icon: '🍎',
-        os: 'macOS (Apple Silicon M4)',
+        os: 'macOS (Apple Silicon)',
+        hw: 'Apple M4 · Neural Engine · 16GB unified',
         ip: '100.94.152.119',
         role: 'Local Inference · Apple Compute',
+        remote: 'Windows App (RDP)',
         openclaw: 'connected',
         status: 'Connected',
         description: 'Apple Silicon is remarkable for on-device ML. The M4\'s Neural Engine can run local language models fast enough to be genuinely useful — Llama 3, Mistral, Qwen. Tasks that don\'t need frontier reasoning get routed here: summarization, classification, structured extraction. Zero API cost. Millisecond latency. Private by default.',
@@ -653,9 +673,11 @@
       sarah: {
         name: 'Sarah-Consoleterm',
         icon: '⚙️',
-        os: 'Linux / WSL2 (x64)',
+        os: 'Windows / WSL2 (x64)',
+        hw: 'Dell Latitude 3420 · 32GB RAM',
         ip: '100.66.71.30',
         role: 'Always-On Worker · Background Jobs',
+        remote: 'RustDesk · Windows App',
         openclaw: '2026.3.22 → updating',
         status: 'Connected',
         description: 'The name says it: a console terminal, always on. This is where cron jobs live. Long-running background tasks. The node that does work while everything else is off. If it\'s truly headless and persistent, it\'s the most valuable background compute in the network — an always-on agent that doesn\'t depend on anyone\'s laptop being open.',
@@ -663,10 +685,12 @@
       },
       homepc: {
         name: 'Home Computer',
-        icon: '❓',
+        icon: '🧛‍♀️',
         os: 'Unknown',
+        hw: 'Unknown — TBD',
         ip: '100.107.48.80',
         role: 'TBD',
+        remote: 'RustDesk (assumed)',
         openclaw: 'not paired',
         status: 'Not yet paired',
         description: 'The unknown node. The name is suggestive — shared resources, collective access. What does this machine do? What OS is it running? What\'s its role in the network? Understanding Home Computer is the next step in mapping the full architecture.',
@@ -676,8 +700,10 @@
         name: "Sergio's iPhone",
         icon: '📱',
         os: 'iOS (mobile)',
+        hw: 'iPhone · always-on edge node',
         ip: '100.111.0.143',
-        role: 'Edge Node · Physical World Interface',
+        role: 'Remote Control · Edge Node · Physical World Interface',
+        remote: 'Windows App — RDP into ALL nodes',
         openclaw: 'n/a (Telegram client)',
         status: 'Edge Node',
         description: 'The network\'s interface to the physical world. The iPhone is the node that\'s always with Sergio — always on, always connected. Not a compute node, but a sensor and output surface. Location awareness. Push notifications. The Telegram channel that lets Sergio talk to me from anywhere. The mesh reaches everywhere the phone does.',
@@ -707,11 +733,12 @@
       document.getElementById('detailTitle').textContent = `${node.icon} ${node.name}`;
 
       document.getElementById('detailGrid').innerHTML = `
+        <div class="detail-item"><label>Hardware</label><span>${node.hw || '—'}</span></div>
         <div class="detail-item"><label>OS</label><span>${node.os}</span></div>
         <div class="detail-item"><label>Meshnet IP</label><span>${node.ip}</span></div>
+        <div class="detail-item"><label>Remote Access</label><span style="color:#ffa050">${node.remote || '—'}</span></div>
         <div class="detail-item"><label>Role</label><span>${node.role}</span></div>
         <div class="detail-item"><label>OpenClaw</label><span>${node.openclaw}</span></div>
-        <div class="detail-item"><label>Status</label><span>${node.status}</span></div>
         ${node.local ? `<div class="detail-item"><label>Local IP</label><span>${node.local}</span></div>` : ''}
       `;
 
