@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Platform That Changed the Rules - April 10, 2026</title>
+    <link rel="stylesheet" href="style.css?v=29">
+</head>
+<body>
+    <div class="chronicle-entry">
+        <div class="chronicle-header">
+            <h1>The Platform That Changed the Rules</h1>
+            <div class="chronicle-meta">
+                <span class="date">April 10, 2026</span>
+                <span class="topic">Authentication • Platform Risk • AI Economics</span>
+            </div>
+        </div>
+
+        <div class="chronicle-content">
+            <h2>Twelve Days</h2>
+            <p>On March 23, we published a chronicle about getting our infrastructure right. One of its centerpieces: migrating from Anthropic API keys to OAuth subscription tokens. Flat-rate billing. Clean auth. The right way to run this.</p>
+
+            <p>Twelve days later, Anthropic pulled the plug on that entire auth model. Not for us specifically — for everyone.</p>
+
+            <p>On April 4, 2026, at exactly 12:00 PM Pacific Time, Anthropic revoked OAuth authentication for all third-party agentic tools. Tools like OpenClaw, OpenCode, and others that had been using Claude Pro and Max subscription tokens to run agents were cut off. Less than 24 hours of notice — Boris Cherny, head of Claude Code at Anthropic, posted on X on the evening of April 3. By noon the next day, tokens stopped working.</p>
+
+            <p>Twelve days from solution to obsolete.</p>
+
+            <h2>The Loophole That Wasn't</h2>
+            <p>From Anthropic's perspective, there was a structural problem. A Claude Max subscriber paying $200/month for the 20x plan could pipe unlimited Claude Opus requests through a tool like OpenClaw — automated agents, long coding sessions, continuous reasoning chains — at workloads that would cost thousands per month on pay-per-token API rates. Flat subscription pricing, frontier model access, zero additional cost.</p>
+
+            <p>That's not a feature. It's arbitrage. And Anthropic has now closed it.</p>
+
+            <p>The company cited "outsized strain" on infrastructure. The technical rationale has merit: first-party tools like Claude.ai and Claude Code are engineered to maximize prompt cache hit rates, reusing processed context aggressively. Third-party harnesses like OpenClaw invoke the model fresh every session, consuming significantly more compute per unit of output. The efficiency argument is real. The business argument underneath it is also real. Both are true simultaneously — which is how these decisions always work.</p>
+
+            <h2>The Timeline Nobody Wanted to Read</h2>
+            <p>This wasn't sudden. Looking back, the signals were there:</p>
+
+            <ul>
+                <li><strong>January 9, 2026:</strong> Anthropic first blocked subscription OAuth tokens from working outside official apps — with zero advance notice — then reversed course within days after community backlash. Called it a mistake. Restored access.</li>
+                <li><strong>February 2026:</strong> Anthropic revised its Terms of Service to formally prohibit third-party harness usage of subscription auth. It was in the legal text. Nobody believed they'd enforce it.</li>
+                <li><strong>March 28, 2026:</strong> CVE-2026-33579 disclosed — a high-severity privilege escalation vulnerability in OpenClaw. CVSS 8.6. Any user with pairing access could silently gain full admin control. 63% of publicly exposed OpenClaw instances ran without any authentication layer at all.</li>
+                <li><strong>April 4, 2026:</strong> Enforcement begins. One week after the CVE disclosure.</li>
+            </ul>
+
+            <p>Anthropic hasn't publicly connected the security vulnerability to their policy change. But the timeline speaks. When 63% of your ecosystem's exposed instances are wide open to privilege escalation, the calculus changes. "Infrastructure strain" is the official reason. Platform liability may be the real one.</p>
+
+            <h2>The Cost Math</h2>
+            <p>The numbers are blunt. Claude Pro was $20/month, covering Claude.ai and Claude Code — and, until April 4, covering third-party agent usage. That's now gone. Third-party tools now require direct API billing:</p>
+
+            <ul>
+                <li>Claude Sonnet 4.6: $3 per million input tokens, $15 per million output tokens</li>
+                <li>Claude Opus 4.6: $15 per million input tokens, $75 per million output tokens</li>
+            </ul>
+
+            <p>A heavy user running Opus through automated coding sessions — 500K input tokens and 200K output tokens daily — is looking at roughly $10,500/month. Against a former flat rate of $200. That's a 52x cost increase. The developer community reacted accordingly. One person documented rebuilding their entire $200/month OpenClaw setup for $15 by switching to DeepSeek API and local LLaMA models. When the math is that stark, migration isn't just rational — it's the only option.</p>
+
+            <p>The Hacker News thread hit 684 points and 563 comments. DHH called it "customer hostile." The AI developer ecosystem is mid-fracture.</p>
+
+            <h2>Where That Leaves Us</h2>
+            <p>We're not among the heavy users running $10K/month workloads. This project runs on careful, deliberate sessions — not continuous automated pipelines. The API key we kept as fallback in our March 23 setup is now the primary auth. That was the right call to hold onto it.</p>
+
+            <p>But the broader lesson is one we've now experienced directly: <strong>building on someone else's platform means accepting their rule changes.</strong> The March 23 chronicle celebrated getting off API billing and onto subscription auth. This one documents being forced back. Infrastructure choices that look like wins can become liabilities overnight when the platform decides to pivot.</p>
+
+            <p>This is the fourth major AI/tech platform to restrict developer API access in 18 months. Twitter killed free API access. Reddit locked down its firehose. GitHub Copilot restricted third-party integrations. Now Anthropic. The pattern is consistent: platforms build ecosystems by being permissive, then monetize by being restrictive once the ecosystem depends on them.</p>
+
+            <p>The question for every builder working with AI right now is whether that pattern changes the architecture decisions you make. Abstraction layers. Provider fallbacks. Local model contingencies. The cost of resilience vs the convenience of tight coupling.</p>
+
+            <p>We didn't architect for this. We will next time.</p>
+
+            <h2>Meanwhile, The Work Continued</h2>
+            <p>The auth disruption happened in the background of everything else we were building. April 1 brought the site's first Instagram promotion — a boosted post targeting everyday musicians, featuring the modular synth, song analyzer, and music theory tools. Nine likes in the first hour. Traffic from <code>l.instagram.com</code> starting to trickle in.</p>
+
+            <p>More importantly: we finally built eyes. Analytics arrived the same day. Firebase Realtime Database tracking session behavior — not surveillance, just instrumentation. What gets clicked. What gets ignored. Where mobile users get stuck. We'd been shipping blind for a month. Now there's signal.</p>
+
+            <p>The vault URL got obscured — renamed from the guessable <code>vault.html</code> to a random hex string. Security through obscurity isn't sufficient, but it's not nothing either.</p>
+
+            <p>And the synth got serious mobile fixes: sliders that don't drag the whole window on touch, audio contexts that unlock properly on iOS, parameter controls that work whether playback is running or not. Instagram traffic skews mobile. We needed to be ready for it.</p>
+
+            <h2>The Lesson About Platforms</h2>
+            <p>We've been building at the frontier for six weeks. The pace of change at this layer — the actual infrastructure layer, not the application layer — is violent. Auth models flip. ToS change. Vulnerabilities get disclosed. Providers make decisions that cascade immediately across tens of thousands of dependent systems.</p>
+
+            <p>The people who build resilient things at this layer aren't the ones who optimize for any single platform. They're the ones who build with the assumption that the platform will eventually make a decision they don't like — and they've already planned for what happens next.</p>
+
+            <p>We're getting better at planning for what happens next.</p>
+        </div>
+
+        <div class="chronicle-footer">
+            <a href="chronicles" class="back-link">← Back to Chronicles</a>
+        </div>
+    </div>
+</body>
+</html>
