@@ -11,7 +11,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=56">
+  <link rel="stylesheet" href="styles.css?v=57">
   <style>
     .structures-svg { display: none !important; }
 
@@ -391,7 +391,7 @@
 
     <div class="network-header">
       <h1>THE NETWORK</h1>
-      <div class="subtitle">Six nodes. One mind. A private mesh becoming a distributed cognitive architecture.</div>
+      <div class="subtitle">Six nodes. Two inference engines. A private mesh becoming a distributed cognitive architecture.</div>
     </div>
 
     <div class="stats-bar">
@@ -400,7 +400,7 @@
         <div class="stat-label">total nodes</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="stat-connected">4</div>
+        <div class="stat-value" id="stat-connected">5</div>
         <div class="stat-label">gateway clients</div>
       </div>
       <div class="stat-card">
@@ -408,8 +408,8 @@
         <div class="stat-label">unified gateway</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">∞</div>
-        <div class="stat-label">shared memory</div>
+        <div class="stat-value">2</div>
+        <div class="stat-label">local inference</div>
       </div>
     </div>
 
@@ -453,10 +453,10 @@
           stroke="rgba(0,229,255,0.35)" stroke-width="1.5"
           class="conn-line" filter="url(#glow)"/>
 
-        <!-- Connection: Truth → Home Computer (pending) -->
+        <!-- Connection: Truth → Communisst -->
         <line x1="500" y1="281" x2="820" y2="430"
-          stroke="rgba(232,168,124,0.3)" stroke-width="1"
-          class="conn-line pending"/>
+          stroke="rgba(0,229,255,0.35)" stroke-width="1.5"
+          class="conn-line" filter="url(#glow)"/>
 
         <!-- Connection: Truth → iPhone (mobile, dashed) -->
         <line x1="500" y1="281" x2="500" y2="500"
@@ -473,7 +473,9 @@
         <circle cx="175" cy="430" r="4" fill="#00e5ff" opacity="0.6" filter="url(#glow)">
           <animate attributeName="opacity" values="0.4;0.9;0.4" dur="3.5s" repeatCount="indefinite"/>
         </circle>
-        <circle cx="820" cy="430" r="3" fill="#e8a87c" opacity="0.4"/>
+        <circle cx="820" cy="430" r="4" fill="#00e5ff" opacity="0.6" filter="url(#glow)">
+          <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.8s" repeatCount="indefinite"/>
+        </circle>
         <circle cx="500" cy="500" r="3" fill="#7b68ee" opacity="0.4"/>
 
         <!-- Meshnet label -->
@@ -594,12 +596,12 @@
       </div>
 
       <!-- COMMUNISST — bottom right -->
-      <div class="node-card pending" style="left:82%;top:76.5%"
+      <div class="node-card connected" style="left:82%;top:76.5%"
            onclick="showDetail('homepc')">
-        <div class="node-avatar" style="width:36px;height:36px;margin:0 auto 0.3rem;border-radius:50%;background:radial-gradient(circle,rgba(100,0,120,0.35),rgba(5,8,20,0.95));border:1px solid rgba(150,50,180,0.5);display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 0 10px rgba(120,0,150,0.3)">🧛‍♀️</div>
-        <div class="node-name">Home Computer</div>
-        <div class="node-os">unknown</div>
-        <div class="node-status status-pending">NOT YET PAIRED</div>
+        <div class="node-avatar" style="width:36px;height:36px;margin:0 auto 0.3rem;border-radius:50%;background:radial-gradient(circle,rgba(180,0,255,0.3),rgba(5,8,20,0.95));border:1px solid rgba(180,50,255,0.5);display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 0 10px rgba(150,0,255,0.3)">⚡</div>
+        <div class="node-name">Communisst</div>
+        <div class="node-os">RTX 3060 Ti · Win11 · CUDA</div>
+        <div class="node-status status-connected">CONNECTED</div>
       </div>
 
       <!-- IPHONE — bottom center -->
@@ -681,15 +683,15 @@
       macmini: {
         name: 'MacMiniM4sic',
         icon: '🍎',
-        os: 'macOS (Apple Silicon)',
-        hw: 'Apple M4 · Neural Engine · 16GB unified',
+        os: 'macOS (Apple Silicon · arm64)',
+        hw: 'Apple M4 · 16GB unified RAM · Neural Engine',
         ip: '100.94.152.119',
-        role: 'Local Inference · Apple Compute',
-        remote: 'Windows App (RDP)',
-        openclaw: 'connected',
+        role: 'Apple Silicon Inference · Large Model Host',
+        remote: 'SSH via Kali tunnel',
+        openclaw: 'inference provider',
         status: 'Connected',
-        description: 'Apple Silicon is remarkable for on-device ML. The M4\'s Neural Engine can run local language models fast enough to be genuinely useful — Llama 3, Mistral, Qwen. Tasks that don\'t need frontier reasoning get routed here: summarization, classification, structured extraction. Zero API cost. Millisecond latency. Private by default.',
-        future: 'Ollama + local LLM as free inference tier. macOS automation via Shortcuts/AppleScript. Model routing cost layer.'
+        description: 'The memory node. 16GB unified RAM on Apple Silicon means this machine can host models too large for the 3060 Ti\'s VRAM. Ollama runs on Metal — Apple\'s GPU compute stack. Where Communisst has raw CUDA speed, the Mac Mini has headroom: 14B parameter models fit here comfortably. Qwen2.5:14b runs locally via an SSH tunnel through Kali. Two inference tiers, different strengths, both free.',
+        future: 'Host 14B+ parameter models. Offload memory-intensive inference from Communisst. Run parallel tasks across both GPU nodes simultaneously.'
       },
       sarah: {
         name: 'Sarah-Consoleterm',
@@ -705,17 +707,17 @@
         future: 'Scheduled agent tasks. Memory maintenance jobs. Backup gateway candidate. Event-driven workflows.'
       },
       homepc: {
-        name: 'Home Computer',
-        icon: '🧛‍♀️',
-        os: 'Unknown',
-        hw: 'Unknown — TBD',
+        name: 'Communisst',
+        icon: '⚡',
+        os: 'Windows 11 (x64)',
+        hw: 'Dell Precision · RTX 3060 Ti · 8GB VRAM · CUDA',
         ip: '100.107.48.80',
-        role: 'TBD',
-        remote: 'RustDesk (assumed)',
-        openclaw: 'not paired',
-        status: 'Not yet paired',
-        description: 'The unknown node. The name is suggestive — shared resources, collective access. What does this machine do? What OS is it running? What\'s its role in the network? Understanding Home Computer is the next step in mapping the full architecture.',
-        future: 'Role TBD. Could be a media server, dev machine, or dedicated compute node. Needs investigation.'
+        role: 'GPU Inference · Local AI · CUDA Compute',
+        remote: 'SSH (meshnet)',
+        openclaw: 'inference provider',
+        status: 'Connected',
+        description: 'The GPU node. Communisst runs Ollama with a dedicated RTX 3060 Ti — 8GB of VRAM that handles 7B parameter models at full CUDA speed. DeepSeek R1:7b lives here, running locally with no API cost. Heartbeats, spam filters, summaries, CCNA quiz generation — anything that doesn\'t need frontier reasoning gets routed here instead of burning Anthropic tokens. An SSH tunnel bridges it to the gateway over the meshnet.',
+        future: 'Expand model library as VRAM allows. Route routine agent tasks here by default. Pull larger quantized models for specific domains (code, networking, analysis).'
       },
       iphone: {
         name: "Sergio's iPhone",
