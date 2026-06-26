@@ -1026,7 +1026,10 @@ footer .donate-link:hover {
 }
 
 /* ─── MUSIC PLAYER ─── */
+/* Archived/hidden site-wide per request — markup + scripts.js logic left intact.
+   Remove the "display: none" line below to bring the player bar back. */
 .music-player {
+  display: none !important;
   position: fixed;
   bottom: clamp(0.8rem, 2vw, 2rem);
   right: clamp(0.8rem, 2vw, 2rem);
