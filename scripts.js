@@ -910,10 +910,14 @@ if (_starCanvas && _starCtx) {
           }
           return;
         }
-        try {
-          const fn = new Function(s.textContent);
-          fn();
-        } catch (e) { console.warn('SPA script exec:', e); }
+        // Re-create as a real <script> element so top-level function/var
+        // declarations land on window, same as a native page load.
+        // (new Function(...) would scope them to that function instead,
+        // breaking any onclick="..." handlers defined by the page.)
+        const ns = document.createElement('script');
+        ns.textContent = s.textContent;
+        document.body.appendChild(ns);
+        ns.remove();
       });
 
       // Re-bind SPA nav links on new content
