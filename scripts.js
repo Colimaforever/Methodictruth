@@ -271,6 +271,7 @@ function handleVolume(e) {
 
 async function togglePlay() {
   if (musicSuppressed) return; // don't play background music on tool pages
+  unlockiOSAudio();
   if (genActive) {
     if (isPlaying) {
       userPaused = true;
@@ -547,10 +548,9 @@ function stopGenerativeEngine() {
   genActive = false;
 }
 
-// ─── UNIFIED STARTUP: wait for user interaction on ALL platforms ───
-// iOS Safari ONLY unlocks audio on direct touch/click handlers (not scroll/keydown).
-// We create a silent AudioContext on first touch to "unlock" audio, then start the engine.
-let hasInteracted = false;
+// ─── iOS AUDIO UNLOCK ───
+// iOS Safari only unlocks audio inside a direct touch/click handler, so this
+// runs at the moment the user explicitly presses play (no autoplay on load/scroll).
 let engineStarting = false;
 let iosUnlockCtx = null;
 
@@ -575,44 +575,6 @@ function unlockiOSAudio() {
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   if (bgAudioCtx && bgAudioCtx.state === 'suspended') bgAudioCtx.resume();
 }
-
-async function onFirstInteraction(e) {
-  if (hasInteracted) return;
-  hasInteracted = true;
-
-  // Remove all listeners
-  ['touchstart', 'touchend', 'click', 'scroll', 'keydown'].forEach(evt => {
-    document.removeEventListener(evt, onFirstInteraction, true);
-  });
-
-  // Unlock iOS audio synchronously FIRST (must be in gesture call stack)
-  unlockiOSAudio();
-
-  // Small delay to let iOS audio system settle
-  await new Promise(r => setTimeout(r, 100));
-
-  // Start generative engine — but NOT on audio tool pages
-  if (!isPlaying && !userPaused && !genActive && !engineStarting && !musicSuppressed) {
-    engineStarting = true;
-    await startGenerativeEngine();
-    engineStarting = false;
-  }
-}
-
-// touchstart + touchend for iOS, click for desktop, scroll + keydown as fallbacks
-['touchstart', 'touchend', 'click', 'scroll', 'keydown'].forEach(evt => {
-  document.addEventListener(evt, onFirstInteraction, { capture: true, once: false, passive: true });
-});
-
-// iOS fallback: if Tone.start fails in the engine, retry on next touch
-document.addEventListener('touchstart', function iosRetry() {
-  if (hasInteracted && !genActive && !engineStarting && !isPlaying && !userPaused && !musicSuppressed) {
-    unlockiOSAudio();
-    engineStarting = true;
-    startGenerativeEngine().then(() => { engineStarting = false; }).catch(() => { engineStarting = false; });
-    document.removeEventListener('touchstart', iosRetry, true);
-  }
-}, { capture: true, passive: true });
 
 // ─── BACKGROUND OSCILLOSCOPE ───
 const bgOsc = document.getElementById('bgOscilloscope');
