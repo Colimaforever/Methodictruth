@@ -8,7 +8,7 @@ The Song Analyzer requires these environment variables to be set in Cloudflare P
 
 2. Add these variables for **Production**:
 
-   - `YOUTUBE_API_KEY` = `AIzaSyAimEQ7sMiohbUwAto8UvTQZfFQFXne4ts`
+   - `YOUTUBE_API_KEY` = Your YouTube Data API key
    - `ANTHROPIC_API_KEY` = Your Claude API key
 
 3. Save and redeploy
