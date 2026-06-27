@@ -430,24 +430,85 @@
     let selectedRoot = 'C';
     let selectedQuality = '';
 
-    // Chord voicing database (simplified - real version would have many more)
-    const VOICINGS = {
-      'C': [
-        { name: 'Open Position', position: 'Frets 0-3', strings: ['x', '3', '2', '0', '1', '0'], notes: 'C-E-G-C-E', tip: 'Classic open C. Bright and full.' },
-        { name: 'Barre (8th fret)', position: 'Frets 8-11', strings: ['8', '10', '10', '9', '8', '8'], notes: 'C-G-C-E-G-C', tip: 'E-shape barre. Moveable pattern.' },
-        { name: 'D-shape (10th fret)', position: 'Frets 10-12', strings: ['x', '10', '12', '12', '12', 'x'], notes: 'C-G-C-E', tip: 'Lighter than barre, easier on the hand.' }
-      ],
-      'Cm': [
-        { name: 'Barre (3rd fret)', position: 'Frets 3-6', strings: ['x', '3', '5', '5', '4', '3'], notes: 'C-G-C-Eb-G', tip: 'A-shape minor barre. Standard position.' },
-        { name: 'Barre (8th fret)', position: 'Frets 8-11', strings: ['8', '10', '10', '8', '8', '8'], notes: 'C-G-C-Eb-G-C', tip: 'E-shape minor. Fuller sound.' },
-        { name: 'Partial (8th fret)', position: 'Frets 8-10', strings: ['x', 'x', '10', '8', '8', '8'], notes: 'C-Eb-G-C', tip: 'Top 4 strings. Clean and easy.' }
-      ],
-      'C7': [
-        { name: 'Open Position', position: 'Frets 0-3', strings: ['x', '3', '2', '3', '1', '0'], notes: 'C-E-Bb-C-E', tip: 'Open dom7. Bluesy sound.' },
-        { name: 'Barre (8th fret)', position: 'Frets 8-11', strings: ['8', '10', '8', '9', '8', '8'], notes: 'C-G-Bb-E-G-C', tip: 'E-shape dom7. Moveable.' }
-      ],
-      // Add more chord types as needed
+    // Movable-shape voicing engine — derives real fingerings for any root/quality
+    // from first principles instead of a hand-typed table, so every one of the
+    // 12 roots × 7 qualities below is correct, not just the few someone got around to.
+    const OPEN_STRINGS = [4, 9, 2, 7, 11, 4]; // E A D G B e, as pitch classes
+    const PC_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const NOTE_TO_PC = { 'C':0,'C#':1,'D':2,'D#':3,'E':4,'F':5,'F#':6,'G':7,'G#':8,'A':9,'A#':10,'B':11 };
+    const CHORD_INTERVALS = {
+      '': [0, 4, 7],          // Major
+      'm': [0, 3, 7],         // Minor
+      '7': [0, 4, 7, 10],     // Dominant 7
+      'maj7': [0, 4, 7, 11],  // Major 7
+      'm7': [0, 3, 7, 10],    // Minor 7
+      'sus2': [0, 2, 7],      // Suspended 2nd
+      'sus4': [0, 5, 7]       // Suspended 4th
     };
+    const SHAPE_TEMPLATES = [
+      { label: 'E-shape', rootString: 0 },
+      { label: 'A-shape', rootString: 1 },
+      { label: 'D-shape', rootString: 2 }
+    ];
+
+    function pcName(pc) { return PC_NAMES[((pc % 12) + 12) % 12]; }
+
+    function ordinal(n) {
+      if (n % 100 >= 11 && n % 100 <= 13) return n + 'th';
+      const s = ['th', 'st', 'nd', 'rd'];
+      return n + (s[n % 10] || 'th');
+    }
+
+    // Lowest fret at or above minFret, within a one-barre-position reach,
+    // whose note belongs to the chord. Mirrors how a hand actually finds notes.
+    function findFret(openPc, minFret, allowedPcs) {
+      for (let f = minFret; f <= minFret + 5; f++) {
+        if (allowedPcs.includes((openPc + f) % 12)) return f;
+      }
+      return null;
+    }
+
+    function buildShape(rootPc, intervals, rootStringIdx, label) {
+      const allowed = intervals.map(i => (rootPc + i) % 12);
+      const barreFret = ((rootPc - OPEN_STRINGS[rootStringIdx]) % 12 + 12) % 12;
+
+      const strings = [];
+      const noteNames = [];
+      for (let s = 0; s < 6; s++) {
+        if (s < rootStringIdx) { strings.push('x'); continue; }
+        const fret = findFret(OPEN_STRINGS[s], barreFret, allowed);
+        if (fret === null) { strings.push('x'); continue; }
+        strings.push(String(fret));
+        noteNames.push(pcName((OPEN_STRINGS[s] + fret) % 12));
+      }
+
+      if (strings.filter(f => f !== 'x').length < 3) return null; // too sparse to be playable
+
+      const fretsUsed = strings.filter(f => f !== 'x').map(Number);
+      const lo = Math.min(...fretsUsed), hi = Math.max(...fretsUsed);
+
+      const tips = {
+        'E-shape': barreFret === 0 ? 'Open E-family voicing. Full and ringing.' : 'E-shape barre. Root on the low E string — full 6-string sound.',
+        'A-shape': barreFret === 0 ? 'Open A-family voicing. Bright and direct.' : 'A-shape barre. Root on the 5th string — easier reach than E-shape.',
+        'D-shape': barreFret === 0 ? 'Open D-family voicing. Light and chiming.' : 'D-shape partial. Top strings only — easiest on the hand.'
+      };
+
+      return {
+        name: `${label}${barreFret === 0 ? ' (Open)' : ` (${ordinal(barreFret)} fret)`}`,
+        position: (lo === 0 && hi === 0) ? 'Open' : `Frets ${lo}-${hi}`,
+        strings,
+        notes: noteNames.join('-'),
+        tip: tips[label]
+      };
+    }
+
+    function buildVoicings(rootPc, qualitySuffix) {
+      const intervals = CHORD_INTERVALS[qualitySuffix];
+      const seen = new Set();
+      return SHAPE_TEMPLATES
+        .map(t => buildShape(rootPc, intervals, t.rootString, t.label))
+        .filter(v => v && !seen.has(v.strings.join(',')) && seen.add(v.strings.join(',')));
+    }
 
     function initUI() {
       const rootContainer = document.getElementById('rootButtons');
@@ -492,12 +553,12 @@
 
     function updateVoicings() {
       const chordKey = selectedRoot + selectedQuality;
-      const voicings = VOICINGS[chordKey] || [];
-      
+      const voicings = buildVoicings(NOTE_TO_PC[selectedRoot], selectedQuality);
+
       const container = document.getElementById('voicingsDisplay');
-      
+
       if (voicings.length === 0) {
-        container.innerHTML = `<p style="color: var(--text); opacity: 0.7; grid-column: 1 / -1; text-align: center; padding: 2rem;">Voicings for ${chordKey} coming soon. Try C, Cm, or C7 for now.</p>`;
+        container.innerHTML = `<p style="color: var(--text); opacity: 0.7; grid-column: 1 / -1; text-align: center; padding: 2rem;">No clean voicing found for ${chordKey} in this position — try another quality.</p>`;
         return;
       }
 
