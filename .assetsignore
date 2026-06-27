@@ -1,0 +1,10 @@
+.git
+.github
+.claude
+worker
+api
+functions
+server.js
+DEPLOY.md
+.env.example
+wrangler.jsonc
