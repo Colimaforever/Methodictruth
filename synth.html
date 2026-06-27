@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Browser Synth — Free Online Modular Synthesizer with MIDI Support</title>
-  <meta name="keywords" content="online synthesizer, browser synth, web audio synth, MIDI synthesizer, free synth, modular synth, tone.js, virtual instrument">
-  <meta name="description" content="Play a browser-based modular synthesizer with oscillators, filters, reverb, delay, and MIDI controller support. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
-  <meta property="og:title" content="Browser Synth — Free Online Modular Synthesizer with MIDI Support">
-  <meta property="og:description" content="Play a browser-based modular synthesizer with oscillators, filters, reverb, delay, and MIDI controller support. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
+  <title>Browser Synth — Modular Synthesizer, Mixer & Effects Chain with MIDI Support</title>
+  <meta name="keywords" content="online synthesizer, browser synth, web audio synth, MIDI synthesizer, free synth, modular synth, tone.js, virtual instrument, audio mixer, effects chain, EQ, compressor, limiter">
+  <meta name="description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, and MIDI controller support. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
+  <meta property="og:title" content="Browser Synth — Modular Synthesizer, Mixer & Effects Chain with MIDI Support">
+  <meta property="og:description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, and MIDI controller support. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/synth.html">
   <meta property="og:image" content="https://methodictruth.com/og/synth.png">
@@ -96,6 +96,7 @@
     }
     .synth-module:hover { box-shadow: 0 2px 30px rgba(0, 229, 255, 0.08), 0 0 50px rgba(0, 0, 0, 0.5); }
     .synth-module.dragging { z-index: 100; box-shadow: 0 4px 40px rgba(0, 229, 255, 0.15); }
+    .synth-module.dragover { border-color: var(--glow); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
 
     .module-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -421,10 +422,8 @@
         <button class="nav-drop-btn">Music ▾</button>
         <div class="nav-drop-menu">
           <a href="synth.html">Synth</a>
-          <a href="mixer.html">Mixer</a>
           <a href="tuner.html">Tuner</a>
           <a href="theory.html">Theory</a>
-          <a href="signal.html">Signal</a>
           <a href="songwriter.html">Songwriter</a>
           <a href="tapbpm.html">Tap BPM</a>
         </div>
@@ -459,7 +458,13 @@
         <button class="synth-btn" data-add="lfo">LFO</button>
         <button class="synth-btn" data-add="delay">Delay</button>
         <button class="synth-btn" data-add="reverb">Reverb</button>
+        <button class="synth-btn" data-add="chorus">Chorus</button>
         <button class="synth-btn" data-add="gain">Gain</button>
+        <button class="synth-btn" data-add="pan">Pan</button>
+        <button class="synth-btn" data-add="eq3">EQ</button>
+        <button class="synth-btn" data-add="compressor">Comp</button>
+        <button class="synth-btn" data-add="limiter">Limiter</button>
+        <button class="synth-btn" data-add="player">File</button>
         <button class="synth-btn" data-add="noise">Noise</button>
         <button class="synth-btn" data-add="envelope">ADSR</button>
         <button class="synth-btn" data-add="output">Output</button>
@@ -574,6 +579,24 @@
       <dd>Volume control — use to balance levels between modules.</dd>
       <dt>Noise</dt>
       <dd><code>white</code> = all freqs equal (hiss) · <code>pink</code> = bass-heavy (wind) · <code>brown</code> = deep rumble.</dd>
+      <dt>Audio File</dt>
+      <dd>Drop an audio file onto the module (or click <code>Load</code>) to play and loop it — drop in several to build a multi-track mix. <code>Vol</code> sets its level.</dd>
+      <dt>Pan</dt>
+      <dd>Places a sound left/right in the stereo field. <code>−1</code> = full left, <code>1</code> = full right.</dd>
+      <dt>EQ</dt>
+      <dd>3-band tone shaping. Cut <code>Low</code> to thin out a track, boost <code>High</code> for clarity, pull <code>Mid</code> down to make room for another track ("carving").</dd>
+      <dt>Compressor</dt>
+      <dd>Evens out volume swings. <code>Thresh</code> = level it kicks in at · <code>Ratio</code> = how hard it squeezes · <code>Atk</code>/<code>Rel</code> = how fast it reacts/lets go.</dd>
+      <dt>Chorus</dt>
+      <dd>Layers slightly-detuned copies for a thicker, shimmering sound. <code>Rate</code>/<code>Depth</code> = how the detune wobbles.</dd>
+      <dt>Limiter</dt>
+      <dd>A hard ceiling on loudness — put one right before <code>Output</code> to stop a mix from clipping. <code>Thresh</code> = the ceiling.</dd>
+    </dl>
+
+    <h3>Mixing Multiple Tracks</h3>
+    <dl>
+      <dt>Build a mix</dt>
+      <dd>Add one <code>Audio File</code> module per stem, route each through its own <code>Pan</code>/<code>EQ</code> into a shared <code>Gain</code> or <code>Compressor</code>, then into one <code>Output</code>. Add a <code>Limiter</code> just before <code>Output</code> to keep the combined level in check.</dd>
     </dl>
 
     <h3>Sequencer</h3>
@@ -779,6 +802,113 @@
         if (key === 'type') audio.node.type = val;
       }
     },
+    player: {
+      title: 'Audio File',
+      glyph: '♬',
+      inputs: [],
+      outputs: ['out'],
+      controls: [
+        { id: 'file', type: 'file', label: 'File' },
+        { id: 'gain', type: 'range', min: 0, max: 1, default: 0.8, step: 0.01, label: 'Vol', unit: '' },
+      ],
+      create(params) {
+        const g = new Tone.Gain(params.gain);
+        const player = new Tone.Player({ loop: true }).connect(g);
+        return { node: player, out: g };
+      },
+      update(audio, key, val) {
+        if (key === 'gain') audio.out.gain.value = val;
+      }
+    },
+    pan: {
+      title: 'Pan',
+      glyph: '⇄',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'pan', type: 'range', min: -1, max: 1, default: 0, step: 0.01, label: 'Pan', unit: '' },
+      ],
+      create(params) {
+        const p = new Tone.Panner(params.pan);
+        return { node: p, in: p, out: p };
+      },
+      update(audio, key, val) {
+        if (key === 'pan') audio.node.pan.value = val;
+      }
+    },
+    eq3: {
+      title: 'EQ',
+      glyph: '☰',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'low', type: 'range', min: -24, max: 24, default: 0, step: 0.5, label: 'Low', unit: 'dB' },
+        { id: 'mid', type: 'range', min: -24, max: 24, default: 0, step: 0.5, label: 'Mid', unit: 'dB' },
+        { id: 'high', type: 'range', min: -24, max: 24, default: 0, step: 0.5, label: 'High', unit: 'dB' },
+      ],
+      create(params) {
+        const eq = new Tone.EQ3({ low: params.low, mid: params.mid, high: params.high });
+        return { node: eq, in: eq, out: eq };
+      },
+      update(audio, key, val) {
+        audio.node[key].value = val;
+      }
+    },
+    compressor: {
+      title: 'Compressor',
+      glyph: '▼',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'threshold', type: 'range', min: -60, max: 0, default: -24, step: 1, label: 'Thresh', unit: 'dB' },
+        { id: 'ratio', type: 'range', min: 1, max: 20, default: 4, step: 0.5, label: 'Ratio', unit: ':1' },
+        { id: 'attack', type: 'range', min: 0.001, max: 1, default: 0.02, step: 0.001, label: 'Atk', unit: 's' },
+        { id: 'release', type: 'range', min: 0.01, max: 1, default: 0.25, step: 0.01, label: 'Rel', unit: 's' },
+      ],
+      create(params) {
+        const c = new Tone.Compressor({ threshold: params.threshold, ratio: params.ratio, attack: params.attack, release: params.release });
+        return { node: c, in: c, out: c };
+      },
+      update(audio, key, val) {
+        audio.node[key].value = val;
+      }
+    },
+    chorus: {
+      title: 'Chorus',
+      glyph: '∾',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'frequency', type: 'range', min: 0.1, max: 10, default: 1.5, step: 0.1, label: 'Rate', unit: 'Hz' },
+        { id: 'depth', type: 'range', min: 0, max: 1, default: 0.5, step: 0.01, label: 'Depth', unit: '' },
+        { id: 'wet', type: 'range', min: 0, max: 1, default: 0.5, step: 0.01, label: 'Wet', unit: '' },
+      ],
+      create(params) {
+        const c = new Tone.Chorus({ frequency: params.frequency, depth: params.depth, wet: params.wet }).start();
+        return { node: c, in: c, out: c };
+      },
+      update(audio, key, val) {
+        if (key === 'frequency') audio.node.frequency.value = val;
+        else if (key === 'depth') audio.node.depth = val;
+        else if (key === 'wet') audio.node.wet.value = val;
+      }
+    },
+    limiter: {
+      title: 'Limiter',
+      glyph: '⛔',
+      inputs: ['in'],
+      outputs: ['out'],
+      controls: [
+        { id: 'threshold', type: 'range', min: -40, max: 0, default: -3, step: 0.5, label: 'Thresh', unit: 'dB' },
+      ],
+      create(params) {
+        const l = new Tone.Limiter(params.threshold);
+        return { node: l, in: l, out: l };
+      },
+      update(audio, key, val) {
+        if (key === 'threshold') audio.node.threshold.value = val;
+      }
+    },
     envelope: {
       title: 'Envelope',
       glyph: '⏢',
@@ -870,6 +1000,12 @@
             ${c.options.map(o => `<option value="${o}"${o === c.default ? ' selected' : ''}>${o}</option>`).join('')}
           </select>
         </div>`;
+      } else if (c.type === 'file') {
+        html += `<div class="module-control">
+          <input type="file" accept="audio/*" id="file_${id}_${c.id}" style="display:none">
+          <button type="button" class="synth-btn" style="font-size:0.55rem;padding:0.25rem 0.4rem;" onclick="document.getElementById('file_${id}_${c.id}').click()">Load</button>
+          <span class="slider-value" id="filename_${id}_${c.id}" style="flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">drop or load</span>
+        </div>`;
       } else {
         const displayVal = Number(c.default).toFixed(c.step < 1 ? (c.step < 0.01 ? 3 : 2) : 0);
         html += `<div class="module-control">
@@ -906,8 +1042,42 @@
 
     modules[id] = { id, type, def, params, audio, el };
     setupDrag(el, id);
+
+    // Wire up file-load controls (drag-drop + file picker)
+    def.controls.forEach(c => {
+      if (c.type !== 'file') return;
+      const inputEl = el.querySelector(`#file_${id}_${c.id}`);
+      inputEl.addEventListener('change', e => {
+        if (e.target.files[0]) loadAudioFile(id, c.id, e.target.files[0]);
+      });
+      el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
+      el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        el.classList.remove('dragover');
+        const f = e.dataTransfer.files[0];
+        if (f) loadAudioFile(id, c.id, f);
+      });
+    });
+
     if (window.Analytics) Analytics.Synth.moduleAdded(type);
     return id;
+  }
+
+  // ─── LOAD AUDIO FILE (for Audio File module) ───
+  function loadAudioFile(moduleId, paramId, file) {
+    const mod = modules[moduleId];
+    if (!mod) return;
+    const nameEl = document.getElementById(`filename_${moduleId}_${paramId}`);
+    if (nameEl) nameEl.textContent = 'loading…';
+    const url = URL.createObjectURL(file);
+    mod.audio.node.load(url).then(() => {
+      if (nameEl) nameEl.textContent = file.name;
+      mod.audio.node.start();
+    }).catch(err => {
+      console.warn('Audio load error:', err);
+      if (nameEl) nameEl.textContent = 'load failed';
+    });
   }
 
   // ─── UPDATE PARAM ───
