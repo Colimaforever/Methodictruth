@@ -230,6 +230,41 @@ openclaw model set anthropic/claude-opus-4-6
 openclaw gateway restart</pre>
     </div>
 
+    <div class="vault-section">
+      <h2>Pipeline: How Changes Reach the Site</h2>
+      <p>The site auto-deploys via Cloudflare Pages. Nothing reaches it without going through this:</p>
+      <pre>
+1. Work happens on a branch
+   (not directly on main, for anything
+   bigger than a typo)
+
+2. Commit + push that branch
+   git push -u origin &lt;branch-name&gt;
+
+3. Open a Pull Request (PR)
+   branch → main, on GitHub
+   This is the review checkpoint —
+   full diff in one place, before
+   anything goes live.
+
+4. Review the diff
+   Read it like a stranger would.
+   Catch what slipped through.
+
+5. Merge the PR into main
+   ↓
+6. Cloudflare Pages sees the push
+   to main and redeploys automatically
+   ↓
+   Live on methodictruth.com,
+   usually within a minute or two</pre>
+      <p>A PR is just a labeled, reviewable diff — title + description + the
+      exact lines changed — sitting between a branch and <code>main</code>
+      until someone says "yes, merge this." For solo work the value isn't
+      bureaucracy, it's a deliberate moment to actually look at the change
+      before it's permanent and public.</p>
+    </div>
+
     <!-- ─── THE INNER CHAMBER ─── -->
     <div style="margin-top:4rem;padding-top:2rem;border-top:1px solid rgba(120,40,40,0.1);">
       <div style="text-align:center;margin-bottom:1.5rem;">
