@@ -332,27 +332,39 @@ Files changed  → the actual diff. This is the review.</pre>
       <p style="margin-top:1rem;"><strong>Preview deployments</strong> are a
       different thing, and they are <em>not</em> wired up from in here — that
       setting lives in the Cloudflare dashboard / account, which this session
-      has no credentials for. What a preview deployment does, if enabled: every
-      PR gets its own live, throwaway URL (something like
-      <code>a1c5ad1.methodictruth.pages.dev</code>) that you can actually click
-      around in a browser before merging — not just read a diff. To check or
-      turn it on:</p>
+      has no credentials for. What it does, if enabled: every PR gets its own
+      live, throwaway URL (something like
+      <code>a1c5ad1.methodictruth.pages.dev</code>) you can click around in a
+      browser before merging — not just read a diff. Steps to turn it on:</p>
       <pre>
-dash.cloudflare.com → Workers & Pages
-  → the Methodictruth project → Settings
-  → Builds & deployments
+1. dash.cloudflare.com → log in
+2. Workers & Pages (left sidebar)
+3. Methodictruth project
+4. Settings tab
+5. Builds & deployments
+6. Find "Preview deployments"
+7. If set to None →
+   change to "All branches except
+   production"
+8. Save
+9. Push a small change to a non-main
+   branch (or re-push the open PR's
+   branch)
+10. Check the PR on GitHub — a preview
+    link should appear as a check or
+    comment within a minute or two
+11. If nothing appears after step 10 →
+    project is likely connected as
+    Direct Upload, not via the GitHub
+    integration → reconnect it via
+    Git integration in this same
+    settings page
 
-Look for the branch deployment control —
-it decides which non-production branches
-get an auto-built preview. Set it to build
-all branches (or at least PR branches), and
-make sure "GitHub deployment comments" /
-commit statuses are enabled so the preview
-link shows up directly on the PR.</pre>
-      <p>If it's already on, nothing to do. If <strong>Checks</strong> stays
-      empty of a Cloudflare entry after a push, that setting is most likely
-      off and needs a manual flip in the dashboard — this can't be done
-      through the repo.</p>
+Once 7–8 are done, it stays on —
+no need to repeat for future PRs.</pre>
+      <p>If <strong>Checks</strong> stays empty of a Cloudflare entry after a
+      push, that setting is most likely off — this can't be flipped through
+      the repo, only the dashboard.</p>
     </div>
 
     <!-- ─── THE INNER CHAMBER ─── -->
