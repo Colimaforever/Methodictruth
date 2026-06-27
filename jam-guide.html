@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jam Survival Guide — Circle of Fifths, Nashville Numbers, Capo & Jam Etiquette</title>
+  <meta name="keywords" content="jam session, nashville number system, circle of fifths, capo chart, common chord progressions, jam etiquette, guitar piano chords, lead sheet, transposition">
+  <meta name="description" content="A practical reference for musicians who want to play with others: circle of fifths, Nashville numbers, common progressions, capo & transposition charts, guitar-to-piano chord translation, jam etiquette, and how to read a chord chart.">
+  <meta property="og:title" content="Jam Survival Guide — Play Well With Others">
+  <meta property="og:description" content="Circle of fifths, Nashville numbers, common progressions, capo charts, guitar-to-piano translation, and jam etiquette — everything to survive your first jam session.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/jam-guide.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=56">
+  <style>
+    /* ─── JAM GUIDE PAGE ─── */
+    .jg-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .jg-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    /* ─── SECTIONS ─── */
+    .jg-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .jg-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .jg-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .jg-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 70ch;
+    }
+    .jg-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .jg-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+
+    /* ─── TABLES ─── */
+    .jg-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.jg-table {
+      width: 100%; border-collapse: collapse; min-width: 460px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.74rem;
+    }
+    table.jg-table.jg-wide { min-width: 560px; }
+    .jg-table th {
+      text-align: left; padding: 0.5rem 0.6rem;
+      color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em;
+      text-transform: uppercase; font-size: 0.6rem;
+      border-bottom: 1px solid rgba(232, 168, 124, 0.3);
+      white-space: nowrap;
+    }
+    .jg-table td {
+      padding: 0.5rem 0.6rem; color: var(--parchment);
+      border-bottom: 1px solid rgba(138, 126, 107, 0.12);
+      vertical-align: top;
+    }
+    .jg-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .jg-table td.jg-num { color: var(--glow-warm); font-weight: 400; }
+    .jg-table td.jg-muted { color: var(--stone-dark); }
+    .jg-table caption {
+      caption-side: bottom; text-align: left; padding-top: 0.6rem;
+      font-family: 'EB Garamond', Georgia, serif; font-style: italic;
+      font-size: 0.85rem; color: var(--stone-dark);
+    }
+
+    /* ─── CIRCLE OF FIFTHS ─── */
+    .jg-circle-wrap { display: flex; flex-wrap: wrap; gap: 1.4rem; align-items: center; justify-content: center; }
+    .jg-circle-svg { flex: 0 0 auto; width: 320px; max-width: 100%; height: auto; }
+    .jg-circle-side { flex: 1 1 260px; min-width: 240px; }
+    .jg-cf-major { font-family: 'Cinzel', serif; font-size: 15px; fill: var(--parchment); }
+    .jg-cf-minor { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: var(--glow-warm); }
+    .jg-cf-sig { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .jg-cf-center { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); letter-spacing: 0.05em; }
+    .jg-legend { list-style: none; margin: 0.4rem 0 0; padding: 0; }
+    .jg-legend li {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem;
+      color: var(--stone); line-height: 1.5; margin-bottom: 0.55rem; padding-left: 1.1rem; position: relative;
+    }
+    .jg-legend li::before { content: "▸"; position: absolute; left: 0; color: var(--glow-warm); font-size: 0.75rem; top: 0.15rem; }
+    .jg-legend strong { color: var(--glow-warm); font-weight: 600; }
+
+    /* ─── INLINE CHIPS / KEY ─── */
+    .jg-chip {
+      display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+      color: var(--glow-warm); background: rgba(232, 168, 124, 0.08);
+      border: 1px solid rgba(232, 168, 124, 0.2); padding: 0.05rem 0.4rem; border-radius: 2px;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+
+    /* ─── SONG LIST ─── */
+    .jg-songs { columns: 2; column-gap: 1.6rem; margin-top: 0.6rem; }
+    .jg-songs li {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; color: var(--stone);
+      line-height: 1.45; margin-bottom: 0.45rem; break-inside: avoid; list-style-position: inside;
+    }
+    .jg-songs li span { color: var(--stone-dark); font-size: 0.82rem; }
+
+    /* ─── BLOCK GRID (etiquette / chart notation) ─── */
+    .jg-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem; margin-top: 0.4rem;
+    }
+    .jg-card {
+      background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14);
+      padding: 0.9rem 1rem;
+    }
+    .jg-card h4 {
+      font-family: 'Cinzel', serif; font-size: 0.92rem; color: var(--glow);
+      letter-spacing: 0.04em; margin-bottom: 0.35rem;
+    }
+    .jg-card p {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone);
+      line-height: 1.5; margin: 0;
+    }
+    .jg-card p .jg-term { color: var(--glow-warm); font-style: italic; }
+
+    /* ─── TOC ─── */
+    .jg-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .jg-toc a {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em;
+      color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase;
+    }
+    .jg-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 560px) {
+      .jg-section { padding: 1.1rem 0.9rem; }
+      .jg-songs { columns: 1; }
+      .jg-circle-svg { width: 280px; }
+      .jg-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles">Chronicles</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="mixer">Mixer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="theory.html">Theory</a>
+          <a href="signal.html">Signal</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="network.html">Network</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="topology.html">Topology</a>
+      <a href="live.html">Live</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="jg-page">
+    <main class="jg-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>The Jam Survival Guide</h1>
+        <div class="subtitle">Everything you need to walk into a room and play with strangers</div>
+      </div>
+
+      <p class="jg-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Playing alone is one skill. Playing <em>with others</em> is a different one — built on a shared vocabulary
+        most musicians pick up by osmosis over years. This page is that vocabulary, written down. Learn it and you
+        can call a tune, follow a caller, transpose on the fly, and read a chart handed to you cold.
+      </p>
+
+      <nav class="jg-toc" aria-label="Sections">
+        <a href="#circle">Circle of Fifths</a>
+        <a href="#nashville">Nashville Numbers</a>
+        <a href="#progressions">Common Progressions</a>
+        <a href="#capo">Capo &amp; Transposition</a>
+        <a href="#equivalency">Guitar ↔ Piano</a>
+        <a href="#etiquette">Jam Etiquette</a>
+        <a href="#charts">Reading Charts</a>
+      </nav>
+
+      <!-- ═══ 1. CIRCLE OF FIFTHS ═══ -->
+      <section class="jg-section" id="circle">
+        <div class="jg-section-label">① The Map</div>
+        <h2 class="jg-section-title">The Circle of Fifths</h2>
+        <p class="jg-lead">
+          Move clockwise and each key is a <strong>perfect fifth</strong> above the last, adding one sharp.
+          Move counter-clockwise (down a fifth / up a fourth) and you add one flat. The inner ring shows each
+          major key's <strong>relative minor</strong> — the minor key that shares its exact notes and key signature.
+        </p>
+        <div class="jg-circle-wrap">
+          <svg class="jg-circle-svg" viewBox="0 0 320 320" role="img" aria-label="Circle of fifths showing the 12 major keys, their relative minors, and key signatures">
+            <circle cx="160" cy="160" r="148" fill="none" stroke="rgba(232,168,124,0.18)" stroke-width="1"/>
+            <circle cx="160" cy="160" r="108" fill="none" stroke="rgba(232,168,124,0.12)" stroke-width="1"/>
+            <circle cx="160" cy="160" r="58" fill="none" stroke="rgba(232,168,124,0.08)" stroke-width="1"/>
+            <text x="160" y="156" text-anchor="middle" class="jg-cf-center">CLOCKWISE</text>
+            <text x="160" y="167" text-anchor="middle" class="jg-cf-center">= +1 SHARP</text>
+
+            <!-- 12 keys, top = C, clockwise -->
+            <!-- C -->
+            <text x="160" y="36" text-anchor="middle" class="jg-cf-major">C</text>
+            <text x="160" y="76" text-anchor="middle" class="jg-cf-minor">Am</text>
+            <text x="160" y="20" text-anchor="middle" class="jg-cf-sig">0</text>
+            <!-- G -->
+            <text x="224" y="53" text-anchor="middle" class="jg-cf-major">G</text>
+            <text x="204" y="88" text-anchor="middle" class="jg-cf-minor">Em</text>
+            <text x="246" y="40" text-anchor="middle" class="jg-cf-sig">1♯</text>
+            <!-- D -->
+            <text x="271" y="100" text-anchor="middle" class="jg-cf-major">D</text>
+            <text x="236" y="120" text-anchor="middle" class="jg-cf-minor">Bm</text>
+            <text x="297" y="92" text-anchor="middle" class="jg-cf-sig">2♯</text>
+            <!-- A -->
+            <text x="288" y="164" text-anchor="middle" class="jg-cf-major">A</text>
+            <text x="248" y="164" text-anchor="middle" class="jg-cf-minor">F♯m</text>
+            <text x="310" y="164" text-anchor="middle" class="jg-cf-sig">3♯</text>
+            <!-- E -->
+            <text x="271" y="228" text-anchor="middle" class="jg-cf-major">E</text>
+            <text x="236" y="208" text-anchor="middle" class="jg-cf-minor">C♯m</text>
+            <text x="297" y="236" text-anchor="middle" class="jg-cf-sig">4♯</text>
+            <!-- B -->
+            <text x="224" y="275" text-anchor="middle" class="jg-cf-major">B</text>
+            <text x="204" y="240" text-anchor="middle" class="jg-cf-minor">G♯m</text>
+            <text x="246" y="290" text-anchor="middle" class="jg-cf-sig">5♯</text>
+            <!-- F# / Gb -->
+            <text x="160" y="292" text-anchor="middle" class="jg-cf-major">F♯/G♭</text>
+            <text x="160" y="252" text-anchor="middle" class="jg-cf-minor">D♯m</text>
+            <text x="160" y="306" text-anchor="middle" class="jg-cf-sig">6♯/6♭</text>
+            <!-- Db -->
+            <text x="96" y="275" text-anchor="middle" class="jg-cf-major">D♭</text>
+            <text x="116" y="240" text-anchor="middle" class="jg-cf-minor">B♭m</text>
+            <text x="74" y="290" text-anchor="middle" class="jg-cf-sig">5♭</text>
+            <!-- Ab -->
+            <text x="49" y="228" text-anchor="middle" class="jg-cf-major">A♭</text>
+            <text x="84" y="208" text-anchor="middle" class="jg-cf-minor">Fm</text>
+            <text x="23" y="236" text-anchor="middle" class="jg-cf-sig">4♭</text>
+            <!-- Eb -->
+            <text x="32" y="164" text-anchor="middle" class="jg-cf-major">E♭</text>
+            <text x="72" y="164" text-anchor="middle" class="jg-cf-minor">Cm</text>
+            <text x="11" y="164" text-anchor="middle" class="jg-cf-sig">3♭</text>
+            <!-- Bb -->
+            <text x="49" y="100" text-anchor="middle" class="jg-cf-major">B♭</text>
+            <text x="84" y="120" text-anchor="middle" class="jg-cf-minor">Gm</text>
+            <text x="23" y="92" text-anchor="middle" class="jg-cf-sig">2♭</text>
+            <!-- F -->
+            <text x="96" y="53" text-anchor="middle" class="jg-cf-major">F</text>
+            <text x="116" y="88" text-anchor="middle" class="jg-cf-minor">Dm</text>
+            <text x="74" y="40" text-anchor="middle" class="jg-cf-sig">1♭</text>
+          </svg>
+          <div class="jg-circle-side">
+            <p class="jg-section-label" style="margin-bottom:0.4rem;">Why it matters</p>
+            <ul class="jg-legend">
+              <li><strong>Closely related keys</strong> sit next to each other. To modulate smoothly, step one slot clockwise or counter-clockwise — those keys share all but one note.</li>
+              <li><strong>Predict a song's chords.</strong> A key's most common chords are itself, its two neighbors (the IV and V), and its relative minor — all clustered together on the circle.</li>
+              <li><strong>Read a key signature instantly.</strong> Count the sharps or flats and the position on the circle tells you the key — no need to spell out the whole scale.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 2. NASHVILLE NUMBER SYSTEM ═══ -->
+      <section class="jg-section" id="nashville">
+        <div class="jg-section-label">② The Shorthand</div>
+        <h2 class="jg-section-title">The Nashville Number System</h2>
+        <p class="jg-lead">
+          On stage, players don't call chords by name — they call them by <strong>scale degree</strong>: 1, 4, 5, 6m,
+          and so on. A progression gets named once (say <span class="jg-chip">1 5 6m 4</span>) and every player
+          transposes it instantly to whatever key the singer wants. Change keys mid-rehearsal? The numbers don't
+          change — only the chords they point to. This is <em>the</em> language of working bands.
+        </p>
+        <p class="jg-lead">
+          Each scale degree has a built-in <strong>quality</strong>. In a major key the 1, 4, and 5 are major;
+          the 2, 3, and 6 are minor; the 7 is diminished. (A natural-minor key flips this — see the second row of qualities.)
+        </p>
+        <div class="jg-table-wrap">
+          <table class="jg-table jg-wide">
+            <caption>Numbers spell the same chords in any key. Cross-reference the column for your singer's key.</caption>
+            <thead>
+              <tr>
+                <th>Degree</th>
+                <th>Major quality</th>
+                <th>Key of C</th>
+                <th>Key of G</th>
+                <th>Key of D</th>
+                <th>Key of A</th>
+                <th>Natural-minor quality</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="jg-num">1</td><td>major</td><td>C</td><td>G</td><td>D</td><td>A</td><td class="jg-muted">i minor</td></tr>
+              <tr><td class="jg-num">2</td><td>minor</td><td>Dm</td><td>Am</td><td>Em</td><td>Bm</td><td class="jg-muted">ii° dim</td></tr>
+              <tr><td class="jg-num">3</td><td>minor</td><td>Em</td><td>Bm</td><td>F♯m</td><td>C♯m</td><td class="jg-muted">♭III major</td></tr>
+              <tr><td class="jg-num">4</td><td>major</td><td>F</td><td>C</td><td>G</td><td>D</td><td class="jg-muted">iv minor</td></tr>
+              <tr><td class="jg-num">5</td><td>major</td><td>G</td><td>D</td><td>A</td><td>E</td><td class="jg-muted">v minor / V</td></tr>
+              <tr><td class="jg-num">6</td><td>minor</td><td>Am</td><td>Em</td><td>Bm</td><td>F♯m</td><td class="jg-muted">♭VI major</td></tr>
+              <tr><td class="jg-num">7</td><td>dim</td><td>B°</td><td>F♯°</td><td>C♯°</td><td>G♯°</td><td class="jg-muted">♭VII major</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="jg-note">
+          Notation shorthand you'll see on a chart: a plain number is major (<span class="jg-chip">4</span> = IV major),
+          a number with a small <em>m</em> or minus is minor (<span class="jg-chip">6m</span> = vi minor),
+          a 7 after it means add a seventh (<span class="jg-chip">5<sup>7</sup></span> = dominant V7),
+          and a slash (<span class="jg-chip">1/3</span>) means "1 chord with the 3rd in the bass."
+        </p>
+      </section>
+
+      <!-- ═══ 3. COMMON PROGRESSIONS ═══ -->
+      <section class="jg-section" id="progressions">
+        <div class="jg-section-label">③ The Vocabulary</div>
+        <h2 class="jg-section-title">Common Jam Progressions</h2>
+        <p class="jg-lead">
+          The vast majority of popular music runs on a small handful of progressions. Learn to hear and play these
+          and you can fake your way through thousands of songs. Each is shown in Nashville numbers, roman numerals,
+          and the nickname people actually say out loud.
+        </p>
+        <div class="jg-table-wrap">
+          <table class="jg-table jg-wide">
+            <thead>
+              <tr><th>Nashville</th><th>Roman numerals</th><th>Nickname</th><th>Example (key of C)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="jg-num">1 4 5</td><td>I–IV–V</td><td>Three-chord / folk &amp; country</td><td class="jg-muted">C – F – G</td></tr>
+              <tr><td class="jg-num">1 5 6m 4</td><td>I–V–vi–IV</td><td>The "pop" progression</td><td class="jg-muted">C – G – Am – F</td></tr>
+              <tr><td class="jg-num">1 6m 4 5</td><td>I–vi–IV–V</td><td>The "'50s" / doo-wop</td><td class="jg-muted">C – Am – F – G</td></tr>
+              <tr><td class="jg-num">2m 5 1</td><td>ii–V–I</td><td>Jazz turnaround</td><td class="jg-muted">Dm – G – C</td></tr>
+              <tr><td class="jg-num">6m 4 1 5</td><td>vi–IV–I–V</td><td>Pop, minor-leaning variant</td><td class="jg-muted">Am – F – C – G</td></tr>
+              <tr><td class="jg-num">1 1 1 1 / 4 4 1 1 / 5 4 1 5</td><td>12-bar blues</td><td>"Blues in [key]"</td><td class="jg-muted">C…C…C…C / F…F…C…C / G…F…C…G</td></tr>
+              <tr><td class="jg-num">1m 4m 5m</td><td>i–iv–v</td><td>Minor-key three-chord</td><td class="jg-muted">Am – Dm – Em</td></tr>
+              <tr><td class="jg-num">1m ♭6 ♭3 ♭7</td><td>i–VI–III–VII</td><td>Epic / "Andalusian"-style minor</td><td class="jg-muted">Am – F – C – G</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="jg-note">
+          The 12-bar blues is read as three lines of four bars (12 bars total). If someone calls "blues in A, quick four,"
+          they mean the 12-bar form in A with bar 2 going to the IV chord. Almost every jam circle knows this form — it's
+          the universal handshake.
+        </p>
+      </section>
+
+      <!-- ═══ 4. CAPO & TRANSPOSITION ═══ -->
+      <section class="jg-section" id="capo">
+        <div class="jg-section-label">④ For Guitarists</div>
+        <h2 class="jg-section-title">Capo &amp; Transposition Chart</h2>
+        <p class="jg-lead">
+          A capo lets you play familiar <strong>open-position shapes</strong> while the guitar actually
+          <strong>sounds in a higher key</strong>. Two guitarists can play together — one capoed, one not — by
+          choosing a capo position that lines their shapes up to the same sounding chords. Find the row for your
+          capo fret; the shape you finger (top header) produces the sounding chord in the cell.
+        </p>
+        <div class="jg-table-wrap">
+          <table class="jg-table jg-wide">
+            <caption>You <em>finger</em> the shape in the column header; the guitar <em>sounds</em> the chord in the cell.</caption>
+            <thead>
+              <tr><th>Capo fret</th><th>C shape</th><th>A shape</th><th>G shape</th><th>E shape</th><th>D shape</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="jg-num">0 (open)</td><td>C</td><td>A</td><td>G</td><td>E</td><td>D</td></tr>
+              <tr><td class="jg-num">1</td><td>C♯</td><td>B♭</td><td>A♭</td><td>F</td><td>E♭</td></tr>
+              <tr><td class="jg-num">2</td><td>D</td><td>B</td><td>A</td><td>F♯</td><td>E</td></tr>
+              <tr><td class="jg-num">3</td><td>E♭</td><td>C</td><td>B♭</td><td>G</td><td>F</td></tr>
+              <tr><td class="jg-num">4</td><td>E</td><td>C♯</td><td>B</td><td>A♭</td><td>F♯</td></tr>
+              <tr><td class="jg-num">5</td><td>F</td><td>D</td><td>C</td><td>A</td><td>G</td></tr>
+              <tr><td class="jg-num">6</td><td>F♯</td><td>E♭</td><td>C♯</td><td>B♭</td><td>A♭</td></tr>
+              <tr><td class="jg-num">7</td><td>G</td><td>E</td><td>D</td><td>B</td><td>A</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="jg-note">
+          Practical move: a singer wants a song in <span class="jg-chip">E♭</span> but you only know the open
+          <span class="jg-chip">C</span> shapes for it. Capo 3 and play your C-shape chords — they now sound in E♭.
+          The reverse is the transposing trick: each capo fret raises the sounding key by one half-step.
+        </p>
+      </section>
+
+      <!-- ═══ 5. GUITAR ↔ PIANO ═══ -->
+      <section class="jg-section" id="equivalency">
+        <div class="jg-section-label">⑤ Two Instruments, One Idea</div>
+        <h2 class="jg-section-title">Guitar ↔ Piano Equivalency</h2>
+        <p class="jg-lead">
+          A chord is a set of intervals stacked on a root — the <em>harmony</em> is identical no matter what
+          plays it. A guitarist grips a shape; a pianist stacks notes under their fingers. This table translates
+          common chord <strong>qualities</strong> so you can see the same idea on both instruments. (For specific
+          guitar fingerings, see <a href="chord-voicings.html" style="color:var(--glow);">Chord Voicings</a>.)
+        </p>
+        <div class="jg-table-wrap">
+          <table class="jg-table jg-wide">
+            <caption>Intervals are counted from the root. Example notes shown for a C root.</caption>
+            <thead>
+              <tr><th>Quality</th><th>Symbol</th><th>Formula (intervals)</th><th>Piano keys (C root)</th><th>Guitar concept</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Major</td><td class="jg-num">C</td><td>1 – 3 – 5</td><td>C – E – G</td><td class="jg-muted">root + major 3rd + 5th (e.g. open C / E shape)</td></tr>
+              <tr><td>Minor</td><td class="jg-num">Cm</td><td>1 – ♭3 – 5</td><td>C – E♭ – G</td><td class="jg-muted">major shape with the 3rd lowered one fret</td></tr>
+              <tr><td>Dominant 7</td><td class="jg-num">C7</td><td>1 – 3 – 5 – ♭7</td><td>C – E – G – B♭</td><td class="jg-muted">major shape + flat-7 (the bluesy/turnaround chord)</td></tr>
+              <tr><td>Major 7</td><td class="jg-num">Cmaj7</td><td>1 – 3 – 5 – 7</td><td>C – E – G – B</td><td class="jg-muted">major shape + natural 7 (lush, jazzy)</td></tr>
+              <tr><td>Minor 7</td><td class="jg-num">Cm7</td><td>1 – ♭3 – 5 – ♭7</td><td>C – E♭ – G – B♭</td><td class="jg-muted">minor shape + flat-7 (smooth, soulful)</td></tr>
+              <tr><td>Suspended 4</td><td class="jg-num">Csus4</td><td>1 – 4 – 5</td><td>C – F – G</td><td class="jg-muted">3rd replaced by the 4th — neither major nor minor</td></tr>
+              <tr><td>Suspended 2</td><td class="jg-num">Csus2</td><td>1 – 2 – 5</td><td>C – D – G</td><td class="jg-muted">3rd replaced by the 2nd — open, airy</td></tr>
+              <tr><td>Add 9</td><td class="jg-num">Cadd9</td><td>1 – 3 – 5 – 9</td><td>C – E – G – D</td><td class="jg-muted">major shape + a high 2nd/9th (sparkle)</td></tr>
+              <tr><td>Power chord</td><td class="jg-num">C5</td><td>1 – 5</td><td>C – G</td><td class="jg-muted">root + 5th, no 3rd — the rock movable shape</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="jg-note">
+          The takeaway: when a chart says <span class="jg-chip">Cm7</span>, a guitarist and a pianist are chasing the
+          exact same four notes (C, E♭, G, B♭). Once you think in formulas instead of memorized shapes, you can
+          build any chord on either instrument from its root.
+        </p>
+      </section>
+
+      <!-- ═══ 6. JAM ETIQUETTE ═══ -->
+      <section class="jg-section" id="etiquette">
+        <div class="jg-section-label">⑥ The Unwritten Rules</div>
+        <h2 class="jg-section-title">Jam Session Etiquette &amp; Lingo</h2>
+        <p class="jg-lead">
+          Most of playing well with others is social, not technical. Here's the field guide to not being the person
+          nobody wants to jam with twice.
+        </p>
+        <div class="jg-grid">
+          <div class="jg-card">
+            <h4>Count it in</h4>
+            <p>Set the tempo out loud — <span class="jg-term">"1, 2, 1-2-3-4"</span> — so everyone starts together. A clear count-in is the bandleader's most important job.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Call the key &amp; form</h4>
+            <p>Before you start, say it once: <span class="jg-term">"Blues in A, 12-bar, medium shuffle."</span> Now everyone knows the key, the structure, and the feel.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Trading fours / eights</h4>
+            <p>Soloists alternate short sections — four (or eight) bars each, often with the drummer. <span class="jg-term">"Let's trade fours"</span> = take turns, listen, answer each other.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Vamp on the [chord]</h4>
+            <p><span class="jg-term">"Vamp on the 1"</span> means repeat that chord or section in a loop until the leader cues the next move. Great for intros, solos, and endings.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Watch the caller</h4>
+            <p>Eyes up. The bandleader signals cutoffs, dynamics, and "one more time" with gestures. A raised fist often means <span class="jg-term">stop on the next downbeat</span>.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Leave space</h4>
+            <p>The hardest skill: <span class="jg-term">don't play everything you know.</span> Lay out, support the soloist, let the music breathe. Silence is a part you can play.</p>
+          </div>
+        </div>
+
+        <p class="jg-section-label" style="margin-top:1.4rem;">Songs worth knowing in 2–3 keys</p>
+        <p class="jg-lead" style="margin-bottom:0.4rem;">
+          A short list of jam-circle standards across genres. Learn a few in common keys and you'll always have
+          something to contribute when someone says "what do you know?"
+        </p>
+        <ul class="jg-songs">
+          <li>12-bar blues <span>— in A, E, G</span></li>
+          <li>Knockin' on Heaven's Door <span>— 1 5 6m / 1 5 4</span></li>
+          <li>Sweet Home Alabama <span>— D C G vamp</span></li>
+          <li>No Woman No Cry <span>— 1 5 6m 4</span></li>
+          <li>Folsom Prison Blues <span>— blues in E</span></li>
+          <li>Wagon Wheel <span>— 1 5 6m 4, key of A/G</span></li>
+          <li>Wonderwall <span>— Em G D A (capo'd)</span></li>
+          <li>Autumn Leaves <span>— jazz ii–V–I standard</span></li>
+          <li>Hallelujah <span>— 1 6m 1 6m 4 5</span></li>
+          <li>Stand By Me <span>— 1 6m 4 5</span></li>
+        </ul>
+      </section>
+
+      <!-- ═══ 7. READING CHARTS ═══ -->
+      <section class="jg-section" id="charts">
+        <div class="jg-section-label">⑦ Don't Panic</div>
+        <h2 class="jg-section-title">Reading a Chord Chart / Lead Sheet</h2>
+        <p class="jg-lead">
+          Handed a chart cold? It's not sheet music — it's a map of <strong>chords and form</strong>, not every note.
+          Here's the shorthand you'll see.
+        </p>
+        <div class="jg-grid">
+          <div class="jg-card">
+            <h4>Slash marks  / / / /</h4>
+            <p>One slash per beat under a chord = <span class="jg-term">"groove here, no specific rhythm written."</span> Four slashes = play that chord for one 4/4 bar however the feel demands.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Bar lines &amp; repeats</h4>
+            <p>Vertical lines divide bars. <span class="jg-term">𝄆 … 𝄇</span> means repeat the enclosed section. <span class="jg-term">"x2"</span> next to a line = play it twice; <span class="jg-term">%</span> = repeat the previous bar.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Section labels</h4>
+            <p>Shorthand for form: <span class="jg-term">Intro · Vs (verse) · Ch / Cho (chorus) · Pre (pre-chorus) · Br (bridge) · Solo · Outro</span>. Often listed top-to-bottom as the road map.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Counts &amp; navigation</h4>
+            <p><span class="jg-term">"1x / 2x"</span> = play a section that many times. <span class="jg-term">D.C.</span> = back to the top, <span class="jg-term">D.S.</span> = back to the sign 𝄋, <span class="jg-term">Coda 𝄌</span> = jump to the ending.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Chords above lyrics</h4>
+            <p>On a lyric sheet, chord names sit <span class="jg-term">above the word where the change lands.</span> Change chords as you sing through that syllable.</p>
+          </div>
+          <div class="jg-card">
+            <h4>Nashville charts</h4>
+            <p>Pro charts often use the numbers from section ②, not chord names — so one chart works in any key. An underline under two numbers = both fit in a single bar.</p>
+          </div>
+        </div>
+        <p class="jg-note">
+          Golden rule when reading on the fly: lock onto the <strong>1 chord</strong> and the <strong>form length</strong>
+          first. If you know where "home" is and how many bars before it comes around again, you can busk the rest by ear.
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ─── STARFIELD ─── -->
+  <script>
+  (function(){
+    const c = document.getElementById('stars');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    let w, h, stars = [];
+    function resize() { w = c.width = window.innerWidth; h = c.height = window.innerHeight; }
+    function init() {
+      resize(); stars = [];
+      for (let i = 0; i < 200; i++) {
+        stars.push({ x: Math.random()*w, y: Math.random()*h, r: Math.random()*1.2+0.3,
+          a: Math.random()*0.5+0.2, d: Math.random()*0.02+0.005, p: Math.random()*Math.PI*2 });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0,0,w,h);
+      const t = Date.now()*0.001;
+      stars.forEach(s => {
+        const f = s.a + Math.sin(t*s.d*10+s.p)*0.15;
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle = `rgba(240,232,216,${Math.max(0.05,f)})`; ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    init(); window.addEventListener('resize', resize); draw();
+  })();
+  </script>
+
+  <!-- ─── MOBILE NAV TOGGLE ─── -->
+  <script>
+  (function() {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (!navToggle || !navLinks) return;
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      navToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
