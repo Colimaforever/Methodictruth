@@ -301,6 +301,99 @@
       .kb-panel { width: calc(100vw - 2rem); right: 1rem; max-height: 60vh; }
       .kb-toggle { bottom: 4.5rem; right: 0.8rem; }
     }
+
+    /* ─── STEP SEQUENCER ─── */
+    .seq-panel {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 460;
+      background: rgba(10, 14, 26, 0.97);
+      border-top: 1px solid rgba(0, 229, 255, 0.18);
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5);
+      padding: 0.5rem 0.7rem 0.6rem;
+      transform: translateY(100%); opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .seq-panel.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    /* When piano is visible, dock sequencer just above it */
+    body.piano-visible .seq-panel.open { bottom: var(--piano-h, 120px); }
+
+    .seq-controls {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .seq-controls .seq-group {
+      display: flex; align-items: center; gap: 0.25rem;
+      padding-right: 0.4rem; border-right: 1px solid rgba(0, 229, 255, 0.08);
+    }
+    .seq-controls .seq-group:last-child { border-right: none; }
+    .seq-label {
+      font-size: 0.5rem; color: var(--stone-dark);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .seq-readout { font-size: 0.6rem; color: var(--glow-warm); min-width: 2.6rem; text-align: center; }
+
+    .seq-grid {
+      display: grid; gap: 4px; width: 100%;
+      overflow-x: auto; padding-bottom: 0.2rem;
+    }
+    .seq-step {
+      display: flex; flex-direction: column; align-items: stretch;
+      gap: 2px; min-width: 36px;
+    }
+    .seq-cell {
+      position: relative;
+      height: 46px;
+      border: 1px solid rgba(138, 126, 107, 0.25);
+      background: rgba(26, 18, 10, 0.5);
+      cursor: pointer; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent; user-select: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.1s;
+    }
+    .seq-cell.on {
+      border-color: var(--glow);
+      background: rgba(0, 229, 255, 0.12);
+      box-shadow: inset 0 0 8px rgba(0, 229, 255, 0.1);
+    }
+    .seq-cell.beat { border-left: 1px solid rgba(0, 229, 255, 0.25); }
+    .seq-cell.playing {
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.6), inset 0 0 10px rgba(0, 229, 255, 0.2);
+      border-color: var(--glow);
+    }
+    .seq-cell .seq-note {
+      font-size: 0.55rem; color: var(--stone-dark);
+      letter-spacing: 0.03em; pointer-events: none;
+    }
+    .seq-cell.on .seq-note { color: var(--glow); }
+    .seq-pitch {
+      display: flex; justify-content: space-between; gap: 2px;
+    }
+    .seq-pitch button {
+      flex: 1; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; line-height: 1;
+      color: var(--stone-dark); background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.2);
+      padding: 0.15rem 0; cursor: pointer; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent; user-select: none;
+    }
+    .seq-pitch button:hover { border-color: var(--glow); color: var(--glow); }
+
+    .seq-input {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      color: var(--glow); background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      padding: 0.25rem 0.3rem; width: 3.2rem; outline: none;
+      -webkit-appearance: none; border-radius: 0;
+    }
+
+    @media (max-width: 768px) {
+      .seq-panel { padding: 0.4rem 0.4rem 0.5rem; }
+      .seq-step { min-width: 30px; }
+      .seq-cell { height: 40px; }
+      .seq-label { display: none; }
+    }
   </style>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
@@ -387,6 +480,7 @@
       </div>
       <div class="synth-toolbar-section">
         <button class="synth-btn" id="kbToggleBtn">⌨ Minimize</button>
+        <button class="synth-btn" id="seqToggleBtn">🎼 Sequencer</button>
         <span class="midi-badge" id="midiBadge">MIDI: None</span>
       </div>
       <div class="synth-toolbar-section">
@@ -417,6 +511,40 @@
     <div class="piano-keys" id="pianoKeys"></div>
   </div>
 
+  <!-- Step Sequencer -->
+  <div class="seq-panel" id="seqPanel" aria-label="Step Sequencer">
+    <div class="seq-controls">
+      <div class="seq-group">
+        <button class="synth-btn" id="seqPlayBtn">▶ Play</button>
+        <button class="synth-btn danger" id="seqClearBtn">Clear</button>
+        <button class="synth-btn preset" id="seqRandomBtn">Random</button>
+      </div>
+      <div class="seq-group">
+        <span class="seq-label">Steps</span>
+        <button class="synth-btn" data-seq-len="8">8</button>
+        <button class="synth-btn" data-seq-len="16">16</button>
+        <button class="synth-btn" data-seq-len="32">32</button>
+      </div>
+      <div class="seq-group">
+        <span class="seq-label">BPM</span>
+        <button class="synth-btn" id="seqBpmDown">−</button>
+        <input class="seq-input" id="seqBpm" type="number" min="40" max="300" value="120" inputmode="numeric">
+        <button class="synth-btn" id="seqBpmUp">+</button>
+      </div>
+      <div class="seq-group">
+        <span class="seq-label">Swing</span>
+        <input class="seq-input" id="seqSwing" type="number" min="0" max="60" value="0" inputmode="numeric">
+        <span class="seq-readout" id="seqSwingOut">0%</span>
+      </div>
+      <div class="seq-group">
+        <span class="seq-label">Gate</span>
+        <input class="seq-input" id="seqGate" type="number" min="10" max="100" value="80" inputmode="numeric">
+        <span class="seq-readout">%</span>
+      </div>
+    </div>
+    <div class="seq-grid" id="seqGrid"></div>
+  </div>
+
   <div class="audio-status" id="audioStatus">◇ audio suspended</div>
 
   <!-- Knowledge Base -->
@@ -444,6 +572,12 @@
       <dd>Volume control — use to balance levels between modules.</dd>
       <dt>Noise</dt>
       <dd><code>white</code> = all freqs equal (hiss) · <code>pink</code> = bass-heavy (wind) · <code>brown</code> = deep rumble.</dd>
+    </dl>
+
+    <h3>Sequencer</h3>
+    <dl>
+      <dt>Step Sequencer</dt>
+      <dd>Open with <code>🎼 Sequencer</code> in the toolbar. It plays your <em>patched sound</em> — build a basic synth first (Oscillator → … → Output), press Start Audio, then hit Play. Tap a step to turn it on/off; use the <code>−</code>/<code>+</code> under an active step to change its pitch. Set length (8/16/32 steps), BPM, swing, and gate length. The matching piano key lights up as each step fires. Patterns auto-save and reload.</dd>
     </dl>
 
     <h3>Patching Tips</h3>
@@ -1669,6 +1803,307 @@
     if (!wasOpen && window.Analytics) Analytics.Synth.kbPanelOpened();
   });
 
+  // ═══════════════════════════════════════════════
+  // STEP SEQUENCER — drives the modular patch via noteOn/noteOff
+  // ═══════════════════════════════════════════════
+  const SEQ_STORAGE_KEY = 'synthSequencerState';
+  const SEQ_NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  const seqState = {
+    length: 16,
+    bpm: 120,
+    swing: 0,      // 0-60 (%)
+    gate: 80,      // 10-100 (% of step length the note is held)
+    steps: []      // [{on:bool, note:midiNum}]
+  };
+  let seqPlaying = false;
+  let seqSequence = null;     // Tone.Sequence
+  let seqCurrentStep = -1;
+  let seqLastNote = null;     // currently-sounding note from the sequencer
+  let seqGateToken = 0;       // invalidates stale gate timeouts
+
+  const seqGridEl = document.getElementById('seqGrid');
+  const seqPanelEl = document.getElementById('seqPanel');
+
+  function seqDefaultStep() { return { on: false, note: 60 }; } // C4
+
+  function seqEnsureSteps() {
+    while (seqState.steps.length < seqState.length) seqState.steps.push(seqDefaultStep());
+    if (seqState.steps.length > seqState.length) seqState.steps.length = seqState.length;
+  }
+
+  function seqNoteName(midi) {
+    const n = SEQ_NOTE_NAMES[((midi % 12) + 12) % 12];
+    const oct = Math.floor(midi / 12) - 1;
+    return n + oct;
+  }
+
+  function seqSave() {
+    try { localStorage.setItem(SEQ_STORAGE_KEY, JSON.stringify(seqState)); } catch(e) {}
+  }
+
+  function seqLoad() {
+    try {
+      const raw = localStorage.getItem(SEQ_STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (typeof data.length === 'number') seqState.length = data.length;
+      if (typeof data.bpm === 'number') seqState.bpm = data.bpm;
+      if (typeof data.swing === 'number') seqState.swing = data.swing;
+      if (typeof data.gate === 'number') seqState.gate = data.gate;
+      if (Array.isArray(data.steps)) {
+        seqState.steps = data.steps.map(s => ({
+          on: !!(s && s.on),
+          note: (s && typeof s.note === 'number') ? s.note : 60
+        }));
+      }
+    } catch(e) {}
+  }
+
+  function seqRenderGrid() {
+    seqEnsureSteps();
+    seqGridEl.style.gridTemplateColumns = `repeat(${seqState.length}, 1fr)`;
+    seqGridEl.innerHTML = '';
+    for (let i = 0; i < seqState.length; i++) {
+      const step = seqState.steps[i];
+      const col = document.createElement('div');
+      col.className = 'seq-step';
+
+      const cell = document.createElement('div');
+      cell.className = 'seq-cell' + (step.on ? ' on' : '') + (i % 4 === 0 ? ' beat' : '');
+      cell.dataset.idx = i;
+      const noteSpan = document.createElement('span');
+      noteSpan.className = 'seq-note';
+      noteSpan.textContent = seqNoteName(step.note);
+      cell.appendChild(noteSpan);
+
+      const toggle = () => {
+        step.on = !step.on;
+        cell.classList.toggle('on', step.on);
+        seqSave();
+      };
+      cell.addEventListener('click', toggle);
+
+      const pitch = document.createElement('div');
+      pitch.className = 'seq-pitch';
+      const down = document.createElement('button');
+      down.textContent = '−';
+      const up = document.createElement('button');
+      up.textContent = '+';
+      const changePitch = (delta) => {
+        step.note = Math.max(24, Math.min(96, step.note + delta));
+        noteSpan.textContent = seqNoteName(step.note);
+        if (!step.on) { step.on = true; cell.classList.add('on'); }
+        seqSave();
+      };
+      const wire = (btn, delta) => {
+        btn.addEventListener('click', (e) => { e.stopPropagation(); changePitch(delta); });
+      };
+      wire(down, -1); wire(up, 1);
+      pitch.appendChild(down); pitch.appendChild(up);
+
+      col.appendChild(cell);
+      col.appendChild(pitch);
+      seqGridEl.appendChild(col);
+    }
+  }
+
+  function seqHighlight(idx) {
+    const cells = seqGridEl.querySelectorAll('.seq-cell');
+    cells.forEach(c => c.classList.remove('playing'));
+    if (idx >= 0 && cells[idx]) cells[idx].classList.add('playing');
+  }
+
+  // Stop any note the sequencer is currently sounding
+  function seqStopActiveNote() {
+    seqGateToken++; // any pending gate timeout is now stale
+    if (seqLastNote !== null) {
+      noteOff(seqLastNote);
+      seqLastNote = null;
+    }
+  }
+
+  function seqApplyTransport() {
+    Tone.Transport.bpm.value = seqState.bpm;
+    // Tone swing is 0-1; map our 0-60% to 0-0.6
+    Tone.Transport.swing = Math.max(0, Math.min(60, seqState.swing)) / 100;
+    Tone.Transport.swingSubdivision = '16n';
+  }
+
+  function seqBuildSequence() {
+    if (seqSequence) { seqSequence.dispose(); seqSequence = null; }
+    const indices = Array.from({ length: seqState.length }, (_, i) => i);
+    seqSequence = new Tone.Sequence((time, idx) => {
+      const step = seqState.steps[idx];
+      // Schedule UI updates on the draw queue (audio-thread safe)
+      Tone.Draw.schedule(() => {
+        seqCurrentStep = idx;
+        seqHighlight(idx);
+      }, time);
+
+      // Always release the previous sequencer note before firing the next,
+      // so activeNotes never leaks across rapid steps.
+      Tone.Draw.schedule(() => {
+        seqStopActiveNote();
+        if (step && step.on) {
+          noteOn(step.note, 100, 'sequencer');
+          seqLastNote = step.note;
+          // Gate: release before the next step begins
+          const stepSec = (60 / seqState.bpm) / 4; // 16th-note duration
+          const holdMs = stepSec * 1000 * (seqState.gate / 100);
+          const noteForOff = step.note;
+          const myToken = seqGateToken;
+          setTimeout(() => {
+            if (myToken === seqGateToken && seqLastNote === noteForOff) {
+              noteOff(noteForOff);
+              seqLastNote = null;
+            }
+          }, Math.max(20, holdMs));
+        }
+      }, time);
+    }, indices, '16n');
+    seqSequence.start(0);
+  }
+
+  async function seqPlay() {
+    if (seqPlaying) return;
+    // Respect the same audio gate the rest of the page uses
+    if (Tone.context.state !== 'running') {
+      await Tone.start();
+      document.getElementById('startAudioBtn').textContent = '◈ Audio Running';
+      document.getElementById('startAudioBtn').classList.add('active');
+      document.getElementById('startAudioBtn').classList.remove('start-audio');
+      audioStatusEl.textContent = '◈ audio running';
+      audioStatusEl.classList.add('running');
+    }
+    seqApplyTransport();
+    seqBuildSequence();
+    Tone.Transport.start();
+    seqPlaying = true;
+    document.getElementById('seqPlayBtn').textContent = '■ Stop';
+    document.getElementById('seqPlayBtn').classList.add('active');
+  }
+
+  function seqStop() {
+    if (!seqPlaying) return;
+    Tone.Transport.stop();
+    if (seqSequence) { seqSequence.dispose(); seqSequence = null; }
+    seqStopActiveNote();
+    seqCurrentStep = -1;
+    seqHighlight(-1);
+    seqPlaying = false;
+    document.getElementById('seqPlayBtn').textContent = '▶ Play';
+    document.getElementById('seqPlayBtn').classList.remove('active');
+  }
+
+  function seqTogglePlay() { seqPlaying ? seqStop() : seqPlay(); }
+
+  function seqSetLength(len) {
+    const wasPlaying = seqPlaying;
+    if (wasPlaying) seqStop();
+    seqState.length = len;
+    seqEnsureSteps();
+    seqRenderGrid();
+    document.querySelectorAll('[data-seq-len]').forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.seqLen) === len);
+    });
+    seqSave();
+    if (wasPlaying) seqPlay();
+  }
+
+  function seqClear() {
+    seqState.steps = seqState.steps.map(() => seqDefaultStep());
+    seqRenderGrid();
+    seqSave();
+  }
+
+  function seqRandomize() {
+    // A pentatonic-ish scale rooted at C for pleasant random patterns
+    const scale = [0, 2, 4, 7, 9];
+    const baseOct = 5; // around C4-C5
+    seqState.steps = seqState.steps.map(() => {
+      const on = Math.random() < 0.55;
+      const deg = scale[Math.floor(Math.random() * scale.length)];
+      const oct = baseOct + (Math.random() < 0.25 ? 1 : 0);
+      return { on, note: oct * 12 + deg };
+    });
+    seqRenderGrid();
+    seqSave();
+  }
+
+  // Keep sequencer docked above the piano when the piano is visible
+  function seqUpdateDock() {
+    const minimized = pianoContainer.classList.contains('minimized');
+    document.body.classList.toggle('piano-visible', !minimized);
+    if (!minimized) {
+      const h = pianoContainer.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--piano-h', h + 'px');
+    }
+  }
+
+  // ─── Sequencer wiring ───
+  (function initSequencer() {
+    seqLoad();
+    seqEnsureSteps();
+    seqRenderGrid();
+    document.getElementById('seqBpm').value = seqState.bpm;
+    document.getElementById('seqSwing').value = seqState.swing;
+    document.getElementById('seqSwingOut').textContent = seqState.swing + '%';
+    document.getElementById('seqGate').value = seqState.gate;
+    document.querySelectorAll('[data-seq-len]').forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.seqLen) === seqState.length);
+    });
+
+    tapHandler(document.getElementById('seqPlayBtn'), seqTogglePlay);
+    tapHandler(document.getElementById('seqClearBtn'), seqClear);
+    tapHandler(document.getElementById('seqRandomBtn'), seqRandomize);
+    document.querySelectorAll('[data-seq-len]').forEach(btn => {
+      tapHandler(btn, () => seqSetLength(Number(btn.dataset.seqLen)));
+    });
+
+    const bpmEl = document.getElementById('seqBpm');
+    const applyBpm = () => {
+      let v = parseInt(bpmEl.value, 10);
+      if (isNaN(v)) v = 120;
+      v = Math.max(40, Math.min(300, v));
+      bpmEl.value = v; seqState.bpm = v;
+      if (seqPlaying) Tone.Transport.bpm.value = v;
+      seqSave();
+    };
+    bpmEl.addEventListener('change', applyBpm);
+    tapHandler(document.getElementById('seqBpmDown'), () => { bpmEl.value = (parseInt(bpmEl.value,10)||120) - 5; applyBpm(); });
+    tapHandler(document.getElementById('seqBpmUp'), () => { bpmEl.value = (parseInt(bpmEl.value,10)||120) + 5; applyBpm(); });
+
+    const swingEl = document.getElementById('seqSwing');
+    swingEl.addEventListener('change', () => {
+      let v = parseInt(swingEl.value, 10); if (isNaN(v)) v = 0;
+      v = Math.max(0, Math.min(60, v));
+      swingEl.value = v; seqState.swing = v;
+      document.getElementById('seqSwingOut').textContent = v + '%';
+      if (seqPlaying) seqApplyTransport();
+      seqSave();
+    });
+
+    const gateEl = document.getElementById('seqGate');
+    gateEl.addEventListener('change', () => {
+      let v = parseInt(gateEl.value, 10); if (isNaN(v)) v = 80;
+      v = Math.max(10, Math.min(100, v));
+      gateEl.value = v; seqState.gate = v;
+      seqSave();
+    });
+
+    // Toggle panel open/close
+    tapHandler(document.getElementById('seqToggleBtn'), () => {
+      const open = seqPanelEl.classList.toggle('open');
+      document.getElementById('seqToggleBtn').classList.toggle('active', open);
+      if (open) seqUpdateDock();
+    });
+  })();
+
+  // Re-dock the sequencer above the piano on resize / initial layout
+  window.addEventListener('resize', seqUpdateDock);
+  seqUpdateDock();
+
   // ─── STARFIELD (shared with site) ───
   (function initStars() {
     const c = document.getElementById('stars');
@@ -1729,7 +2164,7 @@
   tapHandler(document.getElementById('clearAllBtn'), clearAll);
 
   // Keyboard toggle
-  tapHandler(document.getElementById('kbToggleBtn'), toggleKeyboard);
+  tapHandler(document.getElementById('kbToggleBtn'), () => { toggleKeyboard(); seqUpdateDock(); });
 
   </script>
 
