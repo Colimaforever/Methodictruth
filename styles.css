@@ -2203,6 +2203,10 @@ footer .donate-link:hover {
 .news-float-footer {
   padding: 0.4rem 0.8rem;
   border-top: 1px solid rgba(232, 168, 124, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .news-float-updated {
@@ -2210,6 +2214,20 @@ footer .donate-link:hover {
   font-size: 0.5rem;
   color: var(--stone-dark);
   letter-spacing: 0.1em;
+}
+
+.news-float-fulllink {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  color: rgba(232, 168, 124, 0.55);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.news-float-fulllink:hover {
+  color: rgba(232, 168, 124, 0.9);
 }
 
 @media (max-width: 600px) {

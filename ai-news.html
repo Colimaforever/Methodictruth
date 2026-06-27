@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Dispatches — Live AI News, Research & Analysis — Methodic Truth</title>
+  <meta name="description" content="A comprehensive, searchable feed of the latest AI news — research papers, product launches, and industry analysis — pulled live from 10 sources and refreshed automatically.">
+  <link rel="stylesheet" href="styles.css?v=57">
+  <style>
+    .an-container {
+      max-width: 980px; margin: 2rem auto; padding: 0 1.5rem 3rem;
+      position: relative; z-index: 2;
+    }
+    .an-header { text-align: center; margin-bottom: 1.5rem; }
+    .an-title {
+      font-family: 'Cinzel', serif; font-size: 2.2rem; color: var(--parchment);
+      letter-spacing: 0.08em;
+    }
+    .an-subtitle {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; color: var(--stone);
+      margin-top: 0.5rem; opacity: 0.85;
+    }
+    .an-panel {
+      background: linear-gradient(135deg, rgba(26,18,10,0.75), rgba(15,20,15,0.65));
+      border: 1px solid rgba(232,168,124,0.15); padding: 1.2rem 1.5rem; margin-bottom: 1.2rem;
+    }
+    .an-controls-row { display: flex; gap: 0.6rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+    .an-search {
+      flex: 1; min-width: 180px; background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(138,126,107,0.25); color: var(--parchment);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; padding: 0.55rem 0.8rem;
+    }
+    .an-search:focus { outline: none; border-color: var(--glow-warm); }
+    .an-search::placeholder { color: var(--stone-dark); }
+    .an-refresh-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow-warm);
+      background: none; border: 1px solid rgba(232,168,124,0.3); padding: 0.55rem 1rem;
+      cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s; white-space: nowrap;
+    }
+    .an-refresh-btn:hover { border-color: var(--glow-warm); background: rgba(232,168,124,0.08); }
+    .an-refresh-btn.spinning { animation: an-spin 0.8s linear infinite; display: inline-block; }
+    @keyframes an-spin { to { transform: rotate(360deg); } }
+    .an-category-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .an-tab {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--stone);
+      background: none; border: 1px solid rgba(138,126,107,0.2); padding: 0.35rem 0.9rem;
+      cursor: pointer; letter-spacing: 0.06em; transition: all 0.2s;
+    }
+    .an-tab:hover { border-color: var(--glow-warm); color: var(--glow-warm); }
+    .an-tab.active { border-color: var(--glow-warm); color: var(--glow-warm); background: rgba(232,168,124,0.1); }
+    .an-source-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .an-source-chip {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; padding: 0.25rem 0.6rem;
+      border: 1px solid rgba(138,126,107,0.2); color: var(--stone-dark); background: none;
+      cursor: pointer; letter-spacing: 0.04em; transition: all 0.2s;
+    }
+    .an-source-chip.on { color: var(--parchment); border-color: rgba(0,229,255,0.4); background: rgba(0,229,255,0.08); }
+    .an-source-chip.on.cat-research { border-color: rgba(123,104,238,0.5); background: rgba(123,104,238,0.12); }
+    .an-source-chip.on.cat-media { border-color: rgba(232,168,124,0.5); background: rgba(232,168,124,0.12); }
+    .an-status {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--stone-dark);
+      letter-spacing: 0.05em; text-align: center; margin-bottom: 1rem; opacity: 0.85;
+    }
+    .an-feed { display: flex; flex-direction: column; gap: 0.7rem; }
+    .an-card {
+      display: block; background: linear-gradient(135deg, rgba(26,18,10,0.55), rgba(15,20,15,0.45));
+      border: 1px solid rgba(138,126,107,0.12); border-left: 3px solid var(--glow);
+      padding: 0.9rem 1.1rem; text-decoration: none; transition: all 0.25s;
+    }
+    .an-card:hover {
+      border-color: rgba(232,168,124,0.3); border-left-color: var(--glow-warm);
+      box-shadow: 0 0 18px rgba(232,168,124,0.08); transform: translateX(2px);
+    }
+    .an-card.cat-research { border-left-color: var(--oracle); }
+    .an-card.cat-media { border-left-color: var(--glow-warm); }
+    .an-card.cat-industry { border-left-color: var(--glow); }
+    .an-card-meta {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 0.6rem; margin-bottom: 0.35rem; flex-wrap: wrap;
+    }
+    .an-card-source {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--glow); opacity: 0.9;
+    }
+    .an-card.cat-research .an-card-source { color: var(--oracle); }
+    .an-card.cat-media .an-card-source { color: var(--glow-warm); }
+    .an-card-time { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--stone-dark); }
+    .an-card-title {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1.05rem; color: var(--parchment);
+      line-height: 1.4; margin-bottom: 0.3rem;
+    }
+    .an-card-snippet {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.85rem; color: var(--stone);
+      opacity: 0.82; line-height: 1.5;
+    }
+    .an-empty {
+      text-align: center; color: var(--stone-dark); font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem; padding: 2rem 0;
+    }
+    .an-load-more {
+      display: block; margin: 1.2rem auto 0; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; color: var(--stone); background: none;
+      border: 1px solid rgba(138,126,107,0.25); padding: 0.6rem 1.6rem;
+      cursor: pointer; letter-spacing: 0.06em; transition: all 0.2s;
+    }
+    .an-load-more:hover { border-color: var(--glow-warm); color: var(--glow-warm); }
+    .an-knowledge { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(138,126,107,0.12); }
+    .an-knowledge h2 {
+      font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--parchment);
+      margin-bottom: 0.8rem; letter-spacing: 0.05em;
+    }
+    .an-knowledge p {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; color: var(--stone);
+      line-height: 1.7; margin-bottom: 0.8rem;
+    }
+    .an-knowledge strong { color: var(--glow-warm); }
+    @media (max-width: 600px) {
+      .an-title { font-size: 1.7rem; }
+      .an-card-meta { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+    }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="ai-news.html">AI Dispatches</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="mixer">Mixer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+        </div>
+      </div>
+      <a href="about.html">About</a>
+    </div>
+  </nav>
+
+  <div class="an-container">
+    <header class="an-header">
+      <h1 class="an-title">AI Dispatches</h1>
+      <p class="an-subtitle">Research, products, and analysis — one feed, ten sources, refreshed automatically.</p>
+    </header>
+
+    <div class="an-panel">
+      <div class="an-controls-row">
+        <input type="text" id="anSearch" class="an-search" placeholder="Search dispatches… (e.g. &quot;agents&quot;, &quot;OpenAI&quot;, &quot;benchmark&quot;)" autocomplete="off">
+        <button id="anRefresh" class="an-refresh-btn" title="Force refresh, bypassing cache">⟳ Refresh</button>
+      </div>
+      <div class="an-category-tabs" id="anCategoryTabs">
+        <button class="an-tab active" data-category="all">All</button>
+        <button class="an-tab" data-category="research">Research</button>
+        <button class="an-tab" data-category="industry">Industry &amp; Product</button>
+        <button class="an-tab" data-category="media">Media &amp; Analysis</button>
+      </div>
+      <div class="an-source-chips" id="anSourceChips"></div>
+    </div>
+
+    <div class="an-status" id="anStatus">Scrying the feeds…</div>
+
+    <div class="an-feed" id="anFeed"></div>
+
+    <button class="an-load-more" id="anLoadMore" style="display:none;">Load more dispatches ↓</button>
+
+    <div class="an-knowledge">
+      <h2>𒀭 Staying Current Without Drowning</h2>
+      <p>AI moves fast enough that "staying up to date" can turn into a part-time job. This feed exists to compress that down: <strong>research</strong> (arXiv preprints, lab blogs) tells you what's coming; <strong>industry &amp; product</strong> (company announcements, releases) tells you what just shipped; <strong>media &amp; analysis</strong> (independent tech press) tells you what it actually means and who's pushing back.</p>
+      <p>Use the search box to track a specific thread — a model name, a company, a technique — across every source at once. Toggle sources off if one publication is drowning out the rest; your preferences are remembered. <strong>Click a category tab</strong> to switch between "what's new" and "what's true."</p>
+      <p>Dispatches are cached for 20 minutes to keep things fast and avoid hammering the feeds — hit Refresh if you want the bleeding edge right now.</p>
+    </div>
+  </div>
+
+  <script src="stars.js"></script>
+  <script>
+  (function() {
+    const FEEDS = [
+      { name: 'ArXiv cs.AI', url: 'http://arxiv.org/rss/cs.AI', category: 'research' },
+      { name: 'ArXiv cs.LG', url: 'http://arxiv.org/rss/cs.LG', category: 'research' },
+      { name: 'Hugging Face Blog', url: 'https://huggingface.co/blog/feed.xml', category: 'research' },
+      { name: 'Google AI', url: 'https://blog.google/technology/ai/rss/', category: 'industry' },
+      { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/', category: 'industry' },
+      { name: 'MIT Tech Review', url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed', category: 'industry' },
+      { name: 'IEEE Spectrum AI', url: 'https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss', category: 'industry' },
+      { name: 'The Verge AI', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', category: 'media' },
+      { name: 'Wired AI', url: 'https://www.wired.com/feed/tag/ai/latest/rss', category: 'media' },
+      { name: 'MIT News — AI', url: 'https://news.mit.edu/rss/topic/artificial-intelligence2', category: 'media' }
+    ];
+    const CACHE_KEY = 'ai-news-full-cache';
+    const CACHE_TTL = 20 * 60 * 1000; // 20 min
+    const PAGE_SIZE = 20;
+    const SNIPPET_MAX = 180;
+
+    const searchEl = document.getElementById('anSearch');
+    const refreshBtn = document.getElementById('anRefresh');
+    const tabsEl = document.getElementById('anCategoryTabs');
+    const chipsEl = document.getElementById('anSourceChips');
+    const statusEl = document.getElementById('anStatus');
+    const feedEl = document.getElementById('anFeed');
+    const loadMoreBtn = document.getElementById('anLoadMore');
+
+    let allItems = [];
+    let activeCategory = 'all';
+    let activeSources = loadSourcePrefs();
+    let visibleCount = PAGE_SIZE;
+    let lastUpdated = '';
+
+    function loadSourcePrefs() {
+      try {
+        const raw = localStorage.getItem('ai-news-sources');
+        if (raw) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr) && arr.length) return new Set(arr);
+        }
+      } catch (e) {}
+      return new Set(FEEDS.map(f => f.name));
+    }
+    function saveSourcePrefs() {
+      localStorage.setItem('ai-news-sources', JSON.stringify([...activeSources]));
+    }
+
+    function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function decodeEntities(str) {
+      const ta = document.createElement('textarea');
+      ta.innerHTML = str;
+      return ta.value;
+    }
+    function stripHtml(html) {
+      const noTags = (html || '').replace(/<[^>]*>/g, ' ');
+      return decodeEntities(noTags).replace(/\s+/g, ' ').trim();
+    }
+    function timeAgo(dateStr) {
+      const t = new Date(dateStr).getTime();
+      if (isNaN(t)) return '';
+      const diff = Date.now() - t;
+      if (diff < 60000) return 'just now';
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      const days = Math.floor(hrs / 24);
+      if (days < 7) return days + 'd ago';
+      return Math.floor(days / 7) + 'w ago';
+    }
+    function fmtDate(dateStr) {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '';
+      return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function makeItem(raw, feed) {
+      const title = stripHtml(raw.title || '');
+      const link = (raw.link || '').trim();
+      if (!title || !link) return null;
+      const snippetFull = stripHtml(raw.description || '');
+      const snippet = snippetFull.length > SNIPPET_MAX ? snippetFull.slice(0, SNIPPET_MAX - 1).trim() + '…' : snippetFull;
+      return {
+        title, link,
+        pubDate: raw.pubDate || '',
+        snippet,
+        source: feed.name,
+        category: feed.category
+      };
+    }
+
+    async function fetchViaRss2Json(feed) {
+      const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
+      const d = await r.json();
+      if (d.status !== 'ok') throw new Error('rss2json status: ' + d.status);
+      return (d.items || [])
+        .map(item => makeItem({ title: item.title, link: item.link, pubDate: item.pubDate, description: item.description }, feed))
+        .filter(Boolean);
+    }
+
+    async function fetchViaAllOrigins(feed) {
+      const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(feed.url));
+      const text = await r.text();
+      const doc = new DOMParser().parseFromString(text, 'text/xml');
+      const nodes = Array.from(doc.querySelectorAll('item, entry'));
+      return nodes.map(node => {
+        const get = (tag) => node.querySelector(tag) ? node.querySelector(tag).textContent.trim() : '';
+        let link = get('link');
+        if (!link) {
+          const linkEl = node.querySelector('link');
+          link = linkEl ? (linkEl.getAttribute('href') || '') : '';
+        }
+        return makeItem({
+          title: get('title'),
+          link,
+          pubDate: get('pubDate') || get('published') || get('updated'),
+          description: get('description') || get('summary')
+        }, feed);
+      }).filter(Boolean);
+    }
+
+    async function fetchFeed(feed) {
+      try {
+        return await fetchViaRss2Json(feed);
+      } catch (e) {
+        try { return await fetchViaAllOrigins(feed); } catch (e2) { return []; }
+      }
+    }
+
+    function renderSourceChips() {
+      chipsEl.innerHTML = FEEDS.map(f => {
+        const on = activeSources.has(f.name);
+        return '<button class="an-source-chip' + (on ? ' on' : '') + ' cat-' + f.category + '" data-name="' + escHtml(f.name) + '">' + escHtml(f.name) + '</button>';
+      }).join('');
+    }
+
+    function getFiltered() {
+      const q = searchEl.value.trim().toLowerCase();
+      return allItems.filter(it => {
+        if (activeCategory !== 'all' && it.category !== activeCategory) return false;
+        if (!activeSources.has(it.source)) return false;
+        if (q && !(it.title.toLowerCase().includes(q) || it.snippet.toLowerCase().includes(q))) return false;
+        return true;
+      });
+    }
+
+    function renderCard(it) {
+      return '<a class="an-card cat-' + it.category + '" href="' + escHtml(it.link) + '" target="_blank" rel="noopener">' +
+        '<div class="an-card-meta">' +
+        '<span class="an-card-source">' + escHtml(it.source) + '</span>' +
+        '<span class="an-card-time" title="' + escHtml(fmtDate(it.pubDate)) + '">' + timeAgo(it.pubDate) + '</span>' +
+        '</div>' +
+        '<div class="an-card-title">' + escHtml(it.title) + '</div>' +
+        (it.snippet ? '<div class="an-card-snippet">' + escHtml(it.snippet) + '</div>' : '') +
+        '</a>';
+    }
+
+    function render() {
+      const filtered = getFiltered();
+      const slice = filtered.slice(0, visibleCount);
+      feedEl.innerHTML = slice.length
+        ? slice.map(renderCard).join('')
+        : '<p class="an-empty">' + (allItems.length ? 'No dispatches match your filters. Try widening your search or re-enabling a source.' : 'Scrying the feeds…') + '</p>';
+      loadMoreBtn.style.display = filtered.length > visibleCount ? 'block' : 'none';
+      if (allItems.length) {
+        statusEl.textContent = 'Showing ' + slice.length + ' of ' + filtered.length + ' dispatches (' + allItems.length + ' total) · ' +
+          activeSources.size + '/' + FEEDS.length + ' sources active' + (lastUpdated ? ' · Updated ' + lastUpdated : '');
+      }
+    }
+
+    async function loadFeeds(force) {
+      if (!force) {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          try {
+            const c = JSON.parse(cached);
+            if (Date.now() - c.ts < CACHE_TTL && Array.isArray(c.items) && c.items.length) {
+              allItems = c.items;
+              lastUpdated = new Date(c.ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+              render();
+              return;
+            }
+          } catch (e) {}
+        }
+      }
+      refreshBtn.classList.add('spinning');
+      if (!allItems.length) statusEl.textContent = 'Scrying the feeds…';
+      try {
+        const results = await Promise.all(FEEDS.map(fetchFeed));
+        const seen = new Set();
+        const merged = results.flat()
+          .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+          .filter(it => { if (seen.has(it.link)) return false; seen.add(it.link); return true; });
+        if (merged.length) {
+          allItems = merged;
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items: allItems }));
+          lastUpdated = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        } else if (!allItems.length) {
+          statusEl.textContent = 'Feeds unavailable right now — try Refresh in a moment.';
+        }
+      } catch (e) {
+        if (!allItems.length) statusEl.textContent = 'Feeds unavailable right now — try Refresh in a moment.';
+      } finally {
+        refreshBtn.classList.remove('spinning');
+        render();
+      }
+    }
+
+    tabsEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.an-tab');
+      if (!btn) return;
+      activeCategory = btn.dataset.category;
+      tabsEl.querySelectorAll('.an-tab').forEach(t => t.classList.toggle('active', t === btn));
+      visibleCount = PAGE_SIZE;
+      render();
+    });
+
+    chipsEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.an-source-chip');
+      if (!chip) return;
+      const name = chip.dataset.name;
+      if (activeSources.has(name)) activeSources.delete(name);
+      else activeSources.add(name);
+      saveSourcePrefs();
+      renderSourceChips();
+      visibleCount = PAGE_SIZE;
+      render();
+    });
+
+    let searchDebounce = null;
+    searchEl.addEventListener('input', () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => { visibleCount = PAGE_SIZE; render(); }, 150);
+    });
+
+    refreshBtn.addEventListener('click', () => loadFeeds(true));
+    loadMoreBtn.addEventListener('click', () => { visibleCount += PAGE_SIZE; render(); });
+
+    renderSourceChips();
+    loadFeeds(false);
+    setInterval(() => loadFeeds(false), CACHE_TTL);
+  })();
+  </script>
+</body>
+</html>
