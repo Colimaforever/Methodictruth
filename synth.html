@@ -378,6 +378,7 @@
         <button class="synth-btn preset" data-preset="drone">Drone</button>
         <button class="synth-btn preset" data-preset="ambient">Ambient</button>
         <button class="synth-btn preset" data-preset="wobble">Wobble</button>
+        <button class="synth-btn preset" data-preset="fmbell">FM Bell</button>
         <button class="synth-btn preset" data-preset="organ">Organ</button>
         <button class="synth-btn preset" data-preset="arp">Arp</button>
         <button class="synth-btn preset" data-preset="scifi">Sci-Fi</button>
@@ -431,6 +432,8 @@
       <dd><code>LP</code> cuts highs (warmth) · <code>HP</code> cuts lows (thin/bright) · <code>BP</code> isolates a band. Cutoff = where it cuts, Resonance = emphasis at cutoff.</dd>
       <dt>LFO</dt>
       <dd>Slow modulation for movement. Rate = speed, Depth = intensity. Route to pitch = vibrato, filter = wah, volume = tremolo.</dd>
+      <dt>FM (Frequency Modulation)</dt>
+      <dd>Patch one oscillator's <code>out</code> into another's <code>FM</code> input to modulate its pitch at audio rate. <code>FM Amt</code> = depth in Hz of frequency deviation. Set the modulator at a simple ratio of the carrier: <code>1:1</code>/<code>2:1</code> = harmonic (clean, organ-like), <code>3.5:1</code>+ = inharmonic/metallic (bells, e-piano, gongs).</dd>
       <dt>Envelope (ADSR)</dt>
       <dd>Attack = fade-in time · Decay = drop after peak · Sustain = held level · Release = fade after note off.</dd>
       <dt>Delay</dt>
@@ -505,21 +508,26 @@
     oscillator: {
       title: 'Oscillator',
       glyph: '∿',
-      inputs: [],
+      inputs: ['fm'],
       outputs: ['out'],
       controls: [
         { id: 'type', type: 'select', options: ['sine','sawtooth','square','triangle'], default: 'sawtooth', label: 'Wave' },
         { id: 'frequency', type: 'range', min: 20, max: 2000, default: 220, step: 1, label: 'Freq', unit: 'Hz' },
         { id: 'detune', type: 'range', min: -100, max: 100, default: 0, step: 1, label: 'Detune', unit: 'ct' },
+        { id: 'fmAmount', type: 'range', min: 0, max: 2000, default: 0, step: 1, label: 'FM Amt', unit: 'Hz' },
       ],
       create(params) {
         const osc = new Tone.Oscillator({ type: params.type, frequency: params.frequency, detune: params.detune });
-        return { node: osc, out: osc };
+        // fmGain scales an incoming modulator signal into Hz of frequency deviation
+        const fmGain = new Tone.Gain(params.fmAmount);
+        fmGain.connect(osc.frequency);
+        return { node: osc, out: osc, fm: fmGain };
       },
       update(audio, key, val) {
         if (key === 'type') audio.node.type = val;
         else if (key === 'frequency') audio.node.frequency.value = val;
         else if (key === 'detune') audio.node.detune.value = val;
+        else if (key === 'fmAmount') audio.fm.gain.value = val;
       }
     },
     filter: {
@@ -1253,6 +1261,32 @@
       autoConnect(gain3, 'out', flt, 'in');
       autoConnect(flt, 'out', rev, 'in');
       autoConnect(rev, 'out', out, 'in');
+
+    } else if (name === 'fmbell') {
+      // FM Bell: a sine modulator at 3.5x the carrier feeds the carrier's FM
+      // input for an inharmonic/metallic bell timbre, then carrier → envelope
+      // (short attack, medium decay) → reverb → output.
+      const carrier = addModule('oscillator', 320, 40);
+      setParam(carrier, 'type', 'sine');
+      setParam(carrier, 'frequency', 220);
+      setParam(carrier, 'fmAmount', 450);
+      const modu = addModule('oscillator', 60, 240);
+      setParam(modu, 'type', 'sine');
+      setParam(modu, 'frequency', 770); // ~3.5x carrier → bell-like inharmonics
+      const env = addModule('envelope', 560, 40);
+      setParam(env, 'attack', 0.005);
+      setParam(env, 'decay', 0.8);
+      setParam(env, 'sustain', 0.1);
+      setParam(env, 'release', 1.2);
+      const rev = addModule('reverb', 780, 40);
+      setParam(rev, 'decay', 5);
+      setParam(rev, 'wet', 0.5);
+      const out = addModule('output', 1000, 40);
+      setParam(out, 'gain', 0.4);
+      autoConnect(modu, 'out', carrier, 'fm');
+      autoConnect(carrier, 'out', env, 'in');
+      autoConnect(env, 'out', rev, 'in');
+      autoConnect(rev, 'out', out, 'in');
     }
   }
 
@@ -1348,35 +1382,59 @@
     // Create temporary oscillators for this note
     const synthNodes = [];
     const startTime2 = Tone.now(); // Use audio context time for precise scheduling
-    
+
+    // Pass 1: create the per-voice temp nodes for every oscillator module.
+    // This must run for ALL oscillators before any cross-module FM routing in
+    // pass 2, so that an oscillator targeted by an FM cable already has its
+    // per-voice tempFmGain available when we wire the modulator into it.
+    const tempByModId = {};
     for (let i = 0; i < oscs.length; i++) {
       const mod = oscs[i];
       const origOsc = mod.audio.node;
-      
+
       // Create temp oscillator with minimal overhead
       const tempOsc = new Tone.Oscillator(freq, origOsc.type);
       tempOsc.detune.value = origOsc.detune.value;
-      
+
       const tempGain = new Tone.Gain(gain);
       tempOsc.connect(tempGain);
+
+      // Per-voice FM depth gain feeding this voice's pitch (frequency)
+      const tempFmGain = new Tone.Gain(mod.params.fmAmount);
+      tempFmGain.connect(tempOsc.frequency);
+
+      tempByModId[mod.id] = { tempOsc, tempGain, tempFmGain };
+    }
+
+    // Pass 2: route each oscillator's output through its cables.
+    for (let i = 0; i < oscs.length; i++) {
+      const mod = oscs[i];
+      const { tempOsc, tempGain, tempFmGain } = tempByModId[mod.id];
 
       // Route through cables or direct to destination
       const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
       if (outCables.length > 0) {
         for (let j = 0; j < outCables.length; j++) {
           const targetMod = modules[outCables[j].to.moduleId];
-          if (targetMod) {
-            const inNode = targetMod.audio[outCables[j].to.portName] || targetMod.audio.in;
+          if (!targetMod) continue;
+          const toPort = outCables[j].to.portName;
+          if (toPort === 'fm' && targetMod.type === 'oscillator') {
+            // Oscillator-to-oscillator FM: feed this voice's raw (unscaled)
+            // modulator waveform into the TARGET voice's depth-scaling gain.
+            const targetTemp = tempByModId[targetMod.id];
+            if (targetTemp) tempOsc.connect(targetTemp.tempFmGain);
+          } else {
+            const inNode = targetMod.audio[toPort] || targetMod.audio.in;
             if (inNode) tempGain.connect(inNode);
           }
         }
       } else {
         tempGain.toDestination();
       }
-      
+
       // Start at precise time (no delay)
       tempOsc.start(startTime2);
-      synthNodes.push({ osc: tempOsc, gain: tempGain });
+      synthNodes.push({ osc: tempOsc, gain: tempGain, fmGain: tempFmGain });
     }
 
     activeNotes.set(noteNum, synthNodes);
@@ -1398,6 +1456,7 @@
         n.osc.stop();
         n.osc.dispose();
         n.gain.dispose();
+        if (n.fmGain) n.fmGain.dispose();
       } catch(e) {}
     });
     activeNotes.delete(noteNum);
