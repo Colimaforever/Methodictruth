@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Evolution — History, Models & What's Next — Methodic Truth</title>
+  <meta name="keywords" content="history of AI, large language models, local AI vs API, DeepSeek, Ollama, OpenClaw, AI regulation, AI policy, AI market news">
+  <meta name="description" content="How AI got here, how today's models actually differ, local hosting vs API keys explained, DeepSeek/Ollama/OpenClaw demystified, and a live feed of advances, policy, and market news.">
+  <meta property="og:title" content="AI Evolution — History, Models & What's Next">
+  <meta property="og:description" content="How AI got here, how today's models actually differ, local hosting vs API keys explained, and a live feed of advances, policy, and market news.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/ai-evolution.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=62">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    .ae-container { max-width: 980px; margin: 0 auto; padding: 0 1.5rem 3rem; position: relative; z-index: 2; }
+    .ae-section { margin: 2.5rem 0; }
+    .ae-section h2 {
+      font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--parchment);
+      letter-spacing: 0.05em; margin-bottom: 0.6rem; border-bottom: 1px solid rgba(138,126,107,0.2);
+      padding-bottom: 0.5rem;
+    }
+    .ae-section > p.ae-lede {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; color: var(--stone);
+      line-height: 1.7; margin-bottom: 1.2rem; opacity: 0.9;
+    }
+
+    /* Timeline */
+    .ae-timeline { display: flex; flex-direction: column; gap: 0; border-left: 2px solid rgba(232,168,124,0.25); margin-left: 0.6rem; }
+    .ae-tl-item { position: relative; padding: 0 0 1.4rem 1.5rem; }
+    .ae-tl-item::before {
+      content: ''; position: absolute; left: -7px; top: 0.25rem; width: 11px; height: 11px;
+      border-radius: 50%; background: var(--glow-warm); box-shadow: 0 0 8px rgba(232,168,124,0.5);
+    }
+    .ae-tl-year {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow-warm);
+      letter-spacing: 0.08em; margin-bottom: 0.15rem;
+    }
+    .ae-tl-title {
+      font-family: 'EB Garamond', Georgia, serif; font-weight: 600; font-size: 1.05rem;
+      color: var(--parchment); margin-bottom: 0.2rem;
+    }
+    .ae-tl-body {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone);
+      line-height: 1.6; opacity: 0.88;
+    }
+
+    /* Comparison grid */
+    .ae-compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+    .ae-compare-card {
+      background: linear-gradient(135deg, rgba(26,18,10,0.6), rgba(15,20,15,0.5));
+      border: 1px solid rgba(138,126,107,0.18); border-top: 3px solid var(--oracle); padding: 1rem 1.1rem;
+    }
+    .ae-compare-card.cat-open { border-top-color: var(--glow); }
+    .ae-compare-card.cat-local { border-top-color: var(--glow-warm); }
+    .ae-compare-card h3 {
+      font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--parchment);
+      margin-bottom: 0.5rem; letter-spacing: 0.03em;
+    }
+    .ae-compare-card ul { margin: 0; padding-left: 1.1rem; }
+    .ae-compare-card li {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.84rem; color: var(--stone);
+      line-height: 1.55; margin-bottom: 0.3rem;
+    }
+
+    /* Tradeoff table */
+    .ae-table-wrap { overflow-x: auto; }
+    table.ae-table { width: 100%; border-collapse: collapse; font-family: 'EB Garamond', Georgia, serif; font-size: 0.88rem; }
+    table.ae-table th, table.ae-table td {
+      border: 1px solid rgba(138,126,107,0.18); padding: 0.6rem 0.8rem; text-align: left; color: var(--stone);
+    }
+    table.ae-table th {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--glow-warm); background: rgba(232,168,124,0.06);
+    }
+    table.ae-table td:first-child { color: var(--parchment); font-weight: 600; white-space: nowrap; }
+
+    /* Explainer boxes */
+    .ae-explainer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+    .ae-explainer {
+      background: linear-gradient(135deg, rgba(26,18,10,0.6), rgba(15,20,15,0.5));
+      border: 1px solid rgba(138,126,107,0.18); border-left: 3px solid var(--glow); padding: 1rem 1.1rem;
+    }
+    .ae-explainer.deepseek { border-left-color: var(--oracle); }
+    .ae-explainer.openclaw { border-left-color: var(--glow-warm); }
+    .ae-explainer h3 {
+      font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--parchment); margin-bottom: 0.4rem;
+    }
+    .ae-explainer .ae-tag {
+      display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.5rem;
+    }
+    .ae-explainer p {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.85rem; color: var(--stone);
+      line-height: 1.55; opacity: 0.9;
+    }
+
+    @media (max-width: 760px) {
+      .ae-compare-grid, .ae-explainer-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Live feed (adapted from AI Dispatches) */
+    .an-header { text-align: center; margin-bottom: 1.5rem; }
+    .an-title { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--parchment); letter-spacing: 0.08em; }
+    .an-subtitle { font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; color: var(--stone); margin-top: 0.5rem; opacity: 0.85; }
+    .an-panel {
+      background: linear-gradient(135deg, rgba(26,18,10,0.75), rgba(15,20,15,0.65));
+      border: 1px solid rgba(232,168,124,0.15); padding: 1.2rem 1.5rem; margin-bottom: 1.2rem;
+    }
+    .an-controls-row { display: flex; gap: 0.6rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+    .an-search {
+      flex: 1; min-width: 180px; background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(138,126,107,0.25); color: var(--parchment);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; padding: 0.55rem 0.8rem;
+    }
+    .an-search:focus { outline: none; border-color: var(--glow-warm); }
+    .an-search::placeholder { color: var(--stone-dark); }
+    .an-refresh-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow-warm);
+      background: none; border: 1px solid rgba(232,168,124,0.3); padding: 0.55rem 1rem;
+      cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s; white-space: nowrap;
+    }
+    .an-refresh-btn:hover { border-color: var(--glow-warm); background: rgba(232,168,124,0.08); }
+    .an-refresh-btn.spinning { animation: an-spin 0.8s linear infinite; display: inline-block; }
+    @keyframes an-spin { to { transform: rotate(360deg); } }
+    .an-category-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .an-tab {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--stone);
+      background: none; border: 1px solid rgba(138,126,107,0.2); padding: 0.35rem 0.9rem;
+      cursor: pointer; letter-spacing: 0.06em; transition: all 0.2s;
+    }
+    .an-tab:hover { border-color: var(--glow-warm); color: var(--glow-warm); }
+    .an-tab.active { border-color: var(--glow-warm); color: var(--glow-warm); background: rgba(232,168,124,0.1); }
+    .an-source-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .an-source-chip {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; padding: 0.25rem 0.6rem;
+      border: 1px solid rgba(138,126,107,0.2); color: var(--stone-dark); background: none;
+      cursor: pointer; letter-spacing: 0.04em; transition: all 0.2s;
+    }
+    .an-source-chip.on { color: var(--parchment); border-color: rgba(0,229,255,0.4); background: rgba(0,229,255,0.08); }
+    .an-source-chip.on.cat-policy { border-color: rgba(123,104,238,0.5); background: rgba(123,104,238,0.12); }
+    .an-source-chip.on.cat-market { border-color: rgba(232,168,124,0.5); background: rgba(232,168,124,0.12); }
+    .an-status {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--stone-dark);
+      letter-spacing: 0.05em; text-align: center; margin-bottom: 1rem; opacity: 0.85;
+    }
+    .an-feed { display: flex; flex-direction: column; gap: 0.7rem; }
+    .an-card {
+      display: block; background: linear-gradient(135deg, rgba(26,18,10,0.55), rgba(15,20,15,0.45));
+      border: 1px solid rgba(138,126,107,0.12); border-left: 3px solid var(--glow);
+      padding: 0.9rem 1.1rem; text-decoration: none; transition: all 0.25s;
+    }
+    .an-card:hover {
+      border-color: rgba(232,168,124,0.3); border-left-color: var(--glow-warm);
+      box-shadow: 0 0 18px rgba(232,168,124,0.08); transform: translateX(2px);
+    }
+    .an-card.cat-policy { border-left-color: var(--oracle); }
+    .an-card.cat-market { border-left-color: var(--glow-warm); }
+    .an-card.cat-advances { border-left-color: var(--glow); }
+    .an-card-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+    .an-card-source {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--glow); opacity: 0.9;
+    }
+    .an-card.cat-policy .an-card-source { color: var(--oracle); }
+    .an-card.cat-market .an-card-source { color: var(--glow-warm); }
+    .an-card-time { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--stone-dark); }
+    .an-card-title { font-family: 'EB Garamond', Georgia, serif; font-size: 1.05rem; color: var(--parchment); line-height: 1.4; margin-bottom: 0.3rem; }
+    .an-card-snippet { font-family: 'EB Garamond', Georgia, serif; font-size: 0.85rem; color: var(--stone); opacity: 0.82; line-height: 1.5; }
+    .an-empty { text-align: center; color: var(--stone-dark); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; padding: 2rem 0; }
+    .an-load-more {
+      display: block; margin: 1.2rem auto 0; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; color: var(--stone); background: none;
+      border: 1px solid rgba(138,126,107,0.25); padding: 0.6rem 1.6rem;
+      cursor: pointer; letter-spacing: 0.06em; transition: all 0.2s;
+    }
+    .an-load-more:hover { border-color: var(--glow-warm); color: var(--glow-warm); }
+    @media (max-width: 600px) {
+      .an-title { font-size: 1.6rem; }
+      .an-card-meta { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="ai-news.html">AI Dispatches</a>
+      <a href="ai-evolution.html">AI Evolution</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="mixer">Mixer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="theory.html">Theory</a>
+          <a href="signal.html">Signal</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="network.html">Network</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="topology.html">Topology</a>
+      <a href="live.html">Live</a>
+      <a href="changelog.html">Changelog</a>
+      <a href="directory.html">Directory</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="page-header" style="padding:5.5rem 2rem 0.5rem;">
+    <h1 style="font-size:clamp(1.5rem,4vw,2.5rem);margin-bottom:0.3rem;">AI Evolution</h1>
+    <div class="subtitle" style="font-size:0.65rem;">How We Got Here, How Models Differ, Where It's Going</div>
+  </div>
+
+  <div class="ae-container">
+
+    <section class="ae-section">
+      <h2>𒀭 How We Got Here</h2>
+      <p class="ae-lede">"AI" has been declared dead and reborn at least three times. The current era didn't appear from nowhere — it's the result of decades of dead ends, slow compounding, and a few breakthroughs that changed the slope of the curve entirely.</p>
+      <div class="ae-timeline">
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">1956</div>
+          <div class="ae-tl-title">The Dartmouth Workshop</div>
+          <div class="ae-tl-body">The term "artificial intelligence" is coined. Early researchers bet that human reasoning could be reduced to symbolic logic and search — if a machine could manipulate symbols correctly, it could think.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">1970s–80s</div>
+          <div class="ae-tl-title">Expert systems, then the first AI winter</div>
+          <div class="ae-tl-body">Hand-coded rule systems (MYCIN, DENDRAL) showed promise in narrow domains, then hit a wall: they couldn't generalize and were brutal to maintain. Funding dried up. "AI winter" enters the vocabulary.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">1986</div>
+          <div class="ae-tl-title">Backpropagation goes mainstream</div>
+          <div class="ae-tl-body">Rumelhart, Hinton, and Williams popularize backpropagation for training multi-layer neural networks. The idea existed earlier, but this is when it starts reshaping the field — slowly, because compute and data were still tiny.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">1997</div>
+          <div class="ae-tl-title">Deep Blue beats Kasparov</div>
+          <div class="ae-tl-body">Brute-force search, not learning — but a cultural turning point. The public starts taking machine "intelligence" seriously again, even if the engine underneath was still mostly symbolic.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">2012</div>
+          <div class="ae-tl-title">AlexNet and the deep learning explosion</div>
+          <div class="ae-tl-body">A convolutional neural network crushes the ImageNet competition, trained on GPUs. This is the moment "deep learning" stops being a niche academic interest and becomes the dominant paradigm — bigger data and bigger compute start beating cleverer hand-engineering.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">2017</div>
+          <div class="ae-tl-title">"Attention Is All You Need"</div>
+          <div class="ae-tl-body">Google researchers publish the Transformer architecture. It replaces recurrence with self-attention, making models dramatically more parallelizable to train. Every major language model since has been a descendant of this one paper.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">2018–2020</div>
+          <div class="ae-tl-title">GPT, BERT, and the scaling laws</div>
+          <div class="ae-tl-body">OpenAI and Google show that simply training Transformers bigger, on more text, with more compute, keeps producing better models — fairly predictably. This "scaling law" observation becomes the industry's central bet for the next several years.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">November 2022</div>
+          <div class="ae-tl-title">ChatGPT goes public</div>
+          <div class="ae-tl-body">GPT-3.5 wrapped in a chat interface reaches 100 million users faster than any consumer product before it. AI stops being a research topic and becomes a daily tool — and a daily news cycle.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">2023</div>
+          <div class="ae-tl-title">GPT-4, and open weights fight back</div>
+          <div class="ae-tl-body">GPT-4 raises the ceiling on closed models. Meanwhile Meta releases LLaMA, and the open-weight ecosystem (Mistral, then dozens of fine-tunes) proves frontier-adjacent performance doesn't require a closed API.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">2024</div>
+          <div class="ae-tl-title">Mixture-of-experts goes mainstream, agents emerge</div>
+          <div class="ae-tl-body">Sparse Mixture-of-Experts architectures (Mixtral and others) let models grow capacity without proportionally growing inference cost. Tool-use and "agentic" workflows — models that plan, call tools, and act in loops — move from demos to production.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">Early 2025</div>
+          <div class="ae-tl-title">DeepSeek breaks the cost assumption</div>
+          <div class="ae-tl-body">DeepSeek releases an open-weight reasoning model trained for a fraction of the assumed frontier-lab budget, rattling the belief that only a handful of well-funded labs could compete at the frontier. Markets notice; so does policy.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">2025–2026</div>
+          <div class="ae-tl-title">Orchestration and the agent stack</div>
+          <div class="ae-tl-body">The bottleneck shifts from "is the model smart enough" to "can it be wired into real systems reliably." Tools like Ollama (local model runtimes) and orchestration layers like OpenClaw mature, letting a single operator run and swap models across local and hosted backends from one control plane.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">Now</div>
+          <div class="ae-tl-title">Multi-agent systems, and regulation catching up</div>
+          <div class="ae-tl-body">Long-running agents, multi-agent collaboration, and on-device models running on consumer hardware are converging — while governments worldwide scramble to write rules for systems that are already deployed at scale. See the live feed below for what's actually happening this week.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ae-section">
+      <h2>𒈗 The Difference Between Models</h2>
+      <p class="ae-lede">"Which AI is best" is the wrong question — different models are built under different constraints, and those constraints determine what you can actually do with them.</p>
+      <div class="ae-compare-grid">
+        <div class="ae-compare-card">
+          <h3>Closed / API-Only</h3>
+          <ul>
+            <li>e.g. GPT-4/5, Claude, Gemini</li>
+            <li>Weights never leave the provider's servers</li>
+            <li>You pay per token, get the latest model instantly</li>
+            <li>Usually the strongest general-purpose reasoning</li>
+            <li>Your data passes through someone else's infrastructure</li>
+          </ul>
+        </div>
+        <div class="ae-compare-card cat-open">
+          <h3>Open-Weight</h3>
+          <ul>
+            <li>e.g. Llama, Mistral, Qwen, DeepSeek</li>
+            <li>Weights are published — anyone can download and run them</li>
+            <li>Can be fine-tuned, inspected, and self-hosted</li>
+            <li>Quality gap to closed frontier models keeps narrowing</li>
+            <li>You take on the hosting and ops burden</li>
+          </ul>
+        </div>
+        <div class="ae-compare-card cat-local">
+          <h3>Local / On-Device</h3>
+          <ul>
+            <li>Distilled or quantized versions of open-weight models</li>
+            <li>Run entirely on your own hardware — no network call</li>
+            <li>Zero marginal cost per query, full data privacy</li>
+            <li>Capped by your GPU/RAM — smaller than frontier models</li>
+            <li>You manage updates, drivers, and model swaps yourself</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="ae-section">
+      <h2>𒆳 Local Hosting vs. API Key</h2>
+      <p class="ae-lede">The real decision isn't "which model" — it's "who controls the weights, and who pays for the compute." Here's the actual tradeoff.</p>
+      <div class="ae-table-wrap">
+        <table class="ae-table">
+          <tr><th>Factor</th><th>Local Hosting</th><th>API Key</th></tr>
+          <tr><td>Privacy</td><td>Data never leaves your machine</td><td>Provider sees every request</td></tr>
+          <tr><td>Cost shape</td><td>Upfront hardware, then near-zero per query</td><td>No hardware, but pay per token forever</td></tr>
+          <tr><td>Model quality</td><td>Capped by what fits on your hardware</td><td>Access to the frontier, whatever that is this week</td></tr>
+          <tr><td>Latency</td><td>No network round-trip; bound by your GPU</td><td>Depends on provider load and your connection</td></tr>
+          <tr><td>Maintenance</td><td>You manage updates, drivers, quantization</td><td>Provider handles all of it silently</td></tr>
+          <tr><td>Availability</td><td>Works offline, never rate-limited by anyone else</td><td>Down if the provider is down or you hit a cap</td></tr>
+          <tr><td>Best for</td><td>Sensitive data, high-volume repetitive tasks, tinkering</td><td>Best-in-class reasoning, low-volume or bursty use</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section class="ae-section">
+      <h2>☊ DeepSeek, Ollama, OpenClaw</h2>
+      <p class="ae-lede">Three names that come up constantly once you go past "just use ChatGPT" — and what each one actually is.</p>
+      <div class="ae-explainer-grid">
+        <div class="ae-explainer deepseek">
+          <span class="ae-tag">Model lab</span>
+          <h3>DeepSeek</h3>
+          <p>A Chinese AI lab that publishes open-weight models — most notably its R1 reasoning models — trained with aggressive efficiency techniques (mixture-of-experts, reinforcement learning on verifiable tasks) at a fraction of the assumed frontier-lab cost. It matters less because it's "free" and more because it proved frontier-adjacent reasoning doesn't require frontier-lab budgets.</p>
+        </div>
+        <div class="ae-explainer">
+          <span class="ae-tag">Local runtime</span>
+          <h3>Ollama</h3>
+          <p>A tool that makes running open-weight models on your own machine as simple as pulling a Docker image — <code>ollama pull</code>, <code>ollama run</code>. It handles quantization and serving so you don't have to wire up inference code yourself. The default on-ramp for "I want a model running on my laptop, today."</p>
+        </div>
+        <div class="ae-explainer openclaw">
+          <span class="ae-tag">Orchestration</span>
+          <h3>OpenClaw</h3>
+          <p>An agent-orchestration layer that sits above whatever models you're running — local or API — and gives you one gateway to set models, route tools, and manage a persistent agent across sessions. It's the difference between "I called an API once" and "I run an agent that keeps working." This site's own agent runs through it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ae-section">
+      <h2>𓁹 Where It's Headed</h2>
+      <p class="ae-lede">A few directions are converging at once, and none of them are slowing down.</p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        <strong style="color:var(--glow-warm);">Agents, not chatbots.</strong> The center of gravity is moving from single question-answer turns to long-running agents that plan, use tools, and act over hours or days with minimal supervision.
+      </p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        <strong style="color:var(--glow-warm);">Compute efficiency over raw scale.</strong> DeepSeek's cost breakthrough forced the entire industry to take "do more with less" seriously — mixture-of-experts, distillation, and better training data curation are now competing directly with "just add more GPUs."
+      </p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        <strong style="color:var(--glow-warm);">On-device gets real.</strong> Quantized models small enough to run on a phone are closing in on what needed a data center two years ago — pushing privacy-sensitive and offline use cases out of the cloud entirely.
+      </p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        <strong style="color:var(--glow-warm);">Regulation is arriving mid-deployment.</strong> Governments are writing AI rules for systems that are already in production at global scale, not systems on a drawing board — which means the rules are reactive, regionally fragmented, and frequently behind the technology they target.
+      </p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        <strong style="color:var(--glow-warm);">Physical compute becomes the bottleneck.</strong> As models plateau on raw text capability, the race shifts toward chips, power, and data-center capacity — turning AI progress into as much a hardware and energy story as a software one.
+      </p>
+    </section>
+
+    <section class="ae-section">
+      <header class="an-header">
+        <h2 class="an-title" style="border:none;padding:0;">Live: Advances, Policy & Market</h2>
+        <p class="an-subtitle">Continuously refreshed from research labs, policy trackers, and tech/market press — no page reload needed.</p>
+      </header>
+
+      <div class="an-panel">
+        <div class="an-controls-row">
+          <input type="text" id="aeSearch" class="an-search" placeholder="Search… (e.g. &quot;regulation&quot;, &quot;chips&quot;, &quot;reasoning model&quot;)" autocomplete="off">
+          <button id="aeRefresh" class="an-refresh-btn" title="Force refresh, bypassing cache">⟳ Refresh</button>
+        </div>
+        <div class="an-category-tabs" id="aeCategoryTabs">
+          <button class="an-tab active" data-category="all">All</button>
+          <button class="an-tab" data-category="advances">Advances</button>
+          <button class="an-tab" data-category="policy">Policy &amp; Law</button>
+          <button class="an-tab" data-category="market">Market &amp; Hardware</button>
+        </div>
+        <div class="an-source-chips" id="aeSourceChips"></div>
+      </div>
+
+      <div class="an-status" id="aeStatus">Scrying the feeds…</div>
+      <div class="an-feed" id="aeFeed"></div>
+      <button class="an-load-more" id="aeLoadMore" style="display:none;">Load more ↓</button>
+    </section>
+
+  </div>
+
+  <script src="scripts.js?v=68"></script>
+  <script src="stars.js"></script>
+  <script>
+  (function() {
+    const FEEDS = [
+      { name: 'ArXiv cs.AI', url: 'http://arxiv.org/rss/cs.AI', category: 'advances' },
+      { name: 'Hugging Face Blog', url: 'https://huggingface.co/blog/feed.xml', category: 'advances' },
+      { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/', category: 'advances' },
+      { name: 'The Verge AI', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', category: 'advances' },
+      { name: 'MIT Tech Review — Policy', url: 'https://www.technologyreview.com/topic/policy/feed', category: 'policy' },
+      { name: 'The Verge — Policy', url: 'https://www.theverge.com/rss/policy/index.xml', category: 'policy' },
+      { name: 'Tech Policy Press', url: 'https://www.techpolicy.press/feed', category: 'policy' },
+      { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', category: 'market' },
+      { name: 'Ars Technica', url: 'http://feeds.arstechnica.com/arstechnica/index', category: 'market' },
+      { name: 'IEEE Spectrum — Semiconductors', url: 'https://spectrum.ieee.org/feeds/topic/semiconductors.rss', category: 'market' },
+      { name: 'Wired — Business', url: 'https://www.wired.com/feed/category/business/latest/rss', category: 'market' }
+    ];
+    const CACHE_KEY = 'ai-evolution-feed-cache';
+    const CACHE_TTL = 20 * 60 * 1000;
+    const PAGE_SIZE = 20;
+    const SNIPPET_MAX = 180;
+
+    const searchEl = document.getElementById('aeSearch');
+    const refreshBtn = document.getElementById('aeRefresh');
+    const tabsEl = document.getElementById('aeCategoryTabs');
+    const chipsEl = document.getElementById('aeSourceChips');
+    const statusEl = document.getElementById('aeStatus');
+    const feedEl = document.getElementById('aeFeed');
+    const loadMoreBtn = document.getElementById('aeLoadMore');
+
+    let allItems = [];
+    let activeCategory = 'all';
+    let activeSources = loadSourcePrefs();
+    let visibleCount = PAGE_SIZE;
+    let lastUpdated = '';
+
+    function loadSourcePrefs() {
+      try {
+        const raw = localStorage.getItem('ai-evolution-sources');
+        if (raw) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr) && arr.length) return new Set(arr);
+        }
+      } catch (e) {}
+      return new Set(FEEDS.map(f => f.name));
+    }
+    function saveSourcePrefs() {
+      localStorage.setItem('ai-evolution-sources', JSON.stringify([...activeSources]));
+    }
+
+    function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function decodeEntities(str) {
+      const ta = document.createElement('textarea');
+      ta.innerHTML = str;
+      return ta.value;
+    }
+    function stripHtml(html) {
+      const noTags = (html || '').replace(/<[^>]*>/g, ' ');
+      return decodeEntities(noTags).replace(/\s+/g, ' ').trim();
+    }
+    function timeAgo(dateStr) {
+      const t = new Date(dateStr).getTime();
+      if (isNaN(t)) return '';
+      const diff = Date.now() - t;
+      if (diff < 60000) return 'just now';
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      const days = Math.floor(hrs / 24);
+      if (days < 7) return days + 'd ago';
+      return Math.floor(days / 7) + 'w ago';
+    }
+    function fmtDate(dateStr) {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '';
+      return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function makeItem(raw, feed) {
+      const title = stripHtml(raw.title || '');
+      const link = (raw.link || '').trim();
+      if (!title || !link) return null;
+      const snippetFull = stripHtml(raw.description || '');
+      const snippet = snippetFull.length > SNIPPET_MAX ? snippetFull.slice(0, SNIPPET_MAX - 1).trim() + '…' : snippetFull;
+      return { title, link, pubDate: raw.pubDate || '', snippet, source: feed.name, category: feed.category };
+    }
+
+    async function fetchViaRss2Json(feed) {
+      const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
+      const d = await r.json();
+      if (d.status !== 'ok') throw new Error('rss2json status: ' + d.status);
+      return (d.items || [])
+        .map(item => makeItem({ title: item.title, link: item.link, pubDate: item.pubDate, description: item.description }, feed))
+        .filter(Boolean);
+    }
+
+    async function fetchViaAllOrigins(feed) {
+      const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(feed.url));
+      const text = await r.text();
+      const doc = new DOMParser().parseFromString(text, 'text/xml');
+      const nodes = Array.from(doc.querySelectorAll('item, entry'));
+      return nodes.map(node => {
+        const get = (tag) => node.querySelector(tag) ? node.querySelector(tag).textContent.trim() : '';
+        let link = get('link');
+        if (!link) {
+          const linkEl = node.querySelector('link');
+          link = linkEl ? (linkEl.getAttribute('href') || '') : '';
+        }
+        return makeItem({
+          title: get('title'), link,
+          pubDate: get('pubDate') || get('published') || get('updated'),
+          description: get('description') || get('summary')
+        }, feed);
+      }).filter(Boolean);
+    }
+
+    async function fetchFeed(feed) {
+      try { return await fetchViaRss2Json(feed); }
+      catch (e) {
+        try { return await fetchViaAllOrigins(feed); } catch (e2) { return []; }
+      }
+    }
+
+    function renderSourceChips() {
+      chipsEl.innerHTML = FEEDS.map(f => {
+        const on = activeSources.has(f.name);
+        return '<button class="an-source-chip' + (on ? ' on' : '') + ' cat-' + f.category + '" data-name="' + escHtml(f.name) + '">' + escHtml(f.name) + '</button>';
+      }).join('');
+    }
+
+    function getFiltered() {
+      const q = searchEl.value.trim().toLowerCase();
+      return allItems.filter(it => {
+        if (activeCategory !== 'all' && it.category !== activeCategory) return false;
+        if (!activeSources.has(it.source)) return false;
+        if (q && !(it.title.toLowerCase().includes(q) || it.snippet.toLowerCase().includes(q))) return false;
+        return true;
+      });
+    }
+
+    function renderCard(it) {
+      return '<a class="an-card cat-' + it.category + '" href="' + escHtml(it.link) + '" target="_blank" rel="noopener">' +
+        '<div class="an-card-meta">' +
+        '<span class="an-card-source">' + escHtml(it.source) + '</span>' +
+        '<span class="an-card-time" title="' + escHtml(fmtDate(it.pubDate)) + '">' + timeAgo(it.pubDate) + '</span>' +
+        '</div>' +
+        '<div class="an-card-title">' + escHtml(it.title) + '</div>' +
+        (it.snippet ? '<div class="an-card-snippet">' + escHtml(it.snippet) + '</div>' : '') +
+        '</a>';
+    }
+
+    function render() {
+      const filtered = getFiltered();
+      const slice = filtered.slice(0, visibleCount);
+      feedEl.innerHTML = slice.length
+        ? slice.map(renderCard).join('')
+        : '<p class="an-empty">' + (allItems.length ? 'Nothing matches your filters. Try widening the search or re-enabling a source.' : 'Scrying the feeds…') + '</p>';
+      loadMoreBtn.style.display = filtered.length > visibleCount ? 'block' : 'none';
+      if (allItems.length) {
+        statusEl.textContent = 'Showing ' + slice.length + ' of ' + filtered.length + ' (' + allItems.length + ' total) · ' +
+          activeSources.size + '/' + FEEDS.length + ' sources active' + (lastUpdated ? ' · Updated ' + lastUpdated : '');
+      }
+    }
+
+    async function loadFeeds(force) {
+      if (!force) {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          try {
+            const c = JSON.parse(cached);
+            if (Date.now() - c.ts < CACHE_TTL && Array.isArray(c.items) && c.items.length) {
+              allItems = c.items;
+              lastUpdated = new Date(c.ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+              render();
+              return;
+            }
+          } catch (e) {}
+        }
+      }
+      refreshBtn.classList.add('spinning');
+      if (!allItems.length) statusEl.textContent = 'Scrying the feeds…';
+      try {
+        const results = await Promise.all(FEEDS.map(fetchFeed));
+        const seen = new Set();
+        const merged = results.flat()
+          .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+          .filter(it => { if (seen.has(it.link)) return false; seen.add(it.link); return true; });
+        if (merged.length) {
+          allItems = merged;
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items: allItems }));
+          lastUpdated = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        } else if (!allItems.length) {
+          statusEl.textContent = 'Feeds unavailable right now — try Refresh in a moment.';
+        }
+      } catch (e) {
+        if (!allItems.length) statusEl.textContent = 'Feeds unavailable right now — try Refresh in a moment.';
+      } finally {
+        refreshBtn.classList.remove('spinning');
+        render();
+      }
+    }
+
+    tabsEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.an-tab');
+      if (!btn) return;
+      activeCategory = btn.dataset.category;
+      tabsEl.querySelectorAll('.an-tab').forEach(t => t.classList.toggle('active', t === btn));
+      visibleCount = PAGE_SIZE;
+      render();
+    });
+
+    chipsEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.an-source-chip');
+      if (!chip) return;
+      const name = chip.dataset.name;
+      if (activeSources.has(name)) activeSources.delete(name);
+      else activeSources.add(name);
+      saveSourcePrefs();
+      renderSourceChips();
+      visibleCount = PAGE_SIZE;
+      render();
+    });
+
+    let searchDebounce = null;
+    searchEl.addEventListener('input', () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => { visibleCount = PAGE_SIZE; render(); }, 150);
+    });
+
+    refreshBtn.addEventListener('click', () => loadFeeds(true));
+    loadMoreBtn.addEventListener('click', () => { visibleCount += PAGE_SIZE; render(); });
+
+    renderSourceChips();
+    loadFeeds(false);
+    setInterval(() => loadFeeds(false), CACHE_TTL);
+  })();
+  </script>
+</body>
+</html>
