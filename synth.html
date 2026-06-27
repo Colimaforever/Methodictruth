@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Browser Synth — Modular Synthesizer, Mixer & Effects Chain with MIDI Support</title>
   <meta name="keywords" content="online synthesizer, browser synth, web audio synth, MIDI synthesizer, free synth, modular synth, tone.js, virtual instrument, audio mixer, effects chain, EQ, compressor, limiter">
-  <meta name="description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, and MIDI controller support. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
+  <meta name="description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, MIDI controller input, and MIDI output to Logic Pro X or any other DAW. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
   <meta property="og:title" content="Browser Synth — Modular Synthesizer, Mixer & Effects Chain with MIDI Support">
-  <meta property="og:description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, and MIDI controller support. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
+  <meta property="og:description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, MIDI controller input, and MIDI output to Logic Pro X or any other DAW. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/synth.html">
   <meta property="og:image" content="https://methodictruth.com/og/synth.png">
@@ -489,6 +489,9 @@
         <button class="synth-btn" id="kbToggleBtn">⌨ Minimize</button>
         <button class="synth-btn" id="seqToggleBtn">🎼 Sequencer</button>
         <span class="midi-badge" id="midiBadge">MIDI: None</span>
+        <select class="midi-out-select" id="midiOutSelect" title="Send notes out to a DAW like Logic Pro X (requires a virtual MIDI port, e.g. macOS IAC Driver)">
+          <option value="">MIDI Out: Off</option>
+        </select>
       </div>
       <div class="synth-toolbar-section">
         <button class="synth-btn danger" id="clearAllBtn">✕ Clear</button>
@@ -603,6 +606,14 @@
     <dl>
       <dt>Step Sequencer</dt>
       <dd>Open with <code>🎼 Sequencer</code> in the toolbar. It plays your <em>patched sound</em> — build a basic synth first (Oscillator → … → Output), press Start Audio, then hit Play. Tap a step to turn it on/off; use the <code>−</code>/<code>+</code> under an active step to change its pitch. Set length (8/16/32 steps), BPM, swing, and gate length. The matching piano key lights up as each step fires. Patterns auto-save and reload.</dd>
+    </dl>
+
+    <h3>MIDI — Controllers and DAWs</h3>
+    <dl>
+      <dt>Play from a MIDI controller</dt>
+      <dd>Plug in a USB MIDI keyboard and allow MIDI access when Chrome prompts you. The <code>MIDI: Connected</code> badge confirms it. CC1 (mod wheel) sweeps filter cutoff; CC74 sweeps resonance, on every <code>Filter</code> module in the patch.</dd>
+      <dt>Send notes out to Logic Pro X</dt>
+      <dd>The <code>MIDI Out</code> dropdown sends every note this page plays — piano keys, MIDI controller passthrough, and the step sequencer — to an external MIDI port in real time, so Logic Pro X can record or play them through one of its own instruments. Requires three things: <strong>(1) Chrome or Edge</strong> — Web MIDI isn't supported in Safari or Firefox. <strong>(2) A virtual MIDI port</strong> — on macOS, open <em>Audio MIDI Setup → Window → Show MIDI Studio</em>, double-click <em>IAC Driver</em>, check <em>Device is online</em>, and make sure it has at least one port (the default "Bus 1" is fine). <strong>(3) A Logic Pro track listening on that port</strong> — create or select a Software Instrument track, open the track's input in the inspector, and set it to receive from the IAC bus you just enabled (or "All Inputs"). Once that's done, pick the IAC bus from the <code>MIDI Out</code> dropdown here — notes play through your local patch <em>and</em> get sent to Logic at the same time.</dd>
     </dl>
 
     <h3>Patching Tips</h3>
@@ -1634,12 +1645,14 @@
   // ═══════════════════════════════════════════════
 
   let midiAccess = null;
+  let midiOutput = null;
   let keyboardOctave = 4;
   let keyboardVelocity = 100;
   const activeNotes = new Map(); // note string → {synths}
   const pianoContainer = document.getElementById('pianoContainer');
   const pianoKeysEl = document.getElementById('pianoKeys');
   const midiBadge = document.getElementById('midiBadge');
+  const midiOutSelect = document.getElementById('midiOutSelect');
 
   // Note names
   const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -1662,15 +1675,25 @@
     return Object.values(modules).filter(m => m.type === 'oscillator');
   }
 
+  // Send a note out to an external MIDI device (e.g. Logic Pro via IAC Driver)
+  function sendMidiOut(type, noteNum, vel) {
+    if (!midiOutput) return;
+    const status = type === 'on' ? 0x90 : 0x80;
+    try { midiOutput.send([status, noteNum & 0x7f, (vel || 0) & 0x7f]); } catch(e) {}
+  }
+
   // Trigger a note on
   function noteOn(noteNum, vel, source) {
     const startTime = performance.now();
-    
+    sendMidiOut('on', noteNum, vel);
+
     // Fast path checks
     const oscs = getOscillators();
     if (oscs.length === 0) {
-      document.getElementById('pianoHint').textContent = '⚠ Add an oscillator module first';
-      setTimeout(() => { document.getElementById('pianoHint').textContent = ''; }, 2000);
+      if (!midiOutput) {
+        document.getElementById('pianoHint').textContent = '⚠ Add an oscillator module first';
+        setTimeout(() => { document.getElementById('pianoHint').textContent = ''; }, 2000);
+      }
       return;
     }
 
@@ -1756,6 +1779,7 @@
 
   // Trigger a note off
   function noteOff(noteNum) {
+    sendMidiOut('off', noteNum, 0);
     const nodes = activeNotes.get(noteNum);
     if (!nodes) return;
     nodes.forEach(n => {
@@ -1801,6 +1825,36 @@
       midiBadge.textContent = 'MIDI: None';
       midiBadge.classList.remove('connected');
     }
+    updateMIDIOutputs();
+  }
+
+  // ─── MIDI OUTPUT (send-to-DAW, e.g. Logic Pro via IAC Driver) ───
+  function updateMIDIOutputs() {
+    if (!midiAccess || !midiOutSelect) return;
+    const prevValue = midiOutSelect.value;
+    midiOutSelect.innerHTML = '<option value="">MIDI Out: Off</option>';
+    midiAccess.outputs.forEach(output => {
+      const opt = document.createElement('option');
+      opt.value = output.id;
+      opt.textContent = output.name;
+      midiOutSelect.appendChild(opt);
+    });
+    // Re-select the previously chosen output if it's still available
+    if (prevValue && midiAccess.outputs.get(prevValue)) {
+      midiOutSelect.value = prevValue;
+    } else {
+      midiOutput = null;
+      midiOutSelect.classList.remove('connected');
+    }
+  }
+
+  if (midiOutSelect) {
+    midiOutSelect.addEventListener('change', () => {
+      const id = midiOutSelect.value;
+      midiOutput = id && midiAccess ? midiAccess.outputs.get(id) : null;
+      midiOutSelect.classList.toggle('connected', !!midiOutput);
+      if (midiOutput && window.Analytics) Analytics.trackDebounced('midi_out_connected', {}, 5000);
+    });
   }
 
   function handleMIDIMessage(msg) {
