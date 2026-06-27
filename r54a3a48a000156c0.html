@@ -237,25 +237,39 @@ openclaw gateway restart</pre>
 1. Work happens on a branch
    (not directly on main, for anything
    bigger than a typo)
-
+        ↓
 2. Commit + push that branch
    git push -u origin &lt;branch-name&gt;
-
+        ↓
 3. Open a Pull Request (PR)
    branch → main, on GitHub
    This is the review checkpoint —
    full diff in one place, before
    anything goes live.
-
-4. Review the diff
-   Read it like a stranger would.
-   Catch what slipped through.
-
-5. Merge the PR into main
-   ↓
-6. Cloudflare Pages sees the push
+        ↓
+4. CI fires automatically, no asking
+   ┌─────────────────────────────┐
+   │ checks.yml                  │
+   │  → broken links?             │
+   │  → invalid JSON-LD?          │
+   │  → malformed feed.xml?       │
+   ├─────────────────────────────┤
+   │ pr-previews.yml              │
+   │  → screenshot 8 live pages   │
+   │  → post them in a PR comment │
+   │    (vault excluded — gated)  │
+   └─────────────────────────────┘
+        ↓
+5. Review: the diff AND the screenshots
+   Read the diff like a stranger would.
+   Look at the rendered pages before
+   trusting the markup.
+        ↓
+6. Merge the PR into main
+        ↓
+7. Cloudflare Pages sees the push
    to main and redeploys automatically
-   ↓
+        ↓
    Live on methodictruth.com,
    usually within a minute or two</pre>
       <p>A PR is just a labeled, reviewable diff — title + description + the
@@ -365,6 +379,48 @@ no need to repeat for future PRs.</pre>
       <p>If <strong>Checks</strong> stays empty of a Cloudflare entry after a
       push, that setting is most likely off — this can't be flipped through
       the repo, only the dashboard.</p>
+    </div>
+
+    <div class="vault-section">
+      <h2>Automated Visual Previews</h2>
+      <p>The Cloudflare preview URL above needs an account setting flipped on
+      from the dashboard. This doesn't — it's a second workflow that runs
+      entirely inside GitHub Actions, with no external account needed, and it
+      answers a simpler question: <em>what does the changed page actually
+      look like, right now, without anyone having to ask?</em></p>
+      <pre>
+.github/workflows/pr-previews.yml
+  on: every PR into main
+
+  1. spin up Chromium (Playwright)
+  2. serve the repo locally
+     (node server.js, same server
+     used for local dev)
+  3. .github/scripts/screenshot-pages.js
+     visits 8 pages and screenshots
+     each one at 1280×800:
+       index, chronicles, changelog,
+       directory, architecture, synth,
+       theory, about
+  4. push the PNGs to a dedicated
+     pr-previews branch, in a folder
+     named for the PR number
+  5. post one PR comment with all 8
+     images inline, as a table —
+     same comment gets updated on
+     every new push, instead of
+     piling up duplicates</pre>
+      <p><strong>The vault is not in that list, on purpose.</strong> This repo
+      is public. Anything this workflow renders gets pushed to a branch and
+      served from <code>raw.githubusercontent.com</code> — which is also
+      public, gate or no gate. Screenshotting this page automatically would
+      hand its contents to anyone who knew where to look, defeating the
+      passphrase entirely. The 8 pages it does cover are all pages that are
+      already public once merged anyway, so there's nothing left to leak —
+      it's just showing you what's coming, sooner.</p>
+      <p>Practically: open <strong>Files changed</strong> like always, but now
+      scroll back to <strong>Conversation</strong> too — the screenshot
+      comment lands there, not in the diff.</p>
     </div>
 
     <!-- ─── THE BLUEPRINT (collapsible) ─── -->

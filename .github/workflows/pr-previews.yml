@@ -1,0 +1,83 @@
+name: PR Visual Previews
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Playwright
+        run: |
+          npm install playwright
+          npx playwright install --with-deps chromium
+
+      - name: Serve the site locally
+        run: |
+          node server.js &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8080/index.html > /dev/null && break
+            sleep 1
+          done
+
+      - name: Render page screenshots
+        run: node .github/scripts/screenshot-pages.js
+
+      - name: Publish screenshots to pr-previews branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUM: ${{ github.event.pull_request.number }}
+        run: |
+          set -e
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          rm -rf /tmp/pr-previews-repo
+          if git clone --depth 1 --branch pr-previews "$REPO_URL" /tmp/pr-previews-repo 2>/dev/null; then
+            :
+          else
+            git clone --depth 1 "$REPO_URL" /tmp/pr-previews-repo
+            (cd /tmp/pr-previews-repo && git checkout --orphan pr-previews && git rm -rf . > /dev/null)
+          fi
+          mkdir -p "/tmp/pr-previews-repo/pr-$PR_NUM"
+          cp pr-previews-out/*.png "/tmp/pr-previews-repo/pr-$PR_NUM/"
+          cd /tmp/pr-previews-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "pr-$PR_NUM"
+          git commit -m "Update preview screenshots for PR #$PR_NUM" || echo "no changes to commit"
+          git push origin pr-previews || (git pull --rebase origin pr-previews && git push origin pr-previews)
+
+      - name: Build comment body
+        id: comment
+        env:
+          PR_NUM: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo "body<<PREVIEW_EOF"
+            echo "### Visual preview"
+            echo ""
+            echo "Rendered from this PR's branch. The vault page is intentionally excluded — it's password-gated and this repo is public, so it never gets auto-screenshotted anywhere."
+            echo ""
+            echo "| Page | Preview |"
+            echo "|---|---|"
+            for f in pr-previews-out/*.png; do
+              slug=$(basename "$f" .png)
+              echo "| $slug | ![${slug}](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/pr-previews/pr-${PR_NUM}/${slug}.png) |"
+            done
+            echo "PREVIEW_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: visual-preview
+          message: ${{ steps.comment.outputs.body }}
