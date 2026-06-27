@@ -263,6 +263,39 @@ openclaw gateway restart</pre>
       until someone says "yes, merge this." For solo work the value isn't
       bureaucracy, it's a deliberate moment to actually look at the change
       before it's permanent and public.</p>
+
+      <h2 style="margin-top:1.5rem;">Practically: Using a PR on GitHub</h2>
+      <p>On the PR page (<code>github.com/Colimaforever/Methodictruth/pull/&lt;number&gt;</code>),
+      there's a tab strip near the top: <strong>Conversation</strong>, <strong>Commits</strong>,
+      <strong>Checks</strong>, <strong>Files changed</strong>. On mobile that strip can scroll —
+      swipe it left if you don't see all four.</p>
+      <pre>
+Conversation   → the description + any comments
+Commits        → each commit in the PR, separately
+Checks         → CI status (red/green), if any is wired up
+Files changed  → the actual diff. This is the review.</pre>
+      <p><strong>Files changed</strong> is where the work happens:</p>
+      <pre>
+- green lines  = added
+- red lines    = removed
+- image files (.png, .jpg, .svg) render
+  inline as before/after thumbnails —
+  no need to download them to check
+  a new OG image or graphic
+- click a filename in the diff to
+  jump straight to it
+- long/mechanical diffs (a version
+  bump across 40 files) collapse —
+  skip those, focus on the files that
+  actually changed behavior</pre>
+      <p>To monitor a page after merge, just visit it directly —
+      <code>methodictruth.com/&lt;page&gt;</code> — a minute or two after merging.
+      No staging URL; Cloudflare Pages serves <code>main</code> straight to
+      production. If something looks wrong, open a new branch, fix it, and
+      repeat the pipeline above rather than editing live.</p>
+      <p>To merge: scroll to the bottom of the PR page (past the diff or the
+      conversation) and tap <strong>Merge pull request</strong> → confirm. That
+      triggers the Cloudflare deploy automatically.</p>
     </div>
 
     <!-- ─── THE INNER CHAMBER ─── -->
