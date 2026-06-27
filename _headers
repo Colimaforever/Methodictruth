@@ -4,5 +4,6 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=self, microphone=self, geolocation=()
 
-/vault.html
+/r54a3a48a000156c0.html
   X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache, no-store, must-revalidate
