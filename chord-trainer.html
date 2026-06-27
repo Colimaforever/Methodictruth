@@ -297,11 +297,16 @@
                     <label>Key</label>
                     <select id="keySelect">
                         <option value="C">C</option>
+                        <option value="C#">C#</option>
                         <option value="D">D</option>
+                        <option value="D#">D#</option>
                         <option value="E">E</option>
                         <option value="F">F</option>
+                        <option value="F#">F#</option>
                         <option value="G">G</option>
+                        <option value="G#">G#</option>
                         <option value="A">A</option>
+                        <option value="A#">A#</option>
                         <option value="B">B</option>
                     </select>
                 </div>
@@ -316,8 +321,30 @@
                     <input type="number" id="barsInput" value="2" min="1" max="4">
                 </div>
 
+                <div class="control-group">
+                    <label>Progression</label>
+                    <select id="progressionSelect">
+                        <option value="1,4">I – IV</option>
+                        <option value="1,5">I – V</option>
+                        <option value="1,4,5,4">I – IV – V – IV</option>
+                        <option value="1,5,6,4">I – V – vi – IV (the "pop" progression)</option>
+                        <option value="1,6,4,5">I – vi – IV – V (the "50s" progression)</option>
+                        <option value="2,5,1">ii – V – I (jazz turnaround)</option>
+                        <option value="6,4,1,5">vi – IV – I – V</option>
+                        <option value="random">🎲 Random each round</option>
+                    </select>
+                </div>
+
                 <div class="control-group" style="justify-content: flex-end;">
                     <button class="btn" id="startBtn">Start</button>
+                </div>
+            </div>
+
+            <div class="control-row">
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="shuffleKeyMode"> Shuffle key every round
+                    </label>
                 </div>
             </div>
 
@@ -363,6 +390,14 @@
                 <div class="stat-label">Accuracy</div>
                 <div class="stat-value" id="accuracy">—</div>
             </div>
+            <div class="stat-item">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="streak">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Best Streak</div>
+                <div class="stat-value" id="bestStreak">0</div>
+            </div>
         </div>
     </div>
 
@@ -371,7 +406,14 @@
         // Theory
         const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11]; // intervals
-        
+        const ALL_KEYS = NOTES; // shuffle mode can land on any of the 12, not just naturals
+        // Triad quality of each scale degree in a major key: I, ii, iii, IV, V, vi, vii°
+        const DEGREE_QUALITY = ['maj', 'min', 'min', 'maj', 'maj', 'min', 'dim'];
+        const DEGREE_ROMAN = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+        const PROGRESSION_POOL = [
+            [1, 4], [1, 5], [1, 4, 5, 4], [1, 5, 6, 4], [1, 6, 4, 5], [2, 5, 1], [6, 4, 1, 5]
+        ];
+
         function getScale(root) {
             const rootIdx = NOTES.indexOf(root);
             return MAJOR_SCALE.map(interval => NOTES[(rootIdx + interval) % 12]);
@@ -381,11 +423,34 @@
             const scale = getScale(root);
             const chordRoot = scale[degree - 1];
             const rootIdx = NOTES.indexOf(chordRoot);
-            return [
-                NOTES[rootIdx],
-                NOTES[(rootIdx + 4) % 12], // major third
-                NOTES[(rootIdx + 7) % 12]  // perfect fifth
-            ];
+            const quality = DEGREE_QUALITY[degree - 1];
+            const third = quality === 'maj' ? 4 : 3;
+            const fifth = quality === 'dim' ? 6 : 7;
+            return {
+                notes: [NOTES[rootIdx], NOTES[(rootIdx + third) % 12], NOTES[(rootIdx + fifth) % 12]],
+                quality,
+                roman: DEGREE_ROMAN[degree - 1]
+            };
+        }
+
+        function randomKey() {
+            return ALL_KEYS[Math.floor(Math.random() * ALL_KEYS.length)];
+        }
+
+        function randomProgression() {
+            return PROGRESSION_POOL[Math.floor(Math.random() * PROGRESSION_POOL.length)];
+        }
+
+        function loadBest() {
+            try {
+                return JSON.parse(localStorage.getItem('chordTrainerBest')) || { streak: 0, accuracy: 0 };
+            } catch (e) {
+                return { streak: 0, accuracy: 0 };
+            }
+        }
+
+        function saveBest(best) {
+            try { localStorage.setItem('chordTrainerBest', JSON.stringify(best)); } catch (e) {}
         }
 
         // State
@@ -409,8 +474,13 @@
         let isPlaying = false;
         let currentChordDegree = 1;
         let currentChordTones = [];
+        let currentChordQuality = 'maj';
+        let currentChordRoman = 'I';
+        let activeProgression = [1, 4];
+        let shuffleKeyMode = false;
         let loop = null;
-        let stats = { chordTonesHit: 0, totalNotes: 0 };
+        let stats = { chordTonesHit: 0, totalNotes: 0, streak: 0 };
+        let best = loadBest();
         let twoNoteMode = false;
         let allowedNotes = [];
 
@@ -496,12 +566,15 @@
             // Check if it's a chord tone
             const noteBase = note.replace(/[0-9]/g, '');
             const isChordTone = currentChordTones.includes(noteBase);
-            
+
             stats.totalNotes++;
             if (isChordTone) {
                 stats.chordTonesHit++;
+                stats.streak++;
                 key.classList.add('hit-correct');
                 setTimeout(() => key.classList.remove('hit-correct'), 500);
+            } else {
+                stats.streak = 0;
             }
 
             updateStats();
@@ -514,11 +587,14 @@
         }
 
         function updateChordDisplay() {
-            currentChordTones = getChord(key, currentChordDegree);
-            const chordName = currentChordDegree === 1 ? 'I' : 'IV';
-            const fullChordName = currentChordTones[0] + ' Major';
+            const chord = getChord(key, currentChordDegree);
+            currentChordTones = chord.notes;
+            currentChordQuality = chord.quality;
+            currentChordRoman = chord.roman;
+            const qualityName = { maj: 'Major', min: 'Minor', dim: 'Diminished' }[chord.quality];
+            const fullChordName = currentChordTones[0] + ' ' + qualityName;
 
-            document.getElementById('currentChord').textContent = chordName;
+            document.getElementById('currentChord').textContent = currentChordRoman;
             
             if (difficulty === 'beginner') {
                 document.getElementById('chordInfo').textContent = fullChordName;
@@ -564,14 +640,26 @@
 
             await Tone.start();
             Tone.Transport.bpm.value = tempo;
-            
-            const pattern = [1, 4]; // I - IV progression
+
+            const progressionChoice = document.getElementById('progressionSelect').value;
+            activeProgression = progressionChoice === 'random'
+                ? randomProgression()
+                : progressionChoice.split(',').map(Number);
             let patternIdx = 0;
 
             loop = new Tone.Loop((time) => {
-                currentChordDegree = pattern[patternIdx];
-                patternIdx = (patternIdx + 1) % pattern.length;
-                
+                // A fresh pass through the progression — optionally reshuffle key/progression
+                if (patternIdx === 0) {
+                    if (shuffleKeyMode) {
+                        key = randomKey();
+                        Tone.Draw.schedule(() => { document.getElementById('keySelect').value = key; }, time);
+                    }
+                    if (progressionChoice === 'random') activeProgression = randomProgression();
+                }
+
+                currentChordDegree = activeProgression[patternIdx];
+                patternIdx = (patternIdx + 1) % activeProgression.length;
+
                 Tone.Draw.schedule(() => {
                     updateChordDisplay();
                     playChord();
@@ -590,11 +678,24 @@
         function updateStats() {
             document.getElementById('chordTonesHit').textContent = stats.chordTonesHit;
             document.getElementById('totalNotes').textContent = stats.totalNotes;
-            
+            document.getElementById('streak').textContent = stats.streak;
+
             if (stats.totalNotes > 0) {
-                const accuracy = ((stats.chordTonesHit / stats.totalNotes) * 100).toFixed(1);
-                document.getElementById('accuracy').textContent = accuracy + '%';
+                const accuracy = (stats.chordTonesHit / stats.totalNotes) * 100;
+                document.getElementById('accuracy').textContent = accuracy.toFixed(1) + '%';
+
+                // Only let a session set a new accuracy record once it's had enough
+                // reps to mean something — otherwise one lucky note reads as "100% best".
+                if (stats.streak > best.streak) {
+                    best.streak = stats.streak;
+                    saveBest(best);
+                }
+                if (stats.totalNotes >= 10 && accuracy > best.accuracy) {
+                    best.accuracy = accuracy;
+                    saveBest(best);
+                }
             }
+            document.getElementById('bestStreak').textContent = best.streak;
         }
 
         function populateNoteSelectors() {
@@ -657,6 +758,10 @@
             });
         });
 
+        document.getElementById('shuffleKeyMode').addEventListener('change', (e) => {
+            shuffleKeyMode = e.target.checked;
+        });
+
         document.getElementById('twoNoteMode').addEventListener('change', (e) => {
             twoNoteMode = e.target.checked;
             document.getElementById('noteSelector').style.display = twoNoteMode ? 'flex' : 'none';
@@ -681,6 +786,7 @@
         // Initialize
         buildPiano();
         populateNoteSelectors();
+        document.getElementById('bestStreak').textContent = best.streak;
     </script>
 
     <script src="stars.js"></script>
