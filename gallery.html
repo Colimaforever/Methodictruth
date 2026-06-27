@@ -11,7 +11,7 @@
   <meta property="og:image" content="https://methodictruth.com/og-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=60">
+  <link rel="stylesheet" href="styles.css?v=61">
   <style>
     .gallery-room {
       min-height: 100vh;
@@ -281,7 +281,7 @@
         <div class="gallery-dropzone-hint">jpg · png · gif · webp · max 2mb</div>
         <input type="file" id="fileInput" accept="image/*" style="display:none;">
       </div>
-      <img class="gallery-preview" id="preview">
+      <img class="gallery-preview" id="preview" alt="Image preview">
       <input type="text" class="gallery-caption-input" id="captionInput" placeholder="a few words about this piece..." maxlength="200" style="display:none;">
       <div class="gallery-upload-footer">
         <button class="gallery-submit" id="hangBtn" disabled>hang it</button>
@@ -296,7 +296,7 @@
   <!-- Lightbox -->
   <div class="gallery-lightbox" id="lightbox">
     <button class="gallery-lightbox-close">✕</button>
-    <img id="lightboxImg" src="">
+    <img id="lightboxImg" src="" alt="">
     <div class="gallery-lightbox-caption" id="lightboxCaption"></div>
   </div>
 
@@ -470,7 +470,9 @@
       // Lightbox bindings
       galleryWall.querySelectorAll('.gallery-piece-img').forEach(img => {
         img.addEventListener('click', () => {
-          document.getElementById('lightboxImg').src = img.src;
+          const lightboxImg = document.getElementById('lightboxImg');
+          lightboxImg.src = img.src;
+          lightboxImg.alt = img.alt || 'Gallery image';
           document.getElementById('lightboxCaption').textContent = img.alt || '';
           document.getElementById('lightbox').classList.add('open');
         });

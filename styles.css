@@ -312,6 +312,26 @@ body::after {
   font-size: 0.6rem;
 }
 
+/* ─── SKIP LINK ─── */
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 1rem;
+  z-index: 2000;
+  background: var(--sky-deep);
+  color: var(--glow);
+  border: 1px solid var(--glow);
+  padding: 0.6rem 1.1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
 /* ─── HEADER / HERO ─── */
 header {
   position: relative;

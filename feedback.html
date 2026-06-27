@@ -15,7 +15,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=60">
+  <link rel="stylesheet" href="styles.css?v=61">
   <style>
     .fb-page {
       position: relative; z-index: 1;
@@ -102,8 +102,8 @@
   <nav class="site-nav">
     <div class="nav-inner">
       <a class="nav-sigil" href="index.html">◈</a>
-      <input type="checkbox" id="navToggle" class="nav-toggle-input">
-      <label for="navToggle" class="nav-hamburger"><span></span><span></span><span></span></label>
+      <input type="checkbox" id="navToggle" class="nav-toggle-input" aria-label="Toggle navigation menu">
+      <label for="navToggle" class="nav-hamburger" aria-hidden="true"><span></span><span></span><span></span></label>
       <div class="nav-links">
         <a href="chronicles">Chronicles</a>
         <a href="architecture">Architecture</a>
@@ -121,6 +121,8 @@
         </div>
         <a href="topology.html">Topology</a>
         <a href="live.html">Live</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="directory.html">Directory</a>
         <a href="about.html">About</a>
         <a href="feedback.html">Feedback</a>
       </div>
@@ -161,7 +163,7 @@
   </main>
 
   <div id="musicPlayer"></div>
-  <script src="scripts.js?v=67"></script>
+  <script src="scripts.js?v=68"></script>
 
   <!-- Firebase SDK -->
   <script src="lib/firebase-app-compat.js"></script>

@@ -744,6 +744,26 @@ if (_starCanvas && _starCtx) {
   requestAnimationFrame(drawStars);
 }
 
+// ─── SKIP TO CONTENT LINK ───
+function ensureSkipLink() {
+  const nav = document.querySelector('.site-nav');
+  const target = document.querySelector('main')
+    || document.querySelector('.page-header')
+    || (nav && nav.nextElementSibling)
+    || null;
+  if (!target) return;
+  if (!target.id) target.id = 'main-content';
+  if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+  if (!document.querySelector('.skip-link')) {
+    const skip = document.createElement('a');
+    skip.className = 'skip-link';
+    skip.href = '#' + target.id;
+    skip.textContent = 'Skip to content';
+    document.body.insertBefore(skip, document.body.firstChild);
+  }
+}
+ensureSkipLink();
+
 // ─── MOBILE NAV TOGGLE ───
 (function() {
   const navToggle = document.getElementById('navToggle');
@@ -751,28 +771,37 @@ if (_starCanvas && _starCtx) {
   if (!navToggle || !navLinks) return;
   navToggle.addEventListener('click', () => {
     navLinks.classList.toggle('open');
-    navToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
+    const isOpen = navLinks.classList.contains('open');
+    navToggle.textContent = isOpen ? '✕' : '☰';
+    navToggle.setAttribute('aria-expanded', String(isOpen));
   });
   // Close nav when a link is clicked (use event delegation so it works for all links)
   navLinks.addEventListener('click', (e) => {
     if (e.target.closest('a')) {
       navLinks.classList.remove('open');
       navToggle.textContent = '☰';
+      navToggle.setAttribute('aria-expanded', 'false');
       // Also close any open dropdowns
       navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
     }
   });
   // Dropdown toggle on mobile (tap)
   navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+    btn.setAttribute('aria-expanded', 'false');
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const dropdown = btn.closest('.nav-dropdown');
       // Close other dropdowns
       navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => {
-        if (d !== dropdown) d.classList.remove('open');
+        if (d !== dropdown) {
+          d.classList.remove('open');
+          const otherBtn = d.querySelector('.nav-drop-btn');
+          if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+        }
       });
-      dropdown.classList.toggle('open');
+      const nowOpen = dropdown.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(nowOpen));
     });
   });
 })();
@@ -823,7 +852,7 @@ if (_starCanvas && _starCtx) {
       // Swap page content: everything between nav and persistent elements
       // Persistent = starfield, nebula, ground, nav, music player, bgOscilloscope, scripts
       const KEEP = new Set(['SCRIPT', 'CANVAS']);
-      const keepSelectors = '.starfield, .nebula, .ground, .site-nav, #musicPlayer, #bgOscilloscope';
+      const keepSelectors = '.starfield, .nebula, .ground, .site-nav, #musicPlayer, #bgOscilloscope, .skip-link';
 
       // Remove old page content
       Array.from(document.body.children).forEach(el => {
@@ -922,6 +951,7 @@ if (_starCanvas && _starCtx) {
 
       // Re-bind SPA nav links on new content
       bindNavLinks();
+      ensureSkipLink();
 
       // Push state
       if (pushState !== false) {
@@ -932,9 +962,13 @@ if (_starCanvas && _starCtx) {
       const navL = document.getElementById('navLinks');
       const navT = document.getElementById('navToggle');
       if (navL) navL.classList.remove('open');
-      if (navT) navT.textContent = '☰';
+      if (navT) { navT.textContent = '☰'; navT.setAttribute('aria-expanded', 'false'); }
       // Close any open dropdowns
-      document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      document.querySelectorAll('.nav-dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        const btn = d.querySelector('.nav-drop-btn');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      });
 
       // Scroll to top
       window.scrollTo(0, 0);

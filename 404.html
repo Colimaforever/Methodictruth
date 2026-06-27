@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>404 — Lost in the Ruins</title>
+  <meta name="description" content="This page doesn't exist. Find your way back to Methodic Truth.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=61">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <div class="sky-glyph" style="top:12%;left:18%;font-size:2.2rem;animation-delay:0s">𒀭</div>
+  <div class="sky-glyph" style="top:22%;right:12%;font-size:1.8rem;animation-delay:5s">𒌓</div>
+  <div class="sky-glyph" style="top:38%;left:8%;font-size:2.5rem;animation-delay:10s">𒈗</div>
+  <div class="sky-glyph" style="top:42%;right:22%;font-size:1.5rem;animation-delay:15s">𓁹</div>
+  <div class="sky-glyph" style="top:48%;left:25%;font-size:2rem;animation-delay:18s">𓋹</div>
+
+  <main class="nf-main">
+    <div class="nf-glyph" aria-hidden="true">𒀭</div>
+    <h1 class="nf-code">404</h1>
+    <p class="nf-title">Lost in the Ruins</p>
+    <p class="nf-text">This page doesn't exist, or it's been buried. Maybe it was moved, maybe it never stood here at all.</p>
+    <div class="nf-actions">
+      <a href="index.html" class="live-btn">⌿ Return Home</a>
+      <a href="directory.html" class="nf-link">Search the Directory →</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+    <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
+  </footer>
+
+  <style>
+    .nf-main {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    .nf-glyph {
+      font-size: 3rem;
+      opacity: 0.25;
+      margin-bottom: 0.5rem;
+      animation: nfFloat 6s ease-in-out infinite;
+    }
+    @keyframes nfFloat {
+      0%, 100% { transform: translateY(0); opacity: 0.2; }
+      50% { transform: translateY(-8px); opacity: 0.35; }
+    }
+    .nf-code {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(3rem, 10vw, 6rem);
+      letter-spacing: 0.1em;
+      color: var(--parchment);
+      margin: 0;
+      text-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+    }
+    .nf-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--glow);
+      margin: 0.5rem 0 1.2rem;
+    }
+    .nf-text {
+      font-family: 'EB Garamond', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--stone-dark);
+      max-width: 480px;
+      margin: 0 0 2rem;
+      line-height: 1.6;
+    }
+    .nf-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .nf-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--stone-dark);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .nf-link:hover { color: var(--glow); }
+  </style>
+
+  <script src="scripts.js?v=68"></script>
+</body>
+</html>

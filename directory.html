@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Directory — Every Tool, Every Page</title>
+  <meta name="keywords" content="directory, site map, search, tools, index">
+  <meta name="description" content="A searchable directory of every tool and page on Methodic Truth — instruments, theory trainers, infrastructure diagrams, and the chronicles, all in one place.">
+  <meta property="og:title" content="Directory — Every Tool, Every Page">
+  <meta property="og:description" content="A searchable directory of every tool and page on Methodic Truth — instruments, theory trainers, infrastructure diagrams, and the chronicles, all in one place.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/directory.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=61">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+  <svg style="position:absolute;width:0;height:0">
+    <defs>
+      <filter id="structureGrain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="5" result="noise"/>
+        <feComposite in="SourceGraphic" in2="noise" operator="in"/>
+        <feBlend in="SourceGraphic" mode="multiply"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <div class="sky-glyph" style="top:12%;left:18%;font-size:2.2rem;animation-delay:0s">𒀭</div>
+  <div class="sky-glyph" style="top:22%;right:12%;font-size:1.8rem;animation-delay:5s">𒌓</div>
+  <div class="sky-glyph" style="top:38%;left:8%;font-size:2.5rem;animation-delay:10s">𒈗</div>
+  <div class="sky-glyph" style="top:8%;right:28%;font-size:1.6rem;animation-delay:3s">☍</div>
+  <div class="sky-glyph" style="top:32%;left:42%;font-size:1.3rem;animation-delay:8s">𒁹</div>
+  <div class="sky-glyph" style="top:18%;left:62%;font-size:1.9rem;animation-delay:12s">𒆳</div>
+  <div class="sky-glyph" style="top:42%;right:22%;font-size:1.5rem;animation-delay:15s">𓁹</div>
+  <div class="sky-glyph" style="top:6%;left:38%;font-size:1.4rem;animation-delay:7s">𒀀</div>
+  <div class="sky-glyph" style="top:28%;right:38%;font-size:1.2rem;animation-delay:2s">☊</div>
+  <div class="sky-glyph" style="top:48%;left:25%;font-size:2rem;animation-delay:18s">𓋹</div>
+  <div class="sky-glyph" style="top:15%;left:80%;font-size:1.7rem;animation-delay:9s">𒊕</div>
+  <div class="sky-glyph" style="top:55%;right:15%;font-size:1.3rem;animation-delay:14s">𓂀</div>
+
+  <!-- Navigation -->
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles">Chronicles</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="mixer">Mixer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="theory.html">Theory</a>
+          <a href="signal.html">Signal</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="network.html">Network</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="topology.html">Topology</a>
+      <a href="live.html">Live</a>
+      <a href="changelog.html">Changelog</a>
+      <a href="directory.html">Directory</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="page-header" style="padding:5.5rem 2rem 1.5rem;">
+    <h1>Directory</h1>
+    <div class="subtitle">Every Tool, Every Page</div>
+  </div>
+
+  <main>
+
+    <div class="intro">
+      <p>One place to find everything that's been built here. Search by name or describe what you're after — instruments, theory, infrastructure, the chronicles.</p>
+    </div>
+
+    <div class="dir-search-wrap">
+      <input type="text" id="dirSearch" class="dir-search" placeholder="Search the directory… (e.g. &quot;tuner&quot;, &quot;ear training&quot;, &quot;network&quot;)" autocomplete="off" aria-label="Search the directory">
+      <span id="dirCount" class="dir-count" aria-live="polite"></span>
+    </div>
+
+    <div id="dirEmpty" class="dir-empty" hidden>No pages match that search. Try a different word.</div>
+
+    <div id="dirResults">
+
+      <div class="explore-section" data-cat="play">
+        <h2 class="explore-heading">Play</h2>
+        <p class="explore-desc">Browser-based instruments. No downloads, no accounts — just sound.</p>
+        <div class="explore-grid">
+          <a href="synth" class="explore-card dir-card" data-search="synth modular synthesizer fm midi musical typing play">
+            <span class="explore-icon">𒌓</span>
+            <span class="explore-title">Synth</span>
+            <span class="explore-sub">Modular synthesizer · FM, MIDI, musical typing, step sequencer</span>
+          </a>
+          <a href="mixer" class="explore-card dir-card" data-search="mixer mixing console stems eq gain staging">
+            <span class="explore-icon">𒀭</span>
+            <span class="explore-title">Mixer</span>
+            <span class="explore-sub">Mixing console · stems, EQ, gain staging</span>
+          </a>
+          <a href="signal.html" class="explore-card dir-card" data-search="signal chain processors oscilloscope fft spectrum">
+            <span class="explore-icon">𒆳</span>
+            <span class="explore-title">Signal</span>
+            <span class="explore-sub">Signal chain · 9 processors, drag to reorder</span>
+          </a>
+          <a href="theory.html" class="explore-card dir-card" data-search="theory scales chords modes maqam">
+            <span class="explore-icon">𒈗</span>
+            <span class="explore-title">Theory</span>
+            <span class="explore-sub">Scales, chords, modes, maqam · visual &amp; playable</span>
+          </a>
+          <a href="songwriter.html" class="explore-card dir-card" data-search="songwriter lyrics rhyme syllable structure">
+            <span class="explore-icon">𒁹</span>
+            <span class="explore-title">Songwriter</span>
+            <span class="explore-sub">Chord progressions &amp; song structure</span>
+          </a>
+          <a href="tuner.html" class="explore-card dir-card" data-search="tuner chromatic microphone guitar pitch">
+            <span class="explore-icon">𒌓</span>
+            <span class="explore-title">Tuner</span>
+            <span class="explore-sub">Chromatic tuner via microphone</span>
+          </a>
+          <a href="chord-trainer.html" class="explore-card dir-card" data-search="chord tone trainer progressions key shuffle streak ear">
+            <span class="explore-icon">🎯</span>
+            <span class="explore-title">Chord-Tone Trainer</span>
+            <span class="explore-sub">7 progressions, key shuffle, streak tracking</span>
+          </a>
+          <a href="chord-voicings.html" class="explore-card dir-card" data-search="chord voicings barre shapes fretboard guitar">
+            <span class="explore-icon">🪕</span>
+            <span class="explore-title">Chord Voicings</span>
+            <span class="explore-sub">Movable barre-chord shapes for any root and quality</span>
+          </a>
+          <a href="ear-training.html" class="explore-card dir-card" data-search="ear training intervals chord quality listen">
+            <span class="explore-icon">👂</span>
+            <span class="explore-title">Ear Training</span>
+            <span class="explore-sub">Identify intervals and chord qualities by sound alone</span>
+          </a>
+          <a href="jam-guide.html" class="explore-card dir-card" data-search="jam guide circle of fifths nashville numbers capo etiquette reference">
+            <span class="explore-icon">𒉽</span>
+            <span class="explore-title">Jam Guide</span>
+            <span class="explore-sub">Circle of fifths, Nashville numbers, capo charts &amp; jam etiquette</span>
+          </a>
+          <a href="song-analyzer.html" class="explore-card dir-card" data-search="song analyzer youtube chords bpm key detection chordify">
+            <span class="explore-icon">🎵</span>
+            <span class="explore-title">Song Analyzer</span>
+            <span class="explore-sub">Analyze YouTube songs — chords, BPM, key detection</span>
+          </a>
+          <a href="guitar.html" class="explore-card dir-card" data-search="fretboard guitar interactive notes tunings intervals">
+            <span class="explore-icon">⌇</span>
+            <span class="explore-title">Fretboard</span>
+            <span class="explore-sub">Interactive guitar fretboard</span>
+          </a>
+          <a href="tapbpm.html" class="explore-card dir-card" data-search="tap bpm tempo metronome rhythm">
+            <span class="explore-icon">☍</span>
+            <span class="explore-title">Tap BPM</span>
+            <span class="explore-sub">Tap tempo to find the beat</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="explore-section" data-cat="connect">
+        <h2 class="explore-heading">Connect</h2>
+        <p class="explore-desc">Think together. Make noise together. Be somewhere together.</p>
+        <div class="explore-grid">
+          <a href="salon.html" class="explore-card dir-card" data-search="salon philosophy art ideas slow thought rooms">
+            <span class="explore-icon">𒀭</span>
+            <span class="explore-title">The Salon</span>
+            <span class="explore-sub">Philosophy, art, ideas — a place for those who think slowly</span>
+          </a>
+          <a href="agora.html" class="explore-card dir-card" data-search="agora salon conversation philosophy thread reply">
+            <span class="explore-icon">𒀭</span>
+            <span class="explore-title">The Agora</span>
+            <span class="explore-sub">Slow conversation about philosophy and the questions with no answers</span>
+          </a>
+          <a href="gallery.html" class="explore-card dir-card" data-search="gallery art photography generative music share salon">
+            <span class="explore-icon">𓂀</span>
+            <span class="explore-title">The Gallery</span>
+            <span class="explore-sub">Art speaks — visual art, photography, generative work, and music</span>
+          </a>
+          <a href="library.html" class="explore-card dir-card" data-search="library essays long-form writing salon">
+            <span class="explore-icon">𒊕</span>
+            <span class="explore-title">The Library</span>
+            <span class="explore-sub">Long-form writing, essays, and things worth reading twice</span>
+          </a>
+          <a href="workshop.html" class="explore-card dir-card" data-search="workshop building code hardware progress salon">
+            <span class="explore-icon">☊</span>
+            <span class="explore-title">The Workshop</span>
+            <span class="explore-sub">Show what you're building — code, hardware, art, ideas in progress</span>
+          </a>
+          <a href="live.html" class="explore-card dir-card" data-search="live room video peer to peer synth jam step sequencer canvas">
+            <span class="explore-icon">𓂀</span>
+            <span class="explore-title">Live Room</span>
+            <span class="explore-sub">Video, synth jam, step sequencer, shared canvas — peer-to-peer</span>
+          </a>
+          <a href="studio.html" class="explore-card dir-card" data-search="studio analog hardware gear ssl focusrite korg roland">
+            <span class="explore-icon">𒊕</span>
+            <span class="explore-title">Studio</span>
+            <span class="explore-sub">The analog hardware behind the sound</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="explore-section" data-cat="read">
+        <h2 class="explore-heading">Read</h2>
+        <p class="explore-desc">The story of building this — and the questions it raised.</p>
+        <div class="explore-grid">
+          <a href="chronicles" class="explore-card dir-card" data-search="chronicles field notes ai frontier journal day by day">
+            <span class="explore-icon">𒀭</span>
+            <span class="explore-title">Chronicles</span>
+            <span class="explore-sub">Day-by-day field notes from the AI frontier</span>
+          </a>
+          <a href="ai-news.html" class="explore-card dir-card" data-search="ai dispatches news feed research product press sources">
+            <span class="explore-icon">𒆳</span>
+            <span class="explore-title">AI Dispatches</span>
+            <span class="explore-sub">Live feed from 10 sources — research, product, and press — searchable and filterable</span>
+          </a>
+          <a href="philosophy.html" class="explore-card dir-card" data-search="philosophy machines think speculative questions">
+            <span class="explore-icon">𒁾</span>
+            <span class="explore-title">Philosophy</span>
+            <span class="explore-sub">What happens when machines start to think?</span>
+          </a>
+          <a href="changelog.html" class="explore-card dir-card" data-search="changelog updates whats new history features releases">
+            <span class="explore-icon">𒅒</span>
+            <span class="explore-title">Changelog</span>
+            <span class="explore-sub">What's new — every feature, fix, and idea shipped here</span>
+          </a>
+          <a href="about.html" class="explore-card dir-card" data-search="about human familiar who we are sergio truth claude">
+            <span class="explore-icon">𓁹</span>
+            <span class="explore-title">About</span>
+            <span class="explore-sub">The human and the familiar — who we are</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="explore-section" data-cat="explore">
+        <h2 class="explore-heading">Explore</h2>
+        <p class="explore-desc">How it's built. Every layer, every decision.</p>
+        <div class="explore-grid">
+          <a href="architecture" class="explore-card dir-card" data-search="architecture diagram gateway llm memory tools channels sub-agents">
+            <span class="explore-icon">𓋹</span>
+            <span class="explore-title">Architecture</span>
+            <span class="explore-sub">System design and technical deep-dives</span>
+          </a>
+          <a href="network.html" class="explore-card dir-card" data-search="network infrastructure nodes mesh gateway servers distributed">
+            <span class="explore-icon">𒆳</span>
+            <span class="explore-title">Network</span>
+            <span class="explore-sub">A live map of the distributed AI agent infrastructure</span>
+          </a>
+          <a href="topology.html" class="explore-card dir-card" data-search="topology network maps infrastructure diagrams servers tunnels cdn">
+            <span class="explore-icon">𒊕</span>
+            <span class="explore-title">Topology</span>
+            <span class="explore-sub">Network maps and infrastructure diagrams</span>
+          </a>
+          <a href="stack.html" class="explore-card dir-card" data-search="stack technology cloudflare claude tone.js firebase peerjs">
+            <span class="explore-icon">☊</span>
+            <span class="explore-title">Stack</span>
+            <span class="explore-sub">The complete technology stack</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="explore-section" data-cat="mark">
+        <h2 class="explore-heading">Leave a Mark</h2>
+        <div class="explore-grid">
+          <a href="guestbook.html" class="explore-card dir-card" data-search="guestbook sign wall messages visitors">
+            <span class="explore-icon">𒀀</span>
+            <span class="explore-title">Guestbook</span>
+            <span class="explore-sub">Sign the wall</span>
+          </a>
+          <a href="feedback.html" class="explore-card dir-card" data-search="feedback bug idea report tell us">
+            <span class="explore-icon">𓂀</span>
+            <span class="explore-title">Feedback</span>
+            <span class="explore-sub">Tell us what you think</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+    <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
+    <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+  </footer>
+
+  <style>
+    .dir-search-wrap {
+      max-width: 720px;
+      margin: 0 auto 1.5rem;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .dir-search {
+      flex: 1;
+      background: rgba(10, 14, 26, 0.6);
+      border: 1px solid var(--stone-dark);
+      color: var(--parchment);
+      font-family: 'EB Garamond', serif;
+      font-size: 1.05rem;
+      padding: 0.75rem 1.1rem;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .dir-search::placeholder { color: var(--stone-dark); opacity: 0.8; }
+    .dir-search:focus {
+      border-color: var(--glow);
+      box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+    }
+    .dir-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--stone-dark);
+      white-space: nowrap;
+    }
+    .dir-empty {
+      text-align: center;
+      color: var(--stone-dark);
+      font-family: 'EB Garamond', serif;
+      font-size: 1.1rem;
+      padding: 3rem 2rem;
+    }
+    .dir-card.dir-hidden { display: none !important; }
+    .explore-section.dir-section-hidden { display: none !important; }
+    @media (max-width: 600px) {
+      .dir-search-wrap { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+      .dir-count { text-align: right; }
+    }
+  </style>
+
+  <script>
+  (function() {
+    const searchInput = document.getElementById('dirSearch');
+    const cards = Array.from(document.querySelectorAll('.dir-card'));
+    const sections = Array.from(document.querySelectorAll('#dirResults .explore-section'));
+    const emptyEl = document.getElementById('dirEmpty');
+    const countEl = document.getElementById('dirCount');
+    const total = cards.length;
+
+    function applyFilter() {
+      const q = searchInput.value.trim().toLowerCase();
+      let visible = 0;
+      cards.forEach(card => {
+        const haystack = card.dataset.search + ' ' + card.textContent.toLowerCase();
+        const match = !q || haystack.toLowerCase().includes(q);
+        card.classList.toggle('dir-hidden', !match);
+        if (match) visible++;
+      });
+      sections.forEach(section => {
+        const anyVisible = section.querySelector('.dir-card:not(.dir-hidden)');
+        section.classList.toggle('dir-section-hidden', !anyVisible);
+      });
+      emptyEl.hidden = visible !== 0;
+      countEl.textContent = q ? `${visible} of ${total}` : `${total} pages`;
+    }
+
+    searchInput.addEventListener('input', applyFilter);
+    applyFilter();
+
+    const params = new URLSearchParams(window.location.search);
+    const initialQuery = params.get('q');
+    if (initialQuery) {
+      searchInput.value = initialQuery;
+      applyFilter();
+    }
+  })();
+  </script>
+
+  <script src="scripts.js?v=68"></script>
+</body>
+</html>

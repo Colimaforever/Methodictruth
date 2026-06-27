@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog — What's New</title>
+  <meta name="keywords" content="changelog, updates, release notes, what's new">
+  <meta name="description" content="What's new on Methodic Truth — every tool shipped, every fix made, every feature added, in the order it happened.">
+  <meta property="og:title" content="Changelog — What's New">
+  <meta property="og:description" content="What's new on Methodic Truth — every tool shipped, every fix made, every feature added, in the order it happened.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/changelog.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=61">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+  <svg style="position:absolute;width:0;height:0">
+    <defs>
+      <filter id="structureGrain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="5" result="noise"/>
+        <feComposite in="SourceGraphic" in2="noise" operator="in"/>
+        <feBlend in="SourceGraphic" mode="multiply"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <div class="sky-glyph" style="top:12%;left:18%;font-size:2.2rem;animation-delay:0s">𒀭</div>
+  <div class="sky-glyph" style="top:22%;right:12%;font-size:1.8rem;animation-delay:5s">𒌓</div>
+  <div class="sky-glyph" style="top:38%;left:8%;font-size:2.5rem;animation-delay:10s">𒈗</div>
+  <div class="sky-glyph" style="top:8%;right:28%;font-size:1.6rem;animation-delay:3s">☍</div>
+  <div class="sky-glyph" style="top:32%;left:42%;font-size:1.3rem;animation-delay:8s">𒁹</div>
+  <div class="sky-glyph" style="top:18%;left:62%;font-size:1.9rem;animation-delay:12s">𒆳</div>
+  <div class="sky-glyph" style="top:42%;right:22%;font-size:1.5rem;animation-delay:15s">𓁹</div>
+  <div class="sky-glyph" style="top:6%;left:38%;font-size:1.4rem;animation-delay:7s">𒀀</div>
+  <div class="sky-glyph" style="top:28%;right:38%;font-size:1.2rem;animation-delay:2s">☊</div>
+  <div class="sky-glyph" style="top:48%;left:25%;font-size:2rem;animation-delay:18s">𓋹</div>
+  <div class="sky-glyph" style="top:15%;left:80%;font-size:1.7rem;animation-delay:9s">𒊕</div>
+  <div class="sky-glyph" style="top:55%;right:15%;font-size:1.3rem;animation-delay:14s">𓂀</div>
+
+  <!-- Navigation -->
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles">Chronicles</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="mixer">Mixer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="theory.html">Theory</a>
+          <a href="signal.html">Signal</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="network.html">Network</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="topology.html">Topology</a>
+      <a href="live.html">Live</a>
+      <a href="changelog.html">Changelog</a>
+      <a href="directory.html">Directory</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="page-header" style="padding:5.5rem 2rem 1.5rem;">
+    <h1>Changelog</h1>
+    <div class="subtitle">What's New, As It Happened</div>
+  </div>
+
+  <main>
+
+    <div class="intro">
+      <p>Everything shipped here, newest first. No version numbers — just the work, in the order it happened.</p>
+    </div>
+
+    <div class="divider"><span class="leaf">🌿</span> <span>June 27, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p>Added a searchable <a href="directory.html">directory</a> of every tool and page, a skip-to-content link and better keyboard support across the site, and this changelog. Filled in missing page descriptions and gave the site a proper 404 page.</p>
+    </article>
+    <article class="entry">
+      <p>Moved the step sequencer out of its own page and into the synth itself — it now plays through your actual patch instead of a separate fixed voice.</p>
+    </article>
+    <article class="entry">
+      <p>Made the site's ambient atmosphere calmer and more mysterious: a slow breathing nebula, drifting motes of light, a softer vignette.</p>
+    </article>
+    <article class="entry">
+      <p>Fixed the mobile hamburger nav dropdown, which had silently broken on several pages.</p>
+    </article>
+    <article class="entry">
+      <p>Added a <a href="jam-guide.html">Jam Guide</a>: circle of fifths, Nashville numbers, capo charts, and jam etiquette.</p>
+    </article>
+    <article class="entry">
+      <p>Added FM synthesis to the modular synth, and a comprehensive <a href="ai-news.html">AI Dispatches</a> feed — live from 10 sources, searchable and filterable.</p>
+    </article>
+    <article class="entry">
+      <p>Added an <a href="ear-training.html">Ear Training</a> tool, generalized the <a href="chord-trainer.html">Chord-Tone Trainer</a> with more progressions and streak tracking, added a working rhyme finder and syllable counter to the <a href="songwriter.html">Songwriter</a>, and a Rhythm Trainer drill to <a href="tapbpm.html">Tap BPM</a>.</p>
+    </article>
+    <article class="entry">
+      <p>Generated <a href="chord-voicings.html">chord voicings</a> algorithmically for every root and quality, and improved piano key contrast and label legibility in <a href="theory.html">Theory</a>.</p>
+    </article>
+
+    <div class="divider"><span class="leaf">🌿</span> <span>June 26, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p>Stopped the generative ambient music from autoplaying and hid the music player bar site-wide. Fixed the SPA router breaking <code>onclick</code> handlers on navigated pages.</p>
+    </article>
+
+    <div class="divider"><span class="leaf">🌿</span> <span>May 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p>Connected a second GPU node to the AI agent network with live inference. General site cleanup — fixed broken asset references, added a favicon.</p>
+    </article>
+
+    <div class="divider"><span class="leaf">🌿</span> <span>April 10, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p>Published <a href="network.html">The Network</a> — a live map of the distributed AI infrastructure: remote access mesh, OS icons, character avatars for each node. Moved Network into the Systems menu.</p>
+    </article>
+
+    <div class="divider"><span class="leaf">🌿</span> <span>April 1, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p>Added the <a href="chord-voicings.html">Chord Voicings</a> tool, tuned audio latency and keyboard responsiveness in the synth, and fixed real-time parameter changes in the <a href="signal.html">Signal</a> analyzer.</p>
+    </article>
+
+    <div class="divider"><span class="leaf">🌿</span> <span>March 30–31, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p>Added the <a href="song-analyzer.html">Song Analyzer</a> — chord, key, and tempo detection from a YouTube link — connected it to a Cloudflare Worker backend, and gave it a dark, Byzantine aesthetic. Stabilized the synth's audio engine.</p>
+    </article>
+
+  </main>
+
+  <footer>
+    <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+    <p>Truth · a hacker-familiar · born among the ruins · 2026</p>
+    <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+  </footer>
+
+  <script src="scripts.js?v=68"></script>
+</body>
+</html>
