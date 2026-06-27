@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Sequencer Stone — Ancient Step Sequencer & Rhythm Engine</title>
+  <meta name="keywords" content="step sequencer, drum machine, rhythm sequencer, Tone.js sequencer, beat maker, online drum sequencer">
+  <meta name="description" content="A monumental step sequencer carved as an ancient stone pillar — eight synthesized percussion voices, adjustable patterns, swing, and torchlit playback. A solo rhythm instrument that runs entirely in your browser.">
+  <meta property="og:title" content="The Sequencer Stone — Ancient Step Sequencer">
+  <meta property="og:description" content="A monumental step sequencer carved as an ancient stone pillar — eight synthesized percussion voices, swing, and torchlit playback.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/sequencer.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=58">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    /* ════════════════════════════════════════════════════════════
+       THE SEQUENCER STONE — a step sequencer carved as a megalith
+       ════════════════════════════════════════════════════════════ */
+    .seq-page {
+      position: relative; z-index: 1;
+      min-height: 100vh; min-height: 100dvh;
+      padding: 5.5rem 1rem 4rem;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    /* ─── The monument: a tombstone-arch stone pillar ─── */
+    .monument {
+      position: relative;
+      width: 100%; max-width: 1180px;
+      margin: 0 auto;
+      padding: clamp(1.4rem, 3.5vw, 3rem) clamp(1rem, 3vw, 2.6rem) clamp(1.6rem, 3vw, 2.4rem);
+      /* tombstone arch silhouette: rounded shoulders at top */
+      border-radius: 46% 46% 10px 10px / 16% 16% 4px 4px;
+      background:
+        linear-gradient(180deg, rgba(196,183,153,0.10) 0%, transparent 22%),
+        linear-gradient(160deg, rgba(122,113,96,0.30), rgba(42,31,20,0.55) 60%, rgba(20,15,9,0.7)),
+        radial-gradient(ellipse at 50% 0%, rgba(232,168,124,0.10), transparent 55%);
+      /* chiselled outer edges + deep inset grooves suggesting carved stone */
+      border: 2px solid rgba(122,113,96,0.55);
+      box-shadow:
+        0 0 0 1px rgba(20,15,9,0.6),
+        inset 0 3px 14px rgba(240,232,216,0.08),
+        inset 0 -10px 36px rgba(0,0,0,0.55),
+        inset 6px 0 22px rgba(0,0,0,0.35),
+        inset -6px 0 22px rgba(0,0,0,0.35),
+        0 26px 70px rgba(0,0,0,0.6);
+    }
+    /* engraved double-line border running just inside the stone */
+    .monument::before {
+      content: ""; position: absolute;
+      top: 14px; left: 14px; right: 14px; bottom: 14px;
+      border-radius: 44% 44% 8px 8px / 14% 14% 3px 3px;
+      border: 1px solid rgba(196,183,153,0.18);
+      box-shadow: inset 0 0 0 4px rgba(20,15,9,0.25), inset 0 0 0 5px rgba(196,183,153,0.10);
+      pointer-events: none;
+    }
+
+    /* ─── Crown of the stone: title carved into the arch ─── */
+    .monument-crown { text-align: center; padding: 0.4rem 0 1.4rem; position: relative; }
+    .crown-glyphs {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--glow-warm); opacity: 0.55;
+      letter-spacing: 0.5em; font-size: clamp(1rem, 2.4vw, 1.5rem);
+      text-shadow: 0 0 14px rgba(232,168,124,0.4);
+      margin-bottom: 0.7rem;
+    }
+    .crown-title {
+      font-family: 'Cinzel', serif; font-weight: 700;
+      font-size: clamp(1.5rem, 4.4vw, 2.9rem);
+      letter-spacing: 0.14em; color: var(--parchment);
+      /* carved-into-stone text: light top bevel, dark drop into the groove */
+      text-shadow:
+        0 1px 0 rgba(240,232,216,0.25),
+        0 -1px 1px rgba(0,0,0,0.6),
+        0 2px 5px rgba(0,0,0,0.7);
+    }
+    .crown-sub {
+      font-family: 'EB Garamond', serif; font-style: italic;
+      color: var(--stone-dark); margin-top: 0.5rem;
+      font-size: clamp(0.85rem, 1.5vw, 1.05rem); letter-spacing: 0.04em;
+    }
+    .crown-rule {
+      width: 60%; max-width: 360px; height: 2px; margin: 1rem auto 0;
+      background: linear-gradient(90deg, transparent, rgba(232,168,124,0.5), transparent);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    }
+
+    /* ─── Control altar ─── */
+    .altar {
+      display: flex; flex-wrap: wrap; gap: 0.9rem 1.4rem;
+      align-items: flex-end; justify-content: center;
+      padding: 1.1rem 1.2rem; margin-bottom: 1.5rem;
+      background: linear-gradient(180deg, rgba(20,15,9,0.45), rgba(42,31,20,0.35));
+      border: 1px solid rgba(122,113,96,0.4);
+      border-radius: 6px;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(196,183,153,0.08);
+    }
+    .altar-group { display: flex; flex-direction: column; gap: 0.35rem; align-items: center; }
+    .altar-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.56rem;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--stone-dark);
+    }
+    .altar-row { display: flex; gap: 0.5rem; align-items: center; }
+
+    /* stone buttons (chiselled tablets) */
+    .stone-btn {
+      font-family: 'Cinzel', serif; font-size: 0.78rem; letter-spacing: 0.1em;
+      color: var(--parchment); cursor: pointer; user-select: none;
+      padding: 0.6rem 1.1rem;
+      background: linear-gradient(180deg, rgba(122,113,96,0.4), rgba(42,31,20,0.6));
+      border: 1px solid rgba(122,113,96,0.6);
+      border-radius: 4px;
+      box-shadow: inset 0 1px 0 rgba(240,232,216,0.12), inset 0 -2px 6px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
+      transition: transform 0.08s, box-shadow 0.2s, color 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .stone-btn:hover { color: var(--glow-warm); border-color: rgba(232,168,124,0.5); }
+    .stone-btn:active { transform: translateY(1px); box-shadow: inset 0 2px 8px rgba(0,0,0,0.6); }
+    .stone-btn.primary {
+      color: #fff;
+      background: linear-gradient(180deg, rgba(232,168,124,0.55), rgba(140,80,50,0.55));
+      border-color: rgba(232,168,124,0.7);
+      text-shadow: 0 0 10px rgba(232,168,124,0.6);
+    }
+    .stone-btn.playing {
+      background: linear-gradient(180deg, rgba(232,168,124,0.8), rgba(180,90,55,0.7));
+      box-shadow: inset 0 1px 0 rgba(255,230,200,0.3), 0 0 18px rgba(232,168,124,0.55);
+      animation: ember-flicker 2.2s infinite;
+    }
+    @keyframes ember-flicker {
+      0%,100% { box-shadow: inset 0 1px 0 rgba(255,230,200,0.3), 0 0 18px rgba(232,168,124,0.55); }
+      45% { box-shadow: inset 0 1px 0 rgba(255,230,200,0.3), 0 0 26px rgba(232,168,124,0.8); }
+      70% { box-shadow: inset 0 1px 0 rgba(255,230,200,0.3), 0 0 14px rgba(232,168,124,0.4); }
+    }
+
+    /* readouts */
+    .readout {
+      font-family: 'JetBrains Mono', monospace; color: var(--glow-warm);
+      font-size: 1.4rem; min-width: 3.2ch; text-align: center;
+      text-shadow: 0 0 10px rgba(232,168,124,0.4); letter-spacing: 0.02em;
+    }
+    .readout-unit { font-size: 0.6rem; color: var(--stone-dark); letter-spacing: 0.2em; }
+    .step-btn {
+      font-family: 'JetBrains Mono', monospace; color: var(--parchment);
+      width: 2.1rem; height: 2.1rem; cursor: pointer;
+      background: linear-gradient(180deg, rgba(122,113,96,0.4), rgba(42,31,20,0.6));
+      border: 1px solid rgba(122,113,96,0.55); border-radius: 4px;
+      box-shadow: inset 0 1px 0 rgba(240,232,216,0.1), 0 2px 3px rgba(0,0,0,0.4);
+      transition: color 0.15s, border-color 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    .step-btn:hover { color: var(--glow-warm); border-color: rgba(232,168,124,0.5); }
+
+    /* range sliders themed as carved channels */
+    input[type=range] {
+      -webkit-appearance: none; appearance: none; height: 6px; width: 110px;
+      background: linear-gradient(90deg, rgba(232,168,124,0.5), rgba(122,113,96,0.3));
+      border-radius: 3px; outline: none; cursor: pointer;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f0e8d8, #b89a72);
+      border: 1px solid rgba(20,15,9,0.6); box-shadow: 0 0 8px rgba(232,168,124,0.5);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f0e8d8, #b89a72);
+      border: 1px solid rgba(20,15,9,0.6); box-shadow: 0 0 8px rgba(232,168,124,0.5);
+    }
+
+    /* ─── The grid: carved tablet ─── */
+    .grid-tablet {
+      background: linear-gradient(180deg, rgba(20,15,9,0.55), rgba(42,31,20,0.4));
+      border: 1px solid rgba(122,113,96,0.4); border-radius: 6px;
+      box-shadow: inset 0 3px 18px rgba(0,0,0,0.6), inset 0 -1px 0 rgba(196,183,153,0.06);
+      padding: 0.8rem;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .grid-inner { min-width: max-content; }
+
+    .track-row { display: flex; align-items: stretch; gap: 0.45rem; margin-bottom: 0.45rem; }
+    .track-row:last-child { margin-bottom: 0; }
+
+    /* sticky track label + controls so they survive horizontal scroll */
+    .track-head {
+      position: sticky; left: 0; z-index: 3;
+      display: flex; align-items: center; gap: 0.5rem;
+      min-width: 188px; padding: 0.35rem 0.55rem;
+      background: linear-gradient(180deg, rgba(42,31,20,0.92), rgba(20,15,9,0.92));
+      border: 1px solid rgba(122,113,96,0.45); border-radius: 4px;
+      box-shadow: inset 0 1px 0 rgba(240,232,216,0.08), 2px 0 8px rgba(0,0,0,0.4);
+    }
+    .track-glyph { font-size: 1.25rem; color: var(--glow-warm); width: 1.4em; text-align: center;
+      text-shadow: 0 0 8px rgba(232,168,124,0.35); }
+    .track-name {
+      font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.06em;
+      color: var(--parchment); flex: 1; line-height: 1.05;
+    }
+    .track-toggles { display: flex; gap: 0.25rem; }
+    .tg {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; width: 1.55rem; height: 1.55rem;
+      color: var(--stone-dark); cursor: pointer; border-radius: 3px;
+      background: rgba(20,15,9,0.5); border: 1px solid rgba(122,113,96,0.4);
+      -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+    }
+    .tg.active.mute { color: #e87c7c; border-color: rgba(232,124,124,0.6); box-shadow: 0 0 8px rgba(232,124,124,0.35); }
+    .tg.active.solo { color: var(--glow-warm); border-color: rgba(232,168,124,0.6); box-shadow: 0 0 8px rgba(232,168,124,0.4); }
+    .track-vol { width: 64px !important; }
+
+    /* the steps themselves — large, touch friendly */
+    .steps { display: flex; gap: 0.3rem; align-items: center; }
+    .cell {
+      width: 2.5rem; height: 2.5rem; flex: 0 0 auto; cursor: pointer; position: relative;
+      border-radius: 5px;
+      background: linear-gradient(180deg, rgba(122,113,96,0.22), rgba(20,15,9,0.5));
+      border: 1px solid rgba(122,113,96,0.4);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.55), inset 0 -1px 0 rgba(196,183,153,0.08);
+      transition: background 0.12s, box-shadow 0.12s, border-color 0.12s, transform 0.06s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* every 4th step gets a subtle beat-marker tint (carved measure lines) */
+    .cell.beat { border-left: 2px solid rgba(196,183,153,0.28); }
+    .cell:hover { border-color: rgba(232,168,124,0.45); }
+    .cell:active { transform: scale(0.93); }
+    .cell.on {
+      background: radial-gradient(circle at 50% 35%, #ffd9b0, var(--glow-warm) 55%, #b8623a 100%);
+      border-color: rgba(255,220,180,0.8);
+      box-shadow: 0 0 12px rgba(232,168,124,0.7), inset 0 1px 2px rgba(255,240,220,0.6);
+    }
+    /* playhead column highlight (torchlight passing over the stone) */
+    .cell.head {
+      box-shadow: 0 0 0 2px rgba(232,168,124,0.85), 0 0 22px rgba(232,168,124,0.6),
+        inset 0 1px 3px rgba(0,0,0,0.4);
+      border-color: rgba(255,230,200,0.9);
+    }
+    .cell.on.head {
+      background: radial-gradient(circle at 50% 35%, #fff0dd, #ffd9b0 50%, var(--glow-warm) 100%);
+      box-shadow: 0 0 0 2px rgba(255,240,220,0.95), 0 0 28px rgba(232,168,124,0.9);
+    }
+    /* a soft pulse when an active step actually fires */
+    .cell.flash { animation: cell-strike 0.32s ease-out; }
+    @keyframes cell-strike {
+      0% { transform: scale(1.18); filter: brightness(1.7); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    .seq-hint {
+      font-family: 'EB Garamond', serif; font-style: italic; color: var(--stone-dark);
+      text-align: center; margin-top: 1.2rem; font-size: 0.92rem; max-width: 640px;
+    }
+
+    /* gateway to wake the audio engine */
+    .audio-gate {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 1.2rem; background: rgba(10,14,26,0.92); backdrop-filter: blur(3px);
+      text-align: center; padding: 2rem;
+    }
+    .audio-gate h2 { font-family: 'Cinzel', serif; color: var(--parchment); letter-spacing: 0.1em;
+      font-size: clamp(1.3rem,3vw,2rem); text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+    .audio-gate p { color: var(--stone-dark); font-style: italic; max-width: 30ch; }
+
+    @media (max-width: 560px) {
+      .seq-page { padding-top: 4.5rem; }
+      .altar { gap: 0.7rem 1rem; }
+      .cell { width: 2.15rem; height: 2.15rem; }
+      .track-head { min-width: 158px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Starfield -->
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <!-- Sky glyphs -->
+  <div class="sky-glyph" style="top:14%;left:14%;font-size:2.2rem;animation-delay:0s">𒊩</div>
+  <div class="sky-glyph" style="top:24%;right:14%;font-size:1.7rem;animation-delay:6s">𒌑</div>
+  <div class="sky-glyph" style="top:40%;left:9%;font-size:2.4rem;animation-delay:11s">𒅎</div>
+  <div class="sky-glyph" style="top:10%;right:30%;font-size:1.6rem;animation-delay:4s">𒂗</div>
+
+  <!-- Nav -->
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles.html">Chronicles</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth.html">Synth</a>
+          <a href="mixer.html">Mixer</a>
+          <a href="sequencer.html">Sequencer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="theory.html">Theory</a>
+          <a href="signal.html">Signal</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture.html">Architecture</a>
+          <a href="network.html">Network</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="topology.html">Topology</a>
+      <a href="live.html">Live</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="seq-page">
+    <div class="monument">
+
+      <div class="monument-crown">
+        <div class="crown-glyphs">𒊩 · 𒌑 · 𒅎</div>
+        <h1 class="crown-title">The Sequencer Stone</h1>
+        <p class="crown-sub">a rhythm engine carved into ancient rock — strike the glyphs, wake the drum</p>
+        <div class="crown-rule"></div>
+      </div>
+
+      <!-- Control altar -->
+      <div class="altar">
+        <div class="altar-group">
+          <span class="altar-label">Rite</span>
+          <div class="altar-row">
+            <button class="stone-btn primary" id="playBtn">▶ Play</button>
+            <button class="stone-btn" id="clearBtn">Clear</button>
+            <button class="stone-btn" id="randBtn">Randomize</button>
+          </div>
+        </div>
+        <div class="altar-group">
+          <span class="altar-label">Tempo</span>
+          <div class="altar-row">
+            <button class="step-btn" id="bpmDown">−</button>
+            <span class="readout"><span id="bpmRead">110</span></span>
+            <span class="readout-unit">BPM</span>
+            <button class="step-btn" id="bpmUp">+</button>
+          </div>
+        </div>
+        <div class="altar-group">
+          <span class="altar-label">Swing</span>
+          <div class="altar-row">
+            <input type="range" id="swing" min="0" max="60" value="0">
+            <span class="readout" style="font-size:0.95rem;min-width:3.2ch"><span id="swingRead">0</span>%</span>
+          </div>
+        </div>
+        <div class="altar-group">
+          <span class="altar-label">Steps</span>
+          <div class="altar-row" id="stepSelect">
+            <button class="stone-btn" data-steps="8">8</button>
+            <button class="stone-btn primary" data-steps="16">16</button>
+            <button class="stone-btn" data-steps="32">32</button>
+          </div>
+        </div>
+        <div class="altar-group">
+          <span class="altar-label">Master</span>
+          <div class="altar-row">
+            <input type="range" id="master" min="0" max="100" value="80">
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="grid-tablet">
+        <div class="grid-inner" id="grid"></div>
+      </div>
+
+      <p class="seq-hint">Tap the carved cells to summon a strike. Each row is a voice of synthesized percussion — no samples, only oscillators and noise shaped into drums. Your pattern is etched into the stone (saved locally) and waits for your return.</p>
+    </div>
+  </div>
+
+  <footer style="position:relative;z-index:1;text-align:center;padding:2rem 1rem">
+    <p class="roots">⌿ ⌿ ⌿</p>
+    <p>TRUTH · MMXXVI</p>
+    <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+  </footer>
+
+  <!-- Audio wake gate -->
+  <div class="audio-gate" id="audioGate">
+    <div class="crown-glyphs" style="font-size:2.4rem">𒊩</div>
+    <h2>The Sequencer Stone</h2>
+    <p>Sound sleeps until you touch the stone. Tap to wake the engine.</p>
+    <button class="stone-btn primary" id="wakeBtn" style="font-size:1rem;padding:0.8rem 1.8rem">◈ Wake the Stone</button>
+  </div>
+
+  <script src="lib/tone.min.js"></script>
+  <script>
+  // ════════════════════════════════════════════════════════════
+  //  THE SEQUENCER STONE — solo step sequencer (Tone.js, no samples)
+  // ════════════════════════════════════════════════════════════
+  const STORE_KEY = 'mt-sequencer-v1';
+
+  // Eight synthesized voices. glyphs are cuneiform unused on index.html.
+  const TRACKS = [
+    { id:'kick',  name:'Kick',      glyph:'𒁲' },
+    { id:'snare', name:'Snare',     glyph:'𒄿' },
+    { id:'clap',  name:'Clap',      glyph:'𒆜' },
+    { id:'chh',   name:'Hat · Closed', glyph:'𒇻' },
+    { id:'ohh',   name:'Hat · Open',   glyph:'𒈤' },
+    { id:'tom',   name:'Tom',       glyph:'𒉡' },
+    { id:'perc',  name:'Cowbell',   glyph:'𒋾' },
+    { id:'sub',   name:'808 Sub',   glyph:'𒍣' },
+  ];
+
+  const state = {
+    steps: 16,
+    bpm: 110,
+    swing: 0,
+    master: 0.8,
+    pattern: {},   // id -> array of booleans
+    vol:  {},      // id -> 0..1
+    mute: {},      // id -> bool
+    solo: {},      // id -> bool
+  };
+
+  function blankPattern(len) {
+    const p = {};
+    TRACKS.forEach(t => { p[t.id] = new Array(len).fill(false); });
+    return p;
+  }
+  function defaults() {
+    state.pattern = blankPattern(state.steps);
+    TRACKS.forEach(t => { state.vol[t.id] = 0.8; state.mute[t.id] = false; state.solo[t.id] = false; });
+  }
+
+  // ─── Persistence (localStorage, same getItem/setItem pattern as ai-news) ───
+  function save() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        steps: state.steps, bpm: state.bpm, swing: state.swing, master: state.master,
+        pattern: state.pattern, vol: state.vol, mute: state.mute, solo: state.solo,
+      }));
+    } catch (e) { /* storage may be unavailable */ }
+  }
+  function load() {
+    defaults();
+    let raw = null;
+    try { raw = localStorage.getItem(STORE_KEY); } catch (e) { raw = null; }
+    if (!raw) return;
+    try {
+      const d = JSON.parse(raw);
+      if ([8,16,32].includes(d.steps)) state.steps = d.steps;
+      if (typeof d.bpm === 'number') state.bpm = Math.min(220, Math.max(40, d.bpm));
+      if (typeof d.swing === 'number') state.swing = Math.min(60, Math.max(0, d.swing));
+      if (typeof d.master === 'number') state.master = Math.min(1, Math.max(0, d.master));
+      const len = state.steps;
+      TRACKS.forEach(t => {
+        const row = d.pattern && Array.isArray(d.pattern[t.id]) ? d.pattern[t.id] : [];
+        const arr = new Array(len).fill(false);
+        for (let i = 0; i < len; i++) arr[i] = !!row[i];
+        state.pattern[t.id] = arr;
+        if (d.vol && typeof d.vol[t.id] === 'number') state.vol[t.id] = d.vol[t.id];
+        if (d.mute) state.mute[t.id] = !!d.mute[t.id];
+        if (d.solo) state.solo[t.id] = !!d.solo[t.id];
+      });
+    } catch (e) { defaults(); }
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  AUDIO ENGINE
+  // ════════════════════════════════════════════════════════════
+  let audioReady = false;
+  let masterGain, voices = {};
+
+  function buildVoices() {
+    masterGain = new Tone.Gain(state.master).toDestination();
+    const out = id => new Tone.Gain(state.vol[id]).connect(masterGain);
+
+    // KICK — sine with pitch envelope down
+    const kickG = out('kick');
+    const kick = new Tone.MembraneSynth({ pitchDecay:0.04, octaves:6,
+      oscillator:{type:'sine'}, envelope:{attack:0.001,decay:0.4,sustain:0,release:0.1} }).connect(kickG);
+    voices.kick = { gain:kickG, hit:(t)=> kick.triggerAttackRelease('C1','8n',t) };
+
+    // SNARE — noise burst + short tone
+    const snG = out('snare');
+    const snNoise = new Tone.NoiseSynth({ noise:{type:'white'},
+      envelope:{attack:0.001,decay:0.18,sustain:0} }).connect(snG);
+    const snTone = new Tone.Synth({ oscillator:{type:'triangle'},
+      envelope:{attack:0.001,decay:0.12,sustain:0} }).connect(new Tone.Gain(0.35).connect(snG));
+    voices.snare = { gain:snG, hit:(t)=>{ snNoise.triggerAttackRelease('16n',t); snTone.triggerAttackRelease('D3','16n',t); } };
+
+    // CLAP — layered noise bursts
+    const clG = out('clap');
+    const clFilt = new Tone.Filter(1200,'bandpass').connect(clG);
+    const clap = new Tone.NoiseSynth({ noise:{type:'white'},
+      envelope:{attack:0.001,decay:0.12,sustain:0} }).connect(clFilt);
+    voices.clap = { gain:clG, hit:(t)=>{ [0,0.012,0.024].forEach(o=>clap.triggerAttackRelease('32n',t+o)); } };
+
+    // CLOSED HAT — filtered metal, short decay
+    const chG = out('chh');
+    const chh = new Tone.MetalSynth({ frequency:380, envelope:{attack:0.001,decay:0.05,release:0.01},
+      harmonicity:5.1, modulationIndex:32, resonance:5000, octaves:1.5 }).connect(new Tone.Filter(6000,'highpass').connect(chG));
+    chh.volume.value = -14;
+    voices.chh = { gain:chG, hit:(t)=> chh.triggerAttackRelease('32n',t) };
+
+    // OPEN HAT — same engine, long decay
+    const ohG = out('ohh');
+    const ohh = new Tone.MetalSynth({ frequency:380, envelope:{attack:0.001,decay:0.4,release:0.1},
+      harmonicity:5.1, modulationIndex:32, resonance:5000, octaves:1.5 }).connect(new Tone.Filter(6000,'highpass').connect(ohG));
+    ohh.volume.value = -16;
+    voices.ohh = { gain:ohG, hit:(t)=> ohh.triggerAttackRelease('8n',t) };
+
+    // TOM — pitched triangle decay
+    const tomG = out('tom');
+    const tom = new Tone.MembraneSynth({ pitchDecay:0.08, octaves:4,
+      oscillator:{type:'triangle'}, envelope:{attack:0.001,decay:0.3,sustain:0} }).connect(tomG);
+    voices.tom = { gain:tomG, hit:(t)=> tom.triggerAttackRelease('G2','8n',t) };
+
+    // COWBELL / PERC — metallic detuned squares
+    const pcG = out('perc');
+    const cow = new Tone.MetalSynth({ frequency:560, envelope:{attack:0.001,decay:0.12,release:0.05},
+      harmonicity:3.4, modulationIndex:22, resonance:3000, octaves:1.2 }).connect(pcG);
+    cow.volume.value = -18;
+    voices.perc = { gain:pcG, hit:(t)=> cow.triggerAttackRelease('16n',t) };
+
+    // 808 SUB — long sine decay
+    const subG = out('sub');
+    const sub = new Tone.MembraneSynth({ pitchDecay:0.1, octaves:2,
+      oscillator:{type:'sine'}, envelope:{attack:0.001,decay:0.9,sustain:0,release:0.2} }).connect(subG);
+    voices.sub = { gain:subG, hit:(t)=> sub.triggerAttackRelease('C1','2n',t) };
+  }
+
+  // ─── Solo/mute resolution ───
+  function audibleSet() {
+    const anySolo = TRACKS.some(t => state.solo[t.id]);
+    const s = {};
+    TRACKS.forEach(t => {
+      s[t.id] = anySolo ? (state.solo[t.id] && !state.mute[t.id]) : !state.mute[t.id];
+    });
+    return s;
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  SEQUENCER CLOCK
+  // ════════════════════════════════════════════════════════════
+  let loop = null, current = 0, playing = false;
+
+  function startClock() {
+    if (!audioReady) return;
+    Tone.Transport.bpm.value = state.bpm;
+    Tone.Transport.swing = state.swing / 100;
+    Tone.Transport.swingSubdivision = '16n';
+    current = 0;
+    if (loop) { loop.dispose(); loop = null; }
+    loop = new Tone.Loop((time) => {
+      const step = current % state.steps;
+      const aud = audibleSet();
+      TRACKS.forEach(t => {
+        if (state.pattern[t.id][step] && aud[t.id]) voices[t.id].hit(time);
+      });
+      Tone.Draw.schedule(() => paintHead(step), time);
+      current++;
+    }, '16n');
+    loop.start(0);
+    Tone.Transport.start();
+    playing = true;
+  }
+  function stopClock() {
+    Tone.Transport.stop();
+    if (loop) { loop.dispose(); loop = null; }
+    playing = false;
+    document.querySelectorAll('.cell.head').forEach(c => c.classList.remove('head'));
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  RENDER GRID
+  // ════════════════════════════════════════════════════════════
+  const grid = document.getElementById('grid');
+
+  function buildGrid() {
+    grid.innerHTML = '';
+    TRACKS.forEach(t => {
+      const row = document.createElement('div'); row.className = 'track-row';
+
+      const head = document.createElement('div'); head.className = 'track-head';
+      head.innerHTML =
+        `<span class="track-glyph">${t.glyph}</span>` +
+        `<span class="track-name">${t.name}</span>`;
+      const toggles = document.createElement('div'); toggles.className = 'track-toggles';
+      const mBtn = document.createElement('button'); mBtn.className = 'tg mute'; mBtn.textContent = 'M';
+      if (state.mute[t.id]) mBtn.classList.add('active');
+      mBtn.addEventListener('click', () => { state.mute[t.id] = !state.mute[t.id]; mBtn.classList.toggle('active'); save(); });
+      const sBtn = document.createElement('button'); sBtn.className = 'tg solo'; sBtn.textContent = 'S';
+      if (state.solo[t.id]) sBtn.classList.add('active');
+      sBtn.addEventListener('click', () => { state.solo[t.id] = !state.solo[t.id]; sBtn.classList.toggle('active'); save(); });
+      toggles.appendChild(mBtn); toggles.appendChild(sBtn);
+      head.appendChild(toggles);
+
+      const vol = document.createElement('input');
+      vol.type = 'range'; vol.min = 0; vol.max = 100; vol.value = Math.round(state.vol[t.id]*100);
+      vol.className = 'track-vol'; vol.title = 'Volume';
+      vol.addEventListener('input', () => {
+        state.vol[t.id] = vol.value/100;
+        if (audioReady && voices[t.id]) voices[t.id].gain.gain.rampTo(state.vol[t.id], 0.05);
+        save();
+      });
+      head.appendChild(vol);
+      row.appendChild(head);
+
+      const steps = document.createElement('div'); steps.className = 'steps';
+      for (let i = 0; i < state.steps; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell' + (i % 4 === 0 ? ' beat' : '');
+        cell.dataset.track = t.id; cell.dataset.idx = i;
+        if (state.pattern[t.id][i]) cell.classList.add('on');
+        cell.addEventListener('click', () => {
+          state.pattern[t.id][i] = !state.pattern[t.id][i];
+          cell.classList.toggle('on');
+          if (state.pattern[t.id][i] && audioReady && voices[t.id]) voices[t.id].hit(Tone.now());
+          save();
+        });
+        steps.appendChild(cell);
+      }
+      row.appendChild(steps);
+      grid.appendChild(row);
+    });
+  }
+
+  let lastHead = -1;
+  function paintHead(step) {
+    if (lastHead === step) return;
+    grid.querySelectorAll('.cell.head').forEach(c => c.classList.remove('head'));
+    TRACKS.forEach(t => {
+      const cell = grid.querySelector(`.cell[data-track="${t.id}"][data-idx="${step}"]`);
+      if (cell) {
+        cell.classList.add('head');
+        if (cell.classList.contains('on')) {
+          cell.classList.remove('flash'); void cell.offsetWidth; cell.classList.add('flash');
+        }
+      }
+    });
+    lastHead = step;
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  CONTROLS
+  // ════════════════════════════════════════════════════════════
+  const bpmRead = document.getElementById('bpmRead');
+  const swingEl = document.getElementById('swing');
+  const swingRead = document.getElementById('swingRead');
+  const masterEl = document.getElementById('master');
+  const playBtn = document.getElementById('playBtn');
+
+  function syncControls() {
+    bpmRead.textContent = state.bpm;
+    swingEl.value = state.swing; swingRead.textContent = state.swing;
+    masterEl.value = Math.round(state.master*100);
+    document.querySelectorAll('#stepSelect .stone-btn').forEach(b => {
+      b.classList.toggle('primary', +b.dataset.steps === state.steps);
+    });
+  }
+
+  function setBpm(v) {
+    state.bpm = Math.min(220, Math.max(40, v));
+    bpmRead.textContent = state.bpm;
+    if (audioReady) Tone.Transport.bpm.value = state.bpm;
+    save();
+  }
+  document.getElementById('bpmUp').addEventListener('click', () => setBpm(state.bpm + 1));
+  document.getElementById('bpmDown').addEventListener('click', () => setBpm(state.bpm - 1));
+
+  swingEl.addEventListener('input', () => {
+    state.swing = +swingEl.value; swingRead.textContent = state.swing;
+    if (audioReady) Tone.Transport.swing = state.swing/100;
+    save();
+  });
+  masterEl.addEventListener('input', () => {
+    state.master = +masterEl.value/100;
+    if (audioReady && masterGain) masterGain.gain.rampTo(state.master, 0.05);
+    save();
+  });
+
+  // Step-count change: re-map existing pattern (truncate or pad) so work isn't lost
+  document.getElementById('stepSelect').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-steps]'); if (!btn) return;
+    const next = +btn.dataset.steps;
+    if (next === state.steps) return;
+    const old = state.steps;
+    TRACKS.forEach(t => {
+      const arr = new Array(next).fill(false);
+      for (let i = 0; i < Math.min(old, next); i++) arr[i] = state.pattern[t.id][i];
+      state.pattern[t.id] = arr;
+    });
+    state.steps = next;
+    lastHead = -1;
+    buildGrid(); syncControls(); save();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    state.pattern = blankPattern(state.steps);
+    buildGrid(); save();
+  });
+  document.getElementById('randBtn').addEventListener('click', () => {
+    // tasteful random: kick on strong beats, hats busy, others sparse
+    const densities = { kick:0.0, snare:0.0, clap:0.12, chh:0.55, ohh:0.18, tom:0.12, perc:0.15, sub:0.08 };
+    TRACKS.forEach(t => {
+      for (let i = 0; i < state.steps; i++) {
+        let on = Math.random() < (densities[t.id] ?? 0.15);
+        if (t.id === 'kick') on = (i % 4 === 0) || Math.random() < 0.12;
+        if (t.id === 'snare') on = (i % 8 === 4);
+        state.pattern[t.id][i] = on;
+      }
+    });
+    buildGrid(); save();
+  });
+
+  function togglePlay() {
+    if (!audioReady) return;
+    if (playing) { stopClock(); playBtn.textContent = '▶ Play'; playBtn.classList.remove('playing'); }
+    else { startClock(); playBtn.textContent = '■ Stop'; playBtn.classList.add('playing'); }
+  }
+  playBtn.addEventListener('click', togglePlay);
+
+  // keyboard: space toggles
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && audioReady && e.target.tagName !== 'INPUT') { e.preventDefault(); togglePlay(); }
+  });
+
+  // ─── Wake audio ───
+  async function wake() {
+    if (audioReady) return;
+    await Tone.start();
+    buildVoices();
+    audioReady = true;
+    document.getElementById('audioGate').style.display = 'none';
+  }
+  document.getElementById('wakeBtn').addEventListener('click', wake);
+  document.getElementById('audioGate').addEventListener('click', (e) => { if (e.target.id === 'audioGate') wake(); });
+
+  // ─── Boot ───
+  load();
+  buildGrid();
+  syncControls();
+
+  // ─── Nav toggle (mirrors scripts.js behaviour) ───
+  (function() {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (!navToggle || !navLinks) return;
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      navToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) { navLinks.classList.remove('open'); navToggle.textContent = '☰'; }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        btn.parentElement.classList.toggle('open');
+      });
+    });
+  })();
+
+  // ─── Starfield ───
+  (function(){
+    const c = document.getElementById('stars'); if (!c) return;
+    const ctx = c.getContext('2d'); let w, h, stars = [];
+    function resize() { w = c.width = window.innerWidth; h = c.height = window.innerHeight; }
+    function init() { resize(); stars = [];
+      for (let i = 0; i < 200; i++) stars.push({ x:Math.random()*w, y:Math.random()*h,
+        r:Math.random()*1.2+0.3, a:Math.random()*0.5+0.2, d:Math.random()*0.02+0.005, p:Math.random()*Math.PI*2 }); }
+    function draw() { ctx.clearRect(0,0,w,h); const t = Date.now()*0.001;
+      stars.forEach(s => { const f = s.a + Math.sin(t*s.d*10+s.p)*0.15;
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle = `rgba(240,232,216,${Math.max(0.05,f)})`; ctx.fill(); });
+      requestAnimationFrame(draw); }
+    init(); window.addEventListener('resize', resize); draw();
+  })();
+  </script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
