@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ear Training — Interval & Chord Recognition — Methodic Truth</title>
+  <meta name="description" content="Train your ear to recognize intervals and chord qualities by sound alone. Free browser-based ear trainer with streaks, accuracy tracking, and adjustable difficulty.">
+  <link rel="stylesheet" href="styles.css?v=56">
+  <style>
+    body {
+      background: linear-gradient(180deg, #0a0604 0%, #1a0f08 50%, #0a0604 100%);
+    }
+
+    .ear-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 0.5rem;
+      font-size: 2.5rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text);
+      opacity: 0.8;
+      margin-bottom: 2rem;
+    }
+
+    .panel {
+      background: rgba(20, 12, 8, 0.9);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+      background: rgba(10, 6, 4, 0.8);
+      border: 2px solid var(--primary);
+      color: var(--text);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { border-color: var(--accent); }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent);
+    }
+
+    .control-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .control-group label {
+      color: var(--primary);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    select {
+      background: rgba(10, 6, 4, 0.9);
+      border: 1px solid var(--primary);
+      color: var(--text);
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: var(--bg);
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { background: var(--accent); box-shadow: 0 0 20px var(--accent); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .question-area {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .feedback {
+      min-height: 2.5rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      transition: color 0.2s;
+    }
+
+    .feedback.correct { color: #4ade80; }
+    .feedback.incorrect { color: #f87171; }
+    .feedback.neutral { color: var(--text); opacity: 0.7; }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+
+    .answer-btn {
+      background: rgba(10, 6, 4, 0.8);
+      border: 2px solid rgba(0, 229, 255, 0.3);
+      color: var(--text);
+      padding: 0.9rem 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.15s;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: rgba(20, 12, 8, 0.9);
+    }
+
+    .answer-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .answer-btn.was-correct { border-color: #4ade80; box-shadow: 0 0 15px rgba(74, 222, 128, 0.5); }
+    .answer-btn.was-wrong { border-color: #f87171; box-shadow: 0 0 15px rgba(248, 113, 113, 0.5); }
+
+    .stats {
+      background: rgba(20, 12, 8, 0.9);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-label {
+      color: var(--primary);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-value {
+      color: var(--accent);
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .knowledge-section {
+      background: rgba(20, 12, 8, 0.9);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 2rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .knowledge-section h2 { color: var(--accent); margin-bottom: 1rem; }
+    .knowledge-section p { margin-bottom: 1rem; opacity: 0.9; }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="chronicles">Chronicles</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="mixer">Mixer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+        </div>
+      </div>
+      <a href="about.html">About</a>
+    </div>
+  </nav>
+
+  <div class="ear-container">
+    <h1>Ear Training</h1>
+    <p class="subtitle">Hear it. Name it. No looking at a fretboard allowed.</p>
+
+    <div class="panel">
+      <div class="mode-tabs">
+        <button class="tab-btn active" data-mode="interval">Intervals</button>
+        <button class="tab-btn" data-mode="chord">Chord Quality</button>
+      </div>
+
+      <div class="control-row">
+        <div class="control-group" id="intervalDifficultyGroup">
+          <label>Interval Pool</label>
+          <select id="intervalDifficulty">
+            <option value="easy">Easy (5th, 4th, octave, 3rds)</option>
+            <option value="all">All 12 intervals</option>
+          </select>
+        </div>
+        <div class="control-group" id="chordDifficultyGroup" style="display: none;">
+          <label>Chord Pool</label>
+          <select id="chordDifficulty">
+            <option value="triads">Triads (maj, min, dim, aug)</option>
+            <option value="all">All 9 (incl. 7th chords)</option>
+          </select>
+        </div>
+        <div class="control-group" id="playbackStyleGroup">
+          <label>Playback</label>
+          <select id="playbackStyle">
+            <option value="harmonic">Harmonic (together)</option>
+            <option value="melodic">Melodic (one at a time)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="question-area">
+        <div class="feedback neutral" id="feedback">Press Replay to hear the first question.</div>
+        <button class="btn" id="replayBtn">▶ Replay</button>
+        <div class="answer-grid" id="answerGrid"></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-label">Correct</div>
+        <div class="stat-value" id="correctCount">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Total</div>
+        <div class="stat-value" id="totalCount">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Accuracy</div>
+        <div class="stat-value" id="accuracy">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Streak</div>
+        <div class="stat-value" id="streak">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Best Streak</div>
+        <div class="stat-value" id="bestStreak">0</div>
+      </div>
+    </div>
+
+    <div class="knowledge-section">
+      <h2>🎧 Why This Matters</h2>
+      <p>Reading a chord chart tells you <em>what</em> to play. Ear training tells you <em>why it works</em> — and lets you figure out songs, transcribe melodies, and follow harmonic movement without ever touching a chart.</p>
+      <p><strong>Start with Intervals, Easy pool.</strong> Get comfortable recognizing a 5th from a 4th, a major 3rd from a minor 3rd. Once that's reliable, open up the full 12 and add melodic (one-note-at-a-time) playback — that's closer to how you actually hear music.</p>
+      <p><strong>Chord Quality builds on intervals.</strong> A major chord and minor chord differ by one note — the 3rd. Augmented and diminished stretch or shrink the 5th too. If you can hear that one-note difference, you can hear the difference between any two chord qualities.</p>
+    </div>
+  </div>
+
+  <script src="stars.js"></script>
+  <script src="lib/tone.min.js"></script>
+  <script>
+    const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+    const INTERVALS = [
+      { name: 'm2', full: 'Minor 2nd', semitones: 1 },
+      { name: 'M2', full: 'Major 2nd', semitones: 2 },
+      { name: 'm3', full: 'Minor 3rd', semitones: 3 },
+      { name: 'M3', full: 'Major 3rd', semitones: 4 },
+      { name: 'P4', full: 'Perfect 4th', semitones: 5 },
+      { name: 'TT', full: 'Tritone', semitones: 6 },
+      { name: 'P5', full: 'Perfect 5th', semitones: 7 },
+      { name: 'm6', full: 'Minor 6th', semitones: 8 },
+      { name: 'M6', full: 'Major 6th', semitones: 9 },
+      { name: 'm7', full: 'Minor 7th', semitones: 10 },
+      { name: 'M7', full: 'Major 7th', semitones: 11 },
+      { name: 'P8', full: 'Octave', semitones: 12 }
+    ];
+    const EASY_SEMITONES = [3, 4, 5, 7, 12];
+
+    const CHORDS = [
+      { suffix: 'maj', name: 'Major', intervals: [0, 4, 7] },
+      { suffix: 'min', name: 'Minor', intervals: [0, 3, 7] },
+      { suffix: 'dim', name: 'Diminished', intervals: [0, 3, 6] },
+      { suffix: 'aug', name: 'Augmented', intervals: [0, 4, 8] },
+      { suffix: 'maj7', name: 'Major 7', intervals: [0, 4, 7, 11] },
+      { suffix: 'dom7', name: 'Dominant 7', intervals: [0, 4, 7, 10] },
+      { suffix: 'min7', name: 'Minor 7', intervals: [0, 3, 7, 10] },
+      { suffix: 'm7b5', name: 'Half-Dim (m7♭5)', intervals: [0, 3, 6, 10] },
+      { suffix: 'dim7', name: 'Diminished 7', intervals: [0, 3, 6, 9] }
+    ];
+    const TRIAD_SUFFIXES = ['maj', 'min', 'dim', 'aug'];
+
+    let mode = 'interval';
+    let currentRootPc = 0;
+    let currentAnswer = null; // interval object or chord object
+    let answering = false;
+
+    let stats = { correct: 0, total: 0, streak: 0 };
+    let best = { interval: loadBest('earTrainingBestInterval'), chord: loadBest('earTrainingBestChord') };
+
+    function loadBest(key) {
+      try { return JSON.parse(localStorage.getItem(key)) || { streak: 0 }; }
+      catch (e) { return { streak: 0 }; }
+    }
+    function saveBest(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+    }
+
+    const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+    synth.set({
+      oscillator: { type: 'triangle' },
+      envelope: { attack: 0.02, decay: 0.2, sustain: 0.4, release: 1.2 }
+    });
+
+    function noteName(rootPc, semitoneOffset, baseOctave = 4) {
+      const total = rootPc + semitoneOffset;
+      const octave = baseOctave + Math.floor(total / 12);
+      return NOTES[((total % 12) + 12) % 12] + octave;
+    }
+
+    async function playCurrentQuestion() {
+      await Tone.start();
+      const style = document.getElementById('playbackStyle').value;
+      if (mode === 'interval') {
+        const n1 = NOTES[currentRootPc] + '4';
+        const n2 = noteName(currentRootPc, currentAnswer.semitones);
+        if (style === 'harmonic') {
+          synth.triggerAttackRelease([n1, n2], '1n');
+        } else {
+          synth.triggerAttackRelease(n1, '4n');
+          setTimeout(() => synth.triggerAttackRelease(n2, '4n'), 550);
+        }
+      } else {
+        const notes = currentAnswer.intervals.map(iv => noteName(currentRootPc, iv));
+        if (style === 'harmonic') {
+          synth.triggerAttackRelease(notes, '1n');
+        } else {
+          notes.forEach((n, i) => setTimeout(() => synth.triggerAttackRelease(n, '4n'), i * 450));
+        }
+      }
+    }
+
+    function currentPool() {
+      if (mode === 'interval') {
+        const diff = document.getElementById('intervalDifficulty').value;
+        return diff === 'easy' ? INTERVALS.filter(i => EASY_SEMITONES.includes(i.semitones)) : INTERVALS;
+      }
+      const diff = document.getElementById('chordDifficulty').value;
+      return diff === 'triads' ? CHORDS.filter(c => TRIAD_SUFFIXES.includes(c.suffix)) : CHORDS;
+    }
+
+    function buildAnswerGrid() {
+      const pool = currentPool();
+      const grid = document.getElementById('answerGrid');
+      grid.innerHTML = pool.map(item => {
+        const value = mode === 'interval' ? item.semitones : item.suffix;
+        const label = mode === 'interval' ? item.name : item.name;
+        return `<button class="answer-btn" data-value="${value}">${label}</button>`;
+      }).join('');
+      grid.querySelectorAll('.answer-btn').forEach(btn => {
+        btn.addEventListener('click', () => handleAnswer(btn));
+      });
+    }
+
+    function newQuestion() {
+      answering = false;
+      currentRootPc = Math.floor(Math.random() * 12);
+      const pool = currentPool();
+      currentAnswer = pool[Math.floor(Math.random() * pool.length)];
+
+      document.getElementById('feedback').textContent = 'Listen...';
+      document.getElementById('feedback').className = 'feedback neutral';
+      document.querySelectorAll('.answer-btn').forEach(b => {
+        b.disabled = false;
+        b.classList.remove('was-correct', 'was-wrong');
+      });
+
+      playCurrentQuestion();
+    }
+
+    function handleAnswer(btn) {
+      if (answering) return;
+      answering = true;
+
+      const value = btn.dataset.value;
+      const correctValue = mode === 'interval' ? String(currentAnswer.semitones) : currentAnswer.suffix;
+      const isCorrect = value === correctValue;
+      const rootName = NOTES[currentRootPc];
+      const answerLabel = mode === 'interval' ? currentAnswer.full : `${rootName} ${currentAnswer.name}`;
+
+      document.querySelectorAll('.answer-btn').forEach(b => {
+        b.disabled = true;
+        const bValue = b.dataset.value;
+        if (bValue === correctValue) b.classList.add('was-correct');
+        else if (b === btn) b.classList.add('was-wrong');
+      });
+
+      stats.total++;
+      const fb = document.getElementById('feedback');
+      if (isCorrect) {
+        stats.correct++;
+        stats.streak++;
+        fb.textContent = `✓ Correct — ${answerLabel}`;
+        fb.className = 'feedback correct';
+      } else {
+        stats.streak = 0;
+        fb.textContent = `✗ It was ${answerLabel}`;
+        fb.className = 'feedback incorrect';
+      }
+
+      const bestKey = mode === 'interval' ? 'interval' : 'chord';
+      const bestStorageKey = mode === 'interval' ? 'earTrainingBestInterval' : 'earTrainingBestChord';
+      if (stats.streak > best[bestKey].streak) {
+        best[bestKey].streak = stats.streak;
+        saveBest(bestStorageKey, best[bestKey]);
+      }
+
+      updateStatsDisplay();
+      setTimeout(newQuestion, 1300);
+    }
+
+    function updateStatsDisplay() {
+      document.getElementById('correctCount').textContent = stats.correct;
+      document.getElementById('totalCount').textContent = stats.total;
+      document.getElementById('streak').textContent = stats.streak;
+      const bestKey = mode === 'interval' ? 'interval' : 'chord';
+      document.getElementById('bestStreak').textContent = best[bestKey].streak;
+      if (stats.total > 0) {
+        document.getElementById('accuracy').textContent = ((stats.correct / stats.total) * 100).toFixed(1) + '%';
+      } else {
+        document.getElementById('accuracy').textContent = '—';
+      }
+    }
+
+    function switchMode(newMode) {
+      mode = newMode;
+      stats = { correct: 0, total: 0, streak: 0 };
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      document.getElementById('intervalDifficultyGroup').style.display = mode === 'interval' ? '' : 'none';
+      document.getElementById('chordDifficultyGroup').style.display = mode === 'chord' ? '' : 'none';
+      updateStatsDisplay();
+      buildAnswerGrid();
+      document.getElementById('feedback').textContent = 'Press Replay to hear the first question.';
+      document.getElementById('feedback').className = 'feedback neutral';
+      currentAnswer = null;
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+    });
+
+    document.getElementById('replayBtn').addEventListener('click', () => {
+      if (!currentAnswer) { newQuestion(); }
+      else { playCurrentQuestion(); }
+    });
+
+    document.getElementById('intervalDifficulty').addEventListener('change', () => { if (mode === 'interval') buildAnswerGrid(); });
+    document.getElementById('chordDifficulty').addEventListener('change', () => { if (mode === 'chord') buildAnswerGrid(); });
+
+    // Initialize
+    buildAnswerGrid();
+    updateStatsDisplay();
+  </script>
+</body>
+</html>
