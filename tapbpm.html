@@ -178,6 +178,39 @@
       color: var(--stone-dark);
       margin-top: 0.8rem;
     }
+    .rhythm-bpm-input {
+      width: 4.5em;
+      text-align: center;
+      background: rgba(26, 18, 10, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.3);
+      color: var(--parchment);
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      padding: 0.3rem;
+    }
+    .drift-meter { margin: 1.2rem 0 0.6rem; }
+    .drift-track {
+      position: relative;
+      height: 10px;
+      background: linear-gradient(90deg, rgba(248,113,113,0.3), rgba(74,222,128,0.4), rgba(248,113,113,0.3));
+      border-radius: 6px;
+    }
+    .drift-center {
+      position: absolute; left: 50%; top: -4px; width: 2px; height: 18px;
+      background: var(--parchment); transform: translateX(-50%); opacity: 0.5;
+    }
+    .drift-needle {
+      position: absolute; top: -6px; width: 4px; height: 22px;
+      background: var(--glow); border-radius: 2px; left: 50%;
+      transform: translateX(-50%); transition: left 0.08s linear, background 0.08s linear;
+      box-shadow: 0 0 8px var(--glow);
+    }
+    .drift-labels {
+      display: flex; justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--stone-dark); margin-top: 0.3rem;
+    }
     /* fluid clamp() handles responsive sizing */
   </style>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -264,6 +297,37 @@
         <div class="metro-dot" id="dot3"></div>
       </div>
       <div class="ms-per-beat" id="msPerBeat"></div>
+    </div>
+
+    <div class="bpm-metronome" id="rhythmTrainer" style="margin-top: 1.5rem;">
+      <div class="bpm-metronome-title">🎯 Rhythm Trainer — Drift From The Grid</div>
+      <p style="font-family: 'EB Garamond', serif; font-size: 0.85rem; color: var(--stone-dark); margin-bottom: 1rem; line-height: 1.5;">
+        Set a tempo, then tap along with the click. See how far ahead or behind the grid you land, in milliseconds.
+      </p>
+      <div class="bpm-stats" style="margin-bottom: 1rem;">
+        <div class="bpm-stat">
+          <input type="number" id="rhythmBpmInput" class="rhythm-bpm-input" value="100" min="20" max="300">
+          <div class="bpm-stat-label">target bpm</div>
+        </div>
+      </div>
+      <button class="bpm-btn" id="rhythmToggle">▶ Start Rhythm Trainer</button>
+
+      <div id="rhythmPanel" style="display: none; margin-top: 1.5rem;">
+        <div class="tap-zone" id="rhythmTapZone" style="padding: 2rem;">
+          <span class="tap-zone-text">Tap In Time</span>
+          <span class="tap-zone-hint">spacebar · click · tap</span>
+        </div>
+        <div class="drift-meter">
+          <div class="drift-track"><div class="drift-center"></div><div class="drift-needle" id="driftNeedle"></div></div>
+          <div class="drift-labels"><span>EARLY</span><span>ON TIME</span><span>LATE</span></div>
+        </div>
+        <div class="bpm-stats" style="margin-top: 1rem;">
+          <div class="bpm-stat"><div class="bpm-stat-value" id="rhythmHits">0</div><div class="bpm-stat-label">in the pocket</div></div>
+          <div class="bpm-stat"><div class="bpm-stat-value" id="rhythmTotal">0</div><div class="bpm-stat-label">beats tapped</div></div>
+          <div class="bpm-stat"><div class="bpm-stat-value" id="rhythmAvgDrift">—</div><div class="bpm-stat-label">avg drift ms</div></div>
+          <div class="bpm-stat"><div class="bpm-stat-value" id="rhythmBestStreak">0</div><div class="bpm-stat-label">best streak</div></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -376,6 +440,8 @@
       avgInterval.textContent = Math.round(avg);
       deviationEl.textContent = stdDev;
       msPerBeat.textContent = Math.round(avg) + ' ms/beat';
+
+      if (!rhythmActive) rhythmBpmInput.value = bpm;
     }
 
     function reset() {
@@ -442,6 +508,7 @@
       // Don't intercept if typing in an input
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.repeat) return;
+      if (rhythmActive) { registerRhythmTap(); return; }
       tap();
     });
 
@@ -450,6 +517,128 @@
       if (metroActive) stopMetronome();
       else startMetronome();
     });
+
+    // ── Rhythm Trainer: drift-from-the-grid drill ──
+    const POCKET_MS = 50;
+    const rhythmBpmInput = document.getElementById('rhythmBpmInput');
+    const rhythmToggle = document.getElementById('rhythmToggle');
+    const rhythmPanel = document.getElementById('rhythmPanel');
+    const rhythmTapZone = document.getElementById('rhythmTapZone');
+    const driftNeedle = document.getElementById('driftNeedle');
+    const rhythmHitsEl = document.getElementById('rhythmHits');
+    const rhythmTotalEl = document.getElementById('rhythmTotal');
+    const rhythmAvgDriftEl = document.getElementById('rhythmAvgDrift');
+    const rhythmBestStreakEl = document.getElementById('rhythmBestStreak');
+
+    let rhythmActive = false;
+    let rhythmStartTime = 0;
+    let rhythmInterval = 0;
+    let rhythmBeatIdx = 0;
+    let rhythmTimer = null;
+    let rhythmCtx = null;
+    let lastCountedBeatIdx = -1;
+    let rhythmStats = { hits: 0, total: 0, streak: 0, driftSum: 0 };
+
+    function loadRhythmBest() {
+      try { return JSON.parse(localStorage.getItem('rhythmTrainerBestStreak')) || { streak: 0 }; }
+      catch (e) { return { streak: 0 }; }
+    }
+    function saveRhythmBest() {
+      try { localStorage.setItem('rhythmTrainerBestStreak', JSON.stringify(rhythmBest)); } catch (e) {}
+    }
+    let rhythmBest = loadRhythmBest();
+    rhythmBestStreakEl.textContent = rhythmBest.streak;
+
+    function rhythmClick(isDownbeat) {
+      if (!rhythmCtx) rhythmCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = rhythmCtx.createOscillator();
+      const gain = rhythmCtx.createGain();
+      osc.connect(gain);
+      gain.connect(rhythmCtx.destination);
+      osc.frequency.value = isDownbeat ? 1000 : 700;
+      gain.gain.value = 0.08;
+      gain.gain.exponentialRampToValueAtTime(0.001, rhythmCtx.currentTime + 0.05);
+      osc.start(rhythmCtx.currentTime);
+      osc.stop(rhythmCtx.currentTime + 0.05);
+    }
+
+    function scheduleRhythmBeat() {
+      const targetPerf = rhythmStartTime + rhythmBeatIdx * rhythmInterval;
+      const delay = targetPerf - performance.now();
+      rhythmTimer = setTimeout(() => {
+        rhythmClick(rhythmBeatIdx % 4 === 0);
+        rhythmBeatIdx++;
+        if (rhythmActive) scheduleRhythmBeat();
+      }, Math.max(0, delay));
+    }
+
+    function startRhythmTrainer() {
+      const bpm = Math.max(20, Math.min(300, parseInt(rhythmBpmInput.value, 10) || 100));
+      rhythmInterval = 60000 / bpm;
+      rhythmStartTime = performance.now();
+      rhythmBeatIdx = 0;
+      lastCountedBeatIdx = -1;
+      rhythmStats = { hits: 0, total: 0, streak: 0, driftSum: 0 };
+      rhythmActive = true;
+      rhythmPanel.style.display = 'block';
+      rhythmToggle.textContent = '■ Stop';
+      updateRhythmStatsDisplay();
+      scheduleRhythmBeat();
+    }
+
+    function stopRhythmTrainer() {
+      rhythmActive = false;
+      if (rhythmTimer) { clearTimeout(rhythmTimer); rhythmTimer = null; }
+      rhythmToggle.textContent = '▶ Start Rhythm Trainer';
+    }
+
+    function registerRhythmTap() {
+      if (!rhythmActive) return;
+      const now = performance.now();
+      const elapsed = now - rhythmStartTime;
+      const nearestBeatIdx = Math.round(elapsed / rhythmInterval);
+      if (nearestBeatIdx === lastCountedBeatIdx) return; // ignore double-taps on the same beat
+      lastCountedBeatIdx = nearestBeatIdx;
+      const expected = rhythmStartTime + nearestBeatIdx * rhythmInterval;
+      const drift = now - expected; // negative = early, positive = late
+
+      rhythmStats.total++;
+      rhythmStats.driftSum += drift;
+      if (Math.abs(drift) <= POCKET_MS) {
+        rhythmStats.hits++;
+        rhythmStats.streak++;
+      } else {
+        rhythmStats.streak = 0;
+      }
+      if (rhythmStats.streak > rhythmBest.streak) {
+        rhythmBest.streak = rhythmStats.streak;
+        saveRhythmBest();
+      }
+      updateDriftNeedle(drift);
+      updateRhythmStatsDisplay();
+    }
+
+    function updateDriftNeedle(drift) {
+      const clamped = Math.max(-100, Math.min(100, drift));
+      driftNeedle.style.left = (50 + (clamped / 100) * 50) + '%';
+      driftNeedle.style.background = Math.abs(drift) <= POCKET_MS ? '#4ade80' : (Math.abs(drift) <= 90 ? '#fbbf24' : '#f87171');
+    }
+
+    function updateRhythmStatsDisplay() {
+      rhythmHitsEl.textContent = rhythmStats.hits;
+      rhythmTotalEl.textContent = rhythmStats.total;
+      rhythmAvgDriftEl.textContent = rhythmStats.total
+        ? (rhythmStats.driftSum / rhythmStats.total >= 0 ? '+' : '') + Math.round(rhythmStats.driftSum / rhythmStats.total)
+        : '—';
+      rhythmBestStreakEl.textContent = rhythmBest.streak;
+    }
+
+    rhythmToggle.addEventListener('click', () => {
+      if (rhythmActive) stopRhythmTrainer();
+      else startRhythmTrainer();
+    });
+    rhythmTapZone.addEventListener('mousedown', (e) => { e.preventDefault(); registerRhythmTap(); });
+    rhythmTapZone.addEventListener('touchstart', (e) => { e.preventDefault(); registerRhythmTap(); }, { passive: false });
   })();
   </script>
 </body>
