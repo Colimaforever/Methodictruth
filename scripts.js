@@ -151,9 +151,9 @@ function startPlaying(seekTo) {
 
 // togglePlay defined below (after generative engine code)
 // playBtn listener also below
-prevBtn.addEventListener('click', handlePrev);
-nextBtn.addEventListener('click', handleNext);
-volumeSlider.addEventListener('input', handleVolume);
+if (prevBtn) prevBtn.addEventListener('click', handlePrev);
+if (nextBtn) nextBtn.addEventListener('click', handleNext);
+if (volumeSlider) volumeSlider.addEventListener('input', handleVolume);
 audio.addEventListener('ended', handleTrackEnded);
 
 // ─── GENERATIVE MAQAM ENGINE ───
@@ -302,7 +302,7 @@ async function togglePlay() {
     startPlaying();
   }
 }
-playBtn.addEventListener('click', togglePlay);
+if (playBtn) playBtn.addEventListener('click', togglePlay);
 
 async function startGenerativeEngine() {
   if (genActive || musicSuppressed) return; // prevent double-start or starting on tool pages
