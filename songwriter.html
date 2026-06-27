@@ -153,6 +153,43 @@
 .sw-chord-table th, .sw-chord-table td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--stone-dark, #333); font-size: 0.9rem; }
 .sw-chord-table th { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--glow, #d4a574); }
 
+/* Rhyme finder + syllable counter */
+.sw-tool-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.sw-tool-row input[type="text"] {
+  flex: 1; min-width: 150px; box-sizing: border-box; background: rgba(0,0,0,0.3);
+  border: 1px solid var(--stone-dark, #555); color: var(--parchment, #e8dcc8);
+  font-family: 'EB Garamond', serif; font-size: 0.9rem; padding: 0.5rem; border-radius: 4px;
+}
+.sw-tool-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+  padding: 0.5rem 1rem; border: 1px solid var(--glow, #d4a574);
+  background: transparent; color: var(--glow, #d4a574);
+  border-radius: 4px; cursor: pointer; min-height: 44px;
+  transition: background 0.2s;
+}
+.sw-tool-btn:hover { background: rgba(212,165,116,0.15); }
+.sw-tool-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.sw-syllable-input {
+  width: 100%; box-sizing: border-box; min-height: 90px; background: rgba(0,0,0,0.3);
+  border: 1px solid var(--stone-dark, #555); color: var(--parchment, #e8dcc8);
+  font-family: 'EB Garamond', serif; font-size: 0.9rem; padding: 0.5rem; border-radius: 4px; resize: vertical;
+}
+.sw-syllable-output { margin-top: 0.6rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+.sw-syllable-line { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.2rem 0; border-bottom: 1px solid var(--stone-dark, #2a2a2a); }
+.sw-syllable-line .count { color: var(--glow, #d4a574); flex-shrink: 0; }
+.sw-syllable-total { margin-top: 0.4rem; color: var(--stone-dark, #aaa); font-size: 0.75rem; }
+.sw-rhyme-group-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark, #aaa); text-transform: uppercase; letter-spacing: 0.05em; margin: 0.6rem 0 0.3rem; }
+.sw-rhyme-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.sw-rhyme-chip {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+  padding: 0.35rem 0.65rem; border: 1px solid var(--moss, #5a7a5a);
+  background: rgba(90,122,90,0.1); color: var(--parchment, #e8dcc8);
+  border-radius: 999px; cursor: pointer; transition: background 0.2s, border-color 0.2s;
+}
+.sw-rhyme-chip:hover { background: rgba(90,122,90,0.25); border-color: var(--glow, #d4a574); }
+.sw-rhyme-chip .syl { opacity: 0.6; font-size: 0.7rem; margin-left: 0.3em; }
+.sw-rhyme-status { font-family: 'EB Garamond', serif; font-style: italic; color: var(--stone-dark, #888); font-size: 0.9rem; }
+
 @media (max-width: 600px) {
   .sw-field-row { grid-template-columns: 1fr; }
   .sw-page h1 { font-size: 1.4rem; }
@@ -335,6 +372,19 @@ WISDOM.forEach(w => {
 
 // Build lyric tools
 document.getElementById('lyricContent').innerHTML = `
+<h3>🎤 Rhyme Finder</h3>
+<p style="opacity:0.75;font-size:0.85rem;margin-bottom:0.5rem;">Type a word and find what rhymes with it.</p>
+<div class="sw-tool-row">
+  <input type="text" id="rhymeInput" placeholder="e.g. heart" autocomplete="off">
+  <button class="sw-tool-btn" id="rhymeBtn">Find Rhymes</button>
+</div>
+<div id="rhymeOutput"></div>
+
+<h3>🔢 Syllable Counter</h3>
+<p style="opacity:0.75;font-size:0.85rem;margin-bottom:0.5rem;">Paste lyrics below — see syllables per line so you can match meter across verses.</p>
+<textarea id="syllableInput" class="sw-syllable-input" placeholder="Type or paste lyrics here, one line per line..."></textarea>
+<div class="sw-syllable-output" id="syllableOutput"></div>
+
 <h3>Rhyme Schemes</h3>
 <div class="sw-ref-item"><h4>AABB (Couplet)</h4><p>"I walk the line / I keep my eyes wide open all the time"</p></div>
 <div class="sw-ref-item"><h4>ABAB (Alternate)</h4><p>Lines 1&3 rhyme, lines 2&4 rhyme. Creates forward momentum.</p></div>
@@ -363,6 +413,94 @@ document.getElementById('lyricContent').innerHTML = `
 <div class="sw-ref-item"><h4>Anaphora</h4><p>"Every breath you take / Every move you make" — repeating the opening phrase.</p></div>
 <div class="sw-ref-item"><h4>Contrast/Juxtaposition</h4><p>"Hello darkness, my old friend" — pairing opposites for tension.</p></div>
 `;
+
+// ── Syllable Counter ──
+const SYLLABLE_EXCEPTIONS = {
+  eye: 1, eyes: 1, queue: 1, queued: 1, rhythm: 2, rhythms: 2,
+  isnt: 2, arent: 2, wasnt: 2, werent: 2, wouldnt: 2, couldnt: 2,
+  shouldnt: 2, dont: 1, doesnt: 2, didnt: 2, wont: 1, cant: 1,
+  im: 1, youre: 1, theyre: 1, its: 1, thats: 1, whats: 1
+};
+
+function countSyllablesInWord(rawWord) {
+  const word = rawWord.toLowerCase().replace(/[^a-z']/g, '').replace(/'/g, '');
+  if (!word) return 0;
+  if (SYLLABLE_EXCEPTIONS[word] !== undefined) return SYLLABLE_EXCEPTIONS[word];
+  if (word.length <= 3) return 1;
+  const trimmed = word
+    .replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '')
+    .replace(/^y/, '');
+  const matches = trimmed.match(/[aeiouy]{1,2}/g);
+  return matches ? matches.length : 1;
+}
+
+function countSyllablesInLine(line) {
+  const words = line.match(/[a-zA-Z']+/g) || [];
+  return words.reduce((sum, w) => sum + countSyllablesInWord(w), 0);
+}
+
+function renderSyllableCounts() {
+  const text = document.getElementById('syllableInput').value;
+  const out = document.getElementById('syllableOutput');
+  if (!text.trim()) { out.innerHTML = ''; return; }
+  const lines = text.split('\n');
+  let total = 0;
+  const rows = lines.map(line => {
+    if (!line.trim()) return '';
+    const n = countSyllablesInLine(line);
+    total += n;
+    return `<div class="sw-syllable-line"><span>${esc(line)}</span><span class="count">${n}</span></div>`;
+  }).join('');
+  out.innerHTML = rows + `<div class="sw-syllable-total">Total: ${total} syllables across ${lines.filter(l=>l.trim()).length} line(s)</div>`;
+}
+document.getElementById('syllableInput').addEventListener('input', renderSyllableCounts);
+
+// ── Rhyme Finder ──
+async function findRhymes() {
+  const word = document.getElementById('rhymeInput').value.trim();
+  const out = document.getElementById('rhymeOutput');
+  const btn = document.getElementById('rhymeBtn');
+  if (!word) { out.innerHTML = '<p class="sw-rhyme-status">Type a word first.</p>'; return; }
+  btn.disabled = true;
+  out.innerHTML = '<p class="sw-rhyme-status">Searching…</p>';
+  try {
+    const [perfectRes, nearRes] = await Promise.all([
+      fetch(`https://api.datamuse.com/words?rel_rhy=${encodeURIComponent(word)}&md=s&max=24`),
+      fetch(`https://api.datamuse.com/words?rel_nry=${encodeURIComponent(word)}&md=s&max=24`)
+    ]);
+    const perfect = perfectRes.ok ? await perfectRes.json() : [];
+    const near = nearRes.ok ? await nearRes.json() : [];
+    if (!perfect.length && !near.length) {
+      out.innerHTML = `<p class="sw-rhyme-status">No rhymes found for "${esc(word)}" — try a simpler or more common word.</p>`;
+      return;
+    }
+    const chip = r => {
+      const sylTag = r.numSyllables ? `<span class="syl">${r.numSyllables}♪</span>` : '';
+      return `<button class="sw-rhyme-chip" type="button">${esc(r.word)}${sylTag}</button>`;
+    };
+    let html = '';
+    if (perfect.length) html += `<div class="sw-rhyme-group-label">Perfect Rhymes</div><div class="sw-rhyme-grid">${perfect.map(chip).join('')}</div>`;
+    if (near.length) html += `<div class="sw-rhyme-group-label">Near / Slant Rhymes</div><div class="sw-rhyme-grid">${near.map(chip).join('')}</div>`;
+    out.innerHTML = html;
+    out.querySelectorAll('.sw-rhyme-chip').forEach(c => {
+      c.addEventListener('click', () => {
+        const ta = document.querySelector('.sw-card.expanded textarea[data-field="lyrics"]') || document.getElementById('syllableInput');
+        if (ta) {
+          const insertion = c.textContent.replace(/\d+♪$/, '').trim();
+          ta.value += (ta.value && !ta.value.endsWith('\n') ? ' ' : '') + insertion;
+          ta.dispatchEvent(new Event('input'));
+          ta.focus();
+        }
+      });
+    });
+  } catch (e) {
+    out.innerHTML = '<p class="sw-rhyme-status">Couldn\'t reach the rhyme dictionary — check your connection and try again.</p>';
+  } finally {
+    btn.disabled = false;
+  }
+}
+document.getElementById('rhymeBtn').addEventListener('click', findRhymes);
+document.getElementById('rhymeInput').addEventListener('keydown', e => { if (e.key === 'Enter') findRhymes(); });
 
 function makeSection(typeId) {
   return { id: crypto.randomUUID(), type: typeId, lyrics:'', mood:5, key:'', tempo:'', instruments:'', bars:'8', notes:'', expanded:false };
