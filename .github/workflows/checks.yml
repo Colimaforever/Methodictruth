@@ -1,0 +1,20 @@
+name: Site Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check internal links and assets
+        run: node .github/scripts/check-links.js
+      - name: Validate JSON-LD blocks
+        run: node .github/scripts/check-jsonld.js
+      - name: Validate feed.xml
+        run: python3 -c "import xml.dom.minidom; xml.dom.minidom.parse('feed.xml')"

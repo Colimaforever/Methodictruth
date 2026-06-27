@@ -7,7 +7,7 @@
   <title>𒀭</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=61">
+  <link rel="stylesheet" href="styles.css?v=62">
   <style>
     html, body { margin: 0; padding: 0; overflow-x: hidden; background: #050208; }
 
@@ -228,6 +228,434 @@ openclaw gateway start
 # Switch model
 openclaw model set anthropic/claude-opus-4-6
 openclaw gateway restart</pre>
+    </div>
+
+    <div class="vault-section">
+      <h2>Pipeline: How Changes Reach the Site</h2>
+      <p>The site auto-deploys via Cloudflare Pages. Nothing reaches it without going through this:</p>
+      <pre>
+1. Work happens on a branch
+   (not directly on main, for anything
+   bigger than a typo)
+        ↓
+2. Commit + push that branch
+   git push -u origin &lt;branch-name&gt;
+        ↓
+3. Open a Pull Request (PR)
+   branch → main, on GitHub
+   This is the review checkpoint —
+   full diff in one place, before
+   anything goes live.
+        ↓
+4. CI fires automatically, no asking
+   ┌─────────────────────────────┐
+   │ checks.yml                  │
+   │  → broken links?             │
+   │  → invalid JSON-LD?          │
+   │  → malformed feed.xml?       │
+   ├─────────────────────────────┤
+   │ pr-previews.yml              │
+   │  → screenshot 8 live pages   │
+   │  → post them in a PR comment │
+   │    (vault excluded — gated)  │
+   └─────────────────────────────┘
+        ↓
+5. Review: the diff AND the screenshots
+   Read the diff like a stranger would.
+   Look at the rendered pages before
+   trusting the markup.
+        ↓
+6. Merge the PR into main
+        ↓
+7. Cloudflare Pages sees the push
+   to main and redeploys automatically
+        ↓
+   Live on methodictruth.com,
+   usually within a minute or two</pre>
+      <p>A PR is just a labeled, reviewable diff — title + description + the
+      exact lines changed — sitting between a branch and <code>main</code>
+      until someone says "yes, merge this." For solo work the value isn't
+      bureaucracy, it's a deliberate moment to actually look at the change
+      before it's permanent and public.</p>
+
+      <h2 style="margin-top:1.5rem;">Practically: Using a PR on GitHub</h2>
+      <p>On the PR page (<code>github.com/Colimaforever/Methodictruth/pull/&lt;number&gt;</code>),
+      there's a tab strip near the top: <strong>Conversation</strong>, <strong>Commits</strong>,
+      <strong>Checks</strong>, <strong>Files changed</strong>. On mobile that strip can scroll —
+      swipe it left if you don't see all four.</p>
+      <pre>
+Conversation   → the description + any comments
+Commits        → each commit in the PR, separately
+Checks         → CI status (red/green), if any is wired up
+Files changed  → the actual diff. This is the review.</pre>
+      <p><strong>Files changed</strong> is where the work happens:</p>
+      <pre>
+- green lines  = added
+- red lines    = removed
+- image files (.png, .jpg, .svg) render
+  inline as before/after thumbnails —
+  no need to download them to check
+  a new OG image or graphic
+- click a filename in the diff to
+  jump straight to it
+- long/mechanical diffs (a version
+  bump across 40 files) collapse —
+  skip those, focus on the files that
+  actually changed behavior</pre>
+      <p>To monitor a page after merge, just visit it directly —
+      <code>methodictruth.com/&lt;page&gt;</code> — a minute or two after merging.
+      No staging URL; Cloudflare Pages serves <code>main</code> straight to
+      production. If something looks wrong, open a new branch, fix it, and
+      repeat the pipeline above rather than editing live.</p>
+      <p>To merge: scroll to the bottom of the PR page (past the diff or the
+      conversation) and tap <strong>Merge pull request</strong> → confirm. That
+      triggers the Cloudflare deploy automatically.</p>
+    </div>
+
+    <div class="vault-section">
+      <h2>What's Actually Wired Up: CI + Previews</h2>
+      <p>Every PR now runs an automated check — this is the thing that fills
+      in the <strong>Checks</strong> tab instead of leaving it at 0:</p>
+      <pre>
+.github/workflows/checks.yml
+  on: every PR into main
+
+  1. node .github/scripts/check-links.js
+     walks every *.html file, finds every
+     href= / src= pointing at this site,
+     fails if any local link or asset
+     is missing
+
+  2. node .github/scripts/check-jsonld.js
+     finds every &lt;script type="application/
+     ld+json"&gt; block, fails if any of them
+     isn't valid JSON
+
+  3. xml.dom.minidom.parse('feed.xml')
+     fails if the RSS feed isn't
+     well-formed XML
+
+  Green check = all three passed.
+  Click into the check on the PR page
+  to see the actual log output.</pre>
+      <p>This catches the same classes of mistake the manual audits in this
+      vault already covered once — broken links, malformed structured data,
+      a corrupted feed — except now it runs automatically on every future PR
+      instead of needing to be re-run by hand.</p>
+
+      <p style="margin-top:1rem;"><strong>Preview deployments</strong> are a
+      different thing, and they are <em>not</em> wired up from in here — that
+      setting lives in the Cloudflare dashboard / account, which this session
+      has no credentials for. What it does, if enabled: every PR gets its own
+      live, throwaway URL (something like
+      <code>a1c5ad1.methodictruth.pages.dev</code>) you can click around in a
+      browser before merging — not just read a diff. Steps to turn it on:</p>
+      <pre>
+1. dash.cloudflare.com → log in
+2. Workers & Pages (left sidebar)
+3. Methodictruth project
+4. Settings tab
+5. Builds & deployments
+6. Find "Preview deployments"
+7. If set to None →
+   change to "All branches except
+   production"
+8. Save
+9. Push a small change to a non-main
+   branch (or re-push the open PR's
+   branch)
+10. Check the PR on GitHub — a preview
+    link should appear as a check or
+    comment within a minute or two
+11. If nothing appears after step 10 →
+    project is likely connected as
+    Direct Upload, not via the GitHub
+    integration → reconnect it via
+    Git integration in this same
+    settings page
+
+Once 7–8 are done, it stays on —
+no need to repeat for future PRs.</pre>
+      <p>If <strong>Checks</strong> stays empty of a Cloudflare entry after a
+      push, that setting is most likely off — this can't be flipped through
+      the repo, only the dashboard.</p>
+    </div>
+
+    <div class="vault-section">
+      <h2>Automated Visual Previews</h2>
+      <p>The Cloudflare preview URL above needs an account setting flipped on
+      from the dashboard. This doesn't — it's a second workflow that runs
+      entirely inside GitHub Actions, with no external account needed, and it
+      answers a simpler question: <em>what does the changed page actually
+      look like, right now, without anyone having to ask?</em></p>
+      <pre>
+.github/workflows/pr-previews.yml
+  on: every PR into main
+
+  1. spin up Chromium (Playwright)
+  2. serve the repo locally
+     (node server.js, same server
+     used for local dev)
+  3. .github/scripts/screenshot-pages.js
+     visits 8 pages and screenshots
+     each one at 1280×800:
+       index, chronicles, changelog,
+       directory, architecture, synth,
+       theory, about
+  4. push the PNGs to a dedicated
+     pr-previews branch, in a folder
+     named for the PR number
+  5. post one PR comment with all 8
+     images inline, as a table —
+     same comment gets updated on
+     every new push, instead of
+     piling up duplicates</pre>
+      <p><strong>The vault is not in that list, on purpose.</strong> This repo
+      is public. Anything this workflow renders gets pushed to a branch and
+      served from <code>raw.githubusercontent.com</code> — which is also
+      public, gate or no gate. Screenshotting this page automatically would
+      hand its contents to anyone who knew where to look, defeating the
+      passphrase entirely. The 8 pages it does cover are all pages that are
+      already public once merged anyway, so there's nothing left to leak —
+      it's just showing you what's coming, sooner.</p>
+      <p>Practically: open <strong>Files changed</strong> like always, but now
+      scroll back to <strong>Conversation</strong> too — the screenshot
+      comment lands there, not in the diff.</p>
+    </div>
+
+    <!-- ─── THE BLUEPRINT (collapsible) ─── -->
+    <div class="vault-section" style="text-align:center;margin-top:3rem;">
+      <div style="font-size:1.1rem;opacity:0.12;">𒀭 ⚙ 𒀭</div>
+      <button id="archToggle" class="vault-submit" style="font-size:0.55rem;margin-top:0.8rem;">unfold the architecture ↴</button>
+    </div>
+
+    <div class="vault-content" id="archContent" style="display:none;margin:0 0 0 0;">
+
+      <div class="vault-section">
+        <h2>𒀭 The Blueprint</h2>
+        <p>Everything above this line is about the people who built and use
+        this place. Everything below is about the machine itself — every
+        layer, every tool, every wire, written down as though nothing else
+        survives but this page. Read it top to bottom and there is enough
+        here to rebuild the whole site from an empty directory.</p>
+      </div>
+
+      <div class="vault-section">
+        <h2>The Stack</h2>
+        <pre>
+No framework. No bundler. No build step.
+Plain HTML, CSS, and JavaScript, hand-
+written, served as static files exactly
+as they sit in the repo.
+
+Vendored, not npm-installed in production
+(see lib/ — loaded via &lt;script&gt; tags):
+  Tone.js          audio synthesis engine
+  PeerJS           WebRTC peer connections
+  Firebase compat  realtime database client
+
+Hosting:
+  Cloudflare Pages — static files +
+  one Pages Function (functions/analyze.js)
+
+A second, independent service:
+  Cloudflare Worker (worker/), deployed on
+  its own via Wrangler, own URL — does the
+  heavier song-analysis work
+
+Shared mutable state, no auth, no hosting:
+  Firebase Realtime Database — guestbook
+  entries, this vault's own visitor log
+
+WebRTC signaling assist:
+  Metered.ca — TURN/STUN credentials so
+  the Live jam room's peers can find each
+  other through NAT
+
+External APIs called server-side only:
+  YouTube Data API   — video metadata
+  Anthropic API       — analysis text
+
+Outside the browser entirely:
+  A Telegram bot — notification channel
+  for the AI agent's own operator, see
+  "Restoring Truth" above. The site never
+  talks to it directly.</pre>
+      </div>
+
+      <div class="vault-section">
+        <h2>How a Request Actually Travels</h2>
+        <pre>
+              ┌─────────────────────┐
+              │     Your Browser    │
+              └──────────┬───────────┘
+                          │ static HTML / CSS / JS
+                          ▼
+              ┌─────────────────────┐
+              │   Cloudflare Pages   │ ← auto-deploys on push to main
+              │ (static + Functions) │
+              └────┬─────────────┬───┘
+                   │             │
+     functions/analyze.js   serves *.html, styles.css,
+     (one serverless route)  scripts.js, lib/*, audio/*, og/*
+                   │
+                   ▼
+        ┌───────────────────────┐
+        │ YouTube Data API      │
+        │ Anthropic API         │
+        └───────────────────────┘
+
+  separately, its own deploy:
+        ┌───────────────────────┐
+        │  Cloudflare Worker     │ ← worker/song-analyzer-worker.js
+        │ (wrangler deploy)      │   own URL, own lifecycle
+        └───────────────────────┘
+
+  for the realtime bits, the browser talks
+  straight to these — no server in between:
+        ┌───────────────────────┐
+        │ Firebase Realtime DB  │ ← guestbook, vault analytics
+        └───────────────────────┘
+        ┌───────────────────────┐
+        │ Metered TURN / STUN   │ ← live.html jam room
+        └───────────┬───────────┘
+                     ▼
+        peer ◄──── PeerJS / WebRTC ────► peer
+        (no server at all once connected)</pre>
+      </div>
+
+      <div class="vault-section">
+        <h2>The Repository, Mapped</h2>
+        <pre>
+Methodictruth/
+├── *.html                 44 pages, hand-written, no templating
+├── styles.css             ~2600 lines, one shared stylesheet
+├── scripts.js             ~1000 lines: router, generative
+│                          audio engine, starfield, nav
+├── stars.js               canvas starfield (standalone)
+├── analytics.js           site-wide analytics hook
+├── chord-theory.js        music theory data / logic
+│
+├── lib/                   vendored, not npm-installed
+│   ├── tone.min.js
+│   ├── peerjs.min.js
+│   └── firebase-*-compat.js
+│
+├── api/analyze.js         local-dev version of the analyze route
+├── functions/analyze.js   Cloudflare Pages Functions version
+├── server.js              local dev server (node) — not used in prod
+│
+├── worker/                a second, independently deployed service
+│   ├── song-analyzer-worker.js
+│   └── wrangler.toml
+│
+├── audio/                 maqam drone samples + ritual audio
+├── og/                    generated per-page social preview images
+├── chronicles/            source markdown for chronicle posts
+│
+├── feed.xml, sitemap.xml,
+│   robots.txt, _headers   SEO + crawler + security config
+│
+└── .github/
+    └── workflows/checks.yml   CI: link / JSON-LD / feed checks on every PR</pre>
+      </div>
+
+      <div class="vault-section">
+        <h2>The Pages, Taxonomized</h2>
+        <pre>
+SITE META       index, chronicles, changelog, directory,
+                about, feedback, 404
+
+MUSIC TOOLS     synth, mixer, tuner, theory, signal,
+                songwriter, tapbpm, chord-trainer,
+                chord-voicings, ear-training, jam-guide
+
+AI AGENT LORE   architecture, network, stack, topology
+                — in-universe documentation of Truth's
+                own mind. Not this site's engineering —
+                that's what this vault is for.
+
+LIVE / SOCIAL   live (WebRTC jam room), guestbook,
+                salon, agora, gallery, library,
+                workshop, studio, philosophy
+
+UTILITY         feed.xml, sitemap.xml, robots.txt,
+                and this page — noindexed, password-
+                gated, the one place all of this is
+                written down honestly</pre>
+      </div>
+
+      <div class="vault-section">
+        <h2>Cross-Cutting Systems</h2>
+        <p><strong>The router.</strong> scripts.js intercepts internal link
+        clicks and swaps page content via fetch instead of a hard navigation
+        — not for speed, purely so the generative ambient music doesn't cut
+        out every time you click somewhere. No SPA framework. Just enough JS
+        to keep the sound alive.</p>
+        <p><strong>The generative engine.</strong> Tone.js drones, a slow
+        string pad, a cello, sparse melodic plucks, shimmering harmonics, and
+        filtered noise, layered and rotated between Persian/Arabic maqam
+        scales every three minutes. iOS only unlocks its AudioContext inside
+        a real tap, so there's a dedicated unlock routine that fires the
+        instant play is pressed, nowhere else.</p>
+        <p><strong>The starfield, nebula, and ground.</strong> Pure canvas
+        and CSS decoration, no dependency, redrawn per page.</p>
+        <p><strong>Two floating orbs.</strong> A chat orb (a line to Truth)
+        and an AI-news orb (a live external feed) — both the same panel
+        pattern: toggle button, slide-out panel, independent of whatever
+        page they're sitting on.</p>
+        <p><strong>The accessibility layer.</strong> A skip-to-content link,
+        a real mobile nav with keyboard support, and — after the contrast
+        audit — a palette that actually meets WCAG AA in the small print.</p>
+        <p><strong>The SEO layer.</strong> Per-page JSON-LD, a generated RSS
+        feed, a sitemap, and per-page OG images rendered by screenshotting a
+        templated HTML page at 1200×630 — a tool built once, used eight
+        times, then retired.</p>
+      </div>
+
+      <div class="vault-section">
+        <h2>If This Is All That Survives</h2>
+        <pre>
+1. Point a domain at Cloudflare
+   (CNAME → methodictruth.com, see CNAME file)
+
+2. Create a Cloudflare Pages project, connect
+   it to this repo via the GitHub integration,
+   production branch = main
+
+3. Set Pages environment variables
+   (Settings → Environment variables):
+     YOUTUBE_API_KEY
+     ANTHROPIC_API_KEY
+
+4. Deploy the worker separately:
+     cd worker && wrangler login && wrangler deploy
+   point the frontend at the resulting URL
+   wherever it expects the song-analyzer API
+
+5. Create a Firebase project, enable Realtime
+   Database, recreate the paths this site
+   writes to:
+     /guestbook
+     /vault-analytics/events
+   drop the project's config into the
+   lib/firebase-*-compat.js usage
+
+6. Create a Metered.ca account, generate TURN
+   credentials, wire them into live.html's
+   WebRTC config
+
+7. Push to main — Cloudflare Pages builds and
+   deploys automatically from here on
+   (see "Pipeline" above)
+
+8. Everything else — all 44 HTML pages,
+   styles.css, scripts.js, lib/, audio/ — is
+   just static files. Copy them as-is.
+   There is no build step to run.</pre>
+        <p style="color:rgba(180,120,80,0.35);font-style:italic;text-align:center;margin-top:1.5rem;">No part of this needed to be obscure. It only needed to be written down once.</p>
+      </div>
+
     </div>
 
     <!-- ─── THE INNER CHAMBER ─── -->
@@ -479,6 +907,19 @@ openclaw gateway restart</pre>
       obs.observe(content, { attributes: true, attributeFilter: ['style'] });
     })();
 
+  })();
+  </script>
+
+  <script>
+  (function() {
+    const archBtn = document.getElementById('archToggle');
+    const archEl = document.getElementById('archContent');
+    if (!archBtn || !archEl) return;
+    archBtn.addEventListener('click', () => {
+      const isOpen = archEl.style.display === 'block';
+      archEl.style.display = isOpen ? 'none' : 'block';
+      archBtn.textContent = isOpen ? 'unfold the architecture ↴' : 'fold it away ↑';
+    });
   })();
   </script>
 </body>

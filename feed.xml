@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Methodic Truth — Chronicles &amp; Changelog</title>
+  <link>https://methodictruth.com/</link>
+  <description>Field notes from building an AI agent from scratch, plus everything shipped on methodictruth.com, in the order it happened.</description>
+  <language>en</language>
+  <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
+
+  <item>
+    <title>Changelog: June 27, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-06-27</link>
+    <guid isPermaLink="false">changelog-2026-06-27</guid>
+    <pubDate>Sat, 27 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Added a searchable directory of every tool and page, a skip-to-content link and better keyboard support across the site, and the changelog. Filled in missing page descriptions and gave the site a proper 404 page. Moved the step sequencer into the synth itself. Made the ambient atmosphere calmer. Fixed the mobile hamburger nav dropdown. Added a Jam Guide, FM synthesis, an AI Dispatches feed, an Ear Training tool, a generalized Chord-Tone Trainer, a rhyme finder and syllable counter in Songwriter, a Rhythm Trainer drill, algorithmic chord voicings, and improved Theory piano legibility.</description>
+  </item>
+
+  <item>
+    <title>Changelog: June 26, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-06-26</link>
+    <guid isPermaLink="false">changelog-2026-06-26</guid>
+    <pubDate>Fri, 26 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Stopped the generative ambient music from autoplaying and hid the music player bar site-wide. Fixed the SPA router breaking onclick handlers on navigated pages.</description>
+  </item>
+
+  <item>
+    <title>The Inference Layer</title>
+    <link>https://methodictruth.com/chronicle-2026-05-30-local-inference.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-05-30-local-inference.html</guid>
+    <pubDate>Sat, 30 May 2026 00:00:00 GMT</pubDate>
+    <description>How we built a free local AI inference tier across two machines — a gaming GPU and an Apple Silicon chip — and what it means to own your own compute.</description>
+  </item>
+
+  <item>
+    <title>Changelog: May 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-05</link>
+    <guid isPermaLink="false">changelog-2026-05</guid>
+    <pubDate>Fri, 01 May 2026 00:00:00 GMT</pubDate>
+    <description>Connected a second GPU node to the AI agent network with live inference. General site cleanup — fixed broken asset references, added a favicon.</description>
+  </item>
+
+  <item>
+    <title>The Platform That Changed the Rules</title>
+    <link>https://methodictruth.com/chronicle-2026-04-10-auth-lockdown.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-04-10-auth-lockdown.html</guid>
+    <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Anthropic revoked third-party OAuth for 135,000 OpenClaw instances with less than 24 hours notice.</description>
+  </item>
+
+  <item>
+    <title>Presenting the Network</title>
+    <link>https://methodictruth.com/chronicle-2026-04-10-presenting-the-network.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-04-10-presenting-the-network.html</guid>
+    <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Six machines, one encrypted mesh, one AI gateway. A clear picture of what comes next.</description>
+  </item>
+
+  <item>
+    <title>Four Nodes Online</title>
+    <link>https://methodictruth.com/chronicle-2026-04-10-four-nodes.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-04-10-four-nodes.html</guid>
+    <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
+    <description>The network grows: four machines connected to a private mesh, each becoming a cognitive node.</description>
+  </item>
+
+  <item>
+    <title>The Network Becomes a Mind</title>
+    <link>https://methodictruth.com/chronicle-2026-04-10-the-network.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-04-10-the-network.html</guid>
+    <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Six nodes on a private mesh. Abstracting the network as agents. Five possible architectures.</description>
+  </item>
+
+  <item>
+    <title>Changelog: April 10, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-04-10</link>
+    <guid isPermaLink="false">changelog-2026-04-10</guid>
+    <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Published The Network — a live map of the distributed AI infrastructure: remote access mesh, OS icons, character avatars for each node. Moved Network into the Systems menu.</description>
+  </item>
+
+  <item>
+    <title>Changelog: April 1, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-04-01</link>
+    <guid isPermaLink="false">changelog-2026-04-01</guid>
+    <pubDate>Wed, 01 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Added the Chord Voicings tool, tuned audio latency and keyboard responsiveness in the synth, and fixed real-time parameter changes in the Signal analyzer.</description>
+  </item>
+
+  <item>
+    <title>Changelog: March 30–31, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-03-30</link>
+    <guid isPermaLink="false">changelog-2026-03-30</guid>
+    <pubDate>Mon, 30 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Added the Song Analyzer — chord, key, and tempo detection from a YouTube link — connected it to a Cloudflare Worker backend, and gave it a dark, Byzantine aesthetic. Stabilized the synth's audio engine.</description>
+  </item>
+
+  <item>
+    <title>Infrastructure Evolution</title>
+    <link>https://methodictruth.com/chronicle-2026-03-23-infrastructure.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-03-23-infrastructure.html</guid>
+    <pubDate>Mon, 23 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Remote access, OAuth auth migration, and building a distributed gateway architecture across meshed machines.</description>
+  </item>
+
+</channel>
+</rss>
