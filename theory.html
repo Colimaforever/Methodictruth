@@ -130,35 +130,46 @@
       border: 1px solid rgba(138, 126, 107, 0.2); border-radius: 0 0 2px 2px;
       margin-left: -10px; margin-right: -10px; z-index: 2;
     }
-    .tp-key.scale-note { border-color: rgba(0, 229, 255, 0.25); }
-    .tp-key.white.scale-note { background: rgba(0, 229, 255, 0.07); }
-    .tp-key.black.scale-note { background: rgba(0, 229, 255, 0.18); }
-    .tp-key.chord-root { background: rgba(0, 229, 255, 0.3) !important;
-      box-shadow: 0 0 12px rgba(0, 229, 255, 0.4); border-color: rgba(0, 229, 255, 0.6) !important; }
-    .tp-key.chord-third { background: rgba(123, 104, 238, 0.3) !important;
-      box-shadow: 0 0 12px rgba(123, 104, 238, 0.4); border-color: rgba(123, 104, 238, 0.6) !important; }
-    .tp-key.chord-fifth { background: rgba(232, 168, 124, 0.3) !important;
-      box-shadow: 0 0 12px rgba(232, 168, 124, 0.4); border-color: rgba(232, 168, 124, 0.6) !important; }
-    .tp-key.chord-seventh { background: rgba(255, 220, 120, 0.25) !important;
-      box-shadow: 0 0 12px rgba(255, 220, 120, 0.35); border-color: rgba(255, 220, 120, 0.5) !important; }
+    .tp-key.scale-note { border-color: rgba(0, 229, 255, 0.6); border-width: 2px; }
+    .tp-key.white.scale-note { background: rgba(0, 229, 255, 0.22); }
+    .tp-key.black.scale-note { background: rgba(0, 229, 255, 0.42); }
+    .tp-key.chord-root { background: rgba(0, 229, 255, 0.65) !important;
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.65); border: 2px solid #00e5ff !important; }
+    .tp-key.chord-third { background: rgba(123, 104, 238, 0.65) !important;
+      box-shadow: 0 0 14px rgba(123, 104, 238, 0.65); border: 2px solid #a594f7 !important; }
+    .tp-key.chord-fifth { background: rgba(232, 168, 124, 0.65) !important;
+      box-shadow: 0 0 14px rgba(232, 168, 124, 0.6); border: 2px solid #e8a87c !important; }
+    .tp-key.chord-seventh { background: rgba(255, 220, 120, 0.6) !important;
+      box-shadow: 0 0 14px rgba(255, 220, 120, 0.55); border: 2px solid #ffdc78 !important; }
     .tp-key-label {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.38rem;
-      color: var(--stone-dark); pointer-events: none;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.46rem; font-weight: 700;
+      color: #ddd4c2; text-shadow: 0 1px 2px rgba(0,0,0,0.9); pointer-events: none;
     }
-    .tp-key.black .tp-key-label { color: rgba(138, 126, 107, 0.4); font-size: 0.33rem; }
+    .tp-key.black .tp-key-label { color: #cfc6b3; font-size: 0.4rem; }
+    .tp-key.scale-note .tp-key-label,
+    .tp-key.chord-root .tp-key-label,
+    .tp-key.chord-third .tp-key-label,
+    .tp-key.chord-fifth .tp-key-label,
+    .tp-key.chord-seventh .tp-key-label {
+      color: #ffffff; text-shadow: 0 0 3px rgba(0,0,0,0.95), 0 1px 1px rgba(0,0,0,0.9);
+    }
     .tp-key-finger {
       position: absolute; top: 4px; font-family: 'JetBrains Mono', monospace;
-      font-size: 0.5rem; color: var(--glow); pointer-events: none; font-weight: bold;
+      font-size: 0.52rem; color: #fff; text-shadow: 0 0 3px rgba(0,0,0,0.9);
+      pointer-events: none; font-weight: bold;
     }
     .keyboard-legend {
       display: flex; justify-content: center; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;
     }
     .keyboard-legend-item {
-      display: flex; align-items: center; gap: 0.3rem;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.5rem;
-      color: var(--stone-dark); letter-spacing: 0.05em;
+      display: flex; align-items: center; gap: 0.35rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--stone); letter-spacing: 0.05em;
     }
-    .keyboard-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .keyboard-legend-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 0 4px rgba(0,0,0,0.6);
+    }
 
     /* ─── CHORD SECTION ─── */
     .chord-controls {
@@ -262,6 +273,8 @@
     }
     .voicing-piano-mini .tp-key.white { width: 24px; height: 90px; }
     .voicing-piano-mini .tp-key.black { width: 16px; height: 56px; margin-left: -9px; margin-right: -9px; }
+    .voicing-piano-mini .tp-key-label { font-size: 0.4rem; }
+    .voicing-piano-mini .tp-key.black .tp-key-label { font-size: 0.35rem; }
     .guitar-voicing-tabs {
       display: flex; justify-content: center; gap: 0.3rem; margin-bottom: 0.6rem;
     }
@@ -348,6 +361,8 @@
       .keyboard-inner { height: 90px; }
       .tp-key.white { width: 22px; height: 90px; }
       .tp-key.black { width: 14px; height: 56px; margin-left: -8px; margin-right: -8px; }
+      .tp-key-label { font-size: 0.4rem; }
+      .tp-key.black .tp-key-label { font-size: 0.34rem; }
       .voicing-detail.open { padding: 1rem; }
       .voicing-chord-name { font-size: 1.2rem; }
       .deeper-section { padding: 1rem; }
@@ -1047,13 +1062,13 @@
     const legend = document.getElementById('pianoLegend');
     if (selectedChord !== null) {
       legend.innerHTML = `
-        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:rgba(0,229,255,0.6)"></div>Root</div>
-        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:rgba(123,104,238,0.6)"></div>3rd</div>
-        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:rgba(232,168,124,0.6)"></div>5th</div>
-        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:rgba(255,220,120,0.5)"></div>7th</div>
+        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#00e5ff"></div>Root</div>
+        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#a594f7"></div>3rd</div>
+        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#e8a87c"></div>5th</div>
+        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#ffdc78"></div>7th</div>
       `;
     } else {
-      legend.innerHTML = `<div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:rgba(0,229,255,0.4)"></div>Scale tone</div>`;
+      legend.innerHTML = `<div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:rgba(0,229,255,0.55)"></div>Scale tone</div>`;
     }
 
     // Chords
