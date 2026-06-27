@@ -298,6 +298,63 @@ Files changed  → the actual diff. This is the review.</pre>
       triggers the Cloudflare deploy automatically.</p>
     </div>
 
+    <div class="vault-section">
+      <h2>What's Actually Wired Up: CI + Previews</h2>
+      <p>Every PR now runs an automated check — this is the thing that fills
+      in the <strong>Checks</strong> tab instead of leaving it at 0:</p>
+      <pre>
+.github/workflows/checks.yml
+  on: every PR into main
+
+  1. node .github/scripts/check-links.js
+     walks every *.html file, finds every
+     href= / src= pointing at this site,
+     fails if any local link or asset
+     is missing
+
+  2. node .github/scripts/check-jsonld.js
+     finds every &lt;script type="application/
+     ld+json"&gt; block, fails if any of them
+     isn't valid JSON
+
+  3. xml.dom.minidom.parse('feed.xml')
+     fails if the RSS feed isn't
+     well-formed XML
+
+  Green check = all three passed.
+  Click into the check on the PR page
+  to see the actual log output.</pre>
+      <p>This catches the same classes of mistake the manual audits in this
+      vault already covered once — broken links, malformed structured data,
+      a corrupted feed — except now it runs automatically on every future PR
+      instead of needing to be re-run by hand.</p>
+
+      <p style="margin-top:1rem;"><strong>Preview deployments</strong> are a
+      different thing, and they are <em>not</em> wired up from in here — that
+      setting lives in the Cloudflare dashboard / account, which this session
+      has no credentials for. What a preview deployment does, if enabled: every
+      PR gets its own live, throwaway URL (something like
+      <code>a1c5ad1.methodictruth.pages.dev</code>) that you can actually click
+      around in a browser before merging — not just read a diff. To check or
+      turn it on:</p>
+      <pre>
+dash.cloudflare.com → Workers & Pages
+  → the Methodictruth project → Settings
+  → Builds & deployments
+
+Look for the branch deployment control —
+it decides which non-production branches
+get an auto-built preview. Set it to build
+all branches (or at least PR branches), and
+make sure "GitHub deployment comments" /
+commit statuses are enabled so the preview
+link shows up directly on the PR.</pre>
+      <p>If it's already on, nothing to do. If <strong>Checks</strong> stays
+      empty of a Cloudflare entry after a push, that setting is most likely
+      off and needs a manual flip in the dashboard — this can't be done
+      through the repo.</p>
+    </div>
+
     <!-- ─── THE INNER CHAMBER ─── -->
     <div style="margin-top:4rem;padding-top:2rem;border-top:1px solid rgba(120,40,40,0.1);">
       <div style="text-align:center;margin-bottom:1.5rem;">
