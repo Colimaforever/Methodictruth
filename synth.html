@@ -576,7 +576,7 @@
       <dt>FM (Frequency Modulation)</dt>
       <dd>Patch one oscillator's <code>out</code> into another's <code>FM</code> input to modulate its pitch at audio rate. <code>FM Amt</code> = depth in Hz of frequency deviation. Set the modulator at a simple ratio of the carrier: <code>1:1</code>/<code>2:1</code> = harmonic (clean, organ-like), <code>3.5:1</code>+ = inharmonic/metallic (bells, e-piano, gongs).</dd>
       <dt>Envelope (ADSR)</dt>
-      <dd>Attack = fade-in time · Decay = drop after peak · Sustain = held level · Release = fade after note off.</dd>
+      <dd>Attack = fade-in time · Decay = drop after peak · Sustain = held level · Release = fade after note off. Patch it between an oscillator and <code>Output</code> and it re-fires on every note — piano keys, MIDI, and the sequencer all retrigger it, so a short Decay gives plucked/percussive steps instead of a flat on/off.</dd>
       <dt>Delay</dt>
       <dd>Echo effect. Time = gap between repeats · Feedback = how many repeats · Mix = dry/wet balance.</dd>
       <dt>Reverb</dt>
@@ -609,6 +609,8 @@
     <dl>
       <dt>Step Sequencer</dt>
       <dd>Open with <code>🎼 Sequencer</code> in the toolbar. It plays your <em>patched sound</em> — build a basic synth first (Oscillator → … → Output), press Start Audio, then hit Play. Tap a step to turn it on/off; use the <code>−</code>/<code>+</code> under an active step to change its pitch. Set length (8/16/32 steps), BPM, swing, and gate length. The matching piano key lights up as each step fires. Patterns auto-save and reload.</dd>
+      <dt>Shaping each step (Decay/ADSR)</dt>
+      <dd>The sequencer has no envelope of its own — it plays through whatever's patched on the canvas. Add an <code>ADSR</code> module before <code>Output</code> and set a short <code>Dec</code> (decay) with low <code>Sus</code> (sustain) for plucky, percussive steps, or a longer Decay/higher Sustain for pads that bleed into the next step. It retriggers on every step automatically.</dd>
     </dl>
 
     <h3>MIDI — Controllers and DAWs</h3>
@@ -935,13 +937,14 @@
         { id: 'release', type: 'range', min: 0.001, max: 5, default: 1, step: 0.001, label: 'Rel', unit: 's' },
       ],
       create(params) {
-        // AmplitudeEnvelope acts as gain controlled by ADSR
+        // AmplitudeEnvelope acts as gain controlled by ADSR.
+        // Retriggered per note from noteOn/noteOff below — not auto-held —
+        // so Attack/Decay/Sustain/Release actually shape each note instead
+        // of just opening once and staying at sustain level forever.
         const env = new Tone.AmplitudeEnvelope({
           attack: params.attack, decay: params.decay,
           sustain: params.sustain, release: params.release
         });
-        // Auto-trigger for continuous sound
-        env.triggerAttack();
         return { node: env, in: env, out: env };
       },
       update(audio, key, val) {
@@ -1772,7 +1775,14 @@
 
     activeNotes.set(noteNum, synthNodes);
     highlightPianoKey(noteNum, true);
-    
+
+    // Retrigger any patched Envelope (ADSR) modules — monophonic-style:
+    // every new note re-fires Attack/Decay, giving plucked/percussive
+    // shape even when notes overlap (e.g. fast sequencer steps).
+    Object.values(modules).forEach(m => {
+      if (m.type === 'envelope') { try { m.audio.node.triggerAttack(); } catch(e) {} }
+    });
+
     // Log processing time for first few notes
     const processingTime = performance.now() - startTime;
     if (activeNotes.size <= 3) {
@@ -1795,6 +1805,14 @@
     });
     activeNotes.delete(noteNum);
     highlightPianoKey(noteNum, false);
+
+    // Release any patched Envelope modules once nothing is left held —
+    // matches the monophonic-style retrigger in noteOn above.
+    if (activeNotes.size === 0) {
+      Object.values(modules).forEach(m => {
+        if (m.type === 'envelope') { try { m.audio.node.triggerRelease(); } catch(e) {} }
+      });
+    }
   }
 
   // ─── MIDI SETUP ───
