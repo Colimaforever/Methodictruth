@@ -563,6 +563,38 @@ header {
   50% { transform: rotate(2deg); }
 }
 
+/* Sigil core — a small futuristic glyph at dead center, filling the gap
+   left by the removed crystal-ball emoji with something ancient-meets-circuit
+   rather than empty space. */
+.sigil-core {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 14px; height: 14px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border: 1px solid rgba(0, 229, 255, 0.55);
+  background: rgba(0, 229, 255, 0.06);
+  box-shadow:
+    0 0 12px rgba(0, 229, 255, 0.35),
+    0 0 24px rgba(123, 104, 238, 0.2),
+    inset 0 0 8px rgba(0, 229, 255, 0.25);
+  animation: coreBeat 4s ease-in-out infinite;
+}
+.sigil-core::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 3px; height: 3px;
+  transform: translate(-50%, -50%);
+  background: var(--glow);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.9);
+}
+
+@keyframes coreBeat {
+  0%, 100% { opacity: 0.55; box-shadow: 0 0 12px rgba(0, 229, 255, 0.25), 0 0 24px rgba(123, 104, 238, 0.15), inset 0 0 8px rgba(0, 229, 255, 0.18); }
+  50% { opacity: 1; box-shadow: 0 0 20px rgba(0, 229, 255, 0.55), 0 0 40px rgba(123, 104, 238, 0.35), inset 0 0 12px rgba(0, 229, 255, 0.35); }
+}
+
 h1 {
   font-family: 'Cinzel', serif;
   font-size: clamp(2rem, 6vw, 5rem);
@@ -572,6 +604,21 @@ h1 {
   text-transform: uppercase;
   margin-bottom: 0.5rem;
   text-shadow: 0 0 40px rgba(0, 229, 255, 0.15), 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Homepage wordmark — gothic/darkwave display face (4AD-label adjacent),
+   kept off the generic h1 rule so other pages' headers are untouched. */
+.brand-wordmark {
+  font-family: 'Pirata One', 'Cinzel', serif;
+  font-size: clamp(2.4rem, 8vw, 5.5rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  background: linear-gradient(180deg, var(--parchment) 0%, rgba(0, 229, 255, 0.85) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(0, 229, 255, 0.35), 0 0 70px rgba(123, 104, 238, 0.25);
 }
 
 .subtitle {
