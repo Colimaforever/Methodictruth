@@ -148,6 +148,21 @@
 .sw-quote p { margin: 0; font-style: italic; }
 .sw-quote cite { font-size: 0.85rem; color: var(--stone-dark, #aaa); font-style: normal; }
 
+/* Practical method steps */
+.sw-steps { padding-left: 1.3rem; margin: 0 0 1rem; }
+.sw-steps li { margin-bottom: 0.65rem; line-height: 1.55; }
+.sw-steps strong { color: var(--glow, #d4a574); }
+
+/* Transition tips in the arrangement timeline */
+.sw-transition-tip {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark, #ccc);
+  text-align: left; padding: 0.4rem 0.7rem; margin: 0.1rem 0 0.4rem;
+  border-left: 2px dashed var(--glow, #d4a574); background: rgba(212,165,116,0.06); border-radius: 4px;
+  line-height: 1.4;
+}
+.sw-transition-tip.rise { border-left-color: #5ac8c8; background: rgba(90,200,200,0.06); }
+.sw-transition-tip.drop { border-left-color: #c86a6a; background: rgba(200,106,106,0.06); }
+
 /* Lyric tools */
 .sw-chord-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
 .sw-chord-table th, .sw-chord-table td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--stone-dark, #333); font-size: 0.9rem; }
@@ -272,6 +287,12 @@
     <div class="sw-panel-content" id="wisdomContent"></div>
   </div>
 
+  <!-- Harmony & Dynamics -->
+  <div class="sw-panel" id="panelHarmony">
+    <button class="sw-panel-toggle" onclick="togglePanel('panelHarmony')">🎹 Harmony &amp; Dynamics <span class="arrow">▸</span></button>
+    <div class="sw-panel-content" id="harmonyContent"></div>
+  </div>
+
   <!-- Lyric Tools -->
   <div class="sw-panel" id="panelLyric">
     <button class="sw-panel-toggle" onclick="togglePanel('panelLyric')">✍️ Lyric Tools <span class="arrow">▸</span></button>
@@ -370,8 +391,55 @@ WISDOM.forEach(w => {
   wisdomEl.innerHTML += `<div class="sw-quote"><p>"${w.quote}"</p><cite>— ${w.author}</cite></div>`;
 });
 
+// Build harmony & dynamics
+document.getElementById('harmonyContent').innerHTML = `
+<h3>🎯 Tension &amp; Release</h3>
+<p style="opacity:0.85;margin-bottom:0.5rem;">Harmony is managed tension. Every chord either pulls toward "home" (the I/tonic) or away from it — a song's harmonic interest comes from <em>how long you delay the return</em>, not from how unusual the chords are. Most of the moves below are just different ways to stretch or release that pull.</p>
+
+<h3>Chord Progressions by Genre</h3>
+<table class="sw-chord-table">
+<tr><th>Genre</th><th>Progression</th><th>Feel</th></tr>
+<tr><td>Pop</td><td>I – V – vi – IV</td><td>Anthemic, universal</td></tr>
+<tr><td>Pop Alt</td><td>vi – IV – I – V</td><td>Melancholy but hopeful</td></tr>
+<tr><td>Jazz</td><td>ii – V – I</td><td>Sophisticated resolution</td></tr>
+<tr><td>Blues</td><td>I – IV – V</td><td>Raw, foundational</td></tr>
+<tr><td>R&B</td><td>I – vi – IV – V</td><td>Smooth, classic doo-wop</td></tr>
+<tr><td>EDM</td><td>vi – IV – I – V</td><td>Driving, emotional</td></tr>
+<tr><td>Folk</td><td>I – IV – V – IV</td><td>Simple, warm</td></tr>
+<tr><td>Neo-Soul</td><td>IVmaj7 – iii7 – vi7 – ii7</td><td>Lush, floating</td></tr>
+</table>
+
+<h3>Moves That Add Lift (for a Pre-Chorus → Chorus)</h3>
+<div class="sw-ref-item"><h4>Secondary Dominant</h4><p>Borrow the V of the chord you're heading to, right before it — in C major, play a D7 right before the G. It pulls the ear forward so the arrival feels earned instead of arbitrary.</p></div>
+<div class="sw-ref-item"><h4>Borrowed Chord (Modal Mixture)</h4><p>Swap a major-key chord for its minor-key cousin — a minor iv or a bVI in a major song reads as bittersweet without ever leaving the key center. The one unexpected chord in an otherwise simple progression is usually this.</p></div>
+<div class="sw-ref-item"><h4>Suspension</h4><p>Hold a note from the previous chord into the new one, then resolve it down a step a beat later. The "ache before the relief" sound — it's why so many ballads lean on sus4 chords right before they resolve.</p></div>
+<div class="sw-ref-item"><h4>Pedal Tone</h4><p>Keep the bass locked on one note while the chords above it change. Builds tension because the harmony keeps implying motion the bass refuses to follow — common under a pre-chorus that's building toward release.</p></div>
+
+<h3>📈 Building a Real Crescendo</h3>
+<p style="opacity:0.85;margin-bottom:0.5rem;">A crescendo isn't "turn it up" — it's stacking several kinds of lift at once so the climax feels inevitable rather than abrupt. Mix and match:</p>
+<div class="sw-ref-item"><h4>Add layers, not just volume</h4><p>Bring in one new instrument per section instead of raising every fader. A song that adds drums in the pre-chorus and strings in the last chorus feels like it's growing; one that just gets louder feels like it's straining.</p></div>
+<div class="sw-ref-item"><h4>Increase rhythmic density</h4><p>Move from whole/half notes in the verse to quarter notes in the pre-chorus to eighths or sixteenths in the chorus — on the hi-hat, the strums, the vocal phrasing. Density reads as energy even at the same tempo and volume.</p></div>
+<div class="sw-ref-item"><h4>Widen the vocal</h4><p>Stack a harmony an octave or a third above the lead on the final chorus, or simply move the melody itself higher. Range expansion is one of the cheapest, most reliable "this is the big one" signals.</p></div>
+<div class="sw-ref-item"><h4>Strip before you build</h4><p>Cut everything back — sometimes to just vocal and one instrument — right before the section you want to hit hardest. Contrast does more work than addition; a quiet bar makes the next loud one twice as loud.</p></div>
+<div class="sw-ref-item"><h4>The key change ("truck driver's gear shift")</h4><p>Modulating up a whole or half step for a final chorus is a cliché because it works — instant, unmistakable lift. Use it once per song, near the end, or not at all; it loses its effect the second time.</p></div>
+<div class="sw-ref-item"><h4>Leave one element in reserve</h4><p>Hold back your biggest sound — a key change, a vocal ad-lib, a cymbal crash, a wall of harmony — so the true final chorus still has somewhere left to go. If the third chorus sounds identical to the second, you peaked too early.</p></div>
+<p style="opacity:0.8;font-size:0.85rem;">Use the Energy Arc above as your map: it'll flag big jumps and drops directly in the Arrangement timeline below with a suggested move from this list.</p>
+`;
+
 // Build lyric tools
 document.getElementById('lyricContent').innerHTML = `
+<h3>✍️ How to Actually Write the Lyrics</h3>
+<p style="opacity:0.8;font-size:0.85rem;margin-bottom:0.5rem;">A working process, not a rulebook. Skip whatever doesn't match how you write.</p>
+<ol class="sw-steps">
+  <li><strong>Pin the idea in one sentence.</strong> Not the topic — the angle. "Heartbreak" isn't an angle. "I still set out two coffee cups out of habit" is.</li>
+  <li><strong>Find the hook before the verses.</strong> Most songs that last are written backward from the one phrase that has to survive. Write 5–10 candidate hooks before picking one — don't marry the first idea.</li>
+  <li><strong>Free-write before you edit.</strong> Set a timer for 10 minutes, write everything that comes, including the bad lines. You can't edit a blank page — first drafts exist to be cut.</li>
+  <li><strong>Show, don't tell.</strong> "I'm sad" tells. "I left the porch light on for a year" shows. Specific, sensory detail beats naming the emotion directly almost every time.</li>
+  <li><strong>Make every verse lean toward the hook.</strong> End each verse on a question, a turn, or a reveal — something that makes the chorus feel inevitable rather than just "next."</li>
+  <li><strong>Match meter to melody.</strong> Use the syllable counter below to keep line lengths consistent across verses, so the melody doesn't have to bend differently each time.</li>
+  <li><strong>Cut the weakest line in every section.</strong> There's almost always one line doing less work than the rest. Find it, cut it, and let the gap force a better one — or let the silence sit.</li>
+</ol>
+
 <h3>🎤 Rhyme Finder</h3>
 <p style="opacity:0.75;font-size:0.85rem;margin-bottom:0.5rem;">Type a word and find what rhymes with it.</p>
 <div class="sw-tool-row">
@@ -391,19 +459,6 @@ document.getElementById('lyricContent').innerHTML = `
 <div class="sw-ref-item"><h4>ABCB (Common/Ballad)</h4><p>Only lines 2&4 rhyme. Feels natural, conversational. Most pop/folk uses this.</p></div>
 <div class="sw-ref-item"><h4>Slant Rhyme</h4><p>Near-rhymes: "home/gone", "love/move". Adds sophistication, avoids predictability.</p></div>
 <div class="sw-ref-item"><h4>Internal Rhyme</h4><p>Rhymes within a line: "I bring the <em>fire</em> to <em>inspire</em> the <em>choir</em>"</p></div>
-
-<h3>Chord Progressions by Genre</h3>
-<table class="sw-chord-table">
-<tr><th>Genre</th><th>Progression</th><th>Feel</th></tr>
-<tr><td>Pop</td><td>I – V – vi – IV</td><td>Anthemic, universal</td></tr>
-<tr><td>Pop Alt</td><td>vi – IV – I – V</td><td>Melancholy but hopeful</td></tr>
-<tr><td>Jazz</td><td>ii – V – I</td><td>Sophisticated resolution</td></tr>
-<tr><td>Blues</td><td>I – IV – V</td><td>Raw, foundational</td></tr>
-<tr><td>R&B</td><td>I – vi – IV – V</td><td>Smooth, classic doo-wop</td></tr>
-<tr><td>EDM</td><td>vi – IV – I – V</td><td>Driving, emotional</td></tr>
-<tr><td>Folk</td><td>I – IV – V – IV</td><td>Simple, warm</td></tr>
-<tr><td>Neo-Soul</td><td>IVmaj7 – iii7 – vi7 – ii7</td><td>Lush, floating</td></tr>
-</table>
 
 <h3>Lyrical Devices</h3>
 <div class="sw-ref-item"><h4>Metaphor</h4><p>"You are my sunshine" — direct comparison without like/as.</p></div>
@@ -511,11 +566,28 @@ function addSection(typeId) {
   render();
 }
 
+function transitionTip(delta) {
+  if (delta >= 5) return { cls: 'rise', text: '⬆ Big lift — layer in an instrument, widen the vocal, or try a key change (a "truck driver\'s gear shift") to earn this jump.' };
+  if (delta >= 3) return { cls: 'rise', text: '⬆ Rising — add a layer, thicken the rhythm, or use a secondary dominant / borrowed chord to pull the ear forward.' };
+  if (delta <= -5) return { cls: 'drop', text: '⬇ Big drop — strip it back hard. Cut to one instrument, let it breathe, then rebuild from near-silence.' };
+  if (delta <= -3) return { cls: 'drop', text: '⬇ Dropping — pull an instrument out or thin the texture before this section lands.' };
+  return null;
+}
+
 function render() {
   const tl = document.getElementById('timeline');
   if (!sections.length) { tl.innerHTML = '<div class="sw-empty">Click a section above to start building your arrangement</div>'; drawEnergy(); return; }
   tl.innerHTML = '';
   sections.forEach((s, i) => {
+    if (i > 0) {
+      const tip = transitionTip(s.mood - sections[i-1].mood);
+      if (tip) {
+        const tipEl = document.createElement('div');
+        tipEl.className = 'sw-transition-tip ' + tip.cls;
+        tipEl.textContent = tip.text;
+        tl.appendChild(tipEl);
+      }
+    }
     const label = SECTION_TYPES.find(t=>t.id===s.type)?.label||s.type;
     const card = document.createElement('div');
     card.className = 'sw-card sw-type-' + s.type + (s.expanded?' expanded':'');
@@ -558,6 +630,7 @@ function render() {
         s[f] = f==='mood'? +el.value : el.value;
         if(f==='mood') { el.parentElement.querySelector('.sw-range-val').textContent=el.value; drawEnergy(); }
       });
+      if (el.dataset.field === 'mood') el.addEventListener('change', () => render());
     });
 
     // Drag
