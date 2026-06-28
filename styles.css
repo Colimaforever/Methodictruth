@@ -455,9 +455,15 @@ header {
   animation: ringRotate 45s linear infinite reverse;
 }
 
-/* Sigil hands — ancient cave-stencil hand reaching toward an angular
-   AI circuit-claw, replacing the old solid triangle pair. The sigil-core
-   glyph sits in the gap between their fingertips. */
+/* Sigil hands photo — robotic hand and human hand reaching toward each
+   other, the sigil-core glyph sitting in the gap between their fingertips. */
+.sigil-hands-photo {
+  position: absolute;
+  width: 90%;
+  left: 5%;
+  top: 32%;
+}
+
 .sigil-hands {
   position: absolute;
   width: 92%;
