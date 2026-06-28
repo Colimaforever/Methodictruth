@@ -429,18 +429,6 @@ header {
   animation: ringRotate 60s linear infinite;
 }
 
-.sigil-ring::before {
-  content: '◆ ▽ ◇ △ ◆ ▽ ◇ △ ◆ ▽ ◇ △';
-  position: absolute;
-  top: -10px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.5rem;
-  color: var(--glow);
-  opacity: 0.4;
-  letter-spacing: 0.3em;
-  white-space: nowrap;
-}
-
 @keyframes ringRotate {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -455,15 +443,13 @@ header {
   animation: ringRotate 45s linear infinite reverse;
 }
 
-/* Sigil hands — ancient cave-stencil hand reaching toward an angular
-   AI circuit-claw, replacing the old solid triangle pair. The sigil-core
-   glyph sits in the gap between their fingertips. */
-.sigil-hands {
+/* Sigil hands photo — robotic hand and human hand reaching toward each
+   other, the sigil-core glyph sitting in the gap between their fingertips. */
+.sigil-hands-photo {
   position: absolute;
-  width: 92%;
-  height: 80%;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
+  width: 90%;
+  left: 5%;
+  top: 32%;
 }
 
 .sigil-script {
@@ -480,19 +466,6 @@ header {
   opacity: 0.4;
   font-family: serif;
 }
-
-.cardinal {
-  position: absolute;
-  font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  color: var(--glow-warm);
-  opacity: 0.35;
-  letter-spacing: 0.2em;
-}
-.cardinal.n { top: -25px; left: 50%; transform: translateX(-50%); }
-.cardinal.s { bottom: -25px; left: 50%; transform: translateX(-50%); }
-.cardinal.e { right: -30px; top: 50%; transform: translateY(-50%); }
-.cardinal.w { left: -30px; top: 50%; transform: translateY(-50%); }
 
 .sigil-rays {
   position: absolute;
@@ -574,11 +547,11 @@ h1 {
   font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: none;
-  background: linear-gradient(180deg, var(--parchment) 0%, rgba(0, 229, 255, 0.85) 100%);
+  background: linear-gradient(180deg, var(--parchment) 0%, var(--oracle) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(0, 229, 255, 0.35), 0 0 70px rgba(123, 104, 238, 0.25);
+  text-shadow: 0 0 30px rgba(123, 104, 238, 0.45), 0 0 70px rgba(88, 28, 135, 0.3);
 }
 
 .subtitle {
