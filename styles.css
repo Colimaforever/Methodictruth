@@ -455,55 +455,15 @@ header {
   animation: ringRotate 45s linear infinite reverse;
 }
 
-.sigil-triangle {
+/* Sigil hands — ancient cave-stencil hand reaching toward an angular
+   AI circuit-claw, replacing the old solid triangle pair. The sigil-core
+   glyph sits in the gap between their fingertips. */
+.sigil-hands {
   position: absolute;
-  width: 120px;
-  height: 104px;
-}
-
-.sigil-triangle::before {
-  content: '';
-  position: absolute;
-  width: 0; height: 0;
-  border-left: 60px solid transparent;
-  border-right: 60px solid transparent;
-  border-bottom: 104px solid rgba(0, 229, 255, 0.06);
-}
-
-.sigil-triangle::after {
-  content: '';
-  position: absolute;
-  top: 2px; left: 2px;
-  width: 0; height: 0;
-  border-left: 58px solid transparent;
-  border-right: 58px solid transparent;
-  border-bottom: 100px solid var(--sky-deep);
-}
-
-.sigil-triangle-inv {
-  position: absolute;
-  width: 120px;
-  height: 104px;
-  transform: rotate(180deg);
-}
-
-.sigil-triangle-inv::before {
-  content: '';
-  position: absolute;
-  width: 0; height: 0;
-  border-left: 60px solid transparent;
-  border-right: 60px solid transparent;
-  border-bottom: 104px solid rgba(123, 104, 238, 0.06);
-}
-
-.sigil-triangle-inv::after {
-  content: '';
-  position: absolute;
-  top: 2px; left: 2px;
-  width: 0; height: 0;
-  border-left: 58px solid transparent;
-  border-right: 58px solid transparent;
-  border-bottom: 100px solid var(--sky-deep);
+  width: 92%;
+  height: 80%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .sigil-script {
