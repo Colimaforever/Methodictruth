@@ -74,10 +74,34 @@
       50% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
     }
 
+    /* Module-category color coding — ties source/shape/mod/mix/space/out
+       buttons to the matching module card border color on the canvas. */
+    .synth-toolbar-label[data-cat="source"] { color: #00e5ff; opacity: 0.7; }
+    .synth-toolbar-label[data-cat="shape"]  { color: #e8a87c; opacity: 0.7; }
+    .synth-toolbar-label[data-cat="mod"]    { color: #7b68ee; opacity: 0.7; }
+    .synth-toolbar-label[data-cat="mix"]    { color: #6aad73; opacity: 0.7; }
+    .synth-toolbar-label[data-cat="space"]  { color: #ffa050; opacity: 0.7; }
+    .synth-toolbar-label[data-cat="out"]    { color: #f0e8d8; opacity: 0.7; }
+
+    .synth-btn[data-cat] { border-left-width: 2px; }
+    .synth-btn[data-cat="source"] { border-left-color: rgba(0,229,255,0.5); }
+    .synth-btn[data-cat="shape"]  { border-left-color: rgba(232,168,124,0.5); }
+    .synth-btn[data-cat="mod"]    { border-left-color: rgba(123,104,238,0.5); }
+    .synth-btn[data-cat="mix"]    { border-left-color: rgba(106,173,115,0.5); }
+    .synth-btn[data-cat="space"]  { border-left-color: rgba(255,160,80,0.5); }
+    .synth-btn[data-cat="out"]    { border-left-color: rgba(240,232,216,0.5); }
+
+    .synth-btn.macro { border-color: rgba(0,229,255,0.3); color: rgba(0,229,255,0.8); }
+    .synth-btn.macro:hover { border-color: var(--glow); background: rgba(0,229,255,0.08); }
+
     /* ─── CANVAS ─── */
     .synth-canvas {
       position: relative; width: 100%; min-height: calc(100vh - 110px); min-height: calc(100dvh - 110px);
       margin-top: 50px; overflow: hidden;
+      background-image:
+        linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px);
+      background-size: 32px 32px;
     }
 
     .synth-canvas svg.patch-svg {
@@ -92,6 +116,7 @@
       position: absolute; width: 220px;
       background: linear-gradient(135deg, rgba(26, 18, 10, 0.92), rgba(15, 20, 15, 0.85));
       border: 1px solid rgba(0, 229, 255, 0.15);
+      border-left-width: 3px;
       backdrop-filter: blur(6px);
       z-index: 10; user-select: none;
       box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
@@ -100,6 +125,17 @@
     .synth-module:hover { box-shadow: 0 2px 30px rgba(0, 229, 255, 0.08), 0 0 50px rgba(0, 0, 0, 0.5); }
     .synth-module.dragging { z-index: 100; box-shadow: 0 4px 40px rgba(0, 229, 255, 0.15); }
     .synth-module.dragover { border-color: var(--glow); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+
+    .vu-meter {
+      height: 6px; background: rgba(10,14,26,0.7);
+      border: 1px solid rgba(138,126,107,0.15);
+      margin: 0.1rem 0 0.6rem; overflow: hidden; position: relative;
+    }
+    .vu-fill {
+      height: 100%; width: 0%;
+      background: rgba(106,173,115,0.8);
+      transition: width 0.06s linear, background 0.15s linear;
+    }
 
     .module-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -455,22 +491,38 @@
         <button class="synth-btn start-audio" id="startAudioBtn">◈ Start Audio</button>
       </div>
       <div class="synth-toolbar-section">
-        <span class="synth-toolbar-label">Add:</span>
-        <button class="synth-btn" data-add="oscillator">Osc</button>
-        <button class="synth-btn" data-add="filter">Filter</button>
-        <button class="synth-btn" data-add="lfo">LFO</button>
-        <button class="synth-btn" data-add="delay">Delay</button>
-        <button class="synth-btn" data-add="reverb">Reverb</button>
-        <button class="synth-btn" data-add="chorus">Chorus</button>
-        <button class="synth-btn" data-add="gain">Gain</button>
-        <button class="synth-btn" data-add="pan">Pan</button>
-        <button class="synth-btn" data-add="eq3">EQ</button>
-        <button class="synth-btn" data-add="compressor">Comp</button>
-        <button class="synth-btn" data-add="limiter">Limiter</button>
-        <button class="synth-btn" data-add="player">File</button>
-        <button class="synth-btn" data-add="noise">Noise</button>
-        <button class="synth-btn" data-add="envelope">ADSR</button>
-        <button class="synth-btn" data-add="output">Output</button>
+        <span class="synth-toolbar-label" data-cat="source">Source</span>
+        <button class="synth-btn" data-cat="source" data-add="oscillator">Osc</button>
+        <button class="synth-btn" data-cat="source" data-add="noise">Noise</button>
+        <button class="synth-btn" data-cat="source" data-add="player">File</button>
+      </div>
+      <div class="synth-toolbar-section">
+        <span class="synth-toolbar-label" data-cat="shape">Shape</span>
+        <button class="synth-btn" data-cat="shape" data-add="filter">Filter</button>
+        <button class="synth-btn" data-cat="shape" data-add="eq3">EQ</button>
+        <button class="synth-btn" data-cat="shape" data-add="envelope">ADSR</button>
+      </div>
+      <div class="synth-toolbar-section">
+        <span class="synth-toolbar-label" data-cat="mod">Mod</span>
+        <button class="synth-btn" data-cat="mod" data-add="lfo">LFO</button>
+      </div>
+      <div class="synth-toolbar-section">
+        <span class="synth-toolbar-label" data-cat="mix">Mix</span>
+        <button class="synth-btn" data-cat="mix" data-add="gain">Gain</button>
+        <button class="synth-btn" data-cat="mix" data-add="pan">Pan</button>
+        <button class="synth-btn" data-cat="mix" data-add="compressor">Comp</button>
+        <button class="synth-btn" data-cat="mix" data-add="limiter">Limiter</button>
+      </div>
+      <div class="synth-toolbar-section">
+        <span class="synth-toolbar-label" data-cat="space">Space FX</span>
+        <button class="synth-btn" data-cat="space" data-add="delay">Delay</button>
+        <button class="synth-btn" data-cat="space" data-add="reverb">Reverb</button>
+        <button class="synth-btn" data-cat="space" data-add="chorus">Chorus</button>
+      </div>
+      <div class="synth-toolbar-section">
+        <span class="synth-toolbar-label" data-cat="out">Out</span>
+        <button class="synth-btn" data-cat="out" data-add="output">Output</button>
+        <button class="synth-btn macro" id="channelStripBtn">+ Channel Strip</button>
       </div>
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label">Presets:</span>
@@ -599,10 +651,25 @@
       <dd>A hard ceiling on loudness — put one right before <code>Output</code> to stop a mix from clipping. <code>Thresh</code> = the ceiling.</dd>
     </dl>
 
+    <h3>Module Categories</h3>
+    <p>Every toolbar button and module card is color-coded by its role in the rack, so a glance tells you what a patch is made of:</p>
+    <ul>
+      <li><strong style="color:#00e5ff">Source</strong> — Oscillator, Noise, Audio File: where the sound starts.</li>
+      <li><strong style="color:#e8a87c">Shape</strong> — Filter, EQ, Envelope: where its tone and contour are carved.</li>
+      <li><strong style="color:#7b68ee">Mod</strong> — LFO: slow movement patched into another module's parameter.</li>
+      <li><strong style="color:#6aad73">Mix</strong> — Gain, Pan, Compressor, Limiter: levels and stereo placement.</li>
+      <li><strong style="color:#ffa050">Space FX</strong> — Delay, Reverb, Chorus: depth and width.</li>
+      <li><strong style="color:#f0e8d8">Out</strong> — Output: the final stage, with a live VU meter showing how hot the signal is running.</li>
+    </ul>
+
     <h3>Mixing Multiple Tracks</h3>
     <dl>
       <dt>Build a mix</dt>
       <dd>Add one <code>Audio File</code> module per stem, route each through its own <code>Pan</code>/<code>EQ</code> into a shared <code>Gain</code> or <code>Compressor</code>, then into one <code>Output</code>. Add a <code>Limiter</code> just before <code>Output</code> to keep the combined level in check.</dd>
+      <dt>+ Channel Strip</dt>
+      <dd>One click drops a pre-cabled <code>Pan → EQ → Compressor → Limiter → Output</code> chain — the standard mixing order — so you can patch a source straight into a finished signal chain instead of wiring five modules by hand.</dd>
+      <dt>VU Meter</dt>
+      <dd>Every <code>Output</code> module shows a live level bar under its Master slider — green while there's headroom, amber as it gets hot, red near clipping. Pull the Master fader or add a Limiter upstream if it's pinned red.</dd>
     </dl>
 
     <h3>Sequencer</h3>
@@ -679,11 +746,25 @@
     if (window.Analytics) Analytics.Synth.audioStarted();
   }
 
+  // ─── MODULE CATEGORIES ───
+  // Every module belongs to one rack category, which colors both its
+  // toolbar button and its card border — the visual thread that ties
+  // sound sources, shaping, modulation, mixing and space FX into one rack.
+  const CATEGORY_COLORS = {
+    source: '#00e5ff',
+    shape:  '#e8a87c',
+    mod:    '#7b68ee',
+    mix:    '#6aad73',
+    space:  '#ffa050',
+    out:    '#f0e8d8'
+  };
+
   // ─── MODULE DEFINITIONS ───
   const MODULE_DEFS = {
     oscillator: {
       title: 'Oscillator',
       glyph: '∿',
+      category: 'source',
       inputs: ['fm'],
       outputs: ['out'],
       controls: [
@@ -709,6 +790,7 @@
     filter: {
       title: 'Filter',
       glyph: '⧖',
+      category: 'shape',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -729,6 +811,7 @@
     lfo: {
       title: 'LFO',
       glyph: '◎',
+      category: 'mod',
       inputs: [],
       outputs: ['out'],
       controls: [
@@ -751,6 +834,7 @@
     delay: {
       title: 'Delay',
       glyph: '⧗',
+      category: 'space',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -771,6 +855,7 @@
     reverb: {
       title: 'Reverb',
       glyph: '⌭',
+      category: 'space',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -789,6 +874,7 @@
     gain: {
       title: 'Gain / VCA',
       glyph: '△',
+      category: 'mix',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -805,6 +891,7 @@
     noise: {
       title: 'Noise',
       glyph: '⫰',
+      category: 'source',
       inputs: [],
       outputs: ['out'],
       controls: [
@@ -821,6 +908,7 @@
     player: {
       title: 'Audio File',
       glyph: '♬',
+      category: 'source',
       inputs: [],
       outputs: ['out'],
       controls: [
@@ -839,6 +927,7 @@
     pan: {
       title: 'Pan',
       glyph: '⇄',
+      category: 'mix',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -855,6 +944,7 @@
     eq3: {
       title: 'EQ',
       glyph: '☰',
+      category: 'shape',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -873,6 +963,7 @@
     compressor: {
       title: 'Compressor',
       glyph: '▼',
+      category: 'mix',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -892,6 +983,7 @@
     chorus: {
       title: 'Chorus',
       glyph: '∾',
+      category: 'space',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -912,6 +1004,7 @@
     limiter: {
       title: 'Limiter',
       glyph: '⛔',
+      category: 'mix',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -928,6 +1021,7 @@
     envelope: {
       title: 'Envelope',
       glyph: '⏢',
+      category: 'shape',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -954,6 +1048,7 @@
     output: {
       title: 'Output',
       glyph: '🔊',
+      category: 'out',
       inputs: ['in'],
       outputs: [],
       controls: [
@@ -961,7 +1056,9 @@
       ],
       create(params) {
         const g = new Tone.Gain(params.gain).toDestination();
-        return { node: g, in: g };
+        const meter = new Tone.Meter({ smoothing: 0.8 });
+        g.connect(meter);
+        return { node: g, in: g, meter };
       },
       update(audio, key, val) {
         if (key === 'gain') audio.node.gain.value = val;
@@ -1002,11 +1099,16 @@
     el.id = id;
     el.style.left = x + 'px';
     el.style.top = y + 'px';
+    el.style.borderLeftColor = CATEGORY_COLORS[def.category] || CATEGORY_COLORS.source;
 
     let html = `<div class="module-header" data-drag="${id}">
       <span class="module-title">${def.glyph} ${def.title}</span>
       <button class="module-close" onclick="removeModule('${id}')">&times;</button>
     </div><div class="module-body">`;
+
+    if (type === 'output') {
+      html += `<div class="vu-meter" id="vu_${id}"><div class="vu-fill" id="vuFill_${id}"></div></div>`;
+    }
 
     // Controls
     def.controls.forEach(c => {
@@ -1059,6 +1161,19 @@
 
     modules[id] = { id, type, def, params, audio, el };
     setupDrag(el, id);
+
+    if (type === 'output') {
+      const fillEl = el.querySelector(`#vuFill_${id}`);
+      const tick = () => {
+        if (!modules[id]) return;
+        const db = audio.meter.getValue();
+        const pct = Math.max(0, Math.min(100, (db + 60) / 60 * 100));
+        fillEl.style.width = pct + '%';
+        fillEl.style.background = pct > 90 ? '#e85c5c' : pct > 70 ? '#e8a87c' : 'rgba(106,173,115,0.8)';
+        modules[id].meterRAF = requestAnimationFrame(tick);
+      };
+      modules[id].meterRAF = requestAnimationFrame(tick);
+    }
 
     // Wire up file-load controls (drag-drop + file picker)
     def.controls.forEach(c => {
@@ -1121,6 +1236,8 @@
       return true;
     });
     // Dispose audio
+    if (mod.meterRAF) cancelAnimationFrame(mod.meterRAF);
+    if (mod.audio.meter) try { mod.audio.meter.dispose(); } catch(e) {}
     try { mod.audio.node.dispose(); } catch(e) {}
     mod.el.remove();
     if (window.Analytics) Analytics.Synth.moduleRemoved(mod.type);
@@ -1640,6 +1757,25 @@
     const from = { moduleId: fromId, portName: fromPort, dir: 'output', el: fromCircle };
     const to = { moduleId: toId, portName: toPort, dir: 'input', el: toCircle };
     createCable(from, to);
+  }
+
+  // ─── CHANNEL STRIP MACRO ───
+  // Drops a pre-cabled Pan -> EQ -> Compressor -> Limiter -> Output chain in one click,
+  // the standard mixing chain, so the rack reads as one mixing engine instead of loose parts.
+  function addChannelStrip() {
+    const baseX = 60 + Math.random() * Math.max(100, synthCanvas.clientWidth - 1100);
+    const baseY = 20 + Math.random() * 150;
+    const pan = addModule('pan', baseX, baseY);
+    const eq = addModule('eq3', baseX + 260, baseY);
+    const comp = addModule('compressor', baseX + 520, baseY);
+    const lim = addModule('limiter', baseX + 780, baseY);
+    const out = addModule('output', baseX + 1040, baseY);
+    autoConnect(pan, 'out', eq, 'in');
+    autoConnect(eq, 'out', comp, 'in');
+    autoConnect(comp, 'out', lim, 'in');
+    autoConnect(lim, 'out', out, 'in');
+    if (window.Analytics) Analytics.Synth.moduleAdded('channelstrip');
+    return pan;
   }
 
   // Update cables on scroll/resize
@@ -2409,6 +2545,9 @@
 
   // Clear
   tapHandler(document.getElementById('clearAllBtn'), clearAll);
+
+  // Channel strip macro
+  tapHandler(document.getElementById('channelStripBtn'), addChannelStrip);
 
   // Keyboard toggle
   tapHandler(document.getElementById('kbToggleBtn'), () => { toggleKeyboard(); seqUpdateDock(); });
