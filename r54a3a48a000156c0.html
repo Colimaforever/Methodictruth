@@ -592,14 +592,28 @@ Outside the browser entirely:
         fails (gracefully — the rest of the site is unaffected, it's the only
         page that calls out to hardware I own).</p>
         <p><strong>The honest tradeoff this creates:</strong> one consumer
-        machine, running Flask's single-request dev server, downloading and
-        analyzing audio for 10-30 seconds per request. Fine for the traffic
-        this site actually gets. It would not hold up against a real
-        concurrent spike — dozens of simultaneous requests would simply queue
-        behind each other rather than run in parallel. The cheap fixes, not
-        yet done: cache results per video ID (most repeat lookups would
-        become instant), and run a real WSGI server with a few worker
-        processes instead of the dev server.</p>
+        machine, downloading and analyzing audio for 10-30 seconds per
+        request the first time a song is requested. Fine for the traffic
+        this site actually gets, but a single physical box still has a real
+        ceiling under a concurrent spike.</p>
+        <p>Three mitigations are in place: results are cached on disk keyed
+        by video ID with no expiry (a song's chords/key/BPM never change, so
+        repeat lookups are instant disk reads, not re-downloads), the
+        service runs under gunicorn with multiple worker processes instead of
+        Flask's single-request dev server (so different songs analyze in
+        parallel, bounded by CPU core count), and a per-video file lock
+        deduplicates concurrent requests for the <em>same</em> not-yet-cached
+        song so simultaneous visitors share one analysis instead of each
+        redoing it. The remaining limit is many people requesting many
+        different songs for the first time, simultaneously — that still
+        queues. If that ever becomes real, the cheapest next step isn't a
+        rewrite: Cloudflare Tunnel supports running multiple connectors
+        behind the same hostname, so a second machine (another desktop I
+        already own) could join as a second connector with no application
+        code changes. A cloud VPS would only make sense if uptime
+        independent of home power/internet mattered more than cost — right
+        now this feature goes down if that one machine is off, which is an
+        accepted tradeoff, not an oversight.</p>
       </div>
 
       <div class="vault-section">
