@@ -1,0 +1,19 @@
+name = "traffic-monitor"
+main = "traffic-monitor-worker.js"
+compatibility_date = "2024-03-01"
+
+# Runs every 10 minutes
+[triggers]
+crons = ["*/10 * * * *"]
+
+# Create with: wrangler kv namespace create traffic_monitor_kv
+# then paste the returned id below
+[[kv_namespaces]]
+binding = "TRAFFIC_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Requires Email Routing enabled on methodictruth.com and the destination
+# address verified in the Cloudflare dashboard first.
+send_email = [
+  { name = "SEND_EMAIL", destination_address = "sergmacedo1@gmail.com" }
+]
