@@ -506,19 +506,6 @@ header {
   border-bottom: 100px solid var(--sky-deep);
 }
 
-.sigil-eye {
-  position: relative;
-  z-index: 2;
-  font-size: 3rem;
-  animation: sigilPulse 4s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4)) drop-shadow(0 0 50px rgba(123, 104, 238, 0.3));
-}
-
-@keyframes sigilPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4)) drop-shadow(0 0 50px rgba(123, 104, 238, 0.3)); }
-  50% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.6)) drop-shadow(0 0 70px rgba(123, 104, 238, 0.4)); }
-}
-
 .sigil-script {
   position: absolute;
   width: 88%;
