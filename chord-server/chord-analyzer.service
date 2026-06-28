@@ -1,0 +1,14 @@
+[Unit]
+Description=Methodic Truth Song Analyzer backend
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/REPLACE/WITH/PATH/TO/chord-server
+Environment=PORT=5005
+ExecStart=/REPLACE/WITH/PATH/TO/chord-server/venv/bin/python app.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
