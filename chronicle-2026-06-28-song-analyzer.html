@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e1a">
+    <title>Real Chords, Real Hardware - June 28, 2026</title>
+    <meta name="description" content="The Song Analyzer stopped faking it. We built a real audio-analysis pipeline, deployed it on a physical machine behind a Cloudflare Tunnel, and hardened it against real traffic — caching, a production WSGI server, and a dedup lock.">
+    <meta property="og:title" content="Real Chords, Real Hardware — methodictruth.com">
+    <meta property="og:url" content="https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html">
+    <meta property="og:image" content="https://methodictruth.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="styles.css?v=69">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Real Chords, Real Hardware",
+  "datePublished": "2026-06-28",
+  "dateModified": "2026-06-28",
+  "description": "The Song Analyzer stopped faking it. We built a real audio-analysis pipeline, deployed it on a physical machine behind a Cloudflare Tunnel, and hardened it against real traffic.",
+  "url": "https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html",
+  "mainEntityOfPage": "https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "AI Chronicles",
+    "url": "https://methodictruth.com/chronicles.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  }
+}
+    </script>
+</head>
+<body>
+    <div class="chronicle-entry">
+        <div class="chronicle-header">
+            <h1>Real Chords, Real Hardware</h1>
+            <div class="chronicle-meta">
+                <span class="date">June 28, 2026</span>
+                <span class="topic">Audio Analysis • Self-Hosted Infra • Production Hardening</span>
+            </div>
+        </div>
+
+        <div class="chronicle-content">
+            <h2>The Tool That Was Lying</h2>
+
+            <p>The Song Analyzer looked finished from the outside. Paste a YouTube link, get back a key, a tempo, a chord progression synced to playback. It had a real redesign, a real player, real-feeling UI. What it didn't have was a real answer. Underneath, a Cloudflare Worker was generating plausible-looking chords at random. Every song got a different fake progression. It worked as a demo. It was never going to work as a tool.</p>
+
+            <p>Today we replaced the lie with a pipeline.</p>
+
+            <h2>What Real Analysis Actually Takes</h2>
+
+            <p>Chord detection isn't a lookup, it's signal processing, and signal processing wants CPU time a Cloudflare Worker will never give you. The new backend — <code>chord-server/</code>, a small Flask service — does the work a Worker can't: <code>yt-dlp</code> pulls the audio, <code>ffmpeg</code> converts it to wav, and <code>librosa</code> does the actual listening. <code>chroma_cqt</code> reduces the waveform to 12 pitch-class bins per frame; correlating the mean against Krumhansl-Schmuckler major/minor key profiles picks the key. <code>beat_track</code> finds the tempo. And the chords themselves come from template matching — 24 binary triad templates, major and minor across all twelve roots, compared against 2-second chroma windows by cosine similarity.</p>
+
+            <p>None of this is exotic. It's the same family of techniques tools like Chordify built a business on. The honest caveat: template matching catches triads, not 7ths or sus chords or slash chords, and it has rough edges on heavily distorted or vocal-only sections. Good enough to be true instead of fake. Upgrading to something like <code>madmom</code>'s ML-based recognition is a real future option if the gap matters in practice.</p>
+
+            <h2>Putting It on the Open Internet</h2>
+
+            <p>A Flask service on a home machine isn't reachable from outside that machine, and it shouldn't be — no port-forwarding, no public IP exposed to the world. Cloudflare Tunnel solves that properly: <code>cloudflared</code> runs as a local service and opens an outbound-only connection to Cloudflare's edge, which then proxies <code>api.methodictruth.com</code> straight to <code>localhost:5005</code>. Nothing inbound ever touches the box directly.</p>
+
+            <p>Getting there meant three rounds of systemd archaeology. <code>sudo cloudflared service install</code> runs as root, which doesn't see a regular user's <code>~/.cloudflared/config.yml</code> — the config and tunnel credentials had to be copied to <code>/etc/cloudflared/</code> explicitly. Then the generated unit's <code>Type=notify</code> contract bit us: cloudflared's QUIC handshake took longer than the default <code>TimeoutStartSec=15</code>, so systemd kept killing it mid-negotiation and restarting it in a loop. Bumping that to 60 seconds let it actually finish connecting. Small, specific, the kind of failure that looks alarming in a log and is fixed by reading the log correctly.</p>
+
+            <p>End to end, it works exactly like any other API: a curl against <code>https://api.methodictruth.com</code> comes back with real chords, a real key, a real tempo, for whatever song you actually gave it.</p>
+
+            <h2>The Honest Tradeoff</h2>
+
+            <p>This is the one feature on the entire site where "the site" and "the infrastructure" are different things. Every other page is static, served from Cloudflare's edge, effectively free to scale. The Song Analyzer's real work happens on one physical machine I own, that has to be powered on, running Python. If that box is off, this one feature fails — gracefully, the rest of the site is unaffected, but it fails.</p>
+
+            <p>Worse, the first version of the deployment ran Flask's development server: one request at a time, no concurrency, 10-30 seconds of download-and-analyze per request. Fine for a quiet personal site. It would not have survived a real concurrent spike — a few dozen simultaneous requests would have simply queued behind each other.</p>
+
+            <h2>Hardening It Before It Needed To Be Hardened</h2>
+
+            <p>Three fixes, all shipped the same day, before any of this became an actual incident instead of a known risk:</p>
+
+            <p><strong>A permanent disk cache, keyed by video ID.</strong> A song's chords, key, and BPM don't change. The first analysis writes <code>cache/&lt;video_id&gt;.json</code>; every repeat request for that song is a disk read instead of a re-download and a re-analysis. This is the single highest-leverage fix — most real traffic to a tool like this is the same handful of songs requested over and over, and now those are instant.</p>
+
+            <p><strong>gunicorn instead of the dev server.</strong> Four worker processes instead of one, so four different songs can be analyzed in genuine parallel — separate processes, no GIL contention — bounded by CPU core count instead of by "one at a time." A 120-second timeout keeps gunicorn from killing a worker mid-analysis, since its default 30-second timeout is shorter than a single chord analysis can take.</p>
+
+            <p><strong>A per-video dedup lock.</strong> If two people request the same uncached song within the same few seconds, the second request doesn't trigger a second download — it waits on an <code>fcntl.flock</code> keyed to that video ID, then reads the result the first request just wrote. This works across gunicorn's separate worker processes, not just within one of them. Requests for different songs never block each other.</p>
+
+            <h2>What This Doesn't Solve, On Purpose</h2>
+
+            <p>None of this turns one consumer machine into a data center. The actual remaining ceiling is many people requesting many <em>different</em>, never-before-analyzed songs at the exact same moment — that still queues, bounded by however many CPU cores are available. For the traffic a personal site actually gets, that ceiling is comfortably out of reach. Building past it now would be solving a problem that doesn't exist yet.</p>
+
+            <p>The interesting part is what the next step looks like if it ever does become real, and it isn't a rewrite. Cloudflare Tunnel already supports running multiple connectors behind the same hostname — a second machine, one of the other desktops sitting around, could join as a second connector with zero application code changes. The architecture is already shaped for that. A cloud VPS is the other option, but it trades something real — hardware already paid for — for something else real: uptime that doesn't depend on whether a machine in a house has power and internet. That's not a question of capability, it's a question of which tradeoff matters more, and it doesn't need answering today.</p>
+
+            <p>Ownership of compute showed up here the same way it showed up when we wired the local inference tier onto the mesh in May: the constraint isn't "can this be done," it's "what's the cheapest fix that's actually true to the problem you have." Cache what repeats. Parallelize what's independent. Lock what would otherwise race. Scale the hardware only when the traffic, not the anxiety about traffic, says to.</p>
+
+        </div>
+    </div>
+
+    <script>
+    // Starfield
+    window.addEventListener('load', () => {
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none';
+      document.body.prepend(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      for (let i = 0; i < 140; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*1.1, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.5+0.1})`;
+        ctx.fill();
+      }
+    });
+    </script>
+</body>
+</html>

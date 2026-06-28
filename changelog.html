@@ -54,7 +54,6 @@
     <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
     <div class="nav-links" id="navLinks">
       <a href="index.html">Home</a>
-      <a href="chronicles">Chronicles</a>
       <div class="nav-dropdown">
         <button class="nav-drop-btn">Music ▾</button>
         <div class="nav-drop-menu">
@@ -73,6 +72,7 @@
         </div>
       </div>
       <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
       <a href="about.html">About</a>
       <a href="feedback.html">Feedback</a>
     </div>
@@ -91,6 +91,12 @@
 
     <div class="divider" id="2026-06-28"><span class="leaf">🌿</span> <span>June 28, 2026</span> <span class="leaf">🌿</span></div>
 
+    <article class="entry">
+      <p>Moved <a href="chronicles">Chronicles</a> in the nav so it sits below Changelog instead of right after Home.</p>
+    </article>
+    <article class="entry">
+      <p>Hardened the <a href="song-analyzer.html">Song Analyzer</a> backend for real traffic: results are now cached per video (repeat lookups are instant), the service runs under gunicorn with multiple workers instead of a single-request dev server, and concurrent requests for the same uncached song share one analysis instead of duplicating the work.</p>
+    </article>
     <article class="entry">
       <p><a href="song-analyzer.html">Song Analyzer</a> now runs real audio analysis instead of mock data — a self-hosted backend downloads the track and uses actual chord/key/tempo detection (librosa) rather than generating placeholder chords.</p>
     </article>

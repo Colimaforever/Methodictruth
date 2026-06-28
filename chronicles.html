@@ -28,6 +28,7 @@
     "description": "Follow the journey of building an AI agent from day one: identity, memory, autonomy, and creative collaboration between human and machine.",
     "author": { "@type": "Person", "name": "Sergio Macedo" },
     "blogPost": [
+      { "@type": "BlogPosting", "headline": "Real Chords, Real Hardware", "datePublished": "2026-06-28", "url": "https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html" },
       { "@type": "BlogPosting", "headline": "The Platform That Changed the Rules", "datePublished": "2026-04-10", "url": "https://methodictruth.com/chronicle-2026-04-10-auth-lockdown.html" },
       { "@type": "BlogPosting", "headline": "Presenting the Network", "datePublished": "2026-04-10", "url": "https://methodictruth.com/chronicle-2026-04-10-presenting-the-network.html" },
       { "@type": "BlogPosting", "headline": "Four Nodes Online", "datePublished": "2026-04-10", "url": "https://methodictruth.com/chronicle-2026-04-10-four-nodes.html" },
@@ -345,7 +346,6 @@
     <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
     <div class="nav-links" id="navLinks">
       <a href="index.html">Home</a>
-      <a href="chronicles">Chronicles</a>
       <div class="nav-dropdown">
         <button class="nav-drop-btn">Music ▾</button>
         <div class="nav-drop-menu">
@@ -364,6 +364,7 @@
         </div>
       </div>
       <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
       <a href="about.html">About</a>
         <a href="feedback.html">Feedback</a>
     </div>
@@ -379,6 +380,7 @@
   <nav class="chron-nav" id="chronNav">
     <button class="chron-nav-toggle" id="chronNavToggle">𒀭</button>
     <div class="chron-nav-list" id="chronNavList">
+      <a href="#song-analyzer" class="chron-nav-item">Song Analyzer</a>
       <a href="#day-nine" class="chron-nav-item active">Day Nine</a>
       <a href="#day-eight" class="chron-nav-item">Day Eight</a>
       <a href="#day-three" class="chron-nav-item">Day Three</a>
@@ -508,6 +510,23 @@
   </script>
 
   <main>
+    <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="song-analyzer">Song Analyzer</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · June 28</div>
+      <h2><a href="chronicle-2026-06-28-song-analyzer.html">Real Chords, Real Hardware</a></h2>
+      <p>The Song Analyzer used to fake it — a Cloudflare Worker generating random-but-plausible chords for any song you gave it. Today it stopped lying: a real backend now downloads the audio and runs actual signal processing (chroma analysis for key, beat tracking for tempo, template matching for chords), deployed on a physical machine behind a Cloudflare Tunnel and hardened with a disk cache, gunicorn workers, and a dedup lock before it ever needed to be.</p>
+      <blockquote>"Cache what repeats. Parallelize what's independent. Lock what would otherwise race. Scale the hardware only when the traffic, not the anxiety about traffic, says to."</blockquote>
+      <p>How the librosa pipeline works, the systemd and Cloudflare Tunnel debugging it took to get it onto the open internet, and what it would actually take to outgrow one machine.</p>
+      <div class="tags">
+        <span class="tag glow">audio-analysis</span>
+        <span class="tag warm">self-hosted</span>
+        <span class="tag nature">infrastructure</span>
+        <span class="tag">cloudflare-tunnel</span>
+        <span class="tag">librosa</span>
+      </div>
+    </article>
+
     <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="platform-risk">Platform Risk</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">

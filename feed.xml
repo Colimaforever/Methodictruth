@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Real Chords, Real Hardware</title>
+    <link>https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html</guid>
+    <pubDate>Sun, 28 Jun 2026 00:00:00 GMT</pubDate>
+    <description>The Song Analyzer stopped faking it — a real audio-analysis pipeline now runs on a physical machine behind a Cloudflare Tunnel, hardened with caching, gunicorn, and a dedup lock.</description>
+  </item>
+
+  <item>
     <title>Changelog: June 27, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-06-27</link>
     <guid isPermaLink="false">changelog-2026-06-27</guid>
