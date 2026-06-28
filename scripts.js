@@ -1,6 +1,6 @@
 // ─── AUDIO TOOL PAGE DETECTION ───
 // On pages with their own audio engines, suppress background music
-const audioToolPages = ['synth.html', 'mixer.html', 'guitar.html', 'live.html', 'signal.html', 'songwriter.html'];
+const audioToolPages = ['synth.html', 'guitar.html', 'live.html', 'songwriter.html'];
 const currentPage = location.pathname.split('/').pop() || 'index.html';
 const isAudioToolPage = audioToolPages.includes(currentPage);
 // Mutable flag — SPA router sets this on navigation
@@ -808,7 +808,7 @@ ensureSkipLink();
 
 // ─── SPA ROUTER — Keep audio alive across navigation ───
 (function() {
-  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'philosophy.html', 'about.html', 'stack.html', 'live.html', 'guestbook.html', 'synth.html', 'mixer.html', 'tuner.html', 'theory.html', 'signal.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html', 'feedback.html', 'r54a3a48a000156c0.html', 'studio.html', 'guitar.html', 'salon.html', 'agora.html', 'gallery.html', 'workshop.html', 'library.html'];
+  const INTERNAL_PAGES = ['index.html', 'chronicles.html', 'philosophy.html', 'about.html', 'stack.html', 'live.html', 'synth.html', 'tuner.html', 'theory.html', 'architecture.html', 'topology.html', 'songwriter.html', 'tapbpm.html', 'feedback.html', 'r54a3a48a000156c0.html', 'studio.html', 'guitar.html'];
 
   function isInternalLink(href) {
     try {
@@ -900,7 +900,7 @@ ensureSkipLink();
       document.body.classList.toggle('no-grain', isClean);
 
       // Hide music player AND kill audio on tool pages
-      const toolPages = ['synth.html', 'mixer.html', 'signal.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
+      const toolPages = ['synth.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
       const mp = document.getElementById('musicPlayer');
       if (toolPages.includes(pageName)) {
         musicSuppressed = true;

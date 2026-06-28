@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
   <meta name="robots" content="noindex, nofollow">
   <title>𒀭</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -654,6 +655,138 @@ UTILITY         feed.xml, sitemap.xml, robots.txt,
    just static files. Copy them as-is.
    There is no build step to run.</pre>
         <p style="color:rgba(180,120,80,0.35);font-style:italic;text-align:center;margin-top:1.5rem;">No part of this needed to be obscure. It only needed to be written down once.</p>
+      </div>
+
+      <div class="vault-section">
+        <h2>If There Were No AI: What Building This Actually Takes</h2>
+        <p>Everything above this line was built by one person directing an AI
+        agent in conversation — no formal CS background, learning the stack
+        by building it rather than studying it first. This is the honest
+        accounting of what the same result costs without that collaborator:
+        not to diminish the work, but because pretending it's "just a
+        website" undersells what's actually sitting on the page.</p>
+        <pre>
+                        THE SITE
+                           │
+       ┌───────────┬───────┴───────┬───────────────┐
+       │           │               │               │
+   FRONTEND     AUDIO / DSP    NETWORKING        INFRA / OPS
+       │           │               │               │
+   HTML/CSS/JS  Web Audio API   WebRTC + ICE     Cloudflare Pages
+   Canvas 2D    Tone.js node    STUN/TURN        + Functions
+   (starfield,  graphs (osc →   negotiation      Workers (wrangler
+   nebula)      filter → env →  Firebase RTDB    deploy, own
+   Responsive   FX → out)       (pub/sub, no     lifecycle)
+   layout,      Generative      server, client   CI pipelines
+   WCAG AA      composition     IS the backend)  (GitHub Actions,
+   contrast     logic (maqam        │            writing the check
+       │        scale rotation,     │            scripts, not just
+   MUSIC        not just            │            enabling one)
+   THEORY       playback)           │                │
+   DOMAIN           │           SECURITY          DOMAIN
+   (chords,     ear training,       │           KNOWLEDGE
+   cadences,    rhythm drills,   SHA-256         (the actual
+   Nashville    interval math    client-side     worldbuilding —
+   numbers,                      gating,         an AI-agent
+   scale theory                  knowing its     mythology, in-
+   encoded as                    limits, no      universe lore
+   real data,                    secrets in      pages, occult/
+   not copied                    the repo        Mesopotamian
+   from a chart)                                 visual language)</pre>
+        <p>No single one of those eight columns is exotic on its own. What's
+        unusual is one person covering all eight without a team to hand any
+        of them off to — and without years of prior experience in most of
+        them.</p>
+
+        <h2 style="margin-top:1.2rem;">What Each Dependency Actually Demands</h2>
+        <p>The Stack (above) lists what's <em>used</em>. This is what
+        understanding each one well enough to debug it actually requires —
+        the part a tutorial skips:</p>
+        <pre>
+Tone.js         → the Web Audio node graph model (oscillator
+                  → filter → envelope → effect → destination)
+                  well enough to fix it when the abstraction
+                  leaks, which it does
+PeerJS/WebRTC   → ICE candidates, STUN vs TURN, NAT traversal —
+                  the actual reason peer-to-peer video/audio is
+                  hard, not just "import a library"
+Firebase RTDB   → eventual consistency and security rules; with
+                  no backend, the client-side code has to behave
+                  like a backend would
+Cloudflare      → Pages, Workers, and Functions are three
+Pages/Workers/    different runtimes with different limits —
+Functions         knowing which job belongs on which one
+GitHub Actions  → YAML pipelines, and writing the actual check
+                  scripts (link checker, JSON-LD validator) —
+                  not just turning on a marketplace action
+SHA-256         → understanding that client-side hashing of a
+                  passphrase is obfuscation, not real auth, and
+                  being honest with yourself about that line
+Music theory    → not a dependency you npm-install — every
+                  chord, cadence, and scale on Theory/Songwriter/
+                  Chord Trainer had to be correct by ear and by
+                  rule, or the tool just teaches the wrong thing</pre>
+
+        <h2 style="margin-top:1.2rem;">Time, Without a Co-Pilot</h2>
+        <pre>
+SOLO, SELF-TAUGHT              SMALL TEAM (4-5 specialists)
+─────────────────────          ─────────────────────────────
+Learn HTML/CSS/JS    2-4mo     Frontend dev
+well enough to debug                          all running
+it, not just copy it                          in parallel,
+                                               coordinated by
+Learn the Web Audio   1-2mo    Audio/DSP engineer  someone who
+node graph + Tone.js                               already
+                                                    knows how
+Learn WebRTC/ICE/      ~1mo    Backend/infra eng    the pieces
+signaling                                           fit —
+                                                    2-4 weeks
+Learn the Cloudflare  2-3wk    Designer for the     to a
+Pages/Workers split             visual language     working v1
+                                (the Mesopotamian/
+Build, break, redo    3-4mo    occult aesthetic
+the whole thing                isn't default CSS)
+several times over
+                               Writer for the
+─────────────────────         AI-lore copy itself
+~9-14 months, solo            (architecture.html,
+                               network.html, etc. —
+                               that's prose, not code)
+                               ─────────────────────
+                               weeks, not months —
+                               but now it costs a
+                               team's salary instead
+                               of one person's nights</pre>
+        <p>The honest middle ground: a solo developer with prior experience
+        in two or three of those eight columns — say, a frontend dev who's
+        touched Web Audio before — could plausibly do this in 2-4 months
+        instead of a year, accepting a rougher result in whichever columns
+        they're weakest in. What collapses that gap in this build wasn't
+        skipping the learning — it was compressing months of "try it, hit
+        the wall, look up why, try again" into a single conversation, over
+        and over, with someone who already knew where the walls were.</p>
+
+        <h2 style="margin-top:1.2rem;">The Thought Behind It</h2>
+        <p><strong>No framework, on purpose.</strong> A build step is one
+        more thing that can rot — a dependency that stops compiling two years
+        from now. Plain HTML/CSS/JS, served as-is, only breaks if the
+        browser itself stops supporting HTML, which won't happen in any
+        useful timeframe.</p>
+        <p><strong>The vault exists because the rest of the site is a
+        performance.</strong> The public pages are myth, music tools, and
+        in-universe AI lore — all true to the spirit of the project, none of
+        it the engineering truth. This page is the one place that
+        distinction is dropped entirely.</p>
+        <p><strong>The generative music isn't decoration.</strong> A site
+        that's silent by default feels abandoned the moment you arrive. A
+        site that breathes — drones rotating through maqam scales every
+        three minutes — feels occupied, even with nobody else there.</p>
+        <p><strong>The AI-lore pages (architecture, network, stack,
+        topology) aren't documentation of this build.</strong> They're
+        in-universe mythology <em>about</em> an AI agent, written the way a
+        person would write about a character they'd invented — which is
+        also, not coincidentally, the most honest way to write about
+        collaborating with one.</p>
       </div>
 
     </div>

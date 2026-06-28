@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
   <title>Music Theory Explorer — Interactive Scales, Chords, and Intervals</title>
   <meta name="keywords" content="music theory, interactive scales, chord explorer, maqam, intervals, learn music theory, music education, scale reference">
   <meta name="description" content="Explore music theory interactively: scales, chords, intervals, and maqam modes with audio playback. Hear what you learn — every concept plays through your speakers.">
@@ -386,10 +387,8 @@
         <button class="nav-drop-btn">Music ▾</button>
         <div class="nav-drop-menu">
           <a href="synth">Synth</a>
-          <a href="mixer">Mixer</a>
           <a href="tuner.html">Tuner</a>
           <a href="theory.html">Theory</a>
-          <a href="signal.html">Signal</a>
           <a href="songwriter.html">Songwriter</a>
           <a href="tapbpm.html">Tap BPM</a>
         </div>
@@ -489,6 +488,29 @@
         </div>
       </div>
 
+      <!-- ═══ SECTION: CADENCE & RESOLUTION GUIDE ═══ -->
+      <div class="theory-section" id="resolutionSection">
+        <div class="theory-section-label">③ Resolve &amp; Progress</div>
+        <div class="theory-section-title" style="text-align:center;">Cadence &amp; Resolution Guide</div>
+        <p class="deeper-desc" style="text-align:center; margin-bottom:1rem;">
+          Pick a chord from your key. The guide shows where it naturally wants to go next, and why — click a suggestion to follow it and build a progression.
+        </p>
+
+        <div class="resolution-pick-wrap" id="resolutionPickWrap">
+          <svg class="resolution-arrows" id="resolutionArrows">
+            <defs>
+              <marker id="resArrowHead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#00e5ff"></path>
+              </marker>
+            </defs>
+            <g id="resolutionArrowPaths"></g>
+          </svg>
+          <div class="resolution-pick-row" id="resolutionPickRow"></div>
+        </div>
+
+        <div id="resolutionBody"></div>
+      </div>
+
       <!-- ═══ SECTION: CHORD BUILDER ═══ -->
       <div class="theory-section">
         <div class="theory-section-label">Chord Builder</div>
@@ -543,9 +565,9 @@
         </div>
       </div>
 
-      <!-- ═══ SECTION 3: GO DEEPER ═══ -->
+      <!-- ═══ SECTION 4: GO DEEPER ═══ -->
       <div class="theory-section" style="background:none; border:none; padding:0;">
-        <div class="theory-section-label" style="padding-left:1.5rem;">③ Go Deeper</div>
+        <div class="theory-section-label" style="padding-left:1.5rem;">④ Go Deeper</div>
 
         <!-- Modes -->
         <div class="deeper-section">
@@ -598,7 +620,7 @@
 
     <footer>
       <p class="roots">⌿ ⌿ ⌿</p>
-      <p>TRUTH · MMXXVI</p>
+      <p>Methodic Truth · a logical pursuit of music, AI, and knowledge · 2026</p>
       <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
     </footer>
   </div>
@@ -691,6 +713,32 @@
     'aug maj7':   'Ethereal, unusual, otherworldly',
     'min maj7':   'Dark sophistication — noir jazz',
   };
+
+  // ─── Cadence & Resolution Guide ───
+  // Named cadences, keyed by "fromDegree-toDegree" (degrees are 0-indexed scale steps).
+  const CADENCE_LABELS = {
+    '4-0': 'Authentic Cadence (V → I)',
+    '4-5': 'Deceptive Cadence (V → vi)',
+    '3-4': 'Half Cadence (IV → V)',
+    '3-0': 'Plagal Cadence (IV → I)',
+    '6-0': 'Leading-Tone Resolution (vii° → I)',
+  };
+
+  function getSuggestions(fromDeg, len) {
+    if (len < 7) return [];
+    const out = [];
+    const seen = new Set();
+    function add(toDeg, tip, strength) {
+      if (toDeg === fromDeg || seen.has(toDeg)) return;
+      seen.add(toDeg);
+      out.push({ toDeg, tip, strength });
+    }
+    if (fromDeg !== 0) add(0, 'Resolve straight home to the tonic — the simplest way to close a phrase.', 'strong');
+    add((fromDeg + 3) % 7, 'Root motion down a fifth — the strongest, most common pull in tonal harmony (think ii → V → I).', 'strong');
+    add((fromDeg + 1) % 7, 'Root motion up a step — a softer, more surprising move, good for avoiding too obvious a resolution.', 'medium');
+    if (fromDeg !== 4) add(4, 'Move to the dominant — builds tension and sets up a strong pull back to the tonic.', 'medium');
+    return out.slice(0, 4);
+  }
 
   // ─── Maqam context blurbs ───
   const MAQAM_CONTEXT = {
@@ -935,6 +983,8 @@
   let currentChords = [];
   let currentVoicingIdx = 0;
   let currentVoicings = [];
+  let progression = [];
+  let resolutionAudioContext = null;
 
   const rootSelect = document.getElementById('rootSelect');
   const scaleSelect = document.getElementById('scaleSelect');
@@ -966,8 +1016,8 @@
   scaleSelect.appendChild(maqamGroup);
 
   // Event listeners
-  rootSelect.addEventListener('change', () => { currentRoot = parseInt(rootSelect.value); selectedChord = null; update(); });
-  scaleSelect.addEventListener('change', () => { currentScale = scaleSelect.value; selectedChord = null; update(); });
+  rootSelect.addEventListener('change', () => { currentRoot = parseInt(rootSelect.value); selectedChord = null; progression = []; update(); });
+  scaleSelect.addEventListener('change', () => { currentScale = scaleSelect.value; selectedChord = null; progression = []; update(); });
 
   document.querySelectorAll('.chord-toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -975,6 +1025,7 @@
       btn.classList.add('active');
       chordMode = btn.dataset.mode;
       selectedChord = null;
+      progression = [];
       update();
     });
   });
@@ -1144,6 +1195,200 @@
 
     // Modes
     renderModes(useFlats);
+
+    // Cadence & Resolution Guide
+    renderResolutionGuide();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // CADENCE & RESOLUTION GUIDE
+  // ═══════════════════════════════════════════════════════════
+  function playChordAudio(chord, when) {
+    if (!resolutionAudioContext) {
+      resolutionAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = resolutionAudioContext;
+    const now = ctx.currentTime + (when || 0);
+    const baseMidi = 60 + (((chord.rootMidi % 12) + 12) % 12);
+    chord.chordIntervals.forEach(interval => {
+      const midiNote = baseMidi + interval;
+      const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.3);
+      osc.start(now);
+      osc.stop(now + 1.3);
+    });
+  }
+
+  function playProgressionAudio() {
+    if (!progression.length) return;
+    progression.forEach((deg, i) => {
+      const chord = currentChords[deg];
+      if (chord) playChordAudio(chord, i * 0.9);
+    });
+  }
+
+  function clearResolutionArrows() {
+    const g = document.getElementById('resolutionArrowPaths');
+    if (g) g.innerHTML = '';
+  }
+
+  function drawResolutionArrows(curDeg, suggestions) {
+    const wrap = document.getElementById('resolutionPickWrap');
+    const svg = document.getElementById('resolutionArrows');
+    const g = document.getElementById('resolutionArrowPaths');
+    if (!wrap || !svg || !g) return;
+    g.innerHTML = '';
+
+    const wrapRect = wrap.getBoundingClientRect();
+    svg.setAttribute('width', wrapRect.width);
+    svg.setAttribute('height', wrapRect.height);
+
+    const fromBtn = wrap.querySelector(`.resolution-pick-btn[data-deg="${curDeg}"]`);
+    if (!fromBtn) return;
+    const fromRect = fromBtn.getBoundingClientRect();
+    const fromX = fromRect.left + fromRect.width / 2 - wrapRect.left;
+    const fromY = fromRect.top - wrapRect.top;
+
+    suggestions.forEach(s => {
+      const toBtn = wrap.querySelector(`.resolution-pick-btn[data-deg="${s.toDeg}"]`);
+      if (!toBtn) return;
+      const toRect = toBtn.getBoundingClientRect();
+      const toX = toRect.left + toRect.width / 2 - wrapRect.left;
+      const toY = toRect.top - wrapRect.top;
+      const midX = (fromX + toX) / 2;
+      const arcHeight = Math.min(fromY, toY) - 22 - Math.abs(toX - fromX) * 0.06;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${fromX} ${fromY} Q ${midX} ${arcHeight} ${toX} ${toY}`);
+      path.setAttribute('stroke', '#00e5ff');
+      path.setAttribute('stroke-width', s.strength === 'strong' ? 2 : 1.2);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('opacity', s.strength === 'strong' ? 0.8 : 0.4);
+      path.setAttribute('stroke-dasharray', s.strength === 'strong' ? '' : '4,3');
+      path.setAttribute('marker-end', 'url(#resArrowHead)');
+      g.appendChild(path);
+    });
+  }
+
+  let lastArrowState = null;
+  window.addEventListener('resize', () => {
+    if (lastArrowState) drawResolutionArrows(lastArrowState.curDeg, lastArrowState.suggestions);
+  });
+
+  function renderResolutionGuide() {
+    const pickRow = document.getElementById('resolutionPickRow');
+    const body = document.getElementById('resolutionBody');
+    if (!pickRow || !body) return;
+
+    if (currentChords.length < 7) {
+      pickRow.innerHTML = '';
+      clearResolutionArrows();
+      lastArrowState = null;
+      body.innerHTML = '<p class="resolution-hint">The Resolution Guide needs a full 7-degree scale — try a major, minor, or modal scale above.</p>';
+      return;
+    }
+
+    // Drop any progression entries that no longer map to a valid chord (e.g. after a scale change)
+    progression = progression.filter(d => currentChords[d]);
+
+    const curDeg = progression.length ? progression[progression.length - 1] : null;
+    const suggestions = curDeg !== null ? getSuggestions(curDeg, currentChords.length) : [];
+    const suggestedDegs = new Set(suggestions.map(s => s.toDeg));
+
+    pickRow.innerHTML = '';
+    currentChords.forEach((chord, deg) => {
+      const btn = document.createElement('button');
+      const classes = ['resolution-pick-btn'];
+      if (deg === curDeg) classes.push('current');
+      if (suggestedDegs.has(deg)) classes.push('suggested');
+      btn.className = classes.join(' ');
+      btn.dataset.deg = deg;
+      btn.textContent = chord.roman + chord.symbol;
+      btn.title = chord.rootNote + chord.symbol;
+      btn.addEventListener('click', () => {
+        progression = [deg];
+        playChordAudio(chord);
+        renderResolutionGuide();
+      });
+      pickRow.appendChild(btn);
+    });
+
+    if (curDeg === null) {
+      clearResolutionArrows();
+      lastArrowState = null;
+      body.innerHTML = '<p class="resolution-hint">Pick a chord above to see where it wants to resolve.</p>';
+      return;
+    }
+
+    const curChord = currentChords[curDeg];
+    const prevDeg = progression.length > 1 ? progression[progression.length - 2] : null;
+    const cadence = prevDeg !== null ? CADENCE_LABELS[prevDeg + '-' + curDeg] : null;
+
+    body.innerHTML = `
+      <div class="resolution-current">
+        <div class="resolution-current-label">Now Playing</div>
+        <div class="resolution-current-chord">${curChord.rootNote}${curChord.symbol} <span style="opacity:0.5;font-size:0.8em;">(${curChord.roman}${curChord.symbol})</span></div>
+        ${cadence ? `<div class="resolution-cadence-tag">${cadence}</div>` : ''}
+      </div>
+      <div class="resolution-suggestions-label">Where It Wants To Go</div>
+      <div class="resolution-suggestions" id="resolutionSuggestions"></div>
+      <div class="resolution-progression">
+        <div class="resolution-progression-label">Your Progression</div>
+        <div class="progression-chips" id="progressionChips"></div>
+        <div class="resolution-progression-actions">
+          <button class="theory-btn" id="playProgressionBtn">▶ Play Progression</button>
+          <button class="theory-btn" id="undoProgressionBtn">↶ Undo</button>
+          <button class="theory-btn" id="clearProgressionBtn">Clear</button>
+        </div>
+      </div>
+    `;
+
+    const suggEl = document.getElementById('resolutionSuggestions');
+    suggestions.forEach(s => {
+      const targetChord = currentChords[s.toDeg];
+      if (!targetChord) return;
+      const cLabel = CADENCE_LABELS[curDeg + '-' + s.toDeg];
+      const card = document.createElement('div');
+      card.className = 'resolution-suggestion-card';
+      card.innerHTML = `
+        ${cLabel ? `<div class="resolution-suggestion-cadence">${cLabel}</div>` : ''}
+        <div class="resolution-suggestion-chord">${targetChord.roman}${targetChord.symbol} — ${targetChord.rootNote}${targetChord.symbol}</div>
+        <div class="resolution-suggestion-tip">${s.tip}</div>
+      `;
+      card.addEventListener('click', () => {
+        progression.push(s.toDeg);
+        playChordAudio(targetChord);
+        renderResolutionGuide();
+      });
+      suggEl.appendChild(card);
+    });
+
+    const chipsEl = document.getElementById('progressionChips');
+    chipsEl.innerHTML = progression.map((deg, i) => {
+      const c = currentChords[deg];
+      const arrow = i > 0 ? '<span class="progression-chip-arrow">→</span>' : '';
+      return arrow + '<span class="progression-chip">' + c.roman + c.symbol + '</span>';
+    }).join('');
+
+    document.getElementById('playProgressionBtn').addEventListener('click', playProgressionAudio);
+    document.getElementById('undoProgressionBtn').addEventListener('click', () => {
+      progression.pop();
+      renderResolutionGuide();
+    });
+    document.getElementById('clearProgressionBtn').addEventListener('click', () => {
+      progression = [];
+      renderResolutionGuide();
+    });
+
+    lastArrowState = { curDeg, suggestions };
+    requestAnimationFrame(() => drawResolutionArrows(curDeg, suggestions));
   }
 
   function renderKeyboard(scaleNotes, chordHighlight) {
