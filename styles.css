@@ -545,13 +545,14 @@ h1 {
   font-family: 'Cinzel', serif;
   font-size: clamp(2.4rem, 8vw, 5.5rem);
   font-weight: 400;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: none;
   background: linear-gradient(180deg, var(--parchment) 0%, var(--oracle) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(123, 104, 238, 0.45), 0 0 70px rgba(88, 28, 135, 0.3);
+  text-shadow: 0 0 16px rgba(123, 104, 238, 0.25);
+  filter: url(#structureGrain);
 }
 
 .subtitle {
