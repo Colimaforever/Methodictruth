@@ -16,7 +16,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&family=Pirata+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=63">
+  <link rel="stylesheet" href="styles.css?v=64">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -383,8 +383,6 @@
           <a href="stack.html">Stack</a>
         </div>
       </div>
-      <a href="topology.html">Topology</a>
-      <a href="live.html">Live</a>
       <a href="changelog.html">Changelog</a>
       <a href="directory.html">Directory</a>
       <a href="about.html">About</a>
@@ -401,8 +399,35 @@
       <div class="sigil-ring"></div>
       <div class="sigil-ring-inner"></div>
       <div class="sigil-rays"></div>
-      <div class="sigil-triangle"></div>
-      <div class="sigil-triangle-inv"></div>
+      <svg class="sigil-hands" viewBox="0 0 200 140">
+        <g filter="url(#structureGrain)">
+          <!-- Ancient hand — cave-stencil silhouette, reaching up-left -->
+          <g opacity="0.5">
+            <ellipse cx="148" cy="98" rx="15" ry="11" transform="rotate(-25 148 98)" fill="rgba(232,168,124,0.3)"/>
+            <line x1="163" y1="103" x2="140" y2="120" stroke="rgba(232,168,124,0.4)" stroke-width="5" stroke-linecap="round"/>
+            <line x1="156" y1="91" x2="118" y2="82" stroke="rgba(232,168,124,0.4)" stroke-width="5" stroke-linecap="round"/>
+            <line x1="148" y1="85" x2="108" y2="66" stroke="rgba(232,168,124,0.5)" stroke-width="5" stroke-linecap="round"/>
+            <line x1="140" y1="87" x2="118" y2="62" stroke="rgba(232,168,124,0.45)" stroke-width="5" stroke-linecap="round"/>
+            <line x1="134" y1="94" x2="132" y2="68" stroke="rgba(232,168,124,0.4)" stroke-width="5" stroke-linecap="round"/>
+          </g>
+          <!-- AI hand — angular circuit claw, reaching down-right -->
+          <g opacity="0.55">
+            <line x1="16" y1="18" x2="50" y2="38" stroke="rgba(0,229,255,0.35)" stroke-width="3"/>
+            <polygon points="45,33 59,33 61,43 47,46" fill="rgba(0,229,255,0.18)" stroke="rgba(0,229,255,0.4)" stroke-width="1"/>
+            <line x1="52" y1="35" x2="69" y2="28" stroke="rgba(0,229,255,0.45)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="55" y1="40" x2="79" y2="43" stroke="rgba(0,229,255,0.45)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="57" y1="44" x2="72" y2="53" stroke="rgba(0,229,255,0.5)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="72" y1="53" x2="89" y2="62" stroke="rgba(0,229,255,0.5)" stroke-width="3" stroke-linecap="round"/>
+            <line x1="54" y1="48" x2="75" y2="66" stroke="rgba(0,229,255,0.45)" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="72" cy="53" r="2" fill="rgba(0,229,255,0.6)"/>
+            <circle cx="89" cy="62" r="2" fill="rgba(0,229,255,0.65)"/>
+            <line x1="24" y1="24" x2="10" y2="14" stroke="rgba(0,229,255,0.25)" stroke-width="1.5"/>
+            <line x1="29" y1="30" x2="14" y2="41" stroke="rgba(0,229,255,0.25)" stroke-width="1.5"/>
+            <rect x="7" y="11" width="3" height="3" fill="rgba(0,229,255,0.35)"/>
+            <rect x="11" y="40" width="3" height="3" fill="rgba(0,229,255,0.35)"/>
+          </g>
+        </g>
+      </svg>
       <div class="sigil-script">
         <span style="top:0;left:50%;transform:translateX(-50%)">☉</span>
         <span style="top:15%;right:8%">☽</span>
@@ -492,14 +517,9 @@
 
     <!-- ═══ CONNECT ═══ -->
     <div class="explore-section">
-      <h2 class="explore-heading">Connect</h2>
-      <p class="explore-desc">Think together. Make noise together. Be somewhere together.</p>
+      <h2 class="explore-heading">Build</h2>
+      <p class="explore-desc">The gear and craft behind the sound.</p>
       <div class="explore-grid">
-        <a href="live.html" class="explore-card">
-          <span class="explore-icon">𓂀</span>
-          <span class="explore-title">Live Room</span>
-          <span class="explore-sub">Video, synth jam, step sequencer, shared canvas — peer-to-peer</span>
-        </a>
         <a href="studio.html" class="explore-card">
           <span class="explore-icon">𒊕</span>
           <span class="explore-title">Studio</span>
