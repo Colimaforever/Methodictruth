@@ -140,7 +140,7 @@ def analyze():
         y, sr = librosa.load(audio_path, sr=22050, mono=True)
 
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-        bpm = int(round(float(tempo)))
+        bpm = int(round(float(np.asarray(tempo).item())))
 
         key = detect_key(librosa.feature.chroma_cqt(y=y, sr=sr).mean(axis=1))
         chords = detect_chords(y, sr)
