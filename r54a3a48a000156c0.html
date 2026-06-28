@@ -460,9 +460,18 @@ Hosting:
   one Pages Function (functions/analyze.js)
 
 A second, independent service:
-  Cloudflare Worker (worker/), deployed on
-  its own via Wrangler, own URL — does the
-  heavier song-analysis work
+  worker/ — the original Cloudflare Worker,
+  now orphaned. It returned mock song-
+  analysis data and is no longer called by
+  the live frontend (see below).
+
+Real song analysis, off Cloudflare entirely:
+  chord-server/ — a Flask + librosa service
+  running on a physical machine I own,
+  exposed via a Cloudflare Tunnel
+  (api.methodictruth.com). Downloads audio
+  with yt-dlp, detects real key/BPM/chords —
+  not mock data. Full diagram below.
 
 Shared mutable state, no auth, no hosting:
   Firebase Realtime Database — guestbook
@@ -506,10 +515,19 @@ Outside the browser entirely:
         │ Anthropic API         │
         └───────────────────────┘
 
-  separately, its own deploy:
+  separately, its own deploy (orphaned, unused):
         ┌───────────────────────┐
         │  Cloudflare Worker     │ ← worker/song-analyzer-worker.js
-        │ (wrangler deploy)      │   own URL, own lifecycle
+        │ (wrangler deploy)      │   returned mock data, not called
+        └───────────────────────┘   by the live frontend anymore
+
+  the Song Analyzer's real backend, off
+  Cloudflare entirely — see "Song Analyzer:
+  A Request's Journey" below for the full
+  diagram:
+        ┌───────────────────────┐
+        │  chord-server/app.py   │ ← physical machine I own,
+        │  via Cloudflare Tunnel │   not serverless
         └───────────────────────┘
 
   for the realtime bits, the browser talks
@@ -523,6 +541,65 @@ Outside the browser entirely:
                      ▼
         peer ◄──── PeerJS / WebRTC ────► peer
         (no server at all once connected)</pre>
+      </div>
+
+      <div class="vault-section">
+        <h2>Song Analyzer: A Request's Journey</h2>
+        <p>Unlike everything else on this site, the Song Analyzer's real work
+        doesn't happen on Cloudflare at all — it happens on a physical
+        machine that has to be powered on. This is the one feature where
+        "the site" and "the infrastructure" are two different things.</p>
+        <pre>
+┌──────────────────────┐
+│       Browser          │  song-analyzer.html, served as
+│   (any visitor)        │  a normal static page like any other
+└──────────┬──────────────┘
+           │ POST { url: youtube link }
+           ▼
+┌────────────────────────────┐
+│   Cloudflare Tunnel          │  api.methodictruth.com
+│   (cloudflared.service)      │  no port-forwarding, no public
+│   running on a physical box  │  IP ever exposed — just a
+│   I own, always on           │  secure outbound tunnel
+└──────────┬────────────────────┘
+           │ proxied to localhost:5005
+           ▼
+┌──────────────────────────────┐
+│   Flask app (chord-server/)    │  systemd service:
+│     1. yt-dlp downloads audio  │  chord-analyzer.service,
+│     2. ffmpeg → wav             │  restarts on crash/reboot
+│     3. librosa analyzes it:     │
+│        chroma_cqt   → key       │
+│        beat_track    → BPM      │
+│        template match → chords  │  (12 major + 12 minor triads,
+│                                  │   2-second chroma windows)
+└──────────────┬───────────────────┘
+               │ JSON: { bpm, key, chords[], title, duration }
+               ▼
+┌──────────────────────────────┐
+│   Browser renders:             │
+│     - YouTube IFrame player     │
+│     - chord timeline            │
+│     - current chord highlighted │
+│       live, synced to playback  │
+│       time (Chordify-style)     │
+└──────────────────────────────┘</pre>
+        <p>This used to be a Cloudflare Worker returning <strong>mock,
+        randomly-generated</strong> chord/key/BPM data — fast and free, but
+        fake. It's now a real signal-processing pipeline, at the cost of
+        depending on one physical machine instead of serverless
+        infrastructure: if that box is off or loses power, this one feature
+        fails (gracefully — the rest of the site is unaffected, it's the only
+        page that calls out to hardware I own).</p>
+        <p><strong>The honest tradeoff this creates:</strong> one consumer
+        machine, running Flask's single-request dev server, downloading and
+        analyzing audio for 10-30 seconds per request. Fine for the traffic
+        this site actually gets. It would not hold up against a real
+        concurrent spike — dozens of simultaneous requests would simply queue
+        behind each other rather than run in parallel. The cheap fixes, not
+        yet done: cache results per video ID (most repeat lookups would
+        become instant), and run a real WSGI server with a few worker
+        processes instead of the dev server.</p>
       </div>
 
       <div class="vault-section">
@@ -546,9 +623,14 @@ Methodictruth/
 ├── functions/analyze.js   Cloudflare Pages Functions version
 ├── server.js              local dev server (node) — not used in prod
 │
-├── worker/                a second, independently deployed service
-│   ├── song-analyzer-worker.js
+├── worker/                orphaned — mock song-analyzer Worker,
+│   ├── song-analyzer-worker.js   no longer called by the live site
 │   └── wrangler.toml
+│
+├── chord-server/          the real song-analyzer backend, runs
+│   ├── app.py             on a physical machine, not Cloudflare —
+│   ├── requirements.txt   Flask + yt-dlp + librosa, exposed via
+│   └── chord-analyzer.service  a Cloudflare Tunnel
 │
 ├── audio/                 maqam drone samples + ritual audio
 ├── og/                    generated per-page social preview images
