@@ -542,7 +542,7 @@ h1 {
 /* Homepage wordmark — gothic/darkwave display face (4AD-label adjacent),
    kept off the generic h1 rule so other pages' headers are untouched. */
 .brand-wordmark {
-  font-family: 'Pirata One', 'Cinzel', serif;
+  font-family: 'Cinzel', serif;
   font-size: clamp(2.4rem, 8vw, 5.5rem);
   font-weight: 400;
   letter-spacing: 0.08em;
