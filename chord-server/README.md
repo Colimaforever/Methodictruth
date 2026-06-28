@@ -21,11 +21,28 @@ pip install -r requirements.txt
 
 ## 2. Run it
 
+For quick local debugging:
+
 ```bash
 source venv/bin/activate
 python app.py
 # listens on http://127.0.0.1:5005
 ```
+
+For anything resembling production, run it under gunicorn instead — the
+Flask dev server handles one request at a time, which falls over the moment
+two people use the tool at once:
+
+```bash
+source venv/bin/activate
+gunicorn -w 4 --timeout 120 -b 127.0.0.1:5005 app:app
+```
+
+`-w 4` runs 4 worker processes so requests for different songs are handled
+in parallel (bounded by CPU core count). `--timeout 120` keeps gunicorn from
+killing a worker mid-analysis — its default 30s timeout is shorter than a
+single chord analysis can take. `chord-analyzer.service` (step 3) already
+runs it this way.
 
 Test it:
 
@@ -38,6 +55,21 @@ curl -X POST http://127.0.0.1:5005 \
 A 3-4 minute song takes roughly 10-30 seconds to analyze (download + librosa),
 not 1-2 minutes — that loading copy in the frontend was a conservative
 estimate from the original mock-data version.
+
+## Caching and concurrent requests
+
+Every analysis result is written to `cache/<video_id>.json` and never
+expires — a given video's chords, key, and BPM don't change, so a repeat
+request for the same song is served straight from disk instead of
+re-downloading and re-analyzing it. Delete a file from `cache/` (or the
+whole directory) to force a re-analysis.
+
+If two requests for the *same* video arrive while neither is cached yet, the
+second one doesn't kick off a duplicate download/analysis — it waits on a
+per-video file lock (`cache/<video_id>.lock`) and then reads the result the
+first request just wrote. This works across gunicorn's separate worker
+processes, not just within one process. Requests for *different* videos
+never block each other.
 
 ## 3. Run it as a service (so it survives reboots)
 

@@ -7,6 +7,8 @@ currently served by worker/song-analyzer-worker.js.
 
 Run with: python app.py
 """
+import fcntl
+import json
 import os
 import re
 import shutil
@@ -18,6 +20,9 @@ import yt_dlp
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+
+CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
+os.makedirs(CACHE_DIR, exist_ok=True)
 
 NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
@@ -123,17 +128,7 @@ def add_cors_headers(response):
     return response
 
 
-@app.route('/', methods=['POST', 'OPTIONS'])
-def analyze():
-    if request.method == 'OPTIONS':
-        return '', 204
-
-    url = (request.get_json(silent=True) or {}).get('url')
-    if not url:
-        return jsonify(success=False, error='YouTube URL required'), 400
-    if not extract_video_id(url):
-        return jsonify(success=False, error='Invalid YouTube URL'), 400
-
+def run_analysis(url):
     workdir = tempfile.mkdtemp(prefix='song-analyzer-')
     try:
         audio_path, title, duration = download_audio(url, workdir)
@@ -145,20 +140,59 @@ def analyze():
         key = detect_key(librosa.feature.chroma_cqt(y=y, sr=sr).mean(axis=1))
         chords = detect_chords(y, sr)
 
-        return jsonify(
-            success=True,
-            title=title,
-            bpm=bpm,
-            key=key,
-            duration=duration,
-            chords=chords,
-            description=describe(key, bpm, chords),
-        )
-    except Exception as exc:
-        app.logger.exception('Analysis failed')
-        return jsonify(success=False, error=str(exc)), 500
+        return {
+            'success': True,
+            'title': title,
+            'bpm': bpm,
+            'key': key,
+            'duration': duration,
+            'chords': chords,
+            'description': describe(key, bpm, chords),
+        }
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
+
+
+@app.route('/', methods=['POST', 'OPTIONS'])
+def analyze():
+    if request.method == 'OPTIONS':
+        return '', 204
+
+    url = (request.get_json(silent=True) or {}).get('url')
+    if not url:
+        return jsonify(success=False, error='YouTube URL required'), 400
+    video_id = extract_video_id(url)
+    if not video_id:
+        return jsonify(success=False, error='Invalid YouTube URL'), 400
+
+    cache_path = os.path.join(CACHE_DIR, f'{video_id}.json')
+    if os.path.exists(cache_path):
+        with open(cache_path) as f:
+            return jsonify(json.load(f))
+
+    # File lock keyed by video ID: concurrent requests for the SAME song
+    # serialize and share one result instead of each re-downloading and
+    # re-analyzing; requests for different songs don't block each other.
+    # Works across gunicorn worker processes, not just threads.
+    lock_path = os.path.join(CACHE_DIR, f'{video_id}.lock')
+    with open(lock_path, 'w') as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            if os.path.exists(cache_path):
+                with open(cache_path) as f:
+                    return jsonify(json.load(f))
+
+            try:
+                result = run_analysis(url)
+            except Exception as exc:
+                app.logger.exception('Analysis failed')
+                return jsonify(success=False, error=str(exc)), 500
+
+            with open(cache_path, 'w') as f:
+                json.dump(result, f)
+            return jsonify(result)
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
 
 
 if __name__ == '__main__':
