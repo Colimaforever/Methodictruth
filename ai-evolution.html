@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Evolution — History, Models & What's Next — Methodic Truth</title>
-  <meta name="keywords" content="history of AI, large language models, local AI vs API, DeepSeek, Ollama, OpenClaw, AI regulation, AI policy, AI market news">
-  <meta name="description" content="How AI got here, how today's models actually differ, local hosting vs API keys explained, DeepSeek/Ollama/OpenClaw demystified, and a live feed of advances, policy, and market news.">
+  <meta name="keywords" content="history of AI, large language models, local AI vs API, DeepSeek, Ollama, OpenClaw, GPUs, VRAM, MCP, context servers, AI regulation, AI policy, AI market news">
+  <meta name="description" content="How AI got here, how today's models actually differ, how GPUs and VRAM actually work, what MCP context servers are, how local hosting vs API keys compares, and how corporations are adopting agentic AI.">
   <meta property="og:title" content="AI Evolution — History, Models & What's Next">
-  <meta property="og:description" content="How AI got here, how today's models actually differ, local hosting vs API keys explained, and a live feed of advances, policy, and market news.">
+  <meta property="og:description" content="How AI got here, how today's models differ, GPUs/VRAM and MCP context servers explained, and how corporations are adopting agentic AI.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/ai-evolution.html">
   <meta property="og:image" content="https://methodictruth.com/og-image.png">
@@ -102,6 +102,23 @@
     @media (max-width: 760px) {
       .ae-compare-grid, .ae-explainer-grid { grid-template-columns: 1fr; }
     }
+
+    /* Diagrams */
+    .ae-diagram-wrap { margin: 1.2rem 0; text-align: center; }
+    .ae-diagram-svg { width: 100%; max-width: 720px; height: auto; }
+    .ae-diagram-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: var(--parchment); letter-spacing: 0.02em;
+    }
+    .ae-diagram-caption {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 10.5px; fill: var(--stone); opacity: 0.85;
+    }
+    .ae-diagram-note {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--stone-dark);
+      letter-spacing: 0.04em; margin-top: 0.5rem; opacity: 0.8;
+    }
+    .ae-legend { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .ae-legend-item { display: flex; align-items: center; gap: 0.35rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--stone); }
+    .ae-legend-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
     /* Live feed (adapted from AI Dispatches) */
     .an-header { text-align: center; margin-bottom: 1.5rem; }
@@ -304,6 +321,85 @@
     </section>
 
     <section class="ae-section">
+      <h2>𒁹 The Hardware Underneath: GPUs &amp; VRAM</h2>
+      <p class="ae-lede">Every model above runs on one fact: a neural network is matrix multiplication, repeated billions of times. That's the whole story of why GPUs won, and why VRAM — not raw compute — is usually what actually limits what you can run.</p>
+
+      <div class="ae-diagram-wrap">
+        <svg class="ae-diagram-svg" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="cpuCores" width="62" height="62" patternUnits="userSpaceOnUse">
+              <rect x="5" y="5" width="52" height="52" rx="7" fill="rgba(0,229,255,0.14)" stroke="rgba(0,229,255,0.55)" stroke-width="1.5"/>
+            </pattern>
+            <pattern id="gpuCores" width="15" height="15" patternUnits="userSpaceOnUse">
+              <rect x="1.2" y="1.2" width="12" height="12" rx="2" fill="rgba(232,168,124,0.2)" stroke="rgba(232,168,124,0.6)" stroke-width="0.6"/>
+            </pattern>
+          </defs>
+          <rect x="20" y="20" width="248" height="186" fill="url(#cpuCores)" stroke="rgba(0,229,255,0.25)" stroke-width="1"/>
+          <rect x="310" y="20" width="370" height="186" fill="url(#gpuCores)" stroke="rgba(232,168,124,0.25)" stroke-width="1"/>
+          <text x="144" y="228" text-anchor="middle" class="ae-diagram-label">CPU</text>
+          <text x="495" y="228" text-anchor="middle" class="ae-diagram-label">GPU</text>
+          <text x="144" y="244" text-anchor="middle" class="ae-diagram-caption">8–32 large cores, fast serial logic</text>
+          <text x="495" y="244" text-anchor="middle" class="ae-diagram-caption">thousands of small cores, the same op in parallel</text>
+        </svg>
+        <div class="ae-diagram-note">Training and inference are almost entirely that one operation — which is why AlexNet's 2012 GPU-trained win over ImageNet is the moment deep learning took off, and why NVIDIA's CUDA stack still has no serious rival.</div>
+      </div>
+
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        <strong style="color:var(--glow-warm);">VRAM, not FLOPs, is usually the real bottleneck.</strong> A model's weights have to fit in memory before it can do anything — at 16-bit precision, roughly 2 bytes per parameter, so a 7-billion-parameter model needs ~14GB just to load. Training needs far more: gradients, optimizer state, and activations all have to fit in memory at the same time.
+      </p>
+
+      <div class="ae-diagram-wrap">
+        <svg class="ae-diagram-svg" viewBox="0 0 560 350" xmlns="http://www.w3.org/2000/svg">
+          <line x1="40" y1="300" x2="530" y2="300" stroke="rgba(138,126,107,0.3)" stroke-width="1"/>
+
+          <rect x="60" y="258" width="90" height="42"  fill="rgba(0,229,255,0.32)"   stroke="rgba(0,229,255,0.6)" stroke-width="1"/>
+          <rect x="60" y="216" width="90" height="42"  fill="rgba(123,104,238,0.32)" stroke="rgba(123,104,238,0.6)" stroke-width="1"/>
+          <rect x="60" y="48"  width="90" height="168" fill="rgba(232,168,124,0.28)" stroke="rgba(232,168,124,0.6)" stroke-width="1"/>
+          <rect x="60" y="18"  width="90" height="30"  fill="rgba(74,222,128,0.3)"   stroke="rgba(74,222,128,0.6)" stroke-width="1"/>
+
+          <rect x="240" y="258" width="90" height="42" fill="rgba(0,229,255,0.32)" stroke="rgba(0,229,255,0.6)" stroke-width="1"/>
+          <rect x="240" y="246" width="90" height="12" fill="rgba(74,222,128,0.3)" stroke="rgba(74,222,128,0.6)" stroke-width="1"/>
+
+          <rect x="420" y="289" width="90" height="11" fill="rgba(0,229,255,0.32)" stroke="rgba(0,229,255,0.6)" stroke-width="1"/>
+          <rect x="420" y="283" width="90" height="6"  fill="rgba(74,222,128,0.3)" stroke="rgba(74,222,128,0.6)" stroke-width="1"/>
+
+          <text x="105" y="318" text-anchor="middle" class="ae-diagram-label">Training</text>
+          <text x="285" y="318" text-anchor="middle" class="ae-diagram-label">Inference</text>
+          <text x="465" y="318" text-anchor="middle" class="ae-diagram-label">4-bit Inference</text>
+          <text x="105" y="334" text-anchor="middle" class="ae-diagram-caption">~94GB</text>
+          <text x="285" y="334" text-anchor="middle" class="ae-diagram-caption">~18GB</text>
+          <text x="465" y="334" text-anchor="middle" class="ae-diagram-caption">~5.5GB</text>
+        </svg>
+        <div class="ae-legend">
+          <span class="ae-legend-item"><span class="ae-legend-swatch" style="background:rgba(0,229,255,0.6)"></span>Weights</span>
+          <span class="ae-legend-item"><span class="ae-legend-swatch" style="background:rgba(123,104,238,0.6)"></span>Gradients</span>
+          <span class="ae-legend-item"><span class="ae-legend-swatch" style="background:rgba(232,168,124,0.6)"></span>Optimizer states</span>
+          <span class="ae-legend-item"><span class="ae-legend-swatch" style="background:rgba(74,222,128,0.6)"></span>KV cache / activations</span>
+        </div>
+        <div class="ae-diagram-note">Illustrative figures for a 7B-parameter model. Training has to hold weights, gradients, optimizer state, and activations in memory all at once — quantized inference needs almost none of that, which is why the same model that needs multiple data-center GPUs to train can run on a laptop to use.</div>
+      </div>
+
+      <p class="ae-lede" style="margin-top:1.4rem;">Most of the clever engineering in modern AI infrastructure is really just different answers to "how do we fit this in VRAM":</p>
+      <div class="ae-explainer-grid">
+        <div class="ae-explainer">
+          <span class="ae-tag">Fine-tuning</span>
+          <h3>LoRA / QLoRA</h3>
+          <p>Freeze the original weights and train small low-rank "adapter" matrices instead. No gradient or optimizer memory needed for the billions of frozen parameters — just for the tiny adapters.</p>
+        </div>
+        <div class="ae-explainer">
+          <span class="ae-tag">Multi-GPU training</span>
+          <h3>Tensor &amp; ZeRO Sharding</h3>
+          <p>Split a model's layers, or its gradients and optimizer state, across multiple GPUs instead of duplicating everything on each one. This is how models too big for any single GPU get trained at all.</p>
+        </div>
+        <div class="ae-explainer deepseek">
+          <span class="ae-tag">Architecture</span>
+          <h3>Mixture-of-Experts</h3>
+          <p>A model can have a huge total parameter count but only activate a small subset of "expert" sub-networks per token — big on disk, cheap in active VRAM per forward pass. Part of how DeepSeek punched above its training budget.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ae-section">
       <h2>𒈗 The Difference Between Models</h2>
       <p class="ae-lede">"Which AI is best" is the wrong question — different models are built under different constraints, and those constraints determine what you can actually do with them.</p>
       <div class="ae-compare-grid">
@@ -377,6 +473,87 @@
           <p>An agent-orchestration layer that sits above whatever models you're running — local or API — and gives you one gateway to set models, route tools, and manage a persistent agent across sessions. It's the difference between "I called an API once" and "I run an agent that keeps working." This site's own agent runs through it.</p>
         </div>
       </div>
+    </section>
+
+    <section class="ae-section">
+      <h2>☍ Context Servers: How Agents Reach the Real World</h2>
+      <p class="ae-lede">A model that can only see what's stuffed into its prompt is a chatbot. A model that can reach out and act on real systems — live, mid-conversation — is an agent. The thing that makes that distinction practical at scale is a standard called MCP (Model Context Protocol).</p>
+
+      <div class="ae-diagram-wrap">
+        <svg class="ae-diagram-svg" viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg">
+          <line x1="150" y1="160" x2="210" y2="160" stroke="rgba(0,229,255,0.4)" stroke-width="1.5"/>
+          <line x1="350" y1="160" x2="420" y2="45"  stroke="rgba(123,104,238,0.35)" stroke-width="1.2"/>
+          <line x1="350" y1="160" x2="420" y2="125" stroke="rgba(123,104,238,0.35)" stroke-width="1.2"/>
+          <line x1="350" y1="160" x2="420" y2="205" stroke="rgba(123,104,238,0.35)" stroke-width="1.2"/>
+          <line x1="350" y1="160" x2="420" y2="285" stroke="rgba(123,104,238,0.35)" stroke-width="1.2"/>
+
+          <rect x="20" y="130" width="130" height="60" rx="10" fill="rgba(74,222,128,0.1)" stroke="rgba(74,222,128,0.5)" stroke-width="1.5"/>
+          <text x="85" y="156" text-anchor="middle" class="ae-diagram-label">AI Agent</text>
+          <text x="85" y="172" text-anchor="middle" class="ae-diagram-caption">Claude, GPT, etc.</text>
+
+          <rect x="210" y="130" width="140" height="60" rx="10" fill="rgba(0,229,255,0.08)" stroke="rgba(0,229,255,0.5)" stroke-width="1.5"/>
+          <text x="280" y="156" text-anchor="middle" class="ae-diagram-label">MCP Client</text>
+          <text x="280" y="172" text-anchor="middle" class="ae-diagram-caption">built into the agent host</text>
+
+          <rect x="420" y="20"  width="170" height="50" rx="8" fill="rgba(123,104,238,0.08)" stroke="rgba(123,104,238,0.45)" stroke-width="1.2"/>
+          <text x="505" y="40" text-anchor="middle" class="ae-diagram-label">GitHub MCP Server</text>
+          <text x="505" y="56" text-anchor="middle" class="ae-diagram-caption">→ repos, PRs, issues</text>
+
+          <rect x="420" y="100" width="170" height="50" rx="8" fill="rgba(123,104,238,0.08)" stroke="rgba(123,104,238,0.45)" stroke-width="1.2"/>
+          <text x="505" y="120" text-anchor="middle" class="ae-diagram-label">Database MCP Server</text>
+          <text x="505" y="136" text-anchor="middle" class="ae-diagram-caption">→ internal data</text>
+
+          <rect x="420" y="180" width="170" height="50" rx="8" fill="rgba(123,104,238,0.08)" stroke="rgba(123,104,238,0.45)" stroke-width="1.2"/>
+          <text x="505" y="200" text-anchor="middle" class="ae-diagram-label">Filesystem MCP Server</text>
+          <text x="505" y="216" text-anchor="middle" class="ae-diagram-caption">→ local/shared files</text>
+
+          <rect x="420" y="260" width="170" height="50" rx="8" fill="rgba(123,104,238,0.08)" stroke="rgba(123,104,238,0.45)" stroke-width="1.2"/>
+          <text x="505" y="280" text-anchor="middle" class="ae-diagram-label">Slack MCP Server</text>
+          <text x="505" y="296" text-anchor="middle" class="ae-diagram-caption">→ channels, messages</text>
+        </svg>
+        <div class="ae-diagram-note">Each MCP server exposes a standard set of callable "tools." The agent doesn't need custom code per integration, and the integration doesn't need to know which model is calling it — this is the same pattern this site's own agent uses to work with its GitHub repository.</div>
+      </div>
+
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        Released by Anthropic in late 2024, MCP is gaining traction precisely because it's become cross-vendor — OpenAI and Google have both moved toward supporting it or compatible patterns, which is the strongest signal that it's turning into standard plumbing rather than one company's format. Think of it less like a clever feature and more like USB-C: boring, standardized, and exactly what lets an ecosystem of tools snap together instead of every vendor inventing its own port.
+      </p>
+    </section>
+
+    <section class="ae-section">
+      <h2>𓋹 How Corporations Are Adopting This</h2>
+      <p class="ae-lede">Enterprise AI adoption right now is less "which model" and more "which tier handles which job, routed through one governed layer."</p>
+
+      <div class="ae-diagram-wrap">
+        <svg class="ae-diagram-svg" viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+          <line x1="180" y1="80"  x2="280" y2="130" stroke="rgba(0,229,255,0.35)" stroke-width="1.3"/>
+          <line x1="520" y1="80"  x2="420" y2="130" stroke="rgba(232,168,124,0.35)" stroke-width="1.3"/>
+          <line x1="350" y1="185" x2="350" y2="230" stroke="rgba(123,104,238,0.4)" stroke-width="1.3"/>
+
+          <rect x="40"  y="20" width="280" height="60" rx="10" fill="rgba(0,229,255,0.08)" stroke="rgba(0,229,255,0.5)" stroke-width="1.5"/>
+          <text x="180" y="46" text-anchor="middle" class="ae-diagram-label">Frontier API</text>
+          <text x="180" y="62" text-anchor="middle" class="ae-diagram-caption">Claude, GPT, Gemini — hardest reasoning</text>
+
+          <rect x="380" y="20" width="280" height="60" rx="10" fill="rgba(232,168,124,0.08)" stroke="rgba(232,168,124,0.5)" stroke-width="1.5"/>
+          <text x="520" y="46" text-anchor="middle" class="ae-diagram-label">Self-Hosted Open-Weight</text>
+          <text x="520" y="62" text-anchor="middle" class="ae-diagram-caption">Llama, Mistral, DeepSeek — narrow, high-volume</text>
+
+          <rect x="180" y="130" width="340" height="55" rx="10" fill="rgba(123,104,238,0.1)" stroke="rgba(123,104,238,0.55)" stroke-width="1.5"/>
+          <text x="350" y="155" text-anchor="middle" class="ae-diagram-label">Internal MCP / Governance Layer</text>
+          <text x="350" y="171" text-anchor="middle" class="ae-diagram-caption">auth, audit, rate limits, tool allowlists</text>
+
+          <rect x="200" y="230" width="300" height="55" rx="10" fill="rgba(74,222,128,0.08)" stroke="rgba(74,222,128,0.45)" stroke-width="1.5"/>
+          <text x="350" y="255" text-anchor="middle" class="ae-diagram-label">Internal Systems</text>
+          <text x="350" y="271" text-anchor="middle" class="ae-diagram-caption">docs · tickets · databases · code</text>
+        </svg>
+        <div class="ae-diagram-note">Most companies aren't picking a single model — they're routing tasks to whichever tier fits, through one governed layer instead of a bespoke integration per vendor per tool.</div>
+      </div>
+
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        <strong style="color:var(--glow-warm);">The infrastructure arms race is really a memory race.</strong> Frontier labs and hyperscalers are buying GPU clusters at an unprecedented scale, but the conversation has shifted from "how many GPUs" to "how much HBM and interconnect bandwidth" — that's what actually gates context length, batch size, and concurrent users a deployment can serve.
+      </p>
+      <p style="font-family:'EB Garamond',Georgia,serif;font-size:0.92rem;color:var(--stone);line-height:1.7;">
+        <strong style="color:var(--glow-warm);">MCP as a governance layer, not just a connector.</strong> Companies are standing up internal MCP servers as an audited, permissioned bridge between AI copilots and proprietary systems — instead of handing a model raw API keys, or writing a one-off integration for every tool it might need to touch. That's the actual inflection point: the difference between "we pay for an AI subscription" and "we have agents that can do things in our systems."
+      </p>
     </section>
 
     <section class="ae-section">
