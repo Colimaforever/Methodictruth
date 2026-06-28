@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
   <title>Browser Synth — Modular Synthesizer, Mixer & Effects Chain with MIDI Support</title>
   <meta name="keywords" content="online synthesizer, browser synth, web audio synth, MIDI synthesizer, free synth, modular synth, tone.js, virtual instrument, audio mixer, effects chain, EQ, compressor, limiter">
   <meta name="description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, MIDI controller input, and MIDI output to Logic Pro X or any other DAW. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
@@ -24,6 +25,8 @@
       position: fixed; top: 48px; left: 0; right: 0; z-index: 400;
       display: flex; align-items: center; gap: 0.3rem;
       padding: 0.3rem 0.5rem;
+      padding-left: max(0.5rem, env(safe-area-inset-left));
+      padding-right: max(0.5rem, env(safe-area-inset-right));
       background: rgba(10, 14, 26, 0.95);
       border-bottom: 1px solid rgba(0, 229, 255, 0.1);
       backdrop-filter: blur(10px);
