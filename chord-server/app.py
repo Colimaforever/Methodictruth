@@ -120,6 +120,17 @@ def download_audio(url, workdir):
         # yt_dlp.YoutubeDL library API never reads from
         # ~/.config/yt-dlp/config, so it must be set here directly.
         'js_runtimes': {'node': {}},
+        # Without a read timeout, a stalled googlevideo connection blocks
+        # forever instead of triggering yt-dlp's own retry logic, so the
+        # whole gunicorn worker eventually gets killed by --timeout instead
+        # of recovering. A short socket_timeout + retries lets yt-dlp detect
+        # a stall and reconnect well within gunicorn's 120s budget.
+        'socket_timeout': 20,
+        'retries': 10,
+        'fragment_retries': 10,
+        # Rules out IPv6 routing being the thing that stalls under WSL2/
+        # Hyper-V, independent of whether that's actually the cause.
+        'force_ipv4': True,
     }
     if os.path.exists(COOKIES_FILE):
         ydl_opts['cookiefile'] = COOKIES_FILE
