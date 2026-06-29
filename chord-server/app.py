@@ -12,7 +12,9 @@ import json
 import os
 import re
 import shutil
+import sys
 import tempfile
+import time
 
 import librosa
 import numpy as np
@@ -104,6 +106,26 @@ def describe(key, bpm, chords):
 COOKIES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
 
 
+def _log(msg):
+    # Goes to stderr, which the systemd unit routes to a regular file (not
+    # journald), so these never block. Used to time each stage and see where
+    # a slow request actually spends its time.
+    print(f'[timing] {msg}', file=sys.stderr, flush=True)
+
+
+def _dl_hook(d):
+    if d.get('status') == 'finished':
+        _log('yt-dlp download finished; starting ffmpeg postprocessing')
+
+
+def _pp_hook(d):
+    pp = d.get('postprocessor', '?')
+    if d.get('status') == 'started':
+        _log(f'ffmpeg postprocessor {pp} started')
+    elif d.get('status') == 'finished':
+        _log(f'ffmpeg postprocessor {pp} finished')
+
+
 def download_audio(url, workdir):
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -147,6 +169,8 @@ def download_audio(url, workdir):
         # yt-dlp: if throughput drops below 100 KB/s, abandon the throttled
         # URL and re-extract a fresh, un-throttled one instead of crawling.
         'throttledratelimit': 102400,
+        'progress_hooks': [_dl_hook],
+        'postprocessor_hooks': [_pp_hook],
     }
     if os.path.exists(COOKIES_FILE):
         ydl_opts['cookiefile'] = COOKIES_FILE
@@ -168,14 +192,20 @@ def add_cors_headers(response):
 def run_analysis(url):
     workdir = tempfile.mkdtemp(prefix='song-analyzer-')
     try:
+        t0 = time.monotonic()
         audio_path, title, duration = download_audio(url, workdir)
+        t1 = time.monotonic()
+        _log(f'download_audio (yt-dlp download + ffmpeg->wav): {t1 - t0:.1f}s')
         y, sr = librosa.load(audio_path, sr=22050, mono=True)
+        t2 = time.monotonic()
+        _log(f'librosa.load: {t2 - t1:.1f}s')
 
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
         bpm = int(round(float(np.asarray(tempo).item())))
 
         key = detect_key(librosa.feature.chroma_cqt(y=y, sr=sr).mean(axis=1))
         chords = detect_chords(y, sr)
+        _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
 
         return {
             'success': True,
