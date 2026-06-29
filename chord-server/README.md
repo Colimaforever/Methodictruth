@@ -128,6 +128,35 @@ const API_URL = 'https://api.methodictruth.com';
 That's the only frontend change needed — the response shape this service
 returns already matches what `song-analyzer.html` expects.
 
+## "Sign in to confirm you're not a bot"
+
+YouTube sometimes blocks `yt-dlp` downloads from this server with:
+
+```
+ERROR: [youtube] <id>: Sign in to confirm you're not a bot.
+```
+
+This is YouTube rate-limiting/flagging the server's IP, not a bug in this
+codebase — it happens to `yt-dlp` users generally, more often on
+cloud/datacenter IPs but can hit residential ones too. The fix is to give
+`yt-dlp` cookies from a real logged-in browser session so requests look
+like they're coming from an authenticated browser, not a script.
+
+1. Log into youtube.com in a normal browser, on the same network the
+   server uses (or any browser, then transfer the file).
+2. Export cookies in Netscape format — easiest via a browser extension
+   such as "Get cookies.txt LOCALLY" (Chrome/Firefox), exporting for the
+   `youtube.com` domain.
+3. Save the exported file as `chord-server/cookies.txt` (already
+   gitignored — **never commit this file**, it contains live session
+   auth and would let someone hijack the YouTube account it came from).
+4. No code or service restart needed — `app.py` checks for
+   `cookies.txt` on every request and uses it automatically if present.
+
+Cookies expire/rotate periodically (weeks to months depending on the
+account), so if the bot-check error comes back after a while, just
+re-export and overwrite `cookies.txt`.
+
 ## Boot resilience (WSL2 + Windows host)
 
 If this runs inside WSL2 on a Windows machine (as opposed to bare-metal

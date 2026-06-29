@@ -101,6 +101,9 @@ def describe(key, bpm, chords):
     )
 
 
+COOKIES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
+
+
 def download_audio(url, workdir):
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -113,6 +116,8 @@ def download_audio(url, workdir):
         'quiet': True,
         'no_warnings': True,
     }
+    if os.path.exists(COOKIES_FILE):
+        ydl_opts['cookiefile'] = COOKIES_FILE
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
 
