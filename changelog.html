@@ -95,6 +95,21 @@
       <p>Everything shipped here, newest first. No version numbers — just the work, in the order it happened. <a href="feed.xml">RSS feed ⟶</a></p>
     </div>
 
+    <div class="divider" id="2026-06-29"><span class="leaf">🌿</span> <span>June 29, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p>Added optional cookie support to the <a href="song-analyzer.html">Song Analyzer</a> backend so it can ride past YouTube's "Sign in to confirm you're not a bot" block — when a real browser session's cookies are present, <code>yt-dlp</code> uses them instead of looking like a bare script.</p>
+    </article>
+    <article class="entry">
+      <p>Closed the gap between "switched to gunicorn" and "gunicorn is actually installed" on the physical box running Song Analyzer — the systemd service was pointed at a binary that had never made it into the venv, which is why restarts were silently dying instead of serving requests.</p>
+    </article>
+    <article class="entry">
+      <p>Made the Song Analyzer host survive a real reboot, not just a restart: WSL2 now auto-launches at Windows startup instead of waiting for someone to open a terminal, and the machine no longer drops to sleep and looks indistinguishable from powered-off.</p>
+    </article>
+    <article class="entry">
+      <p>Added <a href="song-analyzer.html">Song Analyzer</a> and <a href="guitar.html">Fretboard</a> to the Music nav dropdown — both tools existed and worked, they just weren't actually linked from the menu.</p>
+    </article>
+
     <div class="divider" id="2026-06-28"><span class="leaf">🌿</span> <span>June 28, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e1a">
+    <title>What Real Hardware Costs You - June 29, 2026</title>
+    <meta name="description" content="A day after the Song Analyzer started doing real audio analysis on real hardware, that hardware proved it: gunicorn was never actually installed on the box, WSL2 doesn't survive a Windows reboot on its own, and YouTube started blocking the requests outright.">
+    <meta property="og:title" content="What Real Hardware Costs You — methodictruth.com">
+    <meta property="og:url" content="https://methodictruth.com/chronicle-2026-06-29-song-analyzer-hardening.html">
+    <meta property="og:image" content="https://methodictruth.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="styles.css?v=69">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What Real Hardware Costs You",
+  "datePublished": "2026-06-29",
+  "dateModified": "2026-06-29",
+  "description": "A day after the Song Analyzer started doing real audio analysis on real hardware, that hardware proved it: gunicorn was never actually installed on the box, WSL2 doesn't survive a Windows reboot on its own, and YouTube started blocking the requests outright.",
+  "url": "https://methodictruth.com/chronicle-2026-06-29-song-analyzer-hardening.html",
+  "mainEntityOfPage": "https://methodictruth.com/chronicle-2026-06-29-song-analyzer-hardening.html",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "AI Chronicles",
+    "url": "https://methodictruth.com/chronicles.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  }
+}
+    </script>
+</head>
+<body>
+    <div class="chronicle-entry">
+        <div class="chronicle-header">
+            <h1>What Real Hardware Costs You</h1>
+            <div class="chronicle-meta">
+                <span class="date">June 29, 2026</span>
+                <span class="topic">Self-Hosted Infra • Deployment • Boot Resilience</span>
+            </div>
+        </div>
+
+        <div class="chronicle-content">
+            <h2>The Design Was Right. The Box Wasn't.</h2>
+
+            <p>Yesterday's hardening pass gave the Song Analyzer a disk cache, gunicorn workers, and a dedup lock — on paper, a service ready for real traffic. None of that mattered the moment the physical machine running it actually rebooted. Three separate things turned out to be unfinished underneath the design, each invisible until the specific condition that exposed it actually happened.</p>
+
+            <h2>Switched to Gunicorn. Forgot to Install It.</h2>
+
+            <p>The systemd unit had already been pointed at <code>gunicorn -w 4 --timeout 120 -b 127.0.0.1:5005 app:app</code>. The venv on the box had not. It predated the switch, and its <code>requirements.txt</code> never picked up <code>gunicorn</code> — a stale checkout, not a code bug. Every restart died with <code>status=203/EXEC</code>, which is systemd telling you it couldn't even find the binary to execute, a layer below where a Python traceback would show up. <code>pip install "gunicorn>=22.0"</code> inside the venv fixed it outright; the next restart came up as one master process and four workers, confirmed in <code>ps aux</code>, matching the <code>-w 4</code> flag exactly.</p>
+
+            <p>The lesson isn't about gunicorn specifically. It's that "the repo says this is how it runs" and "this is what's actually running on the box" are two different claims, and only a physical machine lets them quietly drift apart. Nobody else's platform does that to you.</p>
+
+            <h2>WSL2 Doesn't Care That Windows Rebooted</h2>
+
+            <p>Both <code>chord-analyzer</code> and <code>cloudflared</code> were already <code>enabled</code> inside the Linux distro — which guarantees nothing if nothing on the Windows side ever launches the distro in the first place. WSL2 only starts when something explicitly invokes it: opening a terminal, an app reaching into it. A cold Windows boot with nobody doing that leaves the whole stack off indefinitely, services "enabled" and never running.</p>
+
+            <p>The fix lives entirely on the Windows side: a Task Scheduler entry running <code>wsl.exe -d Ubuntu --exec /bin/true</code> at startup, configured to run whether anyone is logged in or not, so it doesn't wait on a human session to exist. The other half of the gap is just as easy to miss — Windows sleep looks identical to powered-off from the outside. No ping, no SSH, indistinguishable from off until someone physically walks up and wakes the machine. <code>powercfg /change standby-timeout-ac 0</code> and the matching monitor-timeout change close that door too.</p>
+
+            <h2>Then YouTube Decided the Box Looked Like a Bot</h2>
+
+            <p>Separately from anything above, <code>yt-dlp</code> downloads started failing outright: <code>Sign in to confirm you're not a bot.</code> Not a regression in this codebase — YouTube rate-limiting or flagging the request pattern, something that happens to <code>yt-dlp</code> users generally, more on datacenter IPs but not exclusively. The fix is to make the requests look like they're coming from a real, authenticated browser instead of a bare script: <code>app.py</code> now checks for an optional <code>cookies.txt</code> on every request and, if present, hands it to <code>yt-dlp</code> as a cookiefile.</p>
+
+            <p>That file is exported from a logged-in browser session, lives only on the physical machine, is gitignored, and is never committed — it's live session authentication, not a secret that belongs anywhere near version control. It also rotates: cookies expire over weeks to months depending on the account, so this isn't a one-time fix, it's a maintenance task that resurfaces on its own schedule.</p>
+
+            <h2>What Actually Changed</h2>
+
+            <p>None of these three were code review failures, because none of them were code problems. They were the specific, boring gap that only exists when "the infrastructure" is a machine in a house instead of someone else's platform: deployment state that can silently diverge from repo state, an OS that doesn't survive its own reboot unattended, and an upstream API that can simply change its mind about whether you're allowed to talk to it. Owning the hardware bought real audio analysis instead of fake chords. It also bought every one of these failure modes, one at a time, in the order they happened to occur.</p>
+
+        </div>
+    </div>
+
+    <script>
+    // Starfield
+    window.addEventListener('load', () => {
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none';
+      document.body.prepend(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      for (let i = 0; i < 140; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*1.1, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.5+0.1})`;
+        ctx.fill();
+      }
+    });
+    </script>
+</body>
+</html>

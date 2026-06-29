@@ -117,6 +117,40 @@
       90% { opacity: 0.3; }
       100% { transform: translateY(-20vh) translateX(30px); opacity: 0; }
     }
+
+    /* ─── HD RITUAL GRAIN ─── */
+    /* The site-wide grain (styles.css) is deliberately low-res; this page
+       gets its own higher-tile, amber-cast version instead of re-enabling
+       that one, layered above everything including the unlocked content. */
+    .vault-grain {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 1200; pointer-events: none;
+      mix-blend-mode: overlay; opacity: 0.5;
+      background-image: url("data:image/svg+xml,%3Csvg width='640' height='640' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='vhd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='6' stitchTiles='stitch' seed='42'/%3E%3CfeColorMatrix type='matrix' values='1.15 0 0 0 0 0.7 0 0 0 0 0.3 0 0 0 0 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='640' height='640' filter='url(%23vhd)'/%3E%3C/svg%3E");
+      background-size: 640px 640px;
+      animation: vaultGrainBreathe 9s ease-in-out infinite;
+    }
+    .vault-grain::after {
+      content: ''; position: absolute; inset: 0;
+      mix-blend-mode: soft-light; opacity: 0.3;
+      background-image: url("data:image/svg+xml,%3Csvg width='240' height='240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='vfine'%3E%3CfeTurbulence type='turbulence' baseFrequency='2.2' numOctaves='4' stitchTiles='stitch' seed='9'/%3E%3CfeColorMatrix type='saturate' values='0.15'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23vfine)'/%3E%3C/svg%3E");
+      background-size: 240px 240px;
+      animation: vaultGrainFlicker 6s steps(8) infinite;
+    }
+    @keyframes vaultGrainBreathe {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.58; transform: scale(1.015); }
+    }
+    @keyframes vaultGrainFlicker {
+      0%, 100% { opacity: 0.26; }
+      12% { opacity: 0.4; }
+      24% { opacity: 0.2; }
+      37% { opacity: 0.38; }
+      50% { opacity: 0.28; }
+      63% { opacity: 0.42; }
+      75% { opacity: 0.22; }
+      88% { opacity: 0.36; }
+    }
   </style>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
@@ -127,6 +161,7 @@
   <!-- Atmosphere layers (hidden until opened) -->
   <div class="vault-vignette" id="vaultVignette"></div>
   <div class="candle-glow" id="candleGlow"></div>
+  <div class="vault-grain" id="vaultGrain"></div>
 
   <!-- Gate -->
   <div class="vault-gate" id="vaultGate">
@@ -614,6 +649,63 @@ Outside the browser entirely:
         independent of home power/internet mattered more than cost — right
         now this feature goes down if that one machine is off, which is an
         accepted tradeoff, not an oversight.</p>
+      </div>
+
+      <div class="vault-section">
+        <h2>Song Analyzer: What Broke After It Shipped</h2>
+        <p>The hardening above was the design. None of it mattered the day
+        the box actually rebooted, because three separate things turned out
+        to be unfinished underneath it — each invisible until the specific
+        condition that exposed it happened.</p>
+        <p><strong>Gunicorn was never actually installed.</strong> The
+        systemd unit had already been switched over to
+        <code>gunicorn -w 4 --timeout 120 -b 127.0.0.1:5005 app:app</code>,
+        but the venv on the physical box predated that change and its
+        <code>requirements.txt</code> didn't list <code>gunicorn</code> at
+        all — a stale checkout, not a code bug. Result: every restart died
+        with <code>status=203/EXEC</code>, systemd's way of saying "I can't
+        even find the binary to run," not a Python traceback. Fixed with
+        <code>pip install "gunicorn>=22.0"</code> inside the venv, confirmed
+        by <code>which gunicorn</code> resolving inside
+        <code>venv/bin/</code>, then a restart that came up as one master
+        process plus four workers, matching the <code>-w 4</code> flag.</p>
+        <p><strong>WSL2 doesn't survive a Windows reboot on its own.</strong>
+        Both services were already <code>enabled</code> inside the distro,
+        which means nothing if nothing on the Windows side ever launches the
+        distro in the first place — WSL2 only starts when something
+        explicitly invokes it, and a cold boot with nobody opening a
+        terminal leaves it off indefinitely. A Windows Task Scheduler entry
+        now runs <code>wsl.exe -d Ubuntu --exec /bin/true</code> at startup,
+        with "run whether user is logged on or not" so it doesn't wait for
+        anyone to actually log in. Closing the loop the other direction:
+        Windows sleep looks identical to powered-off from outside — no ping,
+        no SSH, indistinguishable from off until someone physically wakes the
+        machine — so <code>powercfg /change standby-timeout-ac 0</code> and
+        the matching monitor-timeout change keep it from ever going there on
+        AC power.</p>
+        <p><strong>YouTube started blocking the box's IP.</strong>
+        <code>yt-dlp</code> downloads began failing with
+        <code>Sign in to confirm you're not a bot</code> — YouTube
+        rate-limiting/flagging the request pattern, not a regression in this
+        codebase, and something that happens to <code>yt-dlp</code> users
+        generally. <code>app.py</code> now checks for an optional
+        <code>chord-server/cookies.txt</code> on every request and, if
+        present, passes it to <code>yt-dlp</code> as a cookiefile so
+        requests carry real browser session auth instead of looking like a
+        bare script. The file is exported from a logged-in browser (the "Get
+        cookies.txt LOCALLY" extension works fine), lives only on the
+        physical machine, is gitignored, and is never committed — it's live
+        session auth, not a secret that belongs in version control. Cookies
+        rotate over weeks to months, so this is a maintenance task, not a
+        one-time fix: when the bot-check error comes back, re-export and
+        overwrite the file.</p>
+        <p>None of these three were caught by code review, because none of
+        them are code problems — they're the gap between "the repo says
+        this is how it runs" and "this is actually what's running on the
+        box right now." That gap is exactly what a single physical machine
+        costs you that serverless infrastructure doesn't: nobody else's
+        platform is quietly drifting out of sync with what you think is
+        deployed.</p>
       </div>
 
       <div class="vault-section">

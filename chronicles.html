@@ -28,6 +28,7 @@
     "description": "Follow the journey of building an AI agent from day one: identity, memory, autonomy, and creative collaboration between human and machine.",
     "author": { "@type": "Person", "name": "Sergio Macedo" },
     "blogPost": [
+      { "@type": "BlogPosting", "headline": "What Real Hardware Costs You", "datePublished": "2026-06-29", "url": "https://methodictruth.com/chronicle-2026-06-29-song-analyzer-hardening.html" },
       { "@type": "BlogPosting", "headline": "Real Chords, Real Hardware", "datePublished": "2026-06-28", "url": "https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html" },
       { "@type": "BlogPosting", "headline": "The Platform That Changed the Rules", "datePublished": "2026-04-10", "url": "https://methodictruth.com/chronicle-2026-04-10-auth-lockdown.html" },
       { "@type": "BlogPosting", "headline": "Presenting the Network", "datePublished": "2026-04-10", "url": "https://methodictruth.com/chronicle-2026-04-10-presenting-the-network.html" },
@@ -517,6 +518,21 @@
 
   <main>
     <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="song-analyzer">Song Analyzer</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · June 29</div>
+      <h2><a href="chronicle-2026-06-29-song-analyzer-hardening.html">What Real Hardware Costs You</a></h2>
+      <p>A day after the Song Analyzer started doing real signal processing on real hardware, that hardware proved exactly what "real" costs: gunicorn had been wired into the systemd unit but never actually installed on the box, WSL2 doesn't relaunch itself after a Windows reboot, and YouTube started flagging the requests as a bot outright.</p>
+      <blockquote>"The repo says this is how it runs. Only a physical machine lets that quietly stop being true."</blockquote>
+      <p>The 203/EXEC failure and its actual cause, closing the WSL2/Windows boot gap with Task Scheduler and powercfg, and riding past YouTube's bot-check with a cookiefile instead of fighting it.</p>
+      <div class="tags">
+        <span class="tag glow">self-hosted</span>
+        <span class="tag warm">infrastructure</span>
+        <span class="tag nature">boot-resilience</span>
+        <span class="tag">systemd</span>
+        <span class="tag">wsl2</span>
+      </div>
+    </article>
 
     <article class="entry">
       <div class="entry-date">2026 · June 28</div>

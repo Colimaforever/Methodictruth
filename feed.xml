@@ -8,6 +8,22 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: June 29, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-06-29</link>
+    <guid isPermaLink="false">changelog-2026-06-29</guid>
+    <pubDate>Mon, 29 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Added Song Analyzer and Fretboard to the Music nav dropdown. Fixed the gunicorn deployment on the physical Song Analyzer host (it was never actually installed). Made the host survive a real reboot — WSL2 auto-starts at Windows boot and the machine no longer sleeps. Added optional cookie support so yt-dlp can ride past YouTube's bot-check block.</description>
+  </item>
+
+  <item>
+    <title>What Real Hardware Costs You</title>
+    <link>https://methodictruth.com/chronicle-2026-06-29-song-analyzer-hardening.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-06-29-song-analyzer-hardening.html</guid>
+    <pubDate>Mon, 29 Jun 2026 00:00:00 GMT</pubDate>
+    <description>A day after the Song Analyzer started doing real audio analysis on real hardware, that hardware proved it: gunicorn was never actually installed, WSL2 doesn't survive a Windows reboot on its own, and YouTube started blocking the requests outright.</description>
+  </item>
+
+  <item>
     <title>Real Chords, Real Hardware</title>
     <link>https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html</link>
     <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html</guid>
