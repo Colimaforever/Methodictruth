@@ -74,7 +74,8 @@ never block each other.
 ## 3. Run it as a service (so it survives reboots)
 
 Edit `chord-analyzer.service`, replacing `/REPLACE/WITH/PATH/TO/chord-server`
-with the actual path, then:
+and `REPLACE_WITH_YOUR_USERNAME` with the actual path and your username,
+then:
 
 ```bash
 sudo cp chord-analyzer.service /etc/systemd/system/
@@ -157,6 +158,47 @@ Cookies expire/rotate periodically (weeks to months depending on the
 account), so if the bot-check error comes back after a while, just
 re-export and overwrite `cookies.txt`.
 
+## "Requested format is not available"
+
+YouTube also runs a separate signature/n-parameter JS challenge on its
+player JS, unrelated to the bot-check above. When `yt-dlp` can't solve it,
+every format except storyboard images (`mhtml`) gets filtered out, which
+surfaces here as "Requested format is not available."
+
+Solving it requires:
+
+1. **A recent `yt-dlp` build.** Fixes for YouTube's evolving challenges
+   often land in nightly builds well before a tagged stable release, so a
+   plain `pip install -U yt-dlp` can report "already satisfied" while the
+   fix you need still isn't out. Use `pip install -U --pre "yt-dlp[default]"`
+   instead — the `[default]` extras pull in `yt-dlp-ejs`, the package that
+   actually does the challenge-solving. See `yt-dlp-update.service`/
+   `.timer` below to keep this current automatically.
+2. **A JS runtime.** `yt-dlp-ejs` needs Node.js (v22+), Deno, or QuickJS
+   installed to execute the challenge-solving script. This repo's `app.py`
+   sets `'js_runtimes': ['node']` directly in `ydl_opts`, so install Node
+   (`sudo apt install nodejs`) and that's it — no extra config file needed.
+   (`--js-runtimes` / `~/.config/yt-dlp/config` only apply to the `yt-dlp`
+   CLI tool's own argument parser; they're silently ignored when using
+   `yt_dlp.YoutubeDL(...)` as a library, which is what `app.py` does.)
+
+## Keeping yt-dlp current automatically
+
+YouTube's anti-bot/anti-scraping layers change often enough that pinning a
+version and forgetting about it isn't viable. `yt-dlp-update.service` +
+`yt-dlp-update.timer` run `pip install -U --pre "yt-dlp[default]"` daily and
+restart `chord-analyzer` afterward, so fixes land within a day without
+manual intervention:
+
+```bash
+cd chord-server
+sed -i "s|REPLACE_WITH_YOUR_USERNAME|$(whoami)|g; s|/REPLACE/WITH/PATH/TO/chord-server|$(pwd)|g" yt-dlp-update.service
+sudo cp yt-dlp-update.service yt-dlp-update.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now yt-dlp-update.timer
+systemctl list-timers yt-dlp-update.timer   # confirm it's scheduled
+```
+
 ## Boot resilience (WSL2 + Windows host)
 
 If this runs inside WSL2 on a Windows machine (as opposed to bare-metal
@@ -217,6 +259,18 @@ pip install -r requirements.txt   # or: pip install "gunicorn>=22.0"
 which gunicorn                    # should print a path inside venv/bin/
 deactivate
 sudo systemctl daemon-reload && sudo systemctl restart chord-analyzer
+```
+
+**5. Without `User=`/`Group=`/`Environment=HOME=...`, systemd runs the
+service as root**, not the user who set it up. That silently breaks
+anything keyed to `$HOME` — `cache/` ends up owned by root (later requests
+from the real user get `PermissionError`), and any user-level config gets
+read from `/root` instead of the real home directory. If `chord-analyzer`
+was ever started before these lines were added to the unit file, fix
+ownership after adding them:
+
+```bash
+sudo chown -R $(whoami):$(whoami) cache
 ```
 
 ## Accuracy notes

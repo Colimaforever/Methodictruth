@@ -115,6 +115,11 @@ def download_audio(url, workdir):
         }],
         'quiet': True,
         'no_warnings': True,
+        # YouTube's player JS challenge (signature/n-param) needs a JS
+        # runtime to solve. --js-runtimes is a CLI-only setting that the
+        # yt_dlp.YoutubeDL library API never reads from
+        # ~/.config/yt-dlp/config, so it must be set here directly.
+        'js_runtimes': ['node'],
     }
     if os.path.exists(COOKIES_FILE):
         ydl_opts['cookiefile'] = COOKIES_FILE
