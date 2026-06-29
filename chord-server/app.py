@@ -131,6 +131,13 @@ def download_audio(url, workdir):
         # Rules out IPv6 routing being the thing that stalls under WSL2/
         # Hyper-V, independent of whether that's actually the cause.
         'force_ipv4': True,
+        # YouTube throttles a googlevideo URL to a crawl (a few KB/s) when
+        # it decides to rate-limit this IP — the download trickles bytes
+        # just fast enough to dodge socket_timeout but slow enough that a
+        # 3-4 MB file blows past gunicorn's 120s worker timeout. This tells
+        # yt-dlp: if throughput drops below 100 KB/s, abandon the throttled
+        # URL and re-extract a fresh, un-throttled one instead of crawling.
+        'throttledratelimit': 102400,
     }
     if os.path.exists(COOKIES_FILE):
         ydl_opts['cookiefile'] = COOKIES_FILE
