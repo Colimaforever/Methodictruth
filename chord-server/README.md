@@ -273,6 +273,43 @@ ownership after adding them:
 sudo chown -R $(whoami):$(whoami) cache
 ```
 
+## "Analysis failed" / "Load failed" only under systemd (never from the CLI)
+
+The most baffling failure mode this service can hit: every manual test
+works — `yt-dlp` from the CLI, `python app.py`, even `gunicorn` run by hand
+all download and analyze in seconds — but requests through the **installed
+systemd service** stall for exactly ~120 seconds and then die, surfacing in
+the browser as "Failed to fetch" / "Load failed". The stack trace shows the
+worker blocked deep in an SSL read (during the download) or in
+`subprocess.communicate` (during ffmpeg), killed by gunicorn's `--timeout`.
+
+The cause is **not** YouTube, the network, or the app code. It's the
+**journald pipe**. Under systemd, a service's stdout/stderr is a pipe to
+journald, which rate-limits log volume. `yt-dlp` and its `ffmpeg`/`node`
+subprocesses emit a firehose of progress/diagnostic output to stderr; once
+that fills the pipe faster than journald drains it, the next `write()`
+**blocks**, which freezes the worker mid-download. Run the identical code
+with stdout pointed at a regular file (`python app.py >log 2>&1`, or
+`gunicorn ... >log 2>&1`) and it never blocks — a regular file's `write()`
+always returns immediately. That's the entire difference between the tests
+that pass and the service that hangs.
+
+Two-part fix, both already in this repo:
+
+1. `app.py` sets `'noprogress': True` in `ydl_opts` so `yt-dlp` stops
+   streaming the download progress bar (`quiet: True` alone does **not**
+   silence it — progress goes to stderr independently).
+2. `chord-analyzer.service` sets `StandardOutput=append:` and
+   `StandardError=append:` to a log file instead of journald, so nothing
+   the worker (or any subprocess it spawns) writes can ever block on a full
+   pipe. View the logs with `tail -f chord-server/chord-analyzer.log`
+   instead of `journalctl -u chord-analyzer` (journald still carries
+   systemd-level start/stop/crash lines, just not the app's own output).
+
+If you ever see this symptom come back, confirm the `StandardOutput`/
+`StandardError` lines are still present in the **installed** unit
+(`/etc/systemd/system/chord-analyzer.service`), not just the repo copy.
+
 ## Accuracy notes
 
 Chord detection here is template matching (12 major + 12 minor triads
