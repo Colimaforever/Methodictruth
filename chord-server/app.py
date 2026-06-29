@@ -115,6 +115,15 @@ def download_audio(url, workdir):
         }],
         'quiet': True,
         'no_warnings': True,
+        # quiet=True silences info messages but NOT the download progress
+        # bar, which streams rapid \r updates to stderr. Under systemd,
+        # gunicorn's stderr is a pipe to journald (rate-limited); that
+        # firehose of progress writes fills the pipe and write() blocks,
+        # freezing yt-dlp's download loop until gunicorn's 120s timeout
+        # kills the worker. Run under the bare Flask dev server (stderr to
+        # a file/tty, which never blocks) and the exact same download flies.
+        # Suppressing progress output removes the blocking writes entirely.
+        'noprogress': True,
         # YouTube's player JS challenge (signature/n-param) needs a JS
         # runtime to solve. --js-runtimes is a CLI-only setting that the
         # yt_dlp.YoutubeDL library API never reads from
