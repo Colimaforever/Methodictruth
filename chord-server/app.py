@@ -119,7 +119,7 @@ def download_audio(url, workdir):
         # runtime to solve. --js-runtimes is a CLI-only setting that the
         # yt_dlp.YoutubeDL library API never reads from
         # ~/.config/yt-dlp/config, so it must be set here directly.
-        'js_runtimes': ['node'],
+        'js_runtimes': {'node': {}},
     }
     if os.path.exists(COOKIES_FILE):
         ydl_opts['cookiefile'] = COOKIES_FILE
