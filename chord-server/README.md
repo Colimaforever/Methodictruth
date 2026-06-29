@@ -128,6 +128,68 @@ const API_URL = 'https://api.methodictruth.com';
 That's the only frontend change needed — the response shape this service
 returns already matches what `song-analyzer.html` expects.
 
+## Boot resilience (WSL2 + Windows host)
+
+If this runs inside WSL2 on a Windows machine (as opposed to bare-metal
+Linux), `systemctl enable` on `chord-analyzer` and `cloudflared` alone is
+**not** enough to survive a reboot — there are two Windows-side gaps to
+close too.
+
+**1. WSL2 doesn't auto-start when Windows boots.** The WSL2 VM only starts
+when something explicitly launches it (opening a terminal, an app
+connecting to it, etc.), so even with both services `enabled` inside the
+distro, a cold Windows boot with nobody opening a WSL session leaves
+everything off. Fix it with a Windows Task Scheduler entry:
+
+- Get your distro's exact name first (PowerShell): `wsl -l -v`
+- Task Scheduler → **Create Task...** (not "Create Basic Task" — the
+  wizard hides the checkboxes below)
+- General tab: check **Run whether user is logged on or not** and
+  **Run with highest privileges**
+- Triggers tab: New trigger, **At startup**
+- Actions tab: New action, Program/script `wsl.exe`, arguments
+  `-d <DistroName> --exec /bin/true` (e.g. `-d Ubuntu --exec /bin/true`)
+- Conditions tab: uncheck "Start the task only if the computer is on AC
+  power" if checked
+
+**2. Windows sleep looks identical to powered-off from the outside.**
+Closing an RDP session (without logging off) removes the "active session"
+signal that blocks the idle timer, so the machine sleeps per its power
+plan — no ping, no RDP, no SSH, indistinguishable from off until someone
+physically wakes it. Disable sleep/monitor timeout while on AC power
+(PowerShell, as Administrator):
+
+```powershell
+powercfg /change standby-timeout-ac 0
+powercfg /change monitor-timeout-ac 0
+```
+
+**3. Confirm both services are actually enabled** (inside WSL):
+
+```bash
+systemctl is-enabled chord-analyzer
+systemctl is-enabled cloudflared
+```
+
+Both should print `enabled`. Also confirm `systemd=true` is set under
+`[boot]` in `/etc/wsl.conf` — without it, `systemctl` doesn't work in WSL2
+at all.
+
+**4. Don't forget gunicorn has to actually be installed in the venv**
+before flipping `ExecStart` over to it. If `chord-analyzer` fails to start
+with `status=203/EXEC` in `systemctl status`, that means systemd couldn't
+execute the binary at all (not a Python runtime error) — almost always
+because `gunicorn` was never installed:
+
+```bash
+cd /path/to/chord-server
+source venv/bin/activate
+pip install -r requirements.txt   # or: pip install "gunicorn>=22.0"
+which gunicorn                    # should print a path inside venv/bin/
+deactivate
+sudo systemctl daemon-reload && sudo systemctl restart chord-analyzer
+```
+
 ## Accuracy notes
 
 Chord detection here is template matching (12 major + 12 minor triads
