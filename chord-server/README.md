@@ -35,14 +35,16 @@ two people use the tool at once:
 
 ```bash
 source venv/bin/activate
-gunicorn -w 4 --timeout 120 -b 127.0.0.1:5005 app:app
+gunicorn -w 4 --timeout 300 -b 127.0.0.1:5005 app:app
 ```
 
 `-w 4` runs 4 worker processes so requests for different songs are handled
-in parallel (bounded by CPU core count). `--timeout 120` keeps gunicorn from
-killing a worker mid-analysis — its default 30s timeout is shorter than a
-single chord analysis can take. `chord-analyzer.service` (step 3) already
-runs it this way.
+in parallel (bounded by CPU core count). `--timeout 300` keeps gunicorn from
+killing a worker mid-analysis — its default 30s timeout is far shorter than a
+download + analysis can take, and the generous 300s ceiling leaves headroom
+for an occasional slow YouTube download instead of failing it outright (a
+healthy run is ~15-25s; see the timing logs). `chord-analyzer.service`
+(step 3) already runs it this way.
 
 Test it:
 
