@@ -327,12 +327,11 @@ def download_audio(url, workdir, video_id, progress=None):
         # yt-dlp: if throughput drops below 100 KB/s, abandon the throttled
         # URL and re-extract a fresh, un-throttled one instead of crawling.
         'throttledratelimit': 102400,
-        # Speed: prefer YouTube's `ios` player client, which hands back playable
-        # audio URLs WITHOUT the signature/n-param JS challenge — so most
-        # downloads skip the Node solve entirely and start much sooner. `web`
-        # stays as a fallback (and still uses cookies.txt) if `ios` ever fails,
-        # so reliability is preserved.
-        'extractor_args': {'youtube': {'player_client': ['ios', 'web']}},
+        # NOTE: tried pinning the `ios` player client to skip the JS challenge,
+        # but it frequently failed and fell back to `web` anyway — paying for
+        # both paths and pushing the download to ~30s. The default client order
+        # is faster and more reliable, so we leave it alone. The real win came
+        # from analyzing at 11 kHz (see run_analysis), not from the download.
         # If the audio is delivered as fragments, fetch a few in parallel.
         'concurrent_fragment_downloads': 4,
         'progress_hooks': [dl_hook],
