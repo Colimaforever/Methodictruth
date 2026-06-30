@@ -28,6 +28,7 @@
     "description": "Follow the journey of building an AI agent from day one: identity, memory, autonomy, and creative collaboration between human and machine.",
     "author": { "@type": "Person", "name": "Sergio Macedo" },
     "blogPost": [
+      { "@type": "BlogPosting", "headline": "It Worked Everywhere Except Where It Ran", "datePublished": "2026-06-30", "url": "https://methodictruth.com/chronicle-2026-06-30-song-analyzer-debugging.html" },
       { "@type": "BlogPosting", "headline": "What Real Hardware Costs You", "datePublished": "2026-06-29", "url": "https://methodictruth.com/chronicle-2026-06-29-song-analyzer-hardening.html" },
       { "@type": "BlogPosting", "headline": "Real Chords, Real Hardware", "datePublished": "2026-06-28", "url": "https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html" },
       { "@type": "BlogPosting", "headline": "The Platform That Changed the Rules", "datePublished": "2026-04-10", "url": "https://methodictruth.com/chronicle-2026-04-10-auth-lockdown.html" },
@@ -518,6 +519,21 @@
 
   <main>
     <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="song-analyzer">Song Analyzer</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · June 30</div>
+      <h2><a href="chronicle-2026-06-30-song-analyzer-debugging.html">It Worked Everywhere Except Where It Ran</a></h2>
+      <p>The Song Analyzer failed in the browser every time, yet passed every test by hand — the CLI, the bare dev server, even gunicorn run manually. The bug wasn't the code, the network, or YouTube. Under systemd the worker's output is a pipe to the logging daemon, and yt-dlp's progress firehose filled it until the next write blocked and froze the download mid-transfer.</p>
+      <blockquote>"The reproduction that always succeeds and the system that always fails aren't contradicting each other — the difference between them is the bug."</blockquote>
+      <p>Tracking it down with a signal-triggered stack dump, the concurrency spiral that hid the fix, a cross-process limit to tame it, and a tuning pass that cut a fresh analysis from ~20s to ~12s.</p>
+      <div class="tags">
+        <span class="tag glow">debugging</span>
+        <span class="tag warm">systemd</span>
+        <span class="tag nature">performance</span>
+        <span class="tag">gunicorn</span>
+        <span class="tag">concurrency</span>
+      </div>
+    </article>
 
     <article class="entry">
       <div class="entry-date">2026 · June 29</div>
