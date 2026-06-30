@@ -105,12 +105,15 @@ NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 # the 7th degree actually carries energy — so we report clean triads by default
 # and a 7th only when it's genuinely being played.
 TRIAD_QUALITIES = {
-    '':     (0, 4, 7),   # major
-    'm':    (0, 3, 7),   # minor
-    'sus4': (0, 5, 7),   # suspended 4th
-    'dim':  (0, 3, 6),   # diminished
-    # (sus2 deliberately omitted: it's a single semitone off major and mostly
-    # flips on noise rather than detecting a genuine suspension.)
+    '':    (0, 4, 7),   # major
+    'm':   (0, 3, 7),   # minor
+    'dim': (0, 3, 6),   # diminished
+    # Sus chords (sus2/sus4) are deliberately omitted: each sits a single
+    # semitone from the major triad, so chroma template matching flips on them
+    # constantly and peppers the chart with phantom suspensions. A clean
+    # maj/min/dim chart plus the energy-grounded 7th pass below is far more
+    # trustworthy than a noisy one. (Reliable sus/9th detection would need a
+    # sequence model like an HMM/Viterbi or madmom — a future upgrade.)
 }
 _TRIAD_VECS, _TRIAD_ROOT, _TRIAD_QUAL = [], [], []
 for _i in range(12):
