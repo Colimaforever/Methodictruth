@@ -7,11 +7,13 @@ currently served by worker/song-analyzer-worker.js.
 
 Run with: python app.py
 """
+import faulthandler
 import fcntl
 import json
 import os
 import re
 import shutil
+import signal
 import sys
 import tempfile
 import time
@@ -22,6 +24,11 @@ import yt_dlp
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+
+# `kill -USR2 <worker_pid>` dumps that worker's Python stack (all threads) to
+# stderr -> the log file, without killing it. Lets us catch exactly where a
+# request is frozen instead of guessing from where the timeout abort landed.
+faulthandler.register(signal.SIGUSR2, all_threads=True, chain=False)
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
