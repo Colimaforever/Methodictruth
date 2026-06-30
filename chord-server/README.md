@@ -330,14 +330,42 @@ If you ever see this symptom come back, confirm the `StandardOutput`/
 `StandardError` lines are still present in the **installed** unit
 (`/etc/systemd/system/chord-analyzer.service`), not just the repo copy.
 
+## Live progress (streaming response)
+
+`POST /` streams **newline-delimited JSON** rather than returning a single
+blob. The work runs in a worker thread that pushes events through a queue;
+the request relays them as they happen:
+
+```
+{"stage": "download", "pct": 42}
+{"stage": "convert"}
+{"stage": "load"}
+{"stage": "analyze"}
+{"stage": "done", "success": true, "title": ..., "bpm": ..., "chords": [...]}
+```
+
+The `download` percentage is real (from `yt-dlp`'s progress hook). The final
+`done` line always carries the complete result, so a client or proxy that
+buffers the stream still gets a correct answer — the frontend reads it with
+`fetch` + a stream reader and falls back to a plain read otherwise. Cache
+hits emit a single `done` line instantly.
+
 ## Accuracy notes
 
-Chord detection here is template matching (12 major + 12 minor triads
-compared against 2-second chroma windows) — it won't catch 7ths, 9ths, sus,
-or slash chords, and it'll have rough edges on songs with heavy
-distortion/vocals-only sections. Good enough to validate the feature; a
-later upgrade path is `madmom`'s ML-based chord recognition if the
-template-matching accuracy isn't good enough in practice.
+Chord detection is **beat-synchronous** template matching: `librosa` tracks
+the beat, the chroma is aggregated per beat (so a chord lands on the musical
+grid instead of an arbitrary 2-second window), each beat is matched against
+unit-normalized templates for major, minor, dominant-7, major-7, minor-7,
+sus4, and diminished chords, and a short mode filter removes one-beat
+flicker. Normalizing the templates means an extended chord only wins when
+its added tone actually has energy, so it reports 7ths/sus when they're
+really there and clean triads otherwise — no hand-tuned thresholds. It still
+won't catch 9ths/11ths or slash chords, and struggles on heavily distorted
+or vocals-only sections; the upgrade path remains `madmom`'s ML-based chord
+recognition if needed.
+
+Playback audio is loudness-normalized to EBU R128 (`-16 LUFS`) during the
+MP3 extraction, so songs play back at a consistent volume.
 
 ## Cost
 
