@@ -101,7 +101,7 @@
       <p>Gave the <a href="song-analyzer.html">Song Analyzer</a> a live progress bar — the backend now streams real stage-by-stage updates (downloading %, decoding, detecting) instead of one opaque spinner, so you can watch it work.</p>
     </article>
     <article class="entry">
-      <p>Made chord detection sharper and more musical: it's now beat-synchronous (chords land on the beat, not arbitrary 2-second windows), recognizes 7th, sus4, and diminished colors on top of major/minor, and smooths out one-beat flickers.</p>
+      <p>Made chord detection sharper and more musical: it's now beat-synchronous (chords land on the beat, not arbitrary 2-second windows), adds dominant- and minor-7th colors on top of major/minor triads when the 7th is genuinely played, and smooths over half-bars so the chart tracks the real progression instead of flickering.</p>
     </article>
     <article class="entry">
       <p>Added shareable <code>?v=</code> permalinks and a "copy share link" button to the Song Analyzer — send someone a link and it reopens that exact analysis instantly from cache. Plus EBU R128 loudness normalization so every song plays back at a consistent volume.</p>

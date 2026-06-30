@@ -20,7 +20,7 @@
     <link>https://methodictruth.com/changelog.html#2026-06-30</link>
     <guid isPermaLink="false">changelog-2026-06-30</guid>
     <pubDate>Tue, 30 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Big Song Analyzer day: replaced the YouTube embed with self-hosted audio (killing the viewer bot-check) plus a spectrum visualizer; fixed the service-only stall and added a concurrency limit; added a live streaming progress bar, beat-synchronous chord detection with 7th/sus/dim colors, shareable ?v= permalinks, and EBU R128 loudness normalization.</description>
+    <description>Big Song Analyzer day: replaced the YouTube embed with self-hosted audio (killing the viewer bot-check) plus a spectrum visualizer; fixed the service-only stall and added a concurrency limit; added a live streaming progress bar, beat-synchronous chord detection (major/minor plus dominant- and minor-7th colors), shareable ?v= permalinks, and EBU R128 loudness normalization.</description>
   </item>
 
   <item>

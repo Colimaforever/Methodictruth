@@ -353,16 +353,21 @@ hits emit a single `done` line instantly.
 ## Accuracy notes
 
 Chord detection is **beat-synchronous** template matching: `librosa` tracks
-the beat, the chroma is aggregated per beat (so a chord lands on the musical
-grid instead of an arbitrary 2-second window), each beat is matched against
-unit-normalized templates for major, minor, dominant-7, major-7, minor-7,
-sus4, and diminished chords, and a short mode filter removes one-beat
-flicker. Normalizing the templates means an extended chord only wins when
-its added tone actually has energy, so it reports 7ths/sus when they're
-really there and clean triads otherwise — no hand-tuned thresholds. It still
-won't catch 9ths/11ths or slash chords, and struggles on heavily distorted
-or vocals-only sections; the upgrade path remains `madmom`'s ML-based chord
-recognition if needed.
+the beat, the chroma is aggregated over half-bars (so a chord lands on the
+musical grid instead of an arbitrary 2-second window), and a mode filter
+removes flicker. Each segment is matched against **major and minor** triad
+templates, then a 7th is added only when the flat-7th degree actually carries
+energy comparable to the chord tones (giving dominant-7 / minor-7).
+
+That triad-only core is deliberate. Earlier versions also tried sus2/sus4,
+diminished, and major-7 templates — but each of those sits a single semitone
+from a major or minor triad, so on real chroma (energy smeared across every
+pitch class by harmonics, bass, and vocals) the matcher flips onto them on
+noise, littering the chart with phantom chords. Restricting to the two
+unambiguous triads plus an energy-grounded flat-7th yields charts that track
+the actual progression. It won't catch sus/9th/11th or slash chords; reliable
+detection of those needs a sequence model (HMM/Viterbi) or `madmom`'s ML chord
+recognition — the documented upgrade path.
 
 Playback audio is loudness-normalized to EBU R128 (`-16 LUFS`) during the
 MP3 extraction, so songs play back at a consistent volume.
