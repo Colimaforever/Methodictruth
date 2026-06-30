@@ -107,9 +107,10 @@ NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 TRIAD_QUALITIES = {
     '':     (0, 4, 7),   # major
     'm':    (0, 3, 7),   # minor
-    'sus2': (0, 2, 7),   # suspended 2nd
     'sus4': (0, 5, 7),   # suspended 4th
     'dim':  (0, 3, 6),   # diminished
+    # (sus2 deliberately omitted: it's a single semitone off major and mostly
+    # flips on noise rather than detecting a genuine suspension.)
 }
 _TRIAD_VECS, _TRIAD_ROOT, _TRIAD_QUAL = [], [], []
 for _i in range(12):
@@ -209,7 +210,9 @@ def detect_chords(chroma, sr, beat_frames=None, hop_length=512):
         cols = np.stack([chroma[:, s:s + fps].mean(axis=1) for s in starts], axis=1)
         times = librosa.frames_to_time(np.array(starts), sr=sr, hop_length=hop_length)
 
-    labels = _smooth_labels(_classify_columns(cols), window=1)
+    # window=2 (a 5-segment mode filter) leans on chords persisting across a bar
+    # or so, absorbing isolated noisy segments into their neighbours.
+    labels = _smooth_labels(_classify_columns(cols), window=2)
 
     chords, last = [], None
     for j in range(min(len(labels), len(times))):
