@@ -50,13 +50,9 @@
 
     <link rel="canonical" href="https://methodictruth.com/song-analyzer.html">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <!-- Warm up connections to YouTube's player + media hosts so the embed
-         starts and buffers faster once a video is loaded. -->
-    <link rel="preconnect" href="https://www.youtube.com">
-    <link rel="preconnect" href="https://www.google.com">
-    <link rel="preconnect" href="https://i.ytimg.com">
-    <link rel="preconnect" href="https://googlevideo.com">
-    <link rel="dns-prefetch" href="https://googlevideo.com">
+    <!-- Warm up the connection to the analysis API; it also serves the
+         play-along audio, so this speeds first playback too. -->
+    <link rel="preconnect" href="https://api.methodictruth.com">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=69">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -135,9 +131,18 @@
         .sa-player { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
         .sa-video-wrap {
             flex: 0 0 min(320px, 100%); width: min(320px, 100%); aspect-ratio: 16 / 9;
-            background: #000; border: 1px solid rgba(0, 229, 255, 0.2); position: relative; overflow: hidden;
+            background: radial-gradient(circle at 50% 40%, rgba(0,229,255,0.12), #05070d 70%);
+            border: 1px solid rgba(0, 229, 255, 0.2); position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
         }
-        .sa-video-wrap iframe, .sa-video-wrap > div { width: 100%; height: 100%; }
+        .sa-audio-art {
+            font-family: 'Cinzel', serif; font-size: clamp(3rem, 12vw, 5rem);
+            color: var(--glow); opacity: 0.85; line-height: 1; user-select: none;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        .sa-audio-art.sa-spinning { animation: sa-pulse 1.6s ease-in-out infinite; }
+        @keyframes sa-pulse { 0%,100% { opacity: 0.4; transform: scale(0.96); } 50% { opacity: 0.9; transform: scale(1.04); } }
+        .sa-viz { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
 
         .sa-now-playing { flex: 1; min-width: 200px; text-align: center; }
         .sa-chord-now-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.3rem; }
@@ -288,7 +293,9 @@
             <div class="sa-section-label">② Play Along</div>
             <div class="sa-player">
                 <div class="sa-video-wrap">
-                    <div id="ytPlayer"></div>
+                    <canvas class="sa-viz" id="vizCanvas"></canvas>
+                    <div class="sa-audio-art" id="audioArt" aria-hidden="true">♪</div>
+                    <audio id="audioPlayer" preload="auto" crossorigin="anonymous"></audio>
                 </div>
                 <div class="sa-now-playing">
                     <div class="sa-chord-now-label">Now Playing</div>
@@ -353,12 +360,9 @@
     <script>
         const API_URL = 'https://api.methodictruth.com'; // local chord-server, tunneled via Cloudflare
 
-        let ytPlayer = null;
-        let ytReady = false;
         let currentChords = [];
         let pollTimer = null;
-        let pendingVideoId = null;
-        let loadedVideoId = null;
+        const audio = document.getElementById('audioPlayer');
 
         document.getElementById('analyzeBtn').addEventListener('click', analyzeVideo);
         document.getElementById('youtubeUrl').addEventListener('keypress', (e) => {
@@ -403,10 +407,6 @@
             document.getElementById('analyzeBtn').disabled = true;
             stopPolling();
 
-            // Start loading/buffering the player now, in parallel with the
-            // analysis request, so it's ready the instant results land.
-            loadPlayer(videoId);
-
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -448,7 +448,7 @@
             currentChords = data.chords;
             renderTimeline(currentChords);
             resetNowPlaying();
-            loadPlayer(videoId);
+            loadAudio(data.audio_url || ('/audio/' + videoId));
 
             document.getElementById('results').classList.add('visible');
         }
@@ -485,87 +485,39 @@
             setPlayIcon(false);
         }
 
-        // ─── YouTube playback + sync ───
+        // ─── Local-audio playback + chord sync ───
+        // The backend serves the analyzed track as an MP3 from /audio/<id>,
+        // so playback is a plain HTML5 <audio> element — no YouTube embed, and
+        // therefore none of YouTube's "confirm you're not a bot" player prompts.
 
-        function loadYouTubeApi() {
-            if (window.YT && window.YT.Player) return Promise.resolve();
-            if (window.__ytApiPromise) return window.__ytApiPromise;
-            window.__ytApiPromise = new Promise((resolve) => {
-                window.onYouTubeIframeAPIReady = resolve;
-                const tag = document.createElement('script');
-                tag.src = 'https://www.youtube.com/iframe_api';
-                document.head.appendChild(tag);
-            });
-            return window.__ytApiPromise;
-        }
+        audio.addEventListener('play', () => { setPlayIcon(true); startPolling(); });
+        audio.addEventListener('pause', () => { setPlayIcon(false); stopPolling(); });
+        audio.addEventListener('ended', () => { setPlayIcon(false); stopPolling(); highlightChordAt(Infinity); });
+        audio.addEventListener('loadedmetadata', updatePlayback);
+        audio.addEventListener('loadstart', () => document.getElementById('audioArt').classList.add('sa-spinning'));
+        audio.addEventListener('canplay', () => document.getElementById('audioArt').classList.remove('sa-spinning'));
+        audio.addEventListener('error', () => {
+            stopPolling();
+            setPlayIcon(false);
+            document.getElementById('audioArt').classList.remove('sa-spinning');
+        });
 
-        // Loads (and on first call, creates) the embedded player and *cues*
-        // the video without autoplaying it. Called at submit time so the
-        // player loads and buffers in parallel with the ~15-20s analysis,
-        // instead of only starting up once results appear. Cueing (not
-        // loadVideoById) keeps it from playing on its own before the user
-        // hits play.
-        function loadPlayer(videoId) {
-            pendingVideoId = videoId;
-            if (loadedVideoId === videoId) return;
-            loadYouTubeApi().then(() => {
-                if (ytPlayer) {
-                    if (loadedVideoId !== videoId) {
-                        ytPlayer.cueVideoById(videoId);
-                        loadedVideoId = videoId;
-                    }
-                    return;
-                }
-                ytPlayer = new YT.Player('ytPlayer', {
-                    // youtube-nocookie host + explicit origin make the embed
-                    // look like a legitimate first-party player, which can
-                    // reduce YouTube's "confirm you're not a bot" prompts on
-                    // playback (those are tied to the viewer's IP/cookies, not
-                    // our backend, so this helps but can't fully prevent them).
-                    host: 'https://www.youtube-nocookie.com',
-                    videoId: videoId,
-                    playerVars: {
-                        rel: 0,
-                        modestbranding: 1,
-                        playsinline: 1,
-                        origin: window.location.origin
-                    },
-                    events: {
-                        onReady: () => { ytReady = true; },
-                        onStateChange: onPlayerStateChange
-                    }
-                });
-                loadedVideoId = videoId;
-            });
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                setPlayIcon(true);
-                startPolling();
-            } else {
-                setPlayIcon(false);
-                stopPolling();
-                if (event.data === YT.PlayerState.ENDED) {
-                    highlightChordAt(Infinity);
-                }
-            }
+        function loadAudio(audioUrl) {
+            audio.src = API_URL + audioUrl;
+            audio.load();
         }
 
         function togglePlay() {
-            if (!ytPlayer || !ytReady) return;
-            const state = ytPlayer.getPlayerState();
-            if (state === YT.PlayerState.PLAYING) {
-                ytPlayer.pauseVideo();
-            } else {
-                ytPlayer.playVideo();
-            }
+            if (!audio.src) return;
+            if (audio.paused) { ensureGraphAndResume(); audio.play(); }
+            else audio.pause();
         }
 
         function seekTo(seconds) {
-            if (!ytPlayer || !ytReady) return;
-            ytPlayer.seekTo(seconds, true);
-            ytPlayer.playVideo();
+            if (!audio.src) return;
+            ensureGraphAndResume();
+            audio.currentTime = seconds;
+            audio.play();
         }
 
         function setPlayIcon(isPlaying) {
@@ -584,12 +536,94 @@
         }
 
         function updatePlayback() {
-            if (!ytPlayer || !ytReady) return;
-            const current = ytPlayer.getCurrentTime();
-            const duration = ytPlayer.getDuration();
-            document.getElementById('playerTime').textContent = `${formatTime(Math.floor(current))} / ${formatTime(Math.floor(duration))}`;
+            const current = audio.currentTime || 0;
+            const duration = audio.duration || 0;
+            document.getElementById('playerTime').textContent =
+                `${formatTime(Math.floor(current))} / ${formatTime(Math.floor(duration))}`;
             highlightChordAt(current);
         }
+
+        // ─── Spectrum analyzer (Windows-Media-Player style) ───
+        // Routes the audio element through a Web Audio AnalyserNode and draws a
+        // live frequency-bar spectrum on the canvas. Wrapped in try/catch so a
+        // browser that chokes on Web Audio still plays sound — the viz is a
+        // bonus, never a dependency. Needs crossorigin on the <audio> + CORS
+        // headers from the backend, both already in place.
+        let audioCtx = null, analyser = null, freqData = null, vizRAF = null, vizBroken = false;
+        const vizCanvas = document.getElementById('vizCanvas');
+        const audioArt = document.getElementById('audioArt');
+
+        function ensureGraphAndResume() {
+            if (vizBroken) return;
+            try {
+                if (!audioCtx) {
+                    const Ctx = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new Ctx();
+                    const src = audioCtx.createMediaElementSource(audio);
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 512;
+                    analyser.smoothingTimeConstant = 0.82;
+                    freqData = new Uint8Array(analyser.frequencyBinCount);
+                    src.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            } catch (e) {
+                vizBroken = true;   // fall back to plain playback, no viz
+                analyser = null;
+            }
+        }
+
+        function startViz() {
+            if (!analyser) return;
+            audioArt.style.display = 'none';
+            vizCanvas.style.display = 'block';
+            resizeViz();
+            cancelAnimationFrame(vizRAF);
+            drawViz();
+        }
+
+        function stopViz() {
+            cancelAnimationFrame(vizRAF);
+            vizRAF = null;
+            vizCanvas.style.display = 'none';
+            audioArt.style.display = '';
+        }
+
+        function resizeViz() {
+            const r = vizCanvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            vizCanvas.width = Math.max(1, Math.floor(r.width * dpr));
+            vizCanvas.height = Math.max(1, Math.floor(r.height * dpr));
+        }
+
+        function drawViz() {
+            vizRAF = requestAnimationFrame(drawViz);
+            if (!analyser) return;
+            analyser.getByteFrequencyData(freqData);
+            const ctx = vizCanvas.getContext('2d');
+            const W = vizCanvas.width, H = vizCanvas.height;
+            ctx.clearRect(0, 0, W, H);
+            const bars = 56;
+            const step = Math.max(1, Math.floor(freqData.length / bars));
+            const barW = W / bars;
+            for (let i = 0; i < bars; i++) {
+                let sum = 0;
+                for (let j = 0; j < step; j++) sum += freqData[i * step + j];
+                const v = (sum / step) / 255;
+                const bh = Math.max(2 * (window.devicePixelRatio || 1), v * H);
+                const grad = ctx.createLinearGradient(0, H, 0, H - bh);
+                grad.addColorStop(0, 'rgba(0,229,255,0.20)');
+                grad.addColorStop(1, 'rgba(0,229,255,0.95)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(i * barW + barW * 0.15, H - bh, barW * 0.7, bh);
+            }
+        }
+
+        audio.addEventListener('play', startViz);
+        audio.addEventListener('pause', stopViz);
+        audio.addEventListener('ended', stopViz);
+        window.addEventListener('resize', () => { if (vizRAF) resizeViz(); });
 
         function highlightChordAt(seconds) {
             if (!currentChords.length) return;

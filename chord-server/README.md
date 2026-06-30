@@ -58,13 +58,31 @@ A 3-4 minute song takes roughly 10-30 seconds to analyze (download + librosa),
 not 1-2 minutes — that loading copy in the frontend was a conservative
 estimate from the original mock-data version.
 
+## In-page playback (why there's no YouTube embed)
+
+The frontend used to embed the YouTube player for play-along. YouTube now
+throws "Sign in to confirm you're not a bot" at *embedded* players based on
+the viewer's own IP/cookies — nothing the server can fix, and it made the
+feature unreliable for real visitors. So instead, this backend serves the
+audio it already downloaded: the analyzed track is saved as
+`cache/<video_id>.mp3` and exposed at `GET /audio/<video_id>` (with HTTP
+range support so the `<audio>` element can seek). The page plays that MP3
+directly — no YouTube player, no bot-check, no ads. The `/audio` id is
+charset-validated so it can't escape the cache directory.
+
+This means MP3 playback is also a CORS resource: `app.py` sends
+`Access-Control-Allow-Origin: *`, and the frontend's `<audio>` element uses
+`crossorigin="anonymous"` so the in-page spectrum visualizer (Web Audio) can
+read its samples.
+
 ## Caching and concurrent requests
 
-Every analysis result is written to `cache/<video_id>.json` and never
-expires — a given video's chords, key, and BPM don't change, so a repeat
-request for the same song is served straight from disk instead of
-re-downloading and re-analyzing it. Delete a file from `cache/` (or the
-whole directory) to force a re-analysis.
+Every analysis result is written to `cache/<video_id>.json` and the playable
+audio to `cache/<video_id>.mp3`; neither expires — a given video's chords,
+key, and BPM don't change, so a repeat request for the same song is served
+straight from disk instead of re-downloading and re-analyzing it. The `.mp3`
+files are a few MB each and accumulate over time; delete files from `cache/`
+(or the whole directory) to reclaim space or force a re-analysis.
 
 If two requests for the *same* video arrive while neither is cached yet, the
 second one doesn't kick off a duplicate download/analysis — it waits on a
