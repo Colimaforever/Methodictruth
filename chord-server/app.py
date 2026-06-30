@@ -50,6 +50,13 @@ ANALYSIS_SLOTS = max(1, int(os.environ.get('ANALYSIS_SLOTS', '1')))
 # least-recently-used ones (MP3 + its .json) so the disk can't silently fill.
 CACHE_MAX_SONGS = max(10, int(os.environ.get('CACHE_MAX_SONGS', '300')))
 
+# How long a streaming request will wait before bailing out with a clean
+# message. Kept well under gunicorn's --timeout so a throttled/stuck download
+# returns a helpful error instead of silently dropping the connection when the
+# worker is killed. The background analysis keeps running and caches its result,
+# so a retry lands instantly.
+STREAM_DEADLINE = max(30, int(os.environ.get('STREAM_DEADLINE', '100')))
+
 
 def prune_cache():
     # Best-effort LRU trim; never let a cleanup error break a request.
@@ -512,8 +519,23 @@ def analyze():
 
         threading.Thread(target=worker, daemon=True).start()
 
+        deadline = time.monotonic() + STREAM_DEADLINE
         while True:
-            kind, payload = events.get()
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                # Throttled/stuck download running long. Return a clear message
+                # instead of letting the worker hit gunicorn's hard timeout and
+                # drop the connection. The background thread keeps going and
+                # caches its result, so the next try is instant.
+                yield _ndjson({'stage': 'error', 'success': False,
+                               'error': "YouTube is rate-limiting this server's "
+                                        "downloads right now. It'll finish in the "
+                                        "background — try again in a minute."})
+                return
+            try:
+                kind, payload = events.get(timeout=min(remaining, 5))
+            except queue.Empty:
+                continue
             if kind == 'progress':
                 yield _ndjson(payload)
             elif kind == 'done':
