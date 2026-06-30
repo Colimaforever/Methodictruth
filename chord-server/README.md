@@ -330,14 +330,47 @@ If you ever see this symptom come back, confirm the `StandardOutput`/
 `StandardError` lines are still present in the **installed** unit
 (`/etc/systemd/system/chord-analyzer.service`), not just the repo copy.
 
+## Live progress (streaming response)
+
+`POST /` streams **newline-delimited JSON** rather than returning a single
+blob. The work runs in a worker thread that pushes events through a queue;
+the request relays them as they happen:
+
+```
+{"stage": "download", "pct": 42}
+{"stage": "convert"}
+{"stage": "load"}
+{"stage": "analyze"}
+{"stage": "done", "success": true, "title": ..., "bpm": ..., "chords": [...]}
+```
+
+The `download` percentage is real (from `yt-dlp`'s progress hook). The final
+`done` line always carries the complete result, so a client or proxy that
+buffers the stream still gets a correct answer — the frontend reads it with
+`fetch` + a stream reader and falls back to a plain read otherwise. Cache
+hits emit a single `done` line instantly.
+
 ## Accuracy notes
 
-Chord detection here is template matching (12 major + 12 minor triads
-compared against 2-second chroma windows) — it won't catch 7ths, 9ths, sus,
-or slash chords, and it'll have rough edges on songs with heavy
-distortion/vocals-only sections. Good enough to validate the feature; a
-later upgrade path is `madmom`'s ML-based chord recognition if the
-template-matching accuracy isn't good enough in practice.
+Chord detection is **beat-synchronous** template matching: `librosa` tracks
+the beat, the chroma is aggregated over half-bars (so a chord lands on the
+musical grid instead of an arbitrary 2-second window), and a mode filter
+removes flicker. Each segment is matched against **major and minor** triad
+templates, then a 7th is added only when the flat-7th degree actually carries
+energy comparable to the chord tones (giving dominant-7 / minor-7).
+
+That triad-only core is deliberate. Earlier versions also tried sus2/sus4,
+diminished, and major-7 templates — but each of those sits a single semitone
+from a major or minor triad, so on real chroma (energy smeared across every
+pitch class by harmonics, bass, and vocals) the matcher flips onto them on
+noise, littering the chart with phantom chords. Restricting to the two
+unambiguous triads plus an energy-grounded flat-7th yields charts that track
+the actual progression. It won't catch sus/9th/11th or slash chords; reliable
+detection of those needs a sequence model (HMM/Viterbi) or `madmom`'s ML chord
+recognition — the documented upgrade path.
+
+Playback audio is loudness-normalized to EBU R128 (`-16 LUFS`) during the
+MP3 extraction, so songs play back at a consistent volume.
 
 ## Cost
 

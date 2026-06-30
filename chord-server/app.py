@@ -11,18 +11,21 @@ import faulthandler
 import fcntl
 import json
 import os
+import queue
 import re
 import shutil
 import signal
 import sys
 import tempfile
+import threading
 import time
 from contextlib import contextmanager
 
 import librosa
 import numpy as np
 import yt_dlp
-from flask import Flask, abort, jsonify, request, send_file
+from flask import (Flask, abort, jsonify, request, send_file,
+                   stream_with_context)
 
 app = Flask(__name__)
 
@@ -93,18 +96,39 @@ def analysis_slot():
 
 NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
-# 12-bin binary chord templates: root + third + fifth, one per major/minor triad
-CHORD_TEMPLATES = {}
-for i, root in enumerate(NOTES):
-    major = np.zeros(12)
-    for interval in (0, 4, 7):
-        major[(i + interval) % 12] = 1
-    CHORD_TEMPLATES[root] = major
+# Triad templates only — all three notes, so cosine matching compares them on
+# equal footing with no bias toward "bigger" chords. (An earlier attempt mixed
+# triads and four-note seventh templates; on real chroma, where energy is spread
+# across every pitch class by harmonics/bass/vocals, the four-note templates
+# captured more total energy and won almost everywhere, labelling everything a
+# 7th.) Sevenths are instead decided in a cheap second pass that checks whether
+# the 7th degree actually carries energy — so we report clean triads by default
+# and a 7th only when it's genuinely being played.
+TRIAD_QUALITIES = {
+    '':  (0, 4, 7),   # major
+    'm': (0, 3, 7),   # minor
+    # Only the two unambiguous triads. sus2/sus4 (one semitone off major) and
+    # diminished (one semitone off minor) all sit a single semitone from these,
+    # so chroma template matching flips onto them on noise and litters the chart
+    # with phantom chords — e.g. a plain Fm reads as "Fdim" whenever the b5 has
+    # stray energy. Major/minor plus the energy-grounded 7th pass below is the
+    # robust core; richer/ambiguous qualities need a sequence model (HMM/Viterbi
+    # or madmom), noted as a future upgrade.
+}
+_TRIAD_VECS, _TRIAD_ROOT, _TRIAD_QUAL = [], [], []
+for _i in range(12):
+    for _suffix, _intervals in TRIAD_QUALITIES.items():
+        _vec = np.zeros(12)
+        for _iv in _intervals:
+            _vec[(_i + _iv) % 12] = 1.0
+        _TRIAD_VECS.append(_vec / np.linalg.norm(_vec))
+        _TRIAD_ROOT.append(_i)
+        _TRIAD_QUAL.append(_suffix)
+_TRIAD_MATRIX = np.array(_TRIAD_VECS)
 
-    minor = np.zeros(12)
-    for interval in (0, 3, 7):
-        minor[(i + interval) % 12] = 1
-    CHORD_TEMPLATES[f'{root}m'] = minor
+# How strong the 7th must be, relative to the average triad-tone energy, before
+# we promote a chord to a seventh. Conservative, so we don't hallucinate them.
+SEVENTH_RATIO = 0.85
 
 # Krumhansl-Schmuckler key profiles
 MAJOR_PROFILE = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
@@ -130,29 +154,75 @@ def detect_key(chroma_mean):
     return best_key
 
 
-def detect_chords(chroma, sr, hop_length=512, segment_seconds=2.0):
-    frames_per_segment = max(1, int(segment_seconds * sr / hop_length))
+def _classify_column(col):
+    # Stage 1: best-matching triad (fair, all three-note). Stage 2: add a 7th
+    # only on major/minor triads, and only when that degree's energy is
+    # comparable to the chord tones — otherwise keep the clean triad.
+    norm = np.linalg.norm(col)
+    if norm == 0:
+        return None
+    k = int(np.argmax(_TRIAD_MATRIX @ (col / norm)))
+    root, qual = _TRIAD_ROOT[k], _TRIAD_QUAL[k]
+    name = f'{NOTES[root]}{qual}'
+    if qual in ('', 'm'):
+        triad_mean = np.mean([col[(root + t) % 12] for t in TRIAD_QUALITIES[qual]])
+        # Only the *flat* 7th (dominant-7 on a major triad, minor-7 on a minor
+        # triad) — it's a structural chord tone. We intentionally don't detect
+        # the major-7th: it's the leading tone, present in nearly every major-key
+        # melody, so it would tag almost every tonic chord as maj7.
+        if triad_mean > 0 and col[(root + 10) % 12] >= SEVENTH_RATIO * triad_mean:
+            name += '7'               # C7 (major) or Cm7 (minor)
+    return name
 
-    chords, last_chord = [], None
-    for start in range(0, chroma.shape[1], frames_per_segment):
-        end = min(start + frames_per_segment, chroma.shape[1])
-        segment = chroma[:, start:end].mean(axis=1)
-        norm = np.linalg.norm(segment)
-        if norm == 0:
+
+def _classify_columns(cols):
+    return [_classify_column(cols[:, j]) for j in range(cols.shape[1])]
+
+
+def _smooth_labels(labels, window=1):
+    # Mode filter over a +/-window neighbourhood: a lone out-of-place label in
+    # an "A A B A A" run gets absorbed back to A, removing one-beat flicker that
+    # template matching produces on transients.
+    if window < 1:
+        return labels
+    out, n = [], len(labels)
+    for i in range(n):
+        counts = {}
+        for k in range(max(0, i - window), min(n, i + window + 1)):
+            lab = labels[k]
+            if lab is not None:
+                counts[lab] = counts.get(lab, 0) + 1
+        out.append(max(counts, key=counts.get) if counts else labels[i])
+    return out
+
+
+def detect_chords(chroma, sr, beat_frames=None, hop_length=512):
+    # Beat-synchronous when possible: aggregate the chroma over each beat so a
+    # detected chord lands on the musical grid instead of an arbitrary 2-second
+    # window. Falls back to fixed windows when beat tracking found too few beats.
+    if beat_frames is not None and len(beat_frames) >= 6:
+        # Aggregate over half-bars (every other beat): pop chords rarely change
+        # faster than that, so this removes most beat-to-beat flicker up front.
+        bounds = np.asarray(beat_frames)[::2]
+        cols = librosa.util.sync(chroma, bounds, aggregate=np.median)
+        times = librosa.frames_to_time(np.concatenate([[0], bounds]), sr=sr, hop_length=hop_length)
+    else:
+        fps = max(1, int(2.0 * sr / hop_length))
+        starts = list(range(0, chroma.shape[1], fps))
+        cols = np.stack([chroma[:, s:s + fps].mean(axis=1) for s in starts], axis=1)
+        times = librosa.frames_to_time(np.array(starts), sr=sr, hop_length=hop_length)
+
+    # window=2 (a 5-segment mode filter) leans on chords persisting across a bar
+    # or so, absorbing isolated noisy segments into their neighbours.
+    labels = _smooth_labels(_classify_columns(cols), window=2)
+
+    chords, last = [], None
+    for j in range(min(len(labels), len(times))):
+        lab = labels[j]
+        if lab is None or lab == last:
             continue
-        segment = segment / norm
-
-        best_chord, best_score = None, -1
-        for name, template in CHORD_TEMPLATES.items():
-            score = float(np.dot(segment, template / np.linalg.norm(template)))
-            if score > best_score:
-                best_chord, best_score = name, score
-
-        if best_chord != last_chord:
-            timestamp = int(librosa.frames_to_time(start, sr=sr, hop_length=hop_length))
-            chords.append({'chord': best_chord, 'timestamp': timestamp})
-            last_chord = best_chord
-
+        chords.append({'chord': lab, 'timestamp': round(float(times[j]), 2)})
+        last = lab
     return chords
 
 
@@ -176,11 +246,6 @@ def _log(msg):
     print(f'[timing] {msg}', file=sys.stderr, flush=True)
 
 
-def _dl_hook(d):
-    if d.get('status') == 'finished':
-        _log('yt-dlp download finished; starting ffmpeg postprocessing')
-
-
 def _pp_hook(d):
     pp = d.get('postprocessor', '?')
     if d.get('status') == 'started':
@@ -189,7 +254,26 @@ def _pp_hook(d):
         _log(f'ffmpeg postprocessor {pp} finished')
 
 
-def download_audio(url, workdir, video_id):
+def download_audio(url, workdir, video_id, progress=None):
+    # Translate yt-dlp's frequent download callbacks into throttled progress
+    # events (only when the percentage actually advances) so the frontend gets
+    # a real, smooth download bar without flooding the stream.
+    state = {'pct': -10}
+
+    def dl_hook(d):
+        status = d.get('status')
+        if status == 'downloading' and progress:
+            total = d.get('total_bytes') or d.get('total_bytes_estimate')
+            if total:
+                pct = int(d.get('downloaded_bytes', 0) * 100 / total)
+                if pct >= state['pct'] + 5:
+                    state['pct'] = pct
+                    progress({'stage': 'download', 'pct': max(0, min(100, pct))})
+        elif status == 'finished':
+            _log('yt-dlp download finished; starting ffmpeg postprocessing')
+            if progress:
+                progress({'stage': 'convert'})
+
     ydl_opts = {
         # A low-bitrate audio stream is acoustically identical for chord/key/
         # BPM detection (which runs on 22 kHz mono) but a fraction of the bytes
@@ -206,6 +290,9 @@ def download_audio(url, workdir, video_id):
             'preferredcodec': 'mp3',
             'preferredquality': '128',
         }],
+        # EBU R128 loudness normalization so every analyzed track plays back at a
+        # consistent volume — no lunging for the volume knob between songs.
+        'postprocessor_args': {'extractaudio': ['-af', 'loudnorm=I=-16:TP=-1.5:LRA=11']},
         'quiet': True,
         'no_warnings': True,
         # quiet=True silences info messages but NOT the download progress
@@ -240,7 +327,7 @@ def download_audio(url, workdir, video_id):
         # yt-dlp: if throughput drops below 100 KB/s, abandon the throttled
         # URL and re-extract a fresh, un-throttled one instead of crawling.
         'throttledratelimit': 102400,
-        'progress_hooks': [_dl_hook],
+        'progress_hooks': [dl_hook],
         'postprocessor_hooks': [_pp_hook],
     }
     if os.path.exists(COOKIES_FILE):
@@ -289,18 +376,27 @@ def serve_audio(video_id):
     return resp
 
 
-def run_analysis(url, video_id):
+def run_analysis(url, video_id, progress=None):
+    def emit(ev):
+        if progress:
+            progress(ev)
+
     workdir = tempfile.mkdtemp(prefix='song-analyzer-')
     try:
         t0 = time.monotonic()
-        audio_path, title, duration = download_audio(url, workdir, video_id)
+        emit({'stage': 'download', 'pct': 0})
+        audio_path, title, duration = download_audio(url, workdir, video_id, progress=progress)
         t1 = time.monotonic()
         _log(f'download_audio (yt-dlp download + ffmpeg->mp3): {t1 - t0:.1f}s')
+        emit({'stage': 'load'})
         y, sr = librosa.load(audio_path, sr=22050, mono=True)
         t2 = time.monotonic()
         _log(f'librosa.load: {t2 - t1:.1f}s')
 
-        tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+        emit({'stage': 'analyze'})
+        # beat_track gives us both tempo and the beat grid; we keep the grid so
+        # chord detection can be beat-synchronous instead of fixed-window.
+        tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=512)
         bpm = int(round(float(np.asarray(tempo).item())))
 
         # chroma_cqt is the most expensive step here, so compute it once and
@@ -308,7 +404,7 @@ def run_analysis(url, video_id):
         # running it twice.
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
         key = detect_key(chroma.mean(axis=1))
-        chords = detect_chords(chroma, sr)
+        chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=512)
         _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
 
         return {
@@ -325,6 +421,40 @@ def run_analysis(url, video_id):
         shutil.rmtree(workdir, ignore_errors=True)
 
 
+def _ndjson(obj):
+    return json.dumps(obj) + '\n'
+
+
+def produce_result(url, video_id, progress=None):
+    # Cache + per-video lock + concurrency slot wrapped around the analysis.
+    # Returns the result dict (cached or freshly computed). `progress`, if given,
+    # receives stage events for live streaming. Shared by both response modes so
+    # streaming and plain-JSON callers go through identical logic.
+    cache_path = os.path.join(CACHE_DIR, f'{video_id}.json')
+    if os.path.exists(cache_path):
+        with open(cache_path) as f:
+            return json.load(f)
+
+    # Per-video lock: concurrent requests for the SAME song serialize and share
+    # one result instead of each re-downloading. Works across worker processes.
+    lock_path = os.path.join(CACHE_DIR, f'{video_id}.lock')
+    with open(lock_path, 'w') as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            if os.path.exists(cache_path):
+                with open(cache_path) as f:
+                    return json.load(f)
+            # Concurrency slot keeps overlapping analyses from thrashing the box.
+            with analysis_slot():
+                result = run_analysis(url, video_id, progress=progress)
+            with open(cache_path, 'w') as f:
+                json.dump(result, f)
+            prune_cache()
+            return result
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
 @app.route('/', methods=['POST', 'OPTIONS'])
 def analyze():
     if request.method == 'OPTIONS':
@@ -337,38 +467,58 @@ def analyze():
     if not video_id:
         return jsonify(success=False, error='Invalid YouTube URL'), 400
 
-    cache_path = os.path.join(CACHE_DIR, f'{video_id}.json')
-    if os.path.exists(cache_path):
-        with open(cache_path) as f:
-            return jsonify(json.load(f))
+    # Content negotiation: stream newline-delimited progress JSON only when the
+    # client asks for it (Accept: application/x-ndjson). Everyone else gets the
+    # classic single JSON object — so old and new frontends both work against
+    # this backend, and there's no broken window during a rolling deploy.
+    wants_stream = 'application/x-ndjson' in (request.headers.get('Accept') or '')
 
-    # File lock keyed by video ID: concurrent requests for the SAME song
-    # serialize and share one result instead of each re-downloading and
-    # re-analyzing; requests for different songs don't block each other.
-    # Works across gunicorn worker processes, not just threads.
-    lock_path = os.path.join(CACHE_DIR, f'{video_id}.lock')
-    with open(lock_path, 'w') as lock_file:
-        fcntl.flock(lock_file, fcntl.LOCK_EX)
+    if not wants_stream:
         try:
-            if os.path.exists(cache_path):
-                with open(cache_path) as f:
-                    return jsonify(json.load(f))
+            result = produce_result(url, video_id)
+        except Exception as exc:
+            app.logger.exception('Analysis failed')
+            return jsonify(success=False, error=str(exc)), 500
+        return jsonify(result)
 
+    # Streaming mode: the heavy work runs in a worker thread that pushes events
+    # through a queue; the request thread relays them as newline-delimited JSON,
+    # ending with a final {"stage": "done", ...full result...}. The done line
+    # always carries the complete result, so a client/proxy that buffers the
+    # stream still gets a correct answer.
+    def generate():
+        events = queue.Queue()
+
+        def worker():
             try:
-                # Limit total concurrent analyses so overlapping requests
-                # (multiple users/devices) queue instead of thrashing the box.
-                with analysis_slot():
-                    result = run_analysis(url, video_id)
+                result = produce_result(
+                    url, video_id,
+                    progress=lambda ev: events.put(('progress', ev)))
+                events.put(('done', result))
             except Exception as exc:
                 app.logger.exception('Analysis failed')
-                return jsonify(success=False, error=str(exc)), 500
+                events.put(('error', str(exc)))
 
-            with open(cache_path, 'w') as f:
-                json.dump(result, f)
-            prune_cache()
-            return jsonify(result)
-        finally:
-            fcntl.flock(lock_file, fcntl.LOCK_UN)
+        threading.Thread(target=worker, daemon=True).start()
+
+        while True:
+            kind, payload = events.get()
+            if kind == 'progress':
+                yield _ndjson(payload)
+            elif kind == 'done':
+                yield _ndjson({'stage': 'done', **payload})
+                return
+            else:  # error
+                yield _ndjson({'stage': 'error', 'success': False,
+                               'error': payload})
+                return
+
+    resp = app.response_class(stream_with_context(generate()),
+                              mimetype='application/x-ndjson')
+    # Discourage proxy/CDN buffering so progress events arrive as they happen.
+    resp.headers['Cache-Control'] = 'no-cache'
+    resp.headers['X-Accel-Buffering'] = 'no'
+    return resp
 
 
 def _prewarm():

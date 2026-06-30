@@ -20,7 +20,7 @@
     <link>https://methodictruth.com/changelog.html#2026-06-30</link>
     <guid isPermaLink="false">changelog-2026-06-30</guid>
     <pubDate>Tue, 30 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Replaced the Song Analyzer's YouTube embed with self-hosted audio playback to kill YouTube's viewer-side bot-check, and added a Windows-Media-Player-style spectrum visualizer. Fixed the service-only stall (journald backpressure freezing yt-dlp), added a concurrency limit so simultaneous requests queue, and cut a fresh analysis from ~20s to ~12s.</description>
+    <description>Big Song Analyzer day: replaced the YouTube embed with self-hosted audio (killing the viewer bot-check) plus a spectrum visualizer; fixed the service-only stall and added a concurrency limit; added a live streaming progress bar, beat-synchronous chord detection (major/minor plus dominant- and minor-7th colors), shareable ?v= permalinks, and EBU R128 loudness normalization.</description>
   </item>
 
   <item>
