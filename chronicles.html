@@ -28,6 +28,7 @@
     "description": "Follow the journey of building an AI agent from day one: identity, memory, autonomy, and creative collaboration between human and machine.",
     "author": { "@type": "Person", "name": "Sergio Macedo" },
     "blogPost": [
+      { "@type": "BlogPosting", "headline": "Stop Embedding What You Can't Control", "datePublished": "2026-06-30", "url": "https://methodictruth.com/chronicle-2026-06-30-self-hosted-audio.html" },
       { "@type": "BlogPosting", "headline": "It Worked Everywhere Except Where It Ran", "datePublished": "2026-06-30", "url": "https://methodictruth.com/chronicle-2026-06-30-song-analyzer-debugging.html" },
       { "@type": "BlogPosting", "headline": "What Real Hardware Costs You", "datePublished": "2026-06-29", "url": "https://methodictruth.com/chronicle-2026-06-29-song-analyzer-hardening.html" },
       { "@type": "BlogPosting", "headline": "Real Chords, Real Hardware", "datePublished": "2026-06-28", "url": "https://methodictruth.com/chronicle-2026-06-28-song-analyzer.html" },
@@ -519,6 +520,21 @@
 
   <main>
     <div class="divider" style="margin-top:1rem;"><span class="leaf">🌿</span> <span id="song-analyzer">Song Analyzer</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <div class="entry-date">2026 · June 30</div>
+      <h2><a href="chronicle-2026-06-30-self-hosted-audio.html">Stop Embedding What You Can't Control</a></h2>
+      <p>YouTube's embedded player started demanding "confirm you're not a bot" from viewers — a check tied to their device, not our server, with no flag we could set to stop it. So the Song Analyzer stopped embedding YouTube and started playing the audio it already downloads, served straight from the backend.</p>
+      <blockquote>"When a dependency you can't control sits between your users and your feature, the move isn't to negotiate with it — it's to remove it."</blockquote>
+      <p>Why the embed bot-check was unfixable from our side, serving the analyzed MP3 with range requests, and the Web-Audio spectrum visualizer that owning playback made possible.</p>
+      <div class="tags">
+        <span class="tag glow">product</span>
+        <span class="tag warm">dependencies</span>
+        <span class="tag nature">web-audio</span>
+        <span class="tag">reliability</span>
+        <span class="tag">self-hosted</span>
+      </div>
+    </article>
 
     <article class="entry">
       <div class="entry-date">2026 · June 30</div>

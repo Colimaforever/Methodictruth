@@ -42,6 +42,30 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 # personal/low-traffic tool; raise ANALYSIS_SLOTS on a beefier box.
 ANALYSIS_SLOTS = max(1, int(os.environ.get('ANALYSIS_SLOTS', '1')))
 
+# Keep the cache from growing without bound: each analyzed song leaves a few-MB
+# MP3 on disk forever. Once there are more than this many, drop the
+# least-recently-used ones (MP3 + its .json) so the disk can't silently fill.
+CACHE_MAX_SONGS = max(10, int(os.environ.get('CACHE_MAX_SONGS', '300')))
+
+
+def prune_cache():
+    # Best-effort LRU trim; never let a cleanup error break a request.
+    try:
+        mp3s = [os.path.join(CACHE_DIR, f) for f in os.listdir(CACHE_DIR)
+                if f.endswith('.mp3')]
+        if len(mp3s) <= CACHE_MAX_SONGS:
+            return
+        mp3s.sort(key=os.path.getmtime)  # oldest (least recently used) first
+        for path in mp3s[:len(mp3s) - CACHE_MAX_SONGS]:
+            vid = os.path.basename(path)[:-4]
+            for ext in ('.mp3', '.json'):
+                try:
+                    os.remove(os.path.join(CACHE_DIR, vid + ext))
+                except OSError:
+                    pass
+    except OSError:
+        pass
+
 
 @contextmanager
 def analysis_slot():
@@ -251,7 +275,18 @@ def serve_audio(video_id):
     path = os.path.join(CACHE_DIR, f'{video_id}.mp3')
     if not os.path.isfile(path):
         abort(404)
-    return send_file(path, mimetype='audio/mpeg', conditional=True)
+    # Bump mtime so prune_cache()'s LRU keeps songs people actually replay,
+    # not just the most recently analyzed ones.
+    try:
+        os.utime(path, None)
+    except OSError:
+        pass
+    resp = send_file(path, mimetype='audio/mpeg', conditional=True)
+    # A given video's audio never changes, so let Cloudflare (and the browser)
+    # cache it hard — repeat plays of a popular song are then served from the
+    # edge instead of tying up a gunicorn worker streaming the file every time.
+    resp.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    return resp
 
 
 def run_analysis(url, video_id):
@@ -330,6 +365,7 @@ def analyze():
 
             with open(cache_path, 'w') as f:
                 json.dump(result, f)
+            prune_cache()
             return jsonify(result)
         finally:
             fcntl.flock(lock_file, fcntl.LOCK_UN)

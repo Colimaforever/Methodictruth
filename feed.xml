@@ -8,11 +8,19 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Stop Embedding What You Can't Control</title>
+    <link>https://methodictruth.com/chronicle-2026-06-30-self-hosted-audio.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-06-30-self-hosted-audio.html</guid>
+    <pubDate>Tue, 30 Jun 2026 12:00:00 GMT</pubDate>
+    <description>YouTube's embedded player started demanding "confirm you're not a bot" from viewers — a check tied to their device, not our server. So the Song Analyzer dropped the embed and now plays the audio it already downloads, with a Web-Audio spectrum visualizer.</description>
+  </item>
+
+  <item>
     <title>Changelog: June 30, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-06-30</link>
     <guid isPermaLink="false">changelog-2026-06-30</guid>
     <pubDate>Tue, 30 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Fixed the Song Analyzer failing through the live service while passing every manual test — the worker's output piping into journald was blocking yt-dlp's progress writes and freezing the download. Added a cross-process concurrency limit so simultaneous requests queue instead of dogpiling. Cut a fresh analysis from ~20s to ~12s, and made the embedded player load in parallel with the analysis.</description>
+    <description>Replaced the Song Analyzer's YouTube embed with self-hosted audio playback to kill YouTube's viewer-side bot-check, and added a Windows-Media-Player-style spectrum visualizer. Fixed the service-only stall (journald backpressure freezing yt-dlp), added a concurrency limit so simultaneous requests queue, and cut a fresh analysis from ~20s to ~12s.</description>
   </item>
 
   <item>
