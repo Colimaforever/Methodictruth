@@ -233,6 +233,49 @@ def detect_chords(chroma, sr, beat_frames=None, hop_length=512):
     return chords
 
 
+def build_measures(beat_frames, chords, sr, hop_length=512, beats_per_bar=4):
+    # Turn the flat chord-change list into a bar-by-bar chart — how a musician
+    # actually reads a song ("4 bars of Fm, then Db–Eb"). Assumes 4/4 and picks
+    # the bar phase that best lines bar starts up with real chord changes, so
+    # the grid matches the song's harmonic rhythm instead of an arbitrary offset.
+    if beat_frames is None or len(beat_frames) < beats_per_bar + 1 or not chords:
+        return []
+    beat_times = librosa.frames_to_time(np.asarray(beat_frames), sr=sr, hop_length=hop_length)
+    change_times = [c['timestamp'] for c in chords]
+    names = [c['chord'] for c in chords]
+
+    def chord_at(t):
+        active = names[0]
+        for ct, nm in zip(change_times, names):
+            if ct <= t + 1e-6:
+                active = nm
+            else:
+                break
+        return active
+
+    beat_period = float(np.median(np.diff(beat_times))) if len(beat_times) > 1 else 0.5
+    tol = beat_period * 0.5
+    best_phase, best_hits = 0, -1
+    for phase in range(beats_per_bar):
+        starts = beat_times[phase::beats_per_bar]
+        if len(starts) == 0:
+            continue
+        hits = sum(1 for ct in change_times if np.min(np.abs(starts - ct)) <= tol)
+        if hits > best_hits:
+            best_hits, best_phase = hits, phase
+
+    measures = []
+    for n, b in enumerate(range(best_phase, len(beat_times) - 1, beats_per_bar)):
+        start = float(beat_times[b])
+        end = float(beat_times[min(b + beats_per_bar, len(beat_times) - 1)])
+        bar = [chord_at(start)]
+        for ct, nm in zip(change_times, names):
+            if start + 1e-6 < ct < end and nm != bar[-1]:
+                bar.append(nm)
+        measures.append({'index': n + 1, 'start': round(start, 2), 'chords': bar})
+    return measures
+
+
 def describe(key, bpm, chords):
     progression = ' → '.join(c['chord'] for c in chords[:6])
     ellipsis = '...' if len(chords) > 6 else ''
@@ -423,6 +466,7 @@ def run_analysis(url, video_id, progress=None):
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
         key = detect_key(chroma.mean(axis=1))
         chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=512)
+        measures = build_measures(beat_frames, chords, sr, hop_length=512)
         _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
 
         return {
@@ -432,6 +476,7 @@ def run_analysis(url, video_id, progress=None):
             'key': key,
             'duration': duration,
             'chords': chords,
+            'measures': measures,
             'description': describe(key, bpm, chords),
             'audio_url': f'/audio/{video_id}',
         }

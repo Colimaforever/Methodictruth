@@ -136,6 +136,15 @@
         .sa-metric-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.4rem; }
         .sa-metric-value { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--glow); }
 
+        /* ─── CHORD CHART (bar-by-bar, for learning) ─── */
+        .sa-chart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; max-height: 46vh; overflow-y: auto; padding: 0.2rem; }
+        .sa-measure { border: 1px solid rgba(0, 229, 255, 0.18); background: rgba(0, 229, 255, 0.03); padding: 0.55rem 0.3rem; text-align: center; cursor: pointer; min-height: 3.1rem; display: flex; flex-direction: column; justify-content: center; gap: 0.2rem; transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+        .sa-measure:hover { background: rgba(0, 229, 255, 0.08); }
+        .sa-measure.sa-current { border-color: var(--glow); background: rgba(0, 229, 255, 0.15); box-shadow: 0 0 12px rgba(0, 229, 255, 0.25); }
+        .sa-measure-num { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.12em; color: var(--stone-dark); }
+        .sa-measure-chords { font-family: 'Cinzel', serif; font-size: 1rem; line-height: 1.15; color: var(--glow); }
+        @media (max-width: 600px) { .sa-chart { grid-template-columns: repeat(2, 1fr); } }
+
         /* ─── PLAYER ─── */
         .sa-player { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
         .sa-video-wrap {
@@ -303,8 +312,13 @@
             </div>
         </div>
 
+        <div class="sa-section" style="margin-bottom:1.5rem;" id="chartSection">
+            <div class="sa-section-label">② Chord Chart</div>
+            <div class="sa-chart" id="chordChart"></div>
+        </div>
+
         <div class="sa-section" style="margin-bottom:1.5rem;">
-            <div class="sa-section-label">② Play Along</div>
+            <div class="sa-section-label">③ Play Along</div>
             <div class="sa-player">
                 <div class="sa-video-wrap">
                     <canvas class="sa-viz" id="vizCanvas"></canvas>
@@ -375,6 +389,7 @@
         const API_URL = 'https://api.methodictruth.com'; // local chord-server, tunneled via Cloudflare
 
         let currentChords = [];
+        let currentMeasures = [];
         let currentVideoId = null;
         let pollTimer = null;
         const audio = document.getElementById('audioPlayer');
@@ -555,7 +570,9 @@
             document.getElementById('description').textContent = data.description;
 
             currentChords = data.chords;
+            currentMeasures = data.measures || [];
             renderTimeline(currentChords);
+            renderChart(currentMeasures);
             resetNowPlaying();
             loadAudio(data.audio_url || ('/audio/' + videoId));
 
@@ -585,6 +602,48 @@
                 item.addEventListener('click', () => seekTo(chord.timestamp));
                 timeline.appendChild(item);
             });
+        }
+
+        // Renders the bar-by-bar chord chart. Each measure is a clickable cell
+        // (click to jump there); the current bar lights up during playback.
+        function renderChart(measures) {
+            const chart = document.getElementById('chordChart');
+            const section = document.getElementById('chartSection');
+            chart.innerHTML = '';
+            if (!measures || !measures.length) { section.style.display = 'none'; return; }
+            section.style.display = '';
+            measures.forEach((m, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'sa-measure';
+                cell.dataset.index = i;
+
+                const num = document.createElement('div');
+                num.className = 'sa-measure-num';
+                num.textContent = m.index || (i + 1);
+
+                const chords = document.createElement('div');
+                chords.className = 'sa-measure-chords';
+                chords.textContent = (m.chords && m.chords.length) ? m.chords.join(' ') : '–';
+
+                cell.appendChild(num);
+                cell.appendChild(chords);
+                cell.addEventListener('click', () => seekTo(m.start));
+                chart.appendChild(cell);
+            });
+        }
+
+        function highlightMeasureAt(seconds) {
+            if (!currentMeasures.length) return;
+            let active = 0;
+            for (let i = 0; i < currentMeasures.length; i++) {
+                if (currentMeasures[i].start <= seconds) active = i; else break;
+            }
+            const cells = document.querySelectorAll('.sa-measure');
+            cells.forEach((c, i) => c.classList.toggle('sa-current', i === active));
+            const cur = cells[active];
+            // block:'nearest' scrolls within the chart's own scroll area, so the
+            // page itself doesn't jump.
+            if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function resetNowPlaying() {
@@ -650,6 +709,7 @@
             document.getElementById('playerTime').textContent =
                 `${formatTime(Math.floor(current))} / ${formatTime(Math.floor(duration))}`;
             highlightChordAt(current);
+            highlightMeasureAt(current);
         }
 
         // ─── Spectrum analyzer (Windows-Media-Player style) ───
