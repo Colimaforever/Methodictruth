@@ -17,6 +17,7 @@ import signal
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
 
 import librosa
 import numpy as np
@@ -32,6 +33,39 @@ faulthandler.register(signal.SIGUSR2, all_threads=True, chain=False)
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+# Cap how many analyses run concurrently across ALL gunicorn workers. A single
+# download+librosa analysis is CPU-heavy; letting every worker run one at once
+# thrashes the box so badly that requests stall and time out (each one runs
+# fine in isolation). Overlapping requests instead queue for a slot and run in
+# the same clean conditions. Default 1 (fully serialized) is rock-solid for a
+# personal/low-traffic tool; raise ANALYSIS_SLOTS on a beefier box.
+ANALYSIS_SLOTS = max(1, int(os.environ.get('ANALYSIS_SLOTS', '1')))
+
+
+@contextmanager
+def analysis_slot():
+    # Cross-process semaphore built on flock: grab the first free slot file,
+    # else poll until one frees. flock is released automatically if a worker
+    # dies, so a crashed/killed request never leaks a slot permanently.
+    held = None
+    try:
+        while held is None:
+            for i in range(ANALYSIS_SLOTS):
+                cand = open(os.path.join(CACHE_DIR, f'.slot-{i}.lock'), 'w')
+                try:
+                    fcntl.flock(cand, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    held = cand
+                    break
+                except BlockingIOError:
+                    cand.close()
+            if held is None:
+                time.sleep(0.5)
+        yield
+    finally:
+        if held is not None:
+            fcntl.flock(held, fcntl.LOCK_UN)
+            held.close()
 
 NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
@@ -267,7 +301,10 @@ def analyze():
                     return jsonify(json.load(f))
 
             try:
-                result = run_analysis(url)
+                # Limit total concurrent analyses so overlapping requests
+                # (multiple users/devices) queue instead of thrashing the box.
+                with analysis_slot():
+                    result = run_analysis(url)
             except Exception as exc:
                 app.logger.exception('Analysis failed')
                 return jsonify(success=False, error=str(exc)), 500
