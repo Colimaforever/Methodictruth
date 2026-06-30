@@ -327,6 +327,14 @@ def download_audio(url, workdir, video_id, progress=None):
         # yt-dlp: if throughput drops below 100 KB/s, abandon the throttled
         # URL and re-extract a fresh, un-throttled one instead of crawling.
         'throttledratelimit': 102400,
+        # Speed: prefer YouTube's `ios` player client, which hands back playable
+        # audio URLs WITHOUT the signature/n-param JS challenge — so most
+        # downloads skip the Node solve entirely and start much sooner. `web`
+        # stays as a fallback (and still uses cookies.txt) if `ios` ever fails,
+        # so reliability is preserved.
+        'extractor_args': {'youtube': {'player_client': ['ios', 'web']}},
+        # If the audio is delivered as fragments, fetch a few in parallel.
+        'concurrent_fragment_downloads': 4,
         'progress_hooks': [dl_hook],
         'postprocessor_hooks': [_pp_hook],
     }
@@ -389,7 +397,11 @@ def run_analysis(url, video_id, progress=None):
         t1 = time.monotonic()
         _log(f'download_audio (yt-dlp download + ffmpeg->mp3): {t1 - t0:.1f}s')
         emit({'stage': 'load'})
-        y, sr = librosa.load(audio_path, sr=22050, mono=True)
+        # 11 kHz mono is plenty for chord/beat analysis — the constant-Q chroma
+        # covers the same note range (C1–C8 sits well under the 5.5 kHz Nyquist),
+        # so chords are unchanged — but it's roughly half the samples to load and
+        # transform, shaving a few seconds off the analysis.
+        y, sr = librosa.load(audio_path, sr=11025, mono=True)
         t2 = time.monotonic()
         _log(f'librosa.load: {t2 - t1:.1f}s')
 
