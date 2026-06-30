@@ -517,8 +517,19 @@
                     return;
                 }
                 ytPlayer = new YT.Player('ytPlayer', {
+                    // youtube-nocookie host + explicit origin make the embed
+                    // look like a legitimate first-party player, which can
+                    // reduce YouTube's "confirm you're not a bot" prompts on
+                    // playback (those are tied to the viewer's IP/cookies, not
+                    // our backend, so this helps but can't fully prevent them).
+                    host: 'https://www.youtube-nocookie.com',
                     videoId: videoId,
-                    playerVars: { rel: 0, modestbranding: 1, playsinline: 1 },
+                    playerVars: {
+                        rel: 0,
+                        modestbranding: 1,
+                        playsinline: 1,
+                        origin: window.location.origin
+                    },
                     events: {
                         onReady: () => { ytReady = true; },
                         onStateChange: onPlayerStateChange
