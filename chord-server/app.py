@@ -72,9 +72,7 @@ def detect_key(chroma_mean):
     return best_key
 
 
-def detect_chords(y, sr, segment_seconds=2.0):
-    hop_length = 512
-    chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=hop_length)
+def detect_chords(chroma, sr, hop_length=512, segment_seconds=2.0):
     frames_per_segment = max(1, int(segment_seconds * sr / hop_length))
 
     chords, last_chord = [], None
@@ -135,13 +133,21 @@ def _pp_hook(d):
 
 def download_audio(url, workdir):
     ydl_opts = {
-        'format': 'bestaudio/best',
+        # Chord/key/BPM detection runs on 22 kHz mono audio, so a low-bitrate
+        # stream is acoustically identical to the "best" one for our purposes
+        # but a fraction of the bytes (~1-2 MB vs ~6-7 MB) — much faster to
+        # download. Fall back to bestaudio/best when no small format exists.
+        'format': 'bestaudio[abr<=80]/bestaudio/best',
         'outtmpl': os.path.join(workdir, '%(id)s.%(ext)s'),
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'wav',
             'preferredquality': '192',
         }],
+        # Have ffmpeg emit the exact format librosa wants — 22 kHz mono — so
+        # the WAV is ~4x smaller (faster to write/read) and librosa.load no
+        # longer has to resample on the Python side.
+        'postprocessor_args': {'extractaudio': ['-ac', '1', '-ar', '22050']},
         'quiet': True,
         'no_warnings': True,
         # quiet=True silences info messages but NOT the download progress
@@ -210,8 +216,12 @@ def run_analysis(url):
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
         bpm = int(round(float(np.asarray(tempo).item())))
 
-        key = detect_key(librosa.feature.chroma_cqt(y=y, sr=sr).mean(axis=1))
-        chords = detect_chords(y, sr)
+        # chroma_cqt is the most expensive step here, so compute it once and
+        # reuse it for both key detection and chord detection instead of
+        # running it twice.
+        chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
+        key = detect_key(chroma.mean(axis=1))
+        chords = detect_chords(chroma, sr)
         _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
 
         return {

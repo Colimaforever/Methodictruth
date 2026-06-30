@@ -50,6 +50,13 @@
 
     <link rel="canonical" href="https://methodictruth.com/song-analyzer.html">
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Warm up connections to YouTube's player + media hosts so the embed
+         starts and buffers faster once a video is loaded. -->
+    <link rel="preconnect" href="https://www.youtube.com">
+    <link rel="preconnect" href="https://www.google.com">
+    <link rel="preconnect" href="https://i.ytimg.com">
+    <link rel="preconnect" href="https://googlevideo.com">
+    <link rel="dns-prefetch" href="https://googlevideo.com">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=69">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -351,6 +358,7 @@
         let currentChords = [];
         let pollTimer = null;
         let pendingVideoId = null;
+        let loadedVideoId = null;
 
         document.getElementById('analyzeBtn').addEventListener('click', analyzeVideo);
         document.getElementById('youtubeUrl').addEventListener('keypress', (e) => {
@@ -394,6 +402,10 @@
             document.getElementById('loading').classList.add('visible');
             document.getElementById('analyzeBtn').disabled = true;
             stopPolling();
+
+            // Start loading/buffering the player now, in parallel with the
+            // analysis request, so it's ready the instant results land.
+            loadPlayer(videoId);
 
             try {
                 const response = await fetch(API_URL, {
@@ -487,21 +499,32 @@
             return window.__ytApiPromise;
         }
 
+        // Loads (and on first call, creates) the embedded player and *cues*
+        // the video without autoplaying it. Called at submit time so the
+        // player loads and buffers in parallel with the ~15-20s analysis,
+        // instead of only starting up once results appear. Cueing (not
+        // loadVideoById) keeps it from playing on its own before the user
+        // hits play.
         function loadPlayer(videoId) {
             pendingVideoId = videoId;
+            if (loadedVideoId === videoId) return;
             loadYouTubeApi().then(() => {
                 if (ytPlayer) {
-                    ytPlayer.loadVideoById(videoId);
+                    if (loadedVideoId !== videoId) {
+                        ytPlayer.cueVideoById(videoId);
+                        loadedVideoId = videoId;
+                    }
                     return;
                 }
                 ytPlayer = new YT.Player('ytPlayer', {
                     videoId: videoId,
-                    playerVars: { rel: 0, modestbranding: 1 },
+                    playerVars: { rel: 0, modestbranding: 1, playsinline: 1 },
                     events: {
                         onReady: () => { ytReady = true; },
                         onStateChange: onPlayerStateChange
                     }
                 });
+                loadedVideoId = videoId;
             });
         }
 
