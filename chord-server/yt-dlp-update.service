@@ -1,0 +1,12 @@
+[Unit]
+Description=Update yt-dlp to latest nightly build and restart Song Analyzer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Runs as root (default) because restarting chord-analyzer requires it;
+# the pip install itself drops to the app's own user via runuser so the
+# venv files stay owned by that user, not root.
+ExecStart=/usr/bin/runuser -u REPLACE_WITH_YOUR_USERNAME -- /REPLACE/WITH/PATH/TO/chord-server/venv/bin/pip install -q -U --pre "yt-dlp[default]"
+ExecStartPost=/bin/systemctl restart chord-analyzer

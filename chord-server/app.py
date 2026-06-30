@@ -7,12 +7,17 @@ currently served by worker/song-analyzer-worker.js.
 
 Run with: python app.py
 """
+import faulthandler
 import fcntl
 import json
 import os
 import re
 import shutil
+import signal
+import sys
 import tempfile
+import time
+from contextlib import contextmanager
 
 import librosa
 import numpy as np
@@ -21,8 +26,46 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+# `kill -USR2 <worker_pid>` dumps that worker's Python stack (all threads) to
+# stderr -> the log file, without killing it. Lets us catch exactly where a
+# request is frozen instead of guessing from where the timeout abort landed.
+faulthandler.register(signal.SIGUSR2, all_threads=True, chain=False)
+
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+# Cap how many analyses run concurrently across ALL gunicorn workers. A single
+# download+librosa analysis is CPU-heavy; letting every worker run one at once
+# thrashes the box so badly that requests stall and time out (each one runs
+# fine in isolation). Overlapping requests instead queue for a slot and run in
+# the same clean conditions. Default 1 (fully serialized) is rock-solid for a
+# personal/low-traffic tool; raise ANALYSIS_SLOTS on a beefier box.
+ANALYSIS_SLOTS = max(1, int(os.environ.get('ANALYSIS_SLOTS', '1')))
+
+
+@contextmanager
+def analysis_slot():
+    # Cross-process semaphore built on flock: grab the first free slot file,
+    # else poll until one frees. flock is released automatically if a worker
+    # dies, so a crashed/killed request never leaks a slot permanently.
+    held = None
+    try:
+        while held is None:
+            for i in range(ANALYSIS_SLOTS):
+                cand = open(os.path.join(CACHE_DIR, f'.slot-{i}.lock'), 'w')
+                try:
+                    fcntl.flock(cand, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    held = cand
+                    break
+                except BlockingIOError:
+                    cand.close()
+            if held is None:
+                time.sleep(0.5)
+        yield
+    finally:
+        if held is not None:
+            fcntl.flock(held, fcntl.LOCK_UN)
+            held.close()
 
 NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
@@ -63,9 +106,7 @@ def detect_key(chroma_mean):
     return best_key
 
 
-def detect_chords(y, sr, segment_seconds=2.0):
-    hop_length = 512
-    chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=hop_length)
+def detect_chords(chroma, sr, hop_length=512, segment_seconds=2.0):
     frames_per_segment = max(1, int(segment_seconds * sr / hop_length))
 
     chords, last_chord = [], None
@@ -104,17 +145,79 @@ def describe(key, bpm, chords):
 COOKIES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
 
 
+def _log(msg):
+    # Goes to stderr, which the systemd unit routes to a regular file (not
+    # journald), so these never block. Used to time each stage and see where
+    # a slow request actually spends its time.
+    print(f'[timing] {msg}', file=sys.stderr, flush=True)
+
+
+def _dl_hook(d):
+    if d.get('status') == 'finished':
+        _log('yt-dlp download finished; starting ffmpeg postprocessing')
+
+
+def _pp_hook(d):
+    pp = d.get('postprocessor', '?')
+    if d.get('status') == 'started':
+        _log(f'ffmpeg postprocessor {pp} started')
+    elif d.get('status') == 'finished':
+        _log(f'ffmpeg postprocessor {pp} finished')
+
+
 def download_audio(url, workdir):
     ydl_opts = {
-        'format': 'bestaudio/best',
+        # Chord/key/BPM detection runs on 22 kHz mono audio, so a low-bitrate
+        # stream is acoustically identical to the "best" one for our purposes
+        # but a fraction of the bytes (~1-2 MB vs ~6-7 MB) — much faster to
+        # download. Fall back to bestaudio/best when no small format exists.
+        'format': 'bestaudio[abr<=80]/bestaudio/best',
         'outtmpl': os.path.join(workdir, '%(id)s.%(ext)s'),
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'wav',
             'preferredquality': '192',
         }],
+        # Have ffmpeg emit the exact format librosa wants — 22 kHz mono — so
+        # the WAV is ~4x smaller (faster to write/read) and librosa.load no
+        # longer has to resample on the Python side.
+        'postprocessor_args': {'extractaudio': ['-ac', '1', '-ar', '22050']},
         'quiet': True,
         'no_warnings': True,
+        # quiet=True silences info messages but NOT the download progress
+        # bar, which streams rapid \r updates to stderr. Under systemd,
+        # gunicorn's stderr is a pipe to journald (rate-limited); that
+        # firehose of progress writes fills the pipe and write() blocks,
+        # freezing yt-dlp's download loop until gunicorn's 120s timeout
+        # kills the worker. Run under the bare Flask dev server (stderr to
+        # a file/tty, which never blocks) and the exact same download flies.
+        # Suppressing progress output removes the blocking writes entirely.
+        'noprogress': True,
+        # YouTube's player JS challenge (signature/n-param) needs a JS
+        # runtime to solve. --js-runtimes is a CLI-only setting that the
+        # yt_dlp.YoutubeDL library API never reads from
+        # ~/.config/yt-dlp/config, so it must be set here directly.
+        'js_runtimes': {'node': {}},
+        # Without a read timeout, a stalled googlevideo connection blocks
+        # forever instead of triggering yt-dlp's own retry logic, so the
+        # whole gunicorn worker eventually gets killed by --timeout instead
+        # of recovering. A short socket_timeout + retries lets yt-dlp detect
+        # a stall and reconnect well within gunicorn's 120s budget.
+        'socket_timeout': 20,
+        'retries': 10,
+        'fragment_retries': 10,
+        # Rules out IPv6 routing being the thing that stalls under WSL2/
+        # Hyper-V, independent of whether that's actually the cause.
+        'force_ipv4': True,
+        # YouTube throttles a googlevideo URL to a crawl (a few KB/s) when
+        # it decides to rate-limit this IP — the download trickles bytes
+        # just fast enough to dodge socket_timeout but slow enough that a
+        # 3-4 MB file blows past gunicorn's 120s worker timeout. This tells
+        # yt-dlp: if throughput drops below 100 KB/s, abandon the throttled
+        # URL and re-extract a fresh, un-throttled one instead of crawling.
+        'throttledratelimit': 102400,
+        'progress_hooks': [_dl_hook],
+        'postprocessor_hooks': [_pp_hook],
     }
     if os.path.exists(COOKIES_FILE):
         ydl_opts['cookiefile'] = COOKIES_FILE
@@ -136,14 +239,24 @@ def add_cors_headers(response):
 def run_analysis(url):
     workdir = tempfile.mkdtemp(prefix='song-analyzer-')
     try:
+        t0 = time.monotonic()
         audio_path, title, duration = download_audio(url, workdir)
+        t1 = time.monotonic()
+        _log(f'download_audio (yt-dlp download + ffmpeg->wav): {t1 - t0:.1f}s')
         y, sr = librosa.load(audio_path, sr=22050, mono=True)
+        t2 = time.monotonic()
+        _log(f'librosa.load: {t2 - t1:.1f}s')
 
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
         bpm = int(round(float(np.asarray(tempo).item())))
 
-        key = detect_key(librosa.feature.chroma_cqt(y=y, sr=sr).mean(axis=1))
-        chords = detect_chords(y, sr)
+        # chroma_cqt is the most expensive step here, so compute it once and
+        # reuse it for both key detection and chord detection instead of
+        # running it twice.
+        chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
+        key = detect_key(chroma.mean(axis=1))
+        chords = detect_chords(chroma, sr)
+        _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
 
         return {
             'success': True,
@@ -188,7 +301,10 @@ def analyze():
                     return jsonify(json.load(f))
 
             try:
-                result = run_analysis(url)
+                # Limit total concurrent analyses so overlapping requests
+                # (multiple users/devices) queue instead of thrashing the box.
+                with analysis_slot():
+                    result = run_analysis(url)
             except Exception as exc:
                 app.logger.exception('Analysis failed')
                 return jsonify(success=False, error=str(exc)), 500

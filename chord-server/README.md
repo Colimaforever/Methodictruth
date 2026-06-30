@@ -35,14 +35,16 @@ two people use the tool at once:
 
 ```bash
 source venv/bin/activate
-gunicorn -w 4 --timeout 120 -b 127.0.0.1:5005 app:app
+gunicorn -w 4 --timeout 300 -b 127.0.0.1:5005 app:app
 ```
 
 `-w 4` runs 4 worker processes so requests for different songs are handled
-in parallel (bounded by CPU core count). `--timeout 120` keeps gunicorn from
-killing a worker mid-analysis — its default 30s timeout is shorter than a
-single chord analysis can take. `chord-analyzer.service` (step 3) already
-runs it this way.
+in parallel (bounded by CPU core count). `--timeout 300` keeps gunicorn from
+killing a worker mid-analysis — its default 30s timeout is far shorter than a
+download + analysis can take, and the generous 300s ceiling leaves headroom
+for an occasional slow YouTube download instead of failing it outright (a
+healthy run is ~15-25s; see the timing logs). `chord-analyzer.service`
+(step 3) already runs it this way.
 
 Test it:
 
@@ -74,7 +76,8 @@ never block each other.
 ## 3. Run it as a service (so it survives reboots)
 
 Edit `chord-analyzer.service`, replacing `/REPLACE/WITH/PATH/TO/chord-server`
-with the actual path, then:
+and `REPLACE_WITH_YOUR_USERNAME` with the actual path and your username,
+then:
 
 ```bash
 sudo cp chord-analyzer.service /etc/systemd/system/
@@ -157,6 +160,47 @@ Cookies expire/rotate periodically (weeks to months depending on the
 account), so if the bot-check error comes back after a while, just
 re-export and overwrite `cookies.txt`.
 
+## "Requested format is not available"
+
+YouTube also runs a separate signature/n-parameter JS challenge on its
+player JS, unrelated to the bot-check above. When `yt-dlp` can't solve it,
+every format except storyboard images (`mhtml`) gets filtered out, which
+surfaces here as "Requested format is not available."
+
+Solving it requires:
+
+1. **A recent `yt-dlp` build.** Fixes for YouTube's evolving challenges
+   often land in nightly builds well before a tagged stable release, so a
+   plain `pip install -U yt-dlp` can report "already satisfied" while the
+   fix you need still isn't out. Use `pip install -U --pre "yt-dlp[default]"`
+   instead — the `[default]` extras pull in `yt-dlp-ejs`, the package that
+   actually does the challenge-solving. See `yt-dlp-update.service`/
+   `.timer` below to keep this current automatically.
+2. **A JS runtime.** `yt-dlp-ejs` needs Node.js (v22+), Deno, or QuickJS
+   installed to execute the challenge-solving script. This repo's `app.py`
+   sets `'js_runtimes': ['node']` directly in `ydl_opts`, so install Node
+   (`sudo apt install nodejs`) and that's it — no extra config file needed.
+   (`--js-runtimes` / `~/.config/yt-dlp/config` only apply to the `yt-dlp`
+   CLI tool's own argument parser; they're silently ignored when using
+   `yt_dlp.YoutubeDL(...)` as a library, which is what `app.py` does.)
+
+## Keeping yt-dlp current automatically
+
+YouTube's anti-bot/anti-scraping layers change often enough that pinning a
+version and forgetting about it isn't viable. `yt-dlp-update.service` +
+`yt-dlp-update.timer` run `pip install -U --pre "yt-dlp[default]"` daily and
+restart `chord-analyzer` afterward, so fixes land within a day without
+manual intervention:
+
+```bash
+cd chord-server
+sed -i "s|REPLACE_WITH_YOUR_USERNAME|$(whoami)|g; s|/REPLACE/WITH/PATH/TO/chord-server|$(pwd)|g" yt-dlp-update.service
+sudo cp yt-dlp-update.service yt-dlp-update.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now yt-dlp-update.timer
+systemctl list-timers yt-dlp-update.timer   # confirm it's scheduled
+```
+
 ## Boot resilience (WSL2 + Windows host)
 
 If this runs inside WSL2 on a Windows machine (as opposed to bare-metal
@@ -218,6 +262,55 @@ which gunicorn                    # should print a path inside venv/bin/
 deactivate
 sudo systemctl daemon-reload && sudo systemctl restart chord-analyzer
 ```
+
+**5. Without `User=`/`Group=`/`Environment=HOME=...`, systemd runs the
+service as root**, not the user who set it up. That silently breaks
+anything keyed to `$HOME` — `cache/` ends up owned by root (later requests
+from the real user get `PermissionError`), and any user-level config gets
+read from `/root` instead of the real home directory. If `chord-analyzer`
+was ever started before these lines were added to the unit file, fix
+ownership after adding them:
+
+```bash
+sudo chown -R $(whoami):$(whoami) cache
+```
+
+## "Analysis failed" / "Load failed" only under systemd (never from the CLI)
+
+The most baffling failure mode this service can hit: every manual test
+works — `yt-dlp` from the CLI, `python app.py`, even `gunicorn` run by hand
+all download and analyze in seconds — but requests through the **installed
+systemd service** stall for exactly ~120 seconds and then die, surfacing in
+the browser as "Failed to fetch" / "Load failed". The stack trace shows the
+worker blocked deep in an SSL read (during the download) or in
+`subprocess.communicate` (during ffmpeg), killed by gunicorn's `--timeout`.
+
+The cause is **not** YouTube, the network, or the app code. It's the
+**journald pipe**. Under systemd, a service's stdout/stderr is a pipe to
+journald, which rate-limits log volume. `yt-dlp` and its `ffmpeg`/`node`
+subprocesses emit a firehose of progress/diagnostic output to stderr; once
+that fills the pipe faster than journald drains it, the next `write()`
+**blocks**, which freezes the worker mid-download. Run the identical code
+with stdout pointed at a regular file (`python app.py >log 2>&1`, or
+`gunicorn ... >log 2>&1`) and it never blocks — a regular file's `write()`
+always returns immediately. That's the entire difference between the tests
+that pass and the service that hangs.
+
+Two-part fix, both already in this repo:
+
+1. `app.py` sets `'noprogress': True` in `ydl_opts` so `yt-dlp` stops
+   streaming the download progress bar (`quiet: True` alone does **not**
+   silence it — progress goes to stderr independently).
+2. `chord-analyzer.service` sets `StandardOutput=append:` and
+   `StandardError=append:` to a log file instead of journald, so nothing
+   the worker (or any subprocess it spawns) writes can ever block on a full
+   pipe. View the logs with `tail -f chord-server/chord-analyzer.log`
+   instead of `journalctl -u chord-analyzer` (journald still carries
+   systemd-level start/stop/crash lines, just not the app's own output).
+
+If you ever see this symptom come back, confirm the `StandardOutput`/
+`StandardError` lines are still present in the **installed** unit
+(`/etc/systemd/system/chord-analyzer.service`), not just the repo copy.
 
 ## Accuracy notes
 
