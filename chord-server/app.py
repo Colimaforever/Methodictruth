@@ -22,7 +22,7 @@ from contextlib import contextmanager
 import librosa
 import numpy as np
 import yt_dlp
-from flask import Flask, jsonify, request
+from flask import Flask, abort, jsonify, request, send_file
 
 app = Flask(__name__)
 
@@ -165,23 +165,23 @@ def _pp_hook(d):
         _log(f'ffmpeg postprocessor {pp} finished')
 
 
-def download_audio(url, workdir):
+def download_audio(url, workdir, video_id):
     ydl_opts = {
-        # Chord/key/BPM detection runs on 22 kHz mono audio, so a low-bitrate
-        # stream is acoustically identical to the "best" one for our purposes
-        # but a fraction of the bytes (~1-2 MB vs ~6-7 MB) — much faster to
-        # download. Fall back to bestaudio/best when no small format exists.
+        # A low-bitrate audio stream is acoustically identical for chord/key/
+        # BPM detection (which runs on 22 kHz mono) but a fraction of the bytes
+        # to download. It's also plenty for the in-page play-along audio.
+        # Fall back to bestaudio/best when no small format exists.
         'format': 'bestaudio[abr<=80]/bestaudio/best',
         'outtmpl': os.path.join(workdir, '%(id)s.%(ext)s'),
+        # Extract to MP3 — universally playable in browsers (incl. iOS Safari),
+        # so the same file we analyze is the one we serve back for in-page
+        # playback. That lets the frontend drop the YouTube embed entirely,
+        # which is what triggers YouTube's "confirm you're not a bot" prompts.
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'wav',
-            'preferredquality': '192',
+            'preferredcodec': 'mp3',
+            'preferredquality': '128',
         }],
-        # Have ffmpeg emit the exact format librosa wants — 22 kHz mono — so
-        # the WAV is ~4x smaller (faster to write/read) and librosa.load no
-        # longer has to resample on the Python side.
-        'postprocessor_args': {'extractaudio': ['-ac', '1', '-ar', '22050']},
         'quiet': True,
         'no_warnings': True,
         # quiet=True silences info messages but NOT the download progress
@@ -224,25 +224,43 @@ def download_audio(url, workdir):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
 
-    audio_path = os.path.join(workdir, f"{info['id']}.wav")
+    # Move the MP3 into the cache under the URL's video id (what the frontend
+    # will request from /audio/<id>) so it persists for playback after the
+    # temp workdir is cleaned up. librosa reads this same file for analysis.
+    produced = os.path.join(workdir, f"{info['id']}.mp3")
+    audio_path = os.path.join(CACHE_DIR, f'{video_id}.mp3')
+    shutil.move(produced, audio_path)
     return audio_path, info.get('title', 'Unknown Song'), int(info.get('duration', 0))
 
 
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
 
 
-def run_analysis(url):
+@app.route('/audio/<video_id>', methods=['GET'])
+def serve_audio(video_id):
+    # Serves the downloaded MP3 for in-page playback. conditional=True enables
+    # HTTP range requests so the <audio> element can seek. The id is validated
+    # to a YouTube-id charset so it can't escape the cache directory.
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,20}', video_id):
+        abort(404)
+    path = os.path.join(CACHE_DIR, f'{video_id}.mp3')
+    if not os.path.isfile(path):
+        abort(404)
+    return send_file(path, mimetype='audio/mpeg', conditional=True)
+
+
+def run_analysis(url, video_id):
     workdir = tempfile.mkdtemp(prefix='song-analyzer-')
     try:
         t0 = time.monotonic()
-        audio_path, title, duration = download_audio(url, workdir)
+        audio_path, title, duration = download_audio(url, workdir, video_id)
         t1 = time.monotonic()
-        _log(f'download_audio (yt-dlp download + ffmpeg->wav): {t1 - t0:.1f}s')
+        _log(f'download_audio (yt-dlp download + ffmpeg->mp3): {t1 - t0:.1f}s')
         y, sr = librosa.load(audio_path, sr=22050, mono=True)
         t2 = time.monotonic()
         _log(f'librosa.load: {t2 - t1:.1f}s')
@@ -266,6 +284,7 @@ def run_analysis(url):
             'duration': duration,
             'chords': chords,
             'description': describe(key, bpm, chords),
+            'audio_url': f'/audio/{video_id}',
         }
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
@@ -304,7 +323,7 @@ def analyze():
                 # Limit total concurrent analyses so overlapping requests
                 # (multiple users/devices) queue instead of thrashing the box.
                 with analysis_slot():
-                    result = run_analysis(url)
+                    result = run_analysis(url, video_id)
             except Exception as exc:
                 app.logger.exception('Analysis failed')
                 return jsonify(success=False, error=str(exc)), 500
