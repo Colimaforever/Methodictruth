@@ -105,15 +105,15 @@ NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 # the 7th degree actually carries energy — so we report clean triads by default
 # and a 7th only when it's genuinely being played.
 TRIAD_QUALITIES = {
-    '':    (0, 4, 7),   # major
-    'm':   (0, 3, 7),   # minor
-    'dim': (0, 3, 6),   # diminished
-    # Sus chords (sus2/sus4) are deliberately omitted: each sits a single
-    # semitone from the major triad, so chroma template matching flips on them
-    # constantly and peppers the chart with phantom suspensions. A clean
-    # maj/min/dim chart plus the energy-grounded 7th pass below is far more
-    # trustworthy than a noisy one. (Reliable sus/9th detection would need a
-    # sequence model like an HMM/Viterbi or madmom — a future upgrade.)
+    '':  (0, 4, 7),   # major
+    'm': (0, 3, 7),   # minor
+    # Only the two unambiguous triads. sus2/sus4 (one semitone off major) and
+    # diminished (one semitone off minor) all sit a single semitone from these,
+    # so chroma template matching flips onto them on noise and litters the chart
+    # with phantom chords — e.g. a plain Fm reads as "Fdim" whenever the b5 has
+    # stray energy. Major/minor plus the energy-grounded 7th pass below is the
+    # robust core; richer/ambiguous qualities need a sequence model (HMM/Viterbi
+    # or madmom), noted as a future upgrade.
 }
 _TRIAD_VECS, _TRIAD_ROOT, _TRIAD_QUAL = [], [], []
 for _i in range(12):
@@ -166,13 +166,12 @@ def _classify_column(col):
     name = f'{NOTES[root]}{qual}'
     if qual in ('', 'm'):
         triad_mean = np.mean([col[(root + t) % 12] for t in TRIAD_QUALITIES[qual]])
-        if triad_mean > 0:
-            flat7 = col[(root + 10) % 12]
-            maj7 = col[(root + 11) % 12]
-            if qual == '' and maj7 >= SEVENTH_RATIO * triad_mean and maj7 >= flat7:
-                name += 'maj7'        # e.g. Cmaj7
-            elif flat7 >= SEVENTH_RATIO * triad_mean:
-                name += '7'           # C7 (major) or Cm7 (minor)
+        # Only the *flat* 7th (dominant-7 on a major triad, minor-7 on a minor
+        # triad) — it's a structural chord tone. We intentionally don't detect
+        # the major-7th: it's the leading tone, present in nearly every major-key
+        # melody, so it would tag almost every tonic chord as maj7.
+        if triad_mean > 0 and col[(root + 10) % 12] >= SEVENTH_RATIO * triad_mean:
+            name += '7'               # C7 (major) or Cm7 (minor)
     return name
 
 
