@@ -96,33 +96,35 @@ def analysis_slot():
 
 NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
-# Chord templates as *unit-normalized* 12-bin pitch-class vectors. Beyond plain
-# triads we include common sevenths and sus/dim colours. The normalization is
-# the clever part: an extended template (e.g. C7) only out-scores its plain
-# triad (C) when the extra tone — here the b7 — actually carries energy in the
-# chroma. So richer chords are reported only when they're genuinely present, and
-# we cleanly fall back to triads otherwise, without any hand-tuned thresholds.
-CHORD_QUALITIES = {
-    '':     (0, 4, 7),       # major
-    'm':    (0, 3, 7),       # minor
-    '7':    (0, 4, 7, 10),   # dominant 7th
-    'maj7': (0, 4, 7, 11),   # major 7th
-    'm7':   (0, 3, 7, 10),   # minor 7th
-    'sus4': (0, 5, 7),       # suspended 4th
-    'dim':  (0, 3, 6),       # diminished
+# Triad templates only — all three notes, so cosine matching compares them on
+# equal footing with no bias toward "bigger" chords. (An earlier attempt mixed
+# triads and four-note seventh templates; on real chroma, where energy is spread
+# across every pitch class by harmonics/bass/vocals, the four-note templates
+# captured more total energy and won almost everywhere, labelling everything a
+# 7th.) Sevenths are instead decided in a cheap second pass that checks whether
+# the 7th degree actually carries energy — so we report clean triads by default
+# and a 7th only when it's genuinely being played.
+TRIAD_QUALITIES = {
+    '':     (0, 4, 7),   # major
+    'm':    (0, 3, 7),   # minor
+    'sus2': (0, 2, 7),   # suspended 2nd
+    'sus4': (0, 5, 7),   # suspended 4th
+    'dim':  (0, 3, 6),   # diminished
 }
-CHORD_TEMPLATES = {}
-for _i, _root in enumerate(NOTES):
-    for _suffix, _intervals in CHORD_QUALITIES.items():
+_TRIAD_VECS, _TRIAD_ROOT, _TRIAD_QUAL = [], [], []
+for _i in range(12):
+    for _suffix, _intervals in TRIAD_QUALITIES.items():
         _vec = np.zeros(12)
         for _iv in _intervals:
             _vec[(_i + _iv) % 12] = 1.0
-        CHORD_TEMPLATES[f'{_root}{_suffix}'] = _vec / np.linalg.norm(_vec)
+        _TRIAD_VECS.append(_vec / np.linalg.norm(_vec))
+        _TRIAD_ROOT.append(_i)
+        _TRIAD_QUAL.append(_suffix)
+_TRIAD_MATRIX = np.array(_TRIAD_VECS)
 
-# Stacked into a matrix so a whole song's worth of frames can be matched with a
-# single vectorized dot product instead of a Python loop per template.
-_CHORD_NAMES = list(CHORD_TEMPLATES.keys())
-_CHORD_MATRIX = np.array([CHORD_TEMPLATES[n] for n in _CHORD_NAMES])
+# How strong the 7th must be, relative to the average triad-tone energy, before
+# we promote a chord to a seventh. Conservative, so we don't hallucinate them.
+SEVENTH_RATIO = 0.85
 
 # Krumhansl-Schmuckler key profiles
 MAJOR_PROFILE = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
@@ -148,19 +150,30 @@ def detect_key(chroma_mean):
     return best_key
 
 
+def _classify_column(col):
+    # Stage 1: best-matching triad (fair, all three-note). Stage 2: add a 7th
+    # only on major/minor triads, and only when that degree's energy is
+    # comparable to the chord tones — otherwise keep the clean triad.
+    norm = np.linalg.norm(col)
+    if norm == 0:
+        return None
+    k = int(np.argmax(_TRIAD_MATRIX @ (col / norm)))
+    root, qual = _TRIAD_ROOT[k], _TRIAD_QUAL[k]
+    name = f'{NOTES[root]}{qual}'
+    if qual in ('', 'm'):
+        triad_mean = np.mean([col[(root + t) % 12] for t in TRIAD_QUALITIES[qual]])
+        if triad_mean > 0:
+            flat7 = col[(root + 10) % 12]
+            maj7 = col[(root + 11) % 12]
+            if qual == '' and maj7 >= SEVENTH_RATIO * triad_mean and maj7 >= flat7:
+                name += 'maj7'        # e.g. Cmaj7
+            elif flat7 >= SEVENTH_RATIO * triad_mean:
+                name += '7'           # C7 (major) or Cm7 (minor)
+    return name
+
+
 def _classify_columns(cols):
-    # cols: (12, n) chroma columns -> list of best-matching chord names (or None
-    # for silent columns). Vectorized: every column dotted against every
-    # template at once.
-    labels = []
-    norms = np.linalg.norm(cols, axis=0)
-    for j in range(cols.shape[1]):
-        if norms[j] == 0:
-            labels.append(None)
-            continue
-        scores = _CHORD_MATRIX @ (cols[:, j] / norms[j])
-        labels.append(_CHORD_NAMES[int(np.argmax(scores))])
-    return labels
+    return [_classify_column(cols[:, j]) for j in range(cols.shape[1])]
 
 
 def _smooth_labels(labels, window=1):
@@ -184,10 +197,12 @@ def detect_chords(chroma, sr, beat_frames=None, hop_length=512):
     # Beat-synchronous when possible: aggregate the chroma over each beat so a
     # detected chord lands on the musical grid instead of an arbitrary 2-second
     # window. Falls back to fixed windows when beat tracking found too few beats.
-    if beat_frames is not None and len(beat_frames) >= 4:
-        cols = librosa.util.sync(chroma, beat_frames, aggregate=np.median)
-        boundaries = np.concatenate([[0], np.asarray(beat_frames)])
-        times = librosa.frames_to_time(boundaries, sr=sr, hop_length=hop_length)
+    if beat_frames is not None and len(beat_frames) >= 6:
+        # Aggregate over half-bars (every other beat): pop chords rarely change
+        # faster than that, so this removes most beat-to-beat flicker up front.
+        bounds = np.asarray(beat_frames)[::2]
+        cols = librosa.util.sync(chroma, bounds, aggregate=np.median)
+        times = librosa.frames_to_time(np.concatenate([[0], bounds]), sr=sr, hop_length=hop_length)
     else:
         fps = max(1, int(2.0 * sr / hop_length))
         starts = list(range(0, chroma.shape[1], fps))
