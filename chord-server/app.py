@@ -316,5 +316,24 @@ def analyze():
             fcntl.flock(lock_file, fcntl.LOCK_UN)
 
 
+def _prewarm():
+    # librosa's beat_track and chroma_cqt run through numba, which JIT-compiles
+    # on first use — so the very first real analysis after a (re)start eats a
+    # one-time multi-second compile cost. Exercise those paths once at import
+    # on a tiny synthetic tone so each gunicorn worker pays that cost at boot
+    # instead of on a user's first request.
+    try:
+        t = np.arange(22050, dtype=np.float32) / 22050
+        y = (0.1 * np.sin(2 * np.pi * 220 * t)).astype(np.float32)
+        librosa.beat.beat_track(y=y, sr=22050)
+        librosa.feature.chroma_cqt(y=y, sr=22050, hop_length=512)
+        _log('numba prewarm complete')
+    except Exception as exc:  # never let prewarm failure stop the worker
+        _log(f'numba prewarm skipped: {exc}')
+
+
+_prewarm()
+
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=int(os.environ.get('PORT', 5005)))

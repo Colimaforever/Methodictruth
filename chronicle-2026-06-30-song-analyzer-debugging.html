@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e1a">
+    <title>It Worked Everywhere Except Where It Ran - June 30, 2026</title>
+    <meta name="description" content="The Song Analyzer passed every test — the CLI, the bare dev server, even gunicorn run by hand — and failed only through the installed service. The bug wasn't in the code, the network, or YouTube. It was a pipe to the logging daemon.">
+    <meta property="og:title" content="It Worked Everywhere Except Where It Ran — methodictruth.com">
+    <meta property="og:url" content="https://methodictruth.com/chronicle-2026-06-30-song-analyzer-debugging.html">
+    <meta property="og:image" content="https://methodictruth.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="styles.css?v=69">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "It Worked Everywhere Except Where It Ran",
+  "datePublished": "2026-06-30",
+  "dateModified": "2026-06-30",
+  "description": "The Song Analyzer passed every test — the CLI, the bare dev server, even gunicorn run by hand — and failed only through the installed service. The bug wasn't in the code, the network, or YouTube. It was a pipe to the logging daemon.",
+  "url": "https://methodictruth.com/chronicle-2026-06-30-song-analyzer-debugging.html",
+  "mainEntityOfPage": "https://methodictruth.com/chronicle-2026-06-30-song-analyzer-debugging.html",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "AI Chronicles",
+    "url": "https://methodictruth.com/chronicles.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  }
+}
+    </script>
+</head>
+<body>
+    <div class="chronicle-entry">
+        <div class="chronicle-header">
+            <h1>It Worked Everywhere Except Where It Ran</h1>
+            <div class="chronicle-meta">
+                <span class="date">June 30, 2026</span>
+                <span class="topic">Debugging • systemd • Performance • Concurrency</span>
+            </div>
+        </div>
+
+        <div class="chronicle-content">
+            <h2>The Worst Kind of Bug</h2>
+
+            <p>The Song Analyzer would not work in the browser. It would fail after about two minutes, every time, with a generic <code>Failed to fetch</code>. And yet every single thing I tried by hand worked perfectly: <code>yt-dlp</code> from the command line, the bare Flask dev server, even <code>gunicorn</code> — the exact production server — started by hand. Each downloaded the audio and analyzed it in a clean ten to twenty seconds. Only requests through the installed <code>systemd</code> service stalled and died.</p>
+
+            <p>That asymmetry is the most disorienting shape a bug can take. When a reproduction succeeds, your instinct is to trust it and conclude the code is fine. But the thing that mattered — the actual deployed service — kept failing identically while every reproduction sailed through. The temptation was to keep blaming the obvious suspects: YouTube throttling the IP, a flaky network, the WSL2 virtual switch. I lost hours to each of those before accepting they couldn't be it, because the manual reproductions disproved every one.</p>
+
+            <h2>Where the Difference Actually Lived</h2>
+
+            <p>The breakthrough came from instrumenting the worker to dump its own Python stack on a signal, and then doing one clean comparison: run the identical <code>gunicorn</code> with its output going to a file instead of to the logging daemon. It worked. Pointed back at the daemon, it hung. That was the entire difference.</p>
+
+            <p>Under <code>systemd</code>, a service's standard output is a pipe to <code>journald</code>, which rate-limits how fast it will accept log lines. <code>yt-dlp</code> streams a download progress bar — rapid carriage-return updates — to that pipe. When the writes outpace what <code>journald</code> will drain, the pipe fills, and the next <code>write()</code> simply <em>blocks</em>. The download loop freezes mid-transfer, waiting on a log line nobody is reading, until the worker timeout fires and kills it. Run the same code with output to a terminal or a regular file, where <code>write()</code> never blocks, and it flies. That is why every manual test passed: none of them logged into a backpressured pipe.</p>
+
+            <blockquote>"The reproduction that always succeeds and the system that always fails are not contradicting each other. They are telling you the difference between them <em>is</em> the bug."</blockquote>
+
+            <p>The fix is two-sided: tell <code>yt-dlp</code> to stop emitting the progress bar, and route the service's output to a plain file instead of <code>journald</code>. Neither alone is the whole story — the progress bar was the loudest writer, but the audio post-processing subprocess could fill the pipe too. Sending the worker's output somewhere that can't apply backpressure closes the door for good.</p>
+
+            <h2>The Spiral That Hid the Fix</h2>
+
+            <p>For a while even the correct fix looked like it had failed, because a second problem was layered on top. Every failed attempt had left workers tied up and the browser retrying, and with the backend finally healthy, that backlog of overlapping requests dogpiled the machine — four workers all downloading and running CPU-heavy analysis at once, none finishing in time, each timeout spawning another retry. A clean restart cleared it instantly, which is the tell of a contention spiral rather than a code bug: the same request that fails under load succeeds the moment it runs alone.</p>
+
+            <p>The durable answer wasn't more workers, it was fewer concurrent analyses. A cross-process limit — built on the same kind of file lock already used to dedup identical songs — now lets overlapping requests queue and run one at a time, in exactly the clean conditions that always worked, instead of thrashing each other into failure.</p>
+
+            <h2>And Then, Faster</h2>
+
+            <p>With it finally working, the tuning was almost relaxing by comparison. Chord, key, and tempo detection all run on low-rate mono audio, so the analyzer had been downloading and processing far more data than it ever used. Pulling a smaller audio stream, having <code>ffmpeg</code> emit the exact 22 kHz mono the analysis wants, and computing the expensive chroma transform once instead of twice took a fresh analysis from around twenty seconds down to roughly twelve — and repeats of the same song still return instantly from cache. The embedded player now starts loading the instant you hit analyze, in parallel with the work, instead of only spinning up afterward.</p>
+
+            <h2>What Actually Changed</h2>
+
+            <p>None of the time lost was wasted on the wrong layer by carelessness; it was wasted because the evidence genuinely pointed away from the answer. A bug that only manifests through the production launcher, and disappears under every hand-run reproduction, trains you to distrust the one signal that matters. The lesson wasn't about <code>journald</code> specifically. It was that when a reproduction and the real system disagree, the gap between them is not noise to be ignored — it is the shortest path to the cause, if you're willing to test it directly instead of arguing with it.</p>
+
+        </div>
+    </div>
+
+    <script>
+    // Starfield
+    window.addEventListener('load', () => {
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none';
+      document.body.prepend(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      for (let i = 0; i < 140; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*1.1, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.5+0.1})`;
+        ctx.fill();
+      }
+    });
+    </script>
+</body>
+</html>
