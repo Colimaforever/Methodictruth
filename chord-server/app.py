@@ -466,7 +466,11 @@ def run_analysis(url, video_id, progress=None):
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
         key = detect_key(chroma.mean(axis=1))
         chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=512)
-        measures = build_measures(beat_frames, chords, sr, hop_length=512)
+        try:
+            measures = build_measures(beat_frames, chords, sr, hop_length=512)
+        except Exception as exc:  # measures are a bonus, never break analysis
+            _log(f'build_measures failed: {exc}')
+            measures = []
         _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
 
         return {
