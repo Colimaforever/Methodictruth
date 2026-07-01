@@ -50,6 +50,13 @@ ANALYSIS_SLOTS = max(1, int(os.environ.get('ANALYSIS_SLOTS', '1')))
 # least-recently-used ones (MP3 + its .json) so the disk can't silently fill.
 CACHE_MAX_SONGS = max(10, int(os.environ.get('CACHE_MAX_SONGS', '300')))
 
+# How long a streaming request will wait before bailing out with a clean
+# message. Kept well under gunicorn's --timeout so a throttled/stuck download
+# returns a helpful error instead of silently dropping the connection when the
+# worker is killed. The background analysis keeps running and caches its result,
+# so a retry lands instantly.
+STREAM_DEADLINE = max(30, int(os.environ.get('STREAM_DEADLINE', '100')))
+
 
 def prune_cache():
     # Best-effort LRU trim; never let a cleanup error break a request.
@@ -224,6 +231,49 @@ def detect_chords(chroma, sr, beat_frames=None, hop_length=512):
         chords.append({'chord': lab, 'timestamp': round(float(times[j]), 2)})
         last = lab
     return chords
+
+
+def build_measures(beat_frames, chords, sr, hop_length=512, beats_per_bar=4):
+    # Turn the flat chord-change list into a bar-by-bar chart — how a musician
+    # actually reads a song ("4 bars of Fm, then Db–Eb"). Assumes 4/4 and picks
+    # the bar phase that best lines bar starts up with real chord changes, so
+    # the grid matches the song's harmonic rhythm instead of an arbitrary offset.
+    if beat_frames is None or len(beat_frames) < beats_per_bar + 1 or not chords:
+        return []
+    beat_times = librosa.frames_to_time(np.asarray(beat_frames), sr=sr, hop_length=hop_length)
+    change_times = [c['timestamp'] for c in chords]
+    names = [c['chord'] for c in chords]
+
+    def chord_at(t):
+        active = names[0]
+        for ct, nm in zip(change_times, names):
+            if ct <= t + 1e-6:
+                active = nm
+            else:
+                break
+        return active
+
+    beat_period = float(np.median(np.diff(beat_times))) if len(beat_times) > 1 else 0.5
+    tol = beat_period * 0.5
+    best_phase, best_hits = 0, -1
+    for phase in range(beats_per_bar):
+        starts = beat_times[phase::beats_per_bar]
+        if len(starts) == 0:
+            continue
+        hits = sum(1 for ct in change_times if np.min(np.abs(starts - ct)) <= tol)
+        if hits > best_hits:
+            best_hits, best_phase = hits, phase
+
+    measures = []
+    for n, b in enumerate(range(best_phase, len(beat_times) - 1, beats_per_bar)):
+        start = float(beat_times[b])
+        end = float(beat_times[min(b + beats_per_bar, len(beat_times) - 1)])
+        bar = [chord_at(start)]
+        for ct, nm in zip(change_times, names):
+            if start + 1e-6 < ct < end and nm != bar[-1]:
+                bar.append(nm)
+        measures.append({'index': n + 1, 'start': round(start, 2), 'chords': bar})
+    return measures
 
 
 def describe(key, bpm, chords):
@@ -416,6 +466,11 @@ def run_analysis(url, video_id, progress=None):
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
         key = detect_key(chroma.mean(axis=1))
         chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=512)
+        try:
+            measures = build_measures(beat_frames, chords, sr, hop_length=512)
+        except Exception as exc:  # measures are a bonus, never break analysis
+            _log(f'build_measures failed: {exc}')
+            measures = []
         _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
 
         return {
@@ -425,6 +480,7 @@ def run_analysis(url, video_id, progress=None):
             'key': key,
             'duration': duration,
             'chords': chords,
+            'measures': measures,
             'description': describe(key, bpm, chords),
             'audio_url': f'/audio/{video_id}',
         }
@@ -512,8 +568,23 @@ def analyze():
 
         threading.Thread(target=worker, daemon=True).start()
 
+        deadline = time.monotonic() + STREAM_DEADLINE
         while True:
-            kind, payload = events.get()
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                # Throttled/stuck download running long. Return a clear message
+                # instead of letting the worker hit gunicorn's hard timeout and
+                # drop the connection. The background thread keeps going and
+                # caches its result, so the next try is instant.
+                yield _ndjson({'stage': 'error', 'success': False,
+                               'error': "YouTube is rate-limiting this server's "
+                                        "downloads right now. It'll finish in the "
+                                        "background — try again in a minute."})
+                return
+            try:
+                kind, payload = events.get(timeout=min(remaining, 5))
+            except queue.Empty:
+                continue
             if kind == 'progress':
                 yield _ndjson(payload)
             elif kind == 'done':
