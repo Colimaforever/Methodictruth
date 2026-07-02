@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Recording Guide — Microphones, Placement, Compression, Reamping & Punch-In (Logic Pro)</title>
+  <meta name="keywords" content="recording engineering, microphone types, polar patterns, mic placement, proximity effect, 3:1 rule, stereo miking, XY ORTF mid-side, reamping, DI, compression, attack release ratio, parallel compression, punch in, overdub, comping, Logic Pro X, take folders">
+  <meta name="description" content="A visual guide to home & studio recording: microphone types and polar patterns, mic placement and the proximity effect, stereo techniques, DI and reamping, how compression actually works, and punch-in / overdub / comping — with Logic Pro X workflow throughout.">
+  <link rel="canonical" href="https://methodictruth.com/recording.html">
+  <meta property="og:title" content="Recording Guide — Mics, Placement, Compression & Reamping">
+  <meta property="og:description" content="See how it works: microphone polar patterns, placement, stereo miking, reamping signal flow, and the compression curve — a visual recording-engineering reference with Logic Pro X workflow.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/recording.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Recording Guide — Microphones, Placement, Compression, Reamping & Punch-In",
+    "description": "A visual guide to home and studio recording: microphone types and polar patterns, mic placement and the proximity effect, stereo techniques, DI and reamping, how compression works, and punch-in / overdub / comping — with Logic Pro X workflow throughout.",
+    "url": "https://methodictruth.com/recording.html",
+    "image": "https://methodictruth.com/og-image.png",
+    "author": { "@type": "Person", "name": "Sergio Macedo" },
+    "publisher": { "@type": "Organization", "name": "Methodic Truth", "url": "https://methodictruth.com" },
+    "about": ["recording engineering", "microphones", "audio compression", "reamping", "Logic Pro"]
+  }
+  </script>
+  <style>
+    /* ─── RECORDING GUIDE PAGE ─── */
+    .rg-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .rg-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .rg-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .rg-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .rg-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .rg-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .rg-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .rg-lead em { color: var(--glow); font-style: italic; }
+    .rg-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .rg-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .rg-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .rg-logic::before {
+      content: ""; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .rg-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.rg-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .rg-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .rg-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .rg-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .rg-table td.rg-hi { color: var(--glow); }
+
+    /* chips + terms */
+    .rg-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .rg-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .rg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .rg-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .rg-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .rg-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .rg-card p + p { margin-top: 0.5rem; }
+    .rg-card .rg-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .rg-diagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.1rem; margin: 0.8rem 0 0.4rem; }
+    .rg-dia { text-align: center; }
+    .rg-dia svg { width: 100%; max-width: 185px; height: auto; }
+    .rg-dia-cap { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--glow); margin-top: 0.35rem; text-transform: uppercase; }
+    .rg-dia-sub { font-family: 'EB Garamond', Georgia, serif; font-size: 0.82rem; color: var(--stone-dark); margin-top: 0.2rem; line-height: 1.4; }
+    .rg-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 560px; height: auto; }
+    .rg-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .rg-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .rg-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .rg-pat { fill: rgba(0, 229, 255, 0.13); stroke: var(--glow); stroke-width: 1.6; }
+    .rg-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .rg-lbl-f { fill: var(--glow); }
+    .rg-src { fill: rgba(232, 168, 124, 0.16); stroke: var(--glow-warm); stroke-width: 1.4; }
+    .rg-mic { fill: rgba(0, 229, 255, 0.18); stroke: var(--glow); stroke-width: 1.4; }
+    .rg-txt { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: var(--parchment); }
+    .rg-txt-w { fill: var(--glow-warm); }
+    .rg-txt-c { fill: var(--glow); }
+    .rg-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .rg-flowbox-w { fill: rgba(26, 18, 10, 0.55); stroke: rgba(232, 168, 124, 0.4); stroke-width: 1.2; }
+    .rg-curve { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .rg-curve-w { fill: none; stroke: var(--glow-warm); stroke-width: 2; }
+    .rg-ref { fill: none; stroke: rgba(138, 126, 107, 0.45); stroke-width: 1; stroke-dasharray: 3 3; }
+
+    /* toc */
+    .rg-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .rg-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .rg-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .rg-section { padding: 1.1rem 0.9rem; }
+      .rg-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <!-- shared SVG marker defs (arrowheads) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <marker id="rgArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#00e5ff"/>
+      </marker>
+      <marker id="rgArrowW" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#e8a87c"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="recording.html" class="active">Recording</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="rg-page">
+    <main class="rg-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>The Recording Guide</h1>
+        <div class="subtitle">How to capture sound — and shape it — seen, not just described</div>
+      </div>
+
+      <p class="rg-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        A great recording is mostly decided <em>before</em> a plugin is ever opened — in the choice of microphone,
+        where you point it, and how you route the signal. This guide draws those invisible things: what a polar
+        pattern actually looks like, why moving a mic two inches changes everything, how a compressor bends the
+        signal, and how to reamp, punch in, and comp a take. Workflow notes are for <strong>Logic Pro X</strong>,
+        but the physics is universal.
+      </p>
+
+      <nav class="rg-toc" aria-label="Sections">
+        <a href="#mics">Mic Types</a>
+        <a href="#patterns">Polar Patterns</a>
+        <a href="#placement">Placement</a>
+        <a href="#stereo">Stereo Miking</a>
+        <a href="#di">DI &amp; Reamping</a>
+        <a href="#compression">Compression</a>
+        <a href="#punch">Punch &amp; Overdub</a>
+        <a href="#comping">Comping</a>
+      </nav>
+
+      <!-- ═══ 1. MIC TYPES ═══ -->
+      <section class="rg-section" id="mics">
+        <div class="rg-section-label">① The Transducers</div>
+        <h2 class="rg-section-title">Microphone Types</h2>
+        <p class="rg-lead">
+          Every mic converts air pressure into voltage, but <em>how</em> it does that shapes its sound and what it's
+          good for. Three families cover almost everything you'll record.
+        </p>
+
+        <div class="rg-grid">
+          <div class="rg-card">
+            <h4>Dynamic</h4>
+            <p>A diaphragm moves a coil through a magnet — rugged, needs no power, handles brutal volume. <span class="rg-term">Forgiving and fat.</span> Slower transient response tames harshness.</p>
+            <p><strong style="color:var(--glow-warm)">Reach for:</strong> loud guitar cabs (SM57), snare, toms, live vocals, kick (large-diaphragm dynamics). Bulletproof and cheap.</p>
+          </div>
+          <div class="rg-card">
+            <h4>Condenser</h4>
+            <p>A charged capsule whose capacitance changes with sound — <span class="rg-term">fast, detailed, sensitive.</span> Needs <span class="rg-chip">+48V phantom</span>. Large-diaphragm = warm &amp; flattering; small-diaphragm ("pencil") = accurate &amp; precise.</p>
+            <p><strong style="color:var(--glow-warm)">Reach for:</strong> studio vocals, acoustic guitar, overheads, room, anything where detail matters.</p>
+          </div>
+          <div class="rg-card">
+            <h4>Ribbon</h4>
+            <p>A thin metal ribbon suspended in a magnetic field — <span class="rg-term">smooth, dark, natural.</span> Naturally figure-8. Vintage ribbons are fragile; never send phantom power unless it's a modern active model.</p>
+            <p><strong style="color:var(--glow-warm)">Reach for:</strong> taming bright amps &amp; brass, room mics, anything digital-harsh you want to soften.</p>
+          </div>
+        </div>
+
+        <div class="rg-table-wrap" style="margin-top:1.2rem;">
+          <table class="rg-table">
+            <thead><tr><th>Type</th><th>Sound</th><th>Phantom?</th><th>SPL / durability</th><th>Classic examples</th></tr></thead>
+            <tbody>
+              <tr><td class="rg-hi">Dynamic</td><td>Punchy, fat, forgiving</td><td>No</td><td>Very high</td><td>SM57, SM7B, RE20, MD421</td></tr>
+              <tr><td class="rg-hi">Large-diaphragm condenser</td><td>Warm, present, flattering</td><td>Yes (+48V)</td><td>Moderate</td><td>U87, TLM103, NT1, C414</td></tr>
+              <tr><td class="rg-hi">Small-diaphragm condenser</td><td>Accurate, fast, airy</td><td>Yes (+48V)</td><td>Moderate–high</td><td>KM184, C451, SM81, Pencil pairs</td></tr>
+              <tr><td class="rg-hi">Ribbon</td><td>Dark, smooth, vintage</td><td>Usually no*</td><td>Low (fragile)</td><td>R-121, M160, RCA 44</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="rg-note">*Modern <em>active</em> ribbons require phantom; classic passive ribbons can be destroyed by it, especially through a mis-wired cable. When in doubt, phantom off.</p>
+        <div class="rg-logic" data-l="IN LOGIC PRO">
+          Set your interface as the <strong>Input Device</strong> in Settings ▸ Audio. Arm a track, click the <strong>Input Monitoring</strong> (headphone) button to hear the mic through Logic, and enable <strong>+48V</strong> on your interface for condensers. If you hear a slappy delay, turn on <strong>Low Latency Mode</strong> or lower the I/O Buffer Size while tracking.
+        </div>
+      </section>
+
+      <!-- ═══ 2. POLAR PATTERNS ═══ -->
+      <section class="rg-section" id="patterns">
+        <div class="rg-section-label">② What The Mic Hears</div>
+        <h2 class="rg-section-title">Polar Patterns</h2>
+        <p class="rg-lead">
+          A polar pattern is a map of <em>where a mic is sensitive.</em> The shape shows how loudly the mic picks up
+          sound arriving from each direction — front is up (0°), rear is down. Where the shape pinches inward, the mic
+          rejects sound. Choosing a pattern is choosing what to <strong>keep out</strong> as much as what to let in.
+        </p>
+
+        <div class="rg-diagrid">
+          <div class="rg-dia">
+            <svg viewBox="0 0 200 200" role="img" aria-label="Omnidirectional polar pattern: a full circle, equally sensitive in all directions">
+              <circle class="rg-grid-line" cx="100" cy="100" r="74"/><circle class="rg-grid-line" cx="100" cy="100" r="49"/><circle class="rg-grid-line" cx="100" cy="100" r="24"/>
+              <line class="rg-axis" x1="100" y1="22" x2="100" y2="178"/><line class="rg-axis" x1="22" y1="100" x2="178" y2="100"/>
+              <circle class="rg-pat" cx="100" cy="100" r="74"/>
+              <circle cx="100" cy="100" r="4" fill="#e8a87c"/>
+              <text class="rg-lbl rg-lbl-f" x="100" y="16" text-anchor="middle">0° FRONT</text>
+            </svg>
+            <div class="rg-dia-cap">Omnidirectional</div>
+            <div class="rg-dia-sub">Hears everything equally. Most natural, no proximity effect. Great for rooms &amp; when the source is the whole space.</div>
+          </div>
+          <div class="rg-dia">
+            <svg viewBox="0 0 200 200" role="img" aria-label="Cardioid polar pattern: a heart shape sensitive to the front and rejecting the rear">
+              <circle class="rg-grid-line" cx="100" cy="100" r="74"/><circle class="rg-grid-line" cx="100" cy="100" r="49"/><circle class="rg-grid-line" cx="100" cy="100" r="24"/>
+              <line class="rg-axis" x1="100" y1="22" x2="100" y2="178"/><line class="rg-axis" x1="22" y1="100" x2="178" y2="100"/>
+              <path class="rg-pat" d="M100.0,26.0 L107.7,26.6 L115.2,28.4 L122.3,31.3 L128.8,35.3 L134.5,40.2 L139.3,45.8 L143.2,52.1 L145.9,58.7 L147.5,65.5 L148.1,72.2 L147.5,78.8 L146.1,85.0 L143.7,90.7 L140.6,95.7 L137.0,100.0 L133.0,103.5 L128.7,106.1 L124.3,107.9 L120.1,108.9 L116.0,109.2 L112.3,109.0 L109.1,108.2 L106.4,107.1 L104.2,105.7 L102.5,104.3 L101.3,102.9 L100.6,101.7 L100.2,100.8 L100.0,100.2 L100.0,100.0 L100.0,100.2 L99.8,100.8 L99.4,101.7 L98.7,102.9 L97.5,104.3 L95.8,105.7 L93.6,107.1 L90.9,108.2 L87.7,109.0 L84.0,109.2 L79.9,108.9 L75.7,107.9 L71.3,106.1 L67.0,103.5 L63.0,100.0 L59.4,95.7 L56.3,90.7 L53.9,85.0 L52.5,78.8 L51.9,72.2 L52.5,65.5 L54.1,58.7 L56.8,52.1 L60.7,45.8 L65.5,40.2 L71.2,35.3 L77.7,31.3 L84.8,28.4 L92.3,26.6 L100.0,26.0 Z"/>
+              <circle cx="100" cy="100" r="4" fill="#e8a87c"/>
+              <text class="rg-lbl rg-lbl-f" x="100" y="16" text-anchor="middle">0° FRONT</text>
+              <text class="rg-lbl" x="100" y="192" text-anchor="middle">REAR REJECT</text>
+            </svg>
+            <div class="rg-dia-cap">Cardioid</div>
+            <div class="rg-dia-sub">The workhorse. Full front, deep rear null — isolates one source, kills the room behind it. Has proximity effect.</div>
+          </div>
+          <div class="rg-dia">
+            <svg viewBox="0 0 200 200" role="img" aria-label="Supercardioid polar pattern: tighter front pickup with a small rear lobe">
+              <circle class="rg-grid-line" cx="100" cy="100" r="74"/><circle class="rg-grid-line" cx="100" cy="100" r="49"/><circle class="rg-grid-line" cx="100" cy="100" r="24"/>
+              <line class="rg-axis" x1="100" y1="22" x2="100" y2="178"/><line class="rg-axis" x1="22" y1="100" x2="178" y2="100"/>
+              <path class="rg-pat" d="M100.0,26.0 L107.7,26.7 L115.2,28.6 L122.2,31.8 L128.5,36.1 L133.9,41.3 L138.3,47.3 L141.5,53.9 L143.5,60.8 L144.3,67.8 L143.9,74.7 L142.3,81.2 L139.7,87.1 L136.3,92.3 L132.1,96.6 L127.4,100.0 L122.4,102.4 L117.3,103.7 L112.3,104.0 L107.7,103.4 L103.5,102.0 L100.0,100.0 L100.0,100.0 L100.0,100.0 L100.0,100.0 L100.0,100.0 L96.5,102.0 L92.3,103.4 L87.7,104.0 L82.7,103.7 L77.6,102.4 L72.6,100.0 L67.9,96.6 L63.7,92.3 L60.3,87.1 L57.7,81.2 L56.1,74.7 L55.7,67.8 L56.5,60.8 L58.5,53.9 L61.7,47.3 L66.1,41.3 L71.5,36.1 L77.8,31.8 L84.8,28.6 L92.3,26.7 L100.0,26.0 Z"/>
+              <path class="rg-pat" d="M100,100 L112,150 Q100,168 88,150 Z" opacity="0.6"/>
+              <circle cx="100" cy="100" r="4" fill="#e8a87c"/>
+              <text class="rg-lbl rg-lbl-f" x="100" y="16" text-anchor="middle">0° FRONT</text>
+              <text class="rg-lbl" x="100" y="192" text-anchor="middle">small rear lobe</text>
+            </svg>
+            <div class="rg-dia-cap">Super / Hyper-cardioid</div>
+            <div class="rg-dia-sub">Tighter than cardioid, best off-axis rejection — but a small rear lobe. Max isolation on a loud stage or a bleedy kit.</div>
+          </div>
+          <div class="rg-dia">
+            <svg viewBox="0 0 200 200" role="img" aria-label="Figure-8 polar pattern: two equal lobes front and back, rejecting the sides">
+              <circle class="rg-grid-line" cx="100" cy="100" r="74"/><circle class="rg-grid-line" cx="100" cy="100" r="49"/><circle class="rg-grid-line" cx="100" cy="100" r="24"/>
+              <line class="rg-axis" x1="100" y1="22" x2="100" y2="178"/><line class="rg-axis" x1="22" y1="100" x2="178" y2="100"/>
+              <path class="rg-pat" d="M100.0,26.0 L111.4,27.8 L121.7,33.1 L129.9,41.3 L135.2,51.6 L137.0,63.0 L135.2,74.4 L129.9,84.7 L121.7,92.9 L111.4,98.2 L100.0,100.0 L111.4,101.8 L121.7,107.1 L129.9,115.3 L135.2,125.6 L137.0,137.0 L135.2,148.4 L129.9,158.7 L121.7,166.9 L111.4,172.2 L100.0,174.0 L88.6,172.2 L78.3,166.9 L70.1,158.7 L64.8,148.4 L63.0,137.0 L64.8,125.6 L70.1,115.3 L78.3,107.1 L88.6,101.8 L100.0,100.0 L88.6,98.2 L78.3,92.9 L70.1,84.7 L64.8,74.4 L63.0,63.0 L64.8,51.6 L70.1,41.3 L78.3,33.1 L88.6,27.8 L100.0,26.0 Z"/>
+              <circle cx="100" cy="100" r="4" fill="#e8a87c"/>
+              <text class="rg-lbl rg-lbl-f" x="100" y="16" text-anchor="middle">0° FRONT</text>
+              <text class="rg-lbl" x="14" y="103" text-anchor="middle">side</text>
+              <text class="rg-lbl" x="186" y="103" text-anchor="middle">null</text>
+            </svg>
+            <div class="rg-dia-cap">Figure-8 (Bidirectional)</div>
+            <div class="rg-dia-sub">Front &amp; back equally, dead on the sides. Native to ribbons; the key to Mid-Side stereo &amp; clever bleed rejection.</div>
+          </div>
+        </div>
+
+        <p class="rg-note">
+          Multi-pattern condensers (like a C414 or U87) switch between these with a capsule selector — one mic, many
+          jobs. The side nulls of figure-8 are the sharpest rejection in audio: aim a null at the thing you <em>don't</em>
+          want and it nearly vanishes.
+        </p>
+      </section>
+
+      <!-- ═══ 3. PLACEMENT ═══ -->
+      <section class="rg-section" id="placement">
+        <div class="rg-section-label">③ Two Inches Changes Everything</div>
+        <h2 class="rg-section-title">Placement &amp; the Proximity Effect</h2>
+        <p class="rg-lead">
+          Mic position is the most powerful tone control you own — and it's free. Two ideas govern it: <strong>distance</strong>
+          (close = detail + bass + isolation; far = air + room + balance) and <strong>angle</strong> (on-axis = bright &amp;
+          direct; off-axis = softer, darker).
+        </p>
+
+        <svg class="rg-wide-dia" viewBox="0 0 560 200" role="img" aria-label="Diagram of mic distance and axis: close on-axis mic is bright and bassy, distant off-axis mic is airy and roomy">
+          <!-- source -->
+          <circle class="rg-src" cx="90" cy="100" r="30"/>
+          <text class="rg-txt rg-txt-w" x="90" y="104" text-anchor="middle">SOURCE</text>
+          <!-- on-axis close mic -->
+          <line class="rg-axis" x1="120" y1="100" x2="200" y2="100" stroke-dasharray="4 3"/>
+          <rect class="rg-mic" x="200" y="90" width="30" height="20" rx="3"/>
+          <text class="rg-txt rg-txt-c" x="215" y="82" text-anchor="middle">on-axis · close</text>
+          <text class="rg-lbl" x="215" y="128" text-anchor="middle">bright · bassy · dry</text>
+          <!-- off-axis mic -->
+          <line class="rg-axis" x1="118" y1="88" x2="330" y2="50" stroke-dasharray="4 3"/>
+          <rect class="rg-mic" x="330" y="40" width="30" height="20" rx="3" transform="rotate(12 345 50)"/>
+          <text class="rg-txt rg-txt-c" x="360" y="34" text-anchor="middle">off-axis · far</text>
+          <text class="rg-lbl" x="380" y="60" text-anchor="middle">airy · softer · roomy</text>
+          <!-- proximity note -->
+          <path class="rg-ref" d="M150,150 L150,175 M420,150 L420,175"/>
+          <text class="rg-lbl" x="150" y="188" text-anchor="middle">closer → more bass</text>
+          <text class="rg-lbl" x="420" y="188" text-anchor="middle">farther → more room</text>
+          <line class="rg-axis" x1="150" y1="162" x2="420" y2="162"/>
+        </svg>
+        <div class="rg-figcap">The same mic, two placements — before any EQ.</div>
+
+        <p class="rg-lead" style="margin-top:1rem;">
+          <strong>Proximity effect</strong> is the bass boost that directional mics (cardioid &amp; friends) get as you move
+          in close — inches from a cardioid can add several dB of low end. It's why radio voices sound huge, and why a
+          thin acoustic guitar gets boomy up close. Use it as a tool: back off to thin out, lean in to fatten. Omni mics
+          have <em>no</em> proximity effect, so they stay even at any distance.
+        </p>
+
+        <div class="rg-grid" style="margin-top:0.8rem;">
+          <div class="rg-card">
+            <h4>The 3:1 Rule</h4>
+            <p>Using two mics on one source (or nearby sources)? Keep them at least <span class="rg-term">3× as far apart</span> as each is from its source. It keeps their bleed out of phase-cancellation range, so the blend stays full instead of hollow.</p>
+          </div>
+          <div class="rg-card">
+            <h4>Check Phase</h4>
+            <p>Two mics on one source (top+bottom snare, DI+amp) can fight and cancel bass. Flip polarity on one <span class="rg-term">(the Ø button)</span> and keep whichever sounds fuller. Mic a source from front and back? The back mic almost always needs the flip.</p>
+          </div>
+          <div class="rg-card">
+            <h4>High-Pass Early</h4>
+            <p>Roll off rumble below the source's real range at the mic pre or first plugin — <span class="rg-term">~80 Hz on vocals, ~100 Hz on guitars.</span> Removes handling thumps, footfalls, and AC hum before they eat headroom.</p>
+          </div>
+        </div>
+
+        <div class="rg-table-wrap" style="margin-top:1.2rem;">
+          <table class="rg-table">
+            <thead><tr><th>Source</th><th>Mic &amp; pattern</th><th>Where to put it</th></tr></thead>
+            <tbody>
+              <tr><td class="rg-hi">Lead vocal</td><td>LDC, cardioid</td><td>6–10&quot; away, slightly above mouth angled down; pop filter a fist away. Back off on loud phrases.</td></tr>
+              <tr><td class="rg-hi">Acoustic guitar</td><td>SDC, cardioid</td><td>Aim at the 12th–14th fret, ~8&quot; back — <em>not</em> the soundhole (boomy). Add a second at the bridge for body (mind 3:1).</td></tr>
+              <tr><td class="rg-hi">Electric guitar amp</td><td>Dynamic (SM57)</td><td>1–2&quot; off the grille. On the dust-cap edge = bright; toward the cone center = brighter; toward the speaker edge = darker &amp; warmer.</td></tr>
+              <tr><td class="rg-hi">Drum overheads</td><td>SDC pair</td><td>Spaced or XY above the kit; measure equal distance to the snare from each so the center stays solid.</td></tr>
+              <tr><td class="rg-hi">Bass guitar</td><td>DI + optional amp mic</td><td>DI for clean low end; a dynamic on the cab for grit. Blend, checking phase.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="rg-logic" data-l="IN LOGIC PRO">
+          Use the stock <strong>Gain</strong> plugin's <strong>Phase Invert (Ø)</strong> on multi-mic tracks, or nudge one region by samples to time-align. Logic's <strong>Channel EQ</strong> has a one-click <strong>Low Cut</strong> (the leftmost band) — engage it on every mic track. Save a go-to mic chain as a <strong>Channel Strip setting</strong> so it's one click next time.
+        </div>
+      </section>
+
+      <!-- ═══ 4. STEREO ═══ -->
+      <section class="rg-section" id="stereo">
+        <div class="rg-section-label">④ Width, On Purpose</div>
+        <h2 class="rg-section-title">Stereo Miking</h2>
+        <p class="rg-lead">
+          Two mics, arranged deliberately, capture a <em>space</em>: the width of a piano, a kit, a room, a guitar.
+          Each technique trades width against <strong>mono-compatibility</strong> — whether it still sounds right
+          collapsed to a single speaker (phones, laptops, clubs). Here's the geometry, from above.
+        </p>
+
+        <div class="rg-diagrid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+          <div class="rg-dia">
+            <svg viewBox="0 0 220 150" role="img" aria-label="XY stereo: two cardioids coincident at 90 degrees">
+              <rect class="rg-mic" x="96" y="70" width="34" height="12" rx="2" transform="rotate(-45 113 76)"/>
+              <rect class="rg-mic" x="90" y="70" width="34" height="12" rx="2" transform="rotate(45 107 76)"/>
+              <path class="rg-ref" d="M110,76 L60,20 M110,76 L160,20"/>
+              <text class="rg-txt-c rg-txt" x="110" y="120" text-anchor="middle" font-size="9">90°, capsules together</text>
+              <text class="rg-lbl" x="110" y="138" text-anchor="middle">SOURCE is up ↑</text>
+            </svg>
+            <div class="rg-dia-cap">XY (coincident)</div>
+            <div class="rg-dia-sub">Two cardioids, capsules stacked at ~90°. Moderate width, <strong>rock-solid mono</strong> — no phase issues. The safe default.</div>
+          </div>
+          <div class="rg-dia">
+            <svg viewBox="0 0 220 150" role="img" aria-label="ORTF stereo: two cardioids 17cm apart at 110 degrees">
+              <rect class="rg-mic" x="66" y="64" width="34" height="12" rx="2" transform="rotate(-35 83 70)"/>
+              <rect class="rg-mic" x="120" y="64" width="34" height="12" rx="2" transform="rotate(35 137 70)"/>
+              <path class="rg-ref" d="M83,70 L40,18 M137,70 L180,18"/>
+              <line class="rg-axis" x1="83" y1="86" x2="137" y2="86"/>
+              <text class="rg-lbl" x="110" y="100" text-anchor="middle">17 cm</text>
+              <text class="rg-txt-c rg-txt" x="110" y="128" text-anchor="middle" font-size="9">110° spread</text>
+            </svg>
+            <div class="rg-dia-cap">ORTF (near-coincident)</div>
+            <div class="rg-dia-sub">17 cm apart, 110° — mimics human ear spacing. <strong>Wide &amp; realistic</strong>, still fairly mono-safe. Great on acoustic &amp; room.</div>
+          </div>
+          <div class="rg-dia">
+            <svg viewBox="0 0 220 150" role="img" aria-label="Spaced pair: two mics far apart facing forward">
+              <rect class="rg-mic" x="34" y="64" width="34" height="12" rx="2"/>
+              <rect class="rg-mic" x="152" y="64" width="34" height="12" rx="2"/>
+              <path class="rg-ref" d="M51,64 L51,24 M169,64 L169,24"/>
+              <line class="rg-axis" x1="51" y1="92" x2="169" y2="92"/>
+              <text class="rg-lbl" x="110" y="106" text-anchor="middle">0.3–3 m apart</text>
+              <text class="rg-txt-c rg-txt" x="110" y="130" text-anchor="middle" font-size="9">both face source</text>
+            </svg>
+            <div class="rg-dia-cap">Spaced Pair (A/B)</div>
+            <div class="rg-dia-sub">Two mics far apart. <strong>Huge, lush width</strong> — but weakest mono (arrival-time differences). Watch the 3:1 spacing to the source.</div>
+          </div>
+          <div class="rg-dia">
+            <svg viewBox="0 0 220 150" role="img" aria-label="Mid-Side: a forward cardioid stacked with a sideways figure-8">
+              <rect class="rg-mic" x="93" y="52" width="34" height="12" rx="2" transform="rotate(-90 110 58)"/>
+              <rect class="rg-mic" x="93" y="64" width="34" height="12" rx="2"/>
+              <path class="rg-ref" d="M110,58 L110,20"/>
+              <path class="rg-ref" d="M110,70 L60,70 M110,70 L160,70"/>
+              <text class="rg-lbl rg-lbl-f" x="132" y="40">MID →front</text>
+              <text class="rg-lbl" x="110" y="92" text-anchor="middle">SIDE (fig-8) ↔</text>
+              <text class="rg-txt-c rg-txt" x="110" y="128" text-anchor="middle" font-size="9">decode M±S</text>
+            </svg>
+            <div class="rg-dia-cap">Mid-Side (M/S)</div>
+            <div class="rg-dia-sub">Cardioid (mid) + figure-8 (side), decoded into L/R. <strong>Width adjustable after the fact</strong> and <strong>perfect mono</strong> — the side simply drops away.</div>
+          </div>
+        </div>
+
+        <div class="rg-logic" data-l="MID-SIDE IN LOGIC">
+          Record Mid and Side to two mono tracks. To decode: pan Mid center. Duplicate the Side track — pan one copy hard <strong>left</strong>, the other hard <strong>right</strong>, and <strong>invert phase (Ø)</strong> on the right copy. Group the two Side tracks so one fader raises/lowers both: that fader is now your <strong>stereo width</strong> knob. (Or drop the stock <strong>Direction Mixer</strong> plugin on the pair and flip it to <strong>M/S</strong> mode — one plugin does the whole decode.)
+        </div>
+      </section>
+
+      <!-- ═══ 5. DI & REAMPING ═══ -->
+      <section class="rg-section" id="di">
+        <div class="rg-section-label">⑤ Commit Later</div>
+        <h2 class="rg-section-title">DI &amp; Reamping</h2>
+        <p class="rg-lead">
+          A <strong>DI</strong> (direct input) captures an instrument's clean, unamplified signal straight to the
+          interface. <strong>Reamping</strong> is the trick that pays it off later: send that clean DI back <em>out</em>
+          through a real amp (or pedals), re-mic it, and record the result — so you can perfect the tone after tracking,
+          play intact, without the performer in the room again.
+        </p>
+
+        <svg class="rg-wide-dia" viewBox="0 0 560 170" role="img" aria-label="Reamping signal flow: guitar to DI box to interface records clean DI, then interface output through reamp box to amp, mic'd back to a new track">
+          <!-- Stage 1: record DI -->
+          <text class="rg-lbl rg-lbl-f" x="20" y="16">① TRACK THE CLEAN DI</text>
+          <rect class="rg-flowbox-w" x="20" y="26" width="70" height="30" rx="3"/><text class="rg-flowtxt" x="55" y="45" text-anchor="middle">Guitar</text>
+          <line class="rg-sig" x1="90" y1="41" x2="120" y2="41"/>
+          <rect class="rg-flowbox-w" x="120" y="26" width="70" height="30" rx="3"/><text class="rg-flowtxt" x="155" y="45" text-anchor="middle">DI box</text>
+          <line class="rg-sig" x1="190" y1="41" x2="220" y2="41"/>
+          <rect class="rg-flowbox" x="220" y="26" width="86" height="30" rx="3"/><text class="rg-flowtxt" x="263" y="45" text-anchor="middle">Interface</text>
+          <line class="rg-arrow" x1="306" y1="41" x2="340" y2="41"/>
+          <rect class="rg-flowbox" x="340" y="26" width="96" height="30" rx="3"/><text class="rg-flowtxt" x="388" y="45" text-anchor="middle">DAW: DI track</text>
+
+          <!-- Stage 2: reamp out -->
+          <text class="rg-lbl rg-lbl-f" x="20" y="92">② SEND IT BACK OUT THROUGH AN AMP</text>
+          <rect class="rg-flowbox" x="20" y="102" width="96" height="30" rx="3"/><text class="rg-flowtxt" x="68" y="121" text-anchor="middle">DAW: DI out</text>
+          <line class="rg-arrow" x1="116" y1="117" x2="146" y2="117"/>
+          <rect class="rg-flowbox-w" x="146" y="102" width="78" height="30" rx="3"/><text class="rg-flowtxt" x="185" y="117" text-anchor="middle">Reamp box</text>
+          <line class="rg-sig" x1="224" y1="117" x2="254" y2="117"/>
+          <rect class="rg-flowbox-w" x="254" y="102" width="60" height="30" rx="3"/><text class="rg-flowtxt" x="284" y="121" text-anchor="middle">Amp</text>
+          <line class="rg-sig" x1="314" y1="117" x2="344" y2="117"/>
+          <rect class="rg-flowbox" x="344" y="102" width="46" height="30" rx="3"/><text class="rg-flowtxt" x="367" y="121" text-anchor="middle">Mic</text>
+          <line class="rg-arrow" x1="390" y1="117" x2="420" y2="117"/>
+          <rect class="rg-flowbox" x="420" y="102" width="120" height="30" rx="3"/><text class="rg-flowtxt" x="480" y="121" text-anchor="middle">DAW: new amp track</text>
+          <text class="rg-lbl" x="185" y="150" text-anchor="middle">reamp box = line level → instrument level</text>
+        </svg>
+
+        <p class="rg-note">
+          The little box matters: an interface output is <em>line level</em>, but an amp wants a high-impedance
+          <em>instrument level</em> signal. A <strong>reamp box</strong> does that conversion (and lifts ground hum). Feed
+          an amp a raw line output and it'll sound thin and wrong.
+        </p>
+        <div class="rg-logic" data-l="REAMPING IN LOGIC">
+          Put the clean DI on a track and set its <strong>Output</strong> to a spare physical interface output (e.g. Output 3–4) instead of Stereo Out — patch that into the reamp box. Arm a <em>new</em> audio track listening to the mic on the amp, and record. Prefer to stay in-the-box? Skip the hardware entirely: drop <strong>Amp Designer</strong> or <strong>Pedalboard</strong> on the DI track and audition amps instantly — same "commit later" freedom, no cables.
+        </div>
+      </section>
+
+      <!-- ═══ 6. COMPRESSION ═══ -->
+      <section class="rg-section" id="compression">
+        <div class="rg-section-label">⑥ Automatic Volume Control</div>
+        <h2 class="rg-section-title">How Compression Actually Works</h2>
+        <p class="rg-lead">
+          A compressor is an automatic, lightning-fast volume fader: when the signal gets louder than a line you set,
+          it turns it down. That's it. The result is a <em>smaller</em> gap between loud and quiet — so the whole thing
+          can sit louder and steadier in a mix. The two pictures below are the entire concept.
+        </p>
+
+        <div class="rg-diagrid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.4rem;">
+          <div class="rg-dia">
+            <svg viewBox="0 0 220 220" role="img" aria-label="Compression transfer curve: output equals input until the threshold, then rises more slowly by the ratio">
+              <rect x="10" y="10" width="200" height="200" fill="none" class="rg-grid-line"/>
+              <line class="rg-ref" x1="10" y1="210" x2="210" y2="10"/>
+              <text class="rg-lbl" x="200" y="24" text-anchor="end">1:1 (no comp)</text>
+              <!-- threshold marker -->
+              <line class="rg-ref" x1="130" y1="10" x2="130" y2="210"/>
+              <text class="rg-lbl rg-lbl-f" x="130" y="205" text-anchor="middle">threshold</text>
+              <!-- transfer curve (from generated data) -->
+              <path class="rg-curve" d="M10,210 L20,200 L30,190 L40,180 L50,170 L60,160 L70,150 L80,140 L90,130 L100,120 L110,110 L120,100 L130,90 L134,79 L138,78 L142,77 L146,76 L150,75 L154,74 L158,73 L162,72 L166,71 L170,70 L174,69 L178,68 L182,67 L186,66 L190,65 L194,64 L198,63 L202,62 L206,61 L210,60"/>
+              <text class="rg-lbl" x="6" y="120" text-anchor="end" transform="rotate(-90 6 120)">output →</text>
+              <text class="rg-lbl" x="110" y="218" text-anchor="middle">input →</text>
+              <text class="rg-txt-c" x="175" y="52" font-size="9">4:1 above</text>
+            </svg>
+            <div class="rg-dia-cap">The Transfer Curve</div>
+            <div class="rg-dia-sub">Below <strong>threshold</strong>, output = input. Above it, every 4 dB louder in becomes only 1 dB louder out — that's the <strong>ratio</strong>.</div>
+          </div>
+          <div class="rg-dia">
+            <svg viewBox="0 0 280 130" role="img" aria-label="Gain reduction over time: when a loud burst hits, gain reduction ramps in over the attack and ramps out over the release">
+              <line class="rg-grid-line" x1="8" y1="82" x2="272" y2="82"/>
+              <!-- input burst -->
+              <path class="rg-curve-w" d="M8,69 L72,69 L74,18 L187,18 L189,69 L272,69"/>
+              <text class="rg-lbl rg-txt-w" x="130" y="14" text-anchor="middle" font-size="8">input level</text>
+              <!-- gain reduction envelope -->
+              <path class="rg-curve" d="M8,12 L72,12 L80,36 L92,43 L120,44 L187,44 L200,38 L230,26 L272,14" transform="translate(0,58)"/>
+              <text class="rg-lbl rg-lbl-f" x="150" y="122" text-anchor="middle" font-size="8">gain reduction (how hard it clamps)</text>
+              <!-- attack / release brackets -->
+              <text class="rg-lbl" x="86" y="100">◂attack</text>
+              <text class="rg-lbl" x="215" y="100">release▸</text>
+            </svg>
+            <div class="rg-dia-cap">Attack &amp; Release, in Time</div>
+            <div class="rg-dia-sub"><strong>Attack</strong> = how fast it clamps when the loud part hits. <strong>Release</strong> = how fast it lets go after. These two shape the <em>feel</em>.</div>
+          </div>
+        </div>
+
+        <div class="rg-table-wrap" style="margin-top:1.2rem;">
+          <table class="rg-table">
+            <thead><tr><th>Control</th><th>What it does</th><th>Turn it… </th></tr></thead>
+            <tbody>
+              <tr><td class="rg-hi">Threshold</td><td>The level where compression starts</td><td><em>Down</em> to catch more of the signal (more compression).</td></tr>
+              <tr><td class="rg-hi">Ratio</td><td>How hard it clamps above threshold</td><td>2:1 gentle · 4:1 firm · 8:1+ heavy · ∞:1 = limiting.</td></tr>
+              <tr><td class="rg-hi">Attack</td><td>How fast it reacts to a loud hit</td><td><em>Slow</em> to let transients punch through · <em>fast</em> to tame peaks &amp; clicks.</td></tr>
+              <tr><td class="rg-hi">Release</td><td>How fast it recovers after</td><td><em>Fast</em> = lively/pumping · <em>slow</em> = smooth/glued. Try to breathe with the tempo.</td></tr>
+              <tr><td class="rg-hi">Knee</td><td>How abruptly it kicks in at threshold</td><td><em>Soft</em> = gentle &amp; transparent · <em>hard</em> = aggressive &amp; obvious.</td></tr>
+              <tr><td class="rg-hi">Make-Up / Gain</td><td>Adds back the level you compressed away</td><td>Up until compressed &amp; bypassed feel equally loud (fair A/B).</td></tr>
+              <tr><td class="rg-hi">Mix / Dry-Wet</td><td>Blends compressed with untouched signal</td><td>The heart of <em>parallel compression</em> — see below.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rg-grid" style="margin-top:1rem;">
+          <div class="rg-card">
+            <h4>Set It in 4 Moves</h4>
+            <p><span class="rg-term">1.</span> Ratio to 3–4:1. <span class="rg-term">2.</span> Lower threshold until you see <strong>3–6 dB</strong> of gain reduction on the loudest parts. <span class="rg-term">3.</span> Set attack/release by feel — punch vs. smooth. <span class="rg-term">4.</span> Make-up gain, then bypass-compare at matched loudness.</p>
+          </div>
+          <div class="rg-card">
+            <h4>Parallel Compression</h4>
+            <p>Crush a <em>copy</em> hard and blend it under the untouched signal (the <span class="rg-term">Mix</span> knob, or a parallel bus). You get density and sustain <strong>without</strong> losing the transients &amp; life of the original. Magic on drums, bass, vocals.</p>
+          </div>
+          <div class="rg-card">
+            <h4>Gain-Match, Always</h4>
+            <p>Louder sounds "better" for ~10 seconds, then fools you. Every compression judgment must be made at <strong>equal loudness</strong> — or you'll keep choosing "more" for the wrong reason.</p>
+          </div>
+        </div>
+
+        <div class="rg-logic" data-l="LOGIC'S COMPRESSOR">
+          Logic's stock <strong>Compressor</strong> is seven compressors in one — the <strong>Circuit Type</strong> menu models classic hardware: <strong>Studio VCA</strong> (clean, versatile — a great default), <strong>Studio FET</strong> (aggressive, 1176-style, fast &amp; punchy on drums/vocals), <strong>Classic/Vintage VCA</strong> (SSL bus glue), <strong>Vintage FET</strong>, and <strong>Vintage Opto</strong> (LA-2A-style, slow &amp; smooth — beautiful on vocals &amp; bass). Same knobs, different character. Use the built-in <strong>Mix</strong> knob for instant parallel compression, watch the <strong>gain-reduction meter</strong> for your 3–6 dB, and turn on <strong>Auto Gain</strong> for a fair bypass comparison.
+        </div>
+      </section>
+
+      <!-- ═══ 7. PUNCH & OVERDUB ═══ -->
+      <section class="rg-section" id="punch">
+        <div class="rg-section-label">⑦ Fix One Line, Keep the Rest</div>
+        <h2 class="rg-section-title">Punch-In &amp; Overdub</h2>
+        <p class="rg-lead">
+          <strong>Overdubbing</strong> is adding a new part alongside what's already recorded (a harmony, a solo, a
+          tambourine). <strong>Punching in</strong> is surgical: drop into record for just the flubbed word or bar,
+          replace it, and drop back out — the rest of the take is untouched. The player performs into it live, so it
+          stays musical.
+        </p>
+
+        <svg class="rg-wide-dia" viewBox="0 0 560 120" role="img" aria-label="Punch-in timeline: playback runs, record engages only between the punch-in and punch-out points, then returns to playback">
+          <!-- timeline track -->
+          <rect x="20" y="40" width="520" height="34" rx="3" class="rg-flowbox"/>
+          <!-- kept regions -->
+          <rect x="24" y="44" width="176" height="26" rx="2" fill="rgba(138,126,107,0.25)"/>
+          <rect x="360" y="44" width="176" height="26" rx="2" fill="rgba(138,126,107,0.25)"/>
+          <!-- punch region -->
+          <rect x="200" y="44" width="160" height="26" rx="2" fill="rgba(232,60,60,0.28)" stroke="#e8a87c" stroke-width="1.2"/>
+          <line x1="200" y1="30" x2="200" y2="84" class="rg-ref"/>
+          <line x1="360" y1="30" x2="360" y2="84" class="rg-ref"/>
+          <text class="rg-lbl rg-lbl-f" x="200" y="24" text-anchor="middle">PUNCH IN</text>
+          <text class="rg-lbl rg-lbl-f" x="360" y="24" text-anchor="middle">PUNCH OUT</text>
+          <text class="rg-txt" x="112" y="61" text-anchor="middle" font-size="9">playback</text>
+          <text class="rg-txt-w" x="280" y="61" text-anchor="middle" font-size="9">RECORD (replaces)</text>
+          <text class="rg-txt" x="448" y="61" text-anchor="middle" font-size="9">playback</text>
+          <text class="rg-lbl" x="280" y="98" text-anchor="middle">only this slice is re-recorded</text>
+        </svg>
+
+        <div class="rg-grid" style="margin-top:0.6rem;">
+          <div class="rg-card">
+            <h4>Pre-roll = Musical Punches</h4>
+            <p>Always start playback a bar or two <span class="rg-term">before</span> the punch so the player can catch the groove and land in time. Punching cold never feels right.</p>
+          </div>
+          <div class="rg-card">
+            <h4>Comp vs. Punch</h4>
+            <p>Punch replaces audio destructively-ish in the moment. If you're unsure, record a <span class="rg-term">new take</span> over the section instead and comp the best of both — safer, more options.</p>
+          </div>
+          <div class="rg-card">
+            <h4>Loop While You're There</h4>
+            <p>For a stubborn phrase, cycle the section and let the player throw down several passes back-to-back into a take folder, then keep the best.</p>
+          </div>
+        </div>
+
+        <div class="rg-logic" data-l="PUNCHING IN LOGIC">
+          Two ways. <strong>Autopunch</strong>: enable the Autopunch button in the control bar (or <span class="rg-kbd">Cmd ⌘ + Ctrl + P</span> to show it), drag the red autopunch region over exactly the bars to replace, set a pre-roll, hit record — Logic only records inside that region. <strong>Quick Punch / on-the-fly</strong>: just tap <span class="rg-kbd">Record</span> (R) during playback to punch in and <span class="rg-kbd">R</span> again to punch out. Set <strong>Recording ▸ Overlapping Recordings</strong> to <em>Merge</em> or <em>Create Take Folder</em> so nothing you already have is lost, and turn on <strong>pre-roll</strong> (Record settings) so you always ease in.
+        </div>
+      </section>
+
+      <!-- ═══ 8. COMPING ═══ -->
+      <section class="rg-section" id="comping">
+        <div class="rg-section-label">⑧ Best of Every Pass</div>
+        <h2 class="rg-section-title">Comping the Perfect Take</h2>
+        <p class="rg-lead">
+          Nobody nails it in one pass — so record several, then <strong>comp</strong>: assemble one flawless
+          performance from the best moments of each. Great verse in take 2, killer chorus in take 4, one perfect word
+          in take 1 — stitch them into a "composite" that never actually happened live.
+        </p>
+
+        <svg class="rg-wide-dia" viewBox="0 0 560 150" role="img" aria-label="Comping: three takes stacked, with the best section of each highlighted and combined into one comp track below">
+          <text class="rg-lbl" x="18" y="20">TAKE 1</text>
+          <rect x="70" y="10" width="470" height="20" rx="2" class="rg-flowbox"/>
+          <rect x="70" y="10" width="150" height="20" rx="2" fill="rgba(0,229,255,0.25)" stroke="#00e5ff"/>
+          <text class="rg-lbl" x="18" y="48">TAKE 2</text>
+          <rect x="70" y="38" width="470" height="20" rx="2" class="rg-flowbox"/>
+          <rect x="220" y="38" width="170" height="20" rx="2" fill="rgba(0,229,255,0.25)" stroke="#00e5ff"/>
+          <text class="rg-lbl" x="18" y="76">TAKE 3</text>
+          <rect x="70" y="66" width="470" height="20" rx="2" class="rg-flowbox"/>
+          <rect x="390" y="66" width="150" height="20" rx="2" fill="rgba(0,229,255,0.25)" stroke="#00e5ff"/>
+          <!-- arrows down -->
+          <line class="rg-arrow" x1="145" y1="30" x2="145" y2="108"/>
+          <line class="rg-arrow" x1="305" y1="58" x2="305" y2="108"/>
+          <line class="rg-arrow" x1="465" y1="86" x2="465" y2="108"/>
+          <text class="rg-lbl rg-lbl-f" x="18" y="126">COMP</text>
+          <rect x="70" y="112" width="470" height="24" rx="2" fill="rgba(232,168,124,0.18)" stroke="#e8a87c" stroke-width="1.3"/>
+          <text class="rg-txt-w" x="305" y="128" text-anchor="middle" font-size="9">one perfect performance, stitched from all three</text>
+        </svg>
+
+        <div class="rg-logic" data-l="COMPING IN LOGIC">
+          When overlapping recordings make a <strong>Take Folder</strong>, click it open to see every pass stacked. With <strong>Quick Swipe Comping</strong> on (the default), just <em>drag across</em> the part of each take you want — Logic highlights your choices and seamlessly crossfades the edges. Build the comp by swiping the keeper sections top to bottom, audition, then <strong>Flatten</strong> the folder to bake it into one clean region. Right-click the folder for <em>Export/Flatten</em> options, and keep the folder unflattened until you're sure — it's non-destructive up to that point.
+        </div>
+      </section>
+
+      <p class="rg-lead" style="text-align:center; max-width:60ch; margin:0.5rem auto 0; opacity:0.85;">
+        Capture it right at the mic and the mix is half-done before you start. Everything after — EQ, effects, the
+        blend — is easier when the raw recording already sounds like the thing you heard in the room.
+      </p>
+
+    </main>
+  </div>
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
