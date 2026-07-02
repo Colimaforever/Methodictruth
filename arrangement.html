@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Arrangement Guide — How to Structure a Song in Logic Pro X (Sections, Energy, Transitions)</title>
+  <meta name="keywords" content="song arrangement, song structure, Logic Pro X arrangement track, arrangement markers, intro verse chorus bridge, song sections, energy arc, transitions, fills, risers, drops, automation, marker track, cycle recording, song form, how to arrange a song">
+  <meta name="description" content="A visual guide to arranging a song: the anatomy of song sections and the energy arc, then exactly how to block out, name, move and build that structure in Logic Pro X using the Arrangement track, markers, and automation.">
+  <link rel="canonical" href="https://methodictruth.com/arrangement.html">
+  <meta property="og:title" content="Arrangement Guide — Structure a Song in Logic Pro X">
+  <meta property="og:description" content="See the shape of a song: sections, the energy arc, and transitions — then build it in Logic Pro X with the Arrangement track, markers, and automation. A visual arranging reference.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/arrangement.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Arrangement Guide — How to Structure a Song in Logic Pro X",
+    "description": "A visual guide to arranging a song: the anatomy of song sections and the energy arc, then how to block out, name, move and build that structure in Logic Pro X using the Arrangement track, markers, and automation.",
+    "url": "https://methodictruth.com/arrangement.html",
+    "image": "https://methodictruth.com/og-image.png",
+    "author": { "@type": "Person", "name": "Sergio Macedo" },
+    "publisher": { "@type": "Organization", "name": "Methodic Truth", "url": "https://methodictruth.com" },
+    "about": ["song arrangement", "song structure", "Logic Pro", "music production"]
+  }
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <marker id="arArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#00e5ff"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="recording.html">Recording</a>
+          <a href="effects.html">Effects</a>
+          <a href="arrangement.html" class="active">Arrangement</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>The Arrangement Guide</h1>
+        <div class="subtitle">The shape of a song — and how to build it in Logic Pro X</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        You've <a href="recording.html" style="color:var(--glow-warm)">recorded</a> the parts and you know the
+        <a href="effects.html" style="color:var(--glow-warm)">effects</a>. <strong>Arrangement</strong> is the decision
+        that sits between them: <em>what plays when</em> — which sections come in what order, when instruments enter and
+        drop out, and how the energy rises and falls across the whole timeline. This guide draws that shape, then shows
+        exactly how to <strong>block it out, name it, move it, and build it in Logic Pro X</strong> — where the
+        Arrangement track turns your song's structure into blocks you can drag.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#anatomy">Anatomy</a>
+        <a href="#block">Block It Out</a>
+        <a href="#rearrange">Rearrange</a>
+        <a href="#energy">Energy</a>
+        <a href="#transitions">Transitions</a>
+        <a href="#workflow">Workflow</a>
+      </nav>
+
+      <!-- ═══ 1. ANATOMY ═══ -->
+      <section class="ar-section" id="anatomy">
+        <div class="ar-section-label">① The Shape of a Song</div>
+        <h2 class="ar-section-title">Anatomy of an Arrangement</h2>
+        <p class="ar-lead">
+          Most popular songs are built from a small vocabulary of <strong>sections</strong>, ordered so that energy
+          climbs, releases, and climbs again — never flat, never random. Below is a common pop/rock map: watch the line.
+          Each chorus lands a little higher, the bridge pulls back to make the last chorus hit hardest.
+        </p>
+
+        <svg class="ar-wide-dia" viewBox="0 0 560 185" role="img" aria-label="A song arrangement map: colored section blocks along a timeline — intro, verse, pre-chorus, chorus, verse, pre-chorus, chorus, bridge, chorus, outro — with an energy curve arcing above that rises to each chorus, dips at the bridge, and peaks at the final chorus">
+          <!-- energy label -->
+          <text class="ar-lbl ar-lbl-f" x="20" y="20">ENERGY →</text>
+          <line class="ar-grid-line" x1="20" y1="122" x2="540" y2="122"/>
+          <!-- energy curve -->
+          <path class="ar-energy" d="M20.0,94.4 L36.2,94.4 L85.0,80.6 L133.8,66.8 L182.5,43.8 L247.5,76.0 L296.2,65.0 L345.0,41.0 L410.0,71.4 L475.0,34.6 L523.8,89.8 L540.0,89.8"/>
+          <!-- energy node dots -->
+          <circle cx="182.5" cy="43.8" r="2.6" fill="#00e5ff"/>
+          <circle cx="345.0" cy="41.0" r="2.6" fill="#00e5ff"/>
+          <circle cx="475.0" cy="34.6" r="3.2" fill="#00e5ff"/>
+          <text class="ar-lbl ar-lbl-f" x="475" y="26" text-anchor="middle">peak</text>
+          <!-- section blocks -->
+          <g>
+            <!-- Intro -->
+            <rect x="20"    y="132" width="32.5" height="26" fill="rgba(138,126,107,0.28)" stroke="rgba(138,126,107,0.5)"/>
+            <text class="ar-blk-lbl" x="36.2" y="148" text-anchor="middle" font-size="7">Intro</text>
+            <!-- Verse 1 -->
+            <rect x="52.5"  y="132" width="65"   height="26" fill="rgba(232,168,124,0.24)" stroke="rgba(232,168,124,0.5)"/>
+            <text class="ar-blk-lbl" x="85" y="148" text-anchor="middle">Verse 1</text>
+            <!-- Pre -->
+            <rect x="117.5" y="132" width="32.5" height="26" fill="rgba(232,168,124,0.45)" stroke="rgba(232,168,124,0.7)"/>
+            <text class="ar-blk-lbl" x="133.8" y="148" text-anchor="middle" font-size="7">Pre</text>
+            <!-- Chorus 1 -->
+            <rect x="150"   y="132" width="65"   height="26" fill="rgba(0,229,255,0.32)" stroke="rgba(0,229,255,0.6)"/>
+            <text class="ar-blk-lbl" x="182.5" y="148" text-anchor="middle" fill="#bff4ff">Chorus</text>
+            <!-- Verse 2 -->
+            <rect x="215"   y="132" width="65"   height="26" fill="rgba(232,168,124,0.24)" stroke="rgba(232,168,124,0.5)"/>
+            <text class="ar-blk-lbl" x="247.5" y="148" text-anchor="middle">Verse 2</text>
+            <!-- Pre -->
+            <rect x="280"   y="132" width="32.5" height="26" fill="rgba(232,168,124,0.45)" stroke="rgba(232,168,124,0.7)"/>
+            <text class="ar-blk-lbl" x="296.2" y="148" text-anchor="middle" font-size="7">Pre</text>
+            <!-- Chorus 2 -->
+            <rect x="312.5" y="132" width="65"   height="26" fill="rgba(0,229,255,0.32)" stroke="rgba(0,229,255,0.6)"/>
+            <text class="ar-blk-lbl" x="345" y="148" text-anchor="middle" fill="#bff4ff">Chorus</text>
+            <!-- Bridge -->
+            <rect x="377.5" y="132" width="65"   height="26" fill="rgba(168,130,224,0.32)" stroke="rgba(168,130,224,0.65)"/>
+            <text class="ar-blk-lbl" x="410" y="148" text-anchor="middle" fill="#dcc8ff">Bridge</text>
+            <!-- Chorus 3 -->
+            <rect x="442.5" y="132" width="65"   height="26" fill="rgba(0,229,255,0.42)" stroke="rgba(0,229,255,0.75)"/>
+            <text class="ar-blk-lbl" x="475" y="148" text-anchor="middle" fill="#bff4ff">Chorus</text>
+            <!-- Outro -->
+            <rect x="507.5" y="132" width="32.5" height="26" fill="rgba(138,126,107,0.28)" stroke="rgba(138,126,107,0.5)"/>
+            <text class="ar-blk-lbl" x="523.8" y="148" text-anchor="middle" font-size="7">Outro</text>
+          </g>
+          <text class="ar-lbl" x="280" y="174" text-anchor="middle">bars → (each block is a named Arrangement marker in Logic)</text>
+        </svg>
+        <div class="ar-figcap">A typical arrangement. The line is the point — contrast is what makes a chorus feel like a chorus.</div>
+
+        <div class="ar-table-wrap" style="margin-top:0.6rem;">
+          <table class="ar-table">
+            <thead><tr><th>Section</th><th>Typical length</th><th>Job in the song</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Intro</td><td>4–8 bars</td><td>Set mood &amp; key; hint at what's coming. Often a stripped hook or a single texture.</td></tr>
+              <tr><td class="ar-hi">Verse</td><td>8–16 bars</td><td>Tell the story; keep it lower-energy so the chorus can lift. Details change verse to verse.</td></tr>
+              <tr><td class="ar-hi">Pre-Chorus</td><td>4–8 bars</td><td>The ramp — build tension &amp; expectation that the chorus resolves. Optional but powerful.</td></tr>
+              <tr><td class="ar-hi">Chorus</td><td>8–16 bars</td><td>The payoff &amp; the hook — biggest, catchiest, most repeated. The thing they remember.</td></tr>
+              <tr><td class="ar-hi">Bridge</td><td>4–8 bars</td><td>Contrast &amp; surprise — new chords, a breakdown, a key change. Resets ears for the last chorus.</td></tr>
+              <tr><td class="ar-hi">Outro</td><td>4–8 bars</td><td>Land the plane — repeat &amp; fade, or a button ending. Release the energy you built.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          These are conventions, not laws — EDM leans on build/drop, folk may be all verses, hip-hop loops 8-bar
+          sections. But almost every arrangement works by <em>contrast</em>: a section only feels big because the one
+          before it was smaller. Think in <strong>4- and 8-bar blocks</strong> — the ear expects phrases in powers of
+          two, and Logic's grid rewards it.
+        </p>
+      </section>
+
+      <!-- ═══ 2. BLOCK IT OUT ═══ -->
+      <section class="ar-section" id="block">
+        <div class="ar-section-label">② Structure Before Sound</div>
+        <h2 class="ar-section-title">Blocking It Out in Logic Pro X</h2>
+        <p class="ar-lead">
+          Before you fuss over sounds, map the <em>form</em>. Logic gives you two "global tracks" for this — a
+          <strong>Marker track</strong> (labels on the ruler) and the more powerful <strong>Arrangement track</strong>,
+          whose markers wrap the <em>actual regions underneath</em> so a whole section moves as one block. Getting these
+          down first turns a blank project into a labeled skeleton you fill in.
+        </p>
+
+        <svg class="ar-wide-dia" viewBox="0 0 560 120" role="img" aria-label="Logic's Arrangement track shown as a horizontal strip of named markers — Intro, Verse, Chorus, and so on — sitting above the region tracks, so dragging a marker moves everything beneath it">
+          <text class="ar-lbl ar-lbl-f" x="12" y="16">ARRANGEMENT TRACK</text>
+          <!-- arrangement markers row -->
+          <rect x="12"  y="22" width="40" height="20" fill="rgba(138,126,107,0.3)" stroke="rgba(138,126,107,0.55)"/><text class="ar-flowtxt" x="32" y="35" text-anchor="middle" font-size="7">Intro</text>
+          <rect x="52"  y="22" width="90" height="20" fill="rgba(232,168,124,0.28)" stroke="rgba(232,168,124,0.55)"/><text class="ar-flowtxt" x="97" y="35" text-anchor="middle">Verse</text>
+          <rect x="142" y="22" width="110" height="20" fill="rgba(0,229,255,0.3)" stroke="rgba(0,229,255,0.6)"/><text class="ar-flowtxt" x="197" y="35" text-anchor="middle">Chorus</text>
+          <rect x="252" y="22" width="90" height="20" fill="rgba(232,168,124,0.28)" stroke="rgba(232,168,124,0.55)"/><text class="ar-flowtxt" x="297" y="35" text-anchor="middle">Verse</text>
+          <rect x="342" y="22" width="110" height="20" fill="rgba(0,229,255,0.3)" stroke="rgba(0,229,255,0.6)"/><text class="ar-flowtxt" x="397" y="35" text-anchor="middle">Chorus</text>
+          <rect x="452" y="22" width="96" height="20" fill="rgba(168,130,224,0.3)" stroke="rgba(168,130,224,0.6)"/><text class="ar-flowtxt" x="500" y="35" text-anchor="middle">Bridge</text>
+          <!-- divider -->
+          <line class="ar-grid-line" x1="12" y1="50" x2="548" y2="50"/>
+          <!-- region tracks beneath -->
+          <text class="ar-lbl" x="12" y="63">Drums</text>
+          <rect x="52" y="56" width="496" height="12" rx="1.5" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.25)"/>
+          <text class="ar-lbl" x="12" y="80">Bass</text>
+          <rect x="52" y="73" width="496" height="12" rx="1.5" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.25)"/>
+          <text class="ar-lbl" x="12" y="97">Vocal</text>
+          <rect x="142" y="90" width="310" height="12" rx="1.5" fill="rgba(232,168,124,0.14)" stroke="rgba(232,168,124,0.3)"/>
+          <text class="ar-lbl" x="197" y="115" text-anchor="middle">move the "Chorus" marker → all regions under it move together</text>
+        </svg>
+        <div class="ar-figcap">The Arrangement track is a set of handles on your whole song's structure.</div>
+
+        <div class="ar-grid" style="margin-top:0.8rem;">
+          <div class="ar-card">
+            <h4>1 · Set the Foundation</h4>
+            <p>Fix <span class="ar-term">tempo</span>, <span class="ar-term">time signature</span> and <span class="ar-term">key</span> first (the LCD &amp; the Key/Signature global track). Everything downstream — loops, the grid, transposition — depends on these being right early.</p>
+          </div>
+          <div class="ar-card">
+            <h4>2 · Show the Arrangement Track</h4>
+            <p>Click the <span class="ar-term">Global Tracks</span> triangle (top-left of the track area) or <strong>Track ▸ Global Tracks ▸ Arrangement</strong>. Hit the <strong>+</strong> on it to drop your first marker; it snaps to bars.</p>
+          </div>
+          <div class="ar-card">
+            <h4>3 · Name &amp; Size Each Block</h4>
+            <p>Double-click a marker's name to rename it <span class="ar-term">Intro / Verse / Chorus…</span>; drag its right edge to length (8, 16 bars). Build the empty skeleton of the <em>whole</em> song before recording a note.</p>
+          </div>
+        </div>
+        <div class="ar-logic" data-l="ARRANGEMENT VS MARKERS">
+          Two tools, two jobs. <strong>Arrangement markers</strong> (the colored blocks) are <em>structural</em> — moving,
+          copying, or deleting one takes the audio &amp; MIDI beneath it along for the ride. <strong>Markers</strong> on
+          the Marker track are just <em>labels</em> on the ruler for navigation (jump with <span class="ar-kbd">the marker
+          list</span> or key commands), and don't move anything. Use Arrangement markers to <em>build</em>, plain markers
+          to <em>find your place</em>. Tip: name your first arrangement marker and Logic auto-suggests the rest.
+        </div>
+      </section>
+
+      <!-- ═══ 3. REARRANGE ═══ -->
+      <section class="ar-section" id="rearrange">
+        <div class="ar-section-label">③ Move Whole Sections at Once</div>
+        <h2 class="ar-section-title">Rearranging by the Block</h2>
+        <p class="ar-lead">
+          This is where the Arrangement track earns its keep. Because each marker owns the regions under it, you can
+          audition a completely different song order by <strong>dragging blocks around</strong> — no cutting, no
+          re-aligning fifty regions by hand. "What if the chorus came first?" becomes a five-second experiment.
+        </p>
+
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Reorder</h4>
+            <p><span class="ar-term">Drag</span> an arrangement marker left or right and everything beneath it — drums, bass, vocals, automation — slides with it, pushing neighbors aside. Try chorus-first, or swap the two verses.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Duplicate</h4>
+            <p><span class="ar-term">Option-drag</span> a marker (or <strong>copy/paste</strong>) to repeat a section instantly — a second chorus, a double-length outro. Then tweak the copy so it's not identical.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Delete &amp; Close the Gap</h4>
+            <p>Select a marker and <strong>delete</strong> it to remove the section <em>and</em> its content; hold the modifier to pull the rest of the song back and heal the gap. Great for trimming a too-long intro.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Pack &amp; Fold</h4>
+            <p>Group a section's tracks into a <span class="ar-term">Folder</span> or edit multiple regions as one to move big chunks cleanly. Keeps a busy project readable while you shuffle form.</p>
+          </div>
+        </div>
+
+        <p class="ar-note">
+          A fast pro workflow: loop-write or program <em>one</em> great 8-bar section, then build the whole song by
+          <strong>copying that block and subtracting</strong> — strip it down for the intro, thin it for the verse, keep
+          it full for the chorus. You arrange by taking away, not always by adding.
+        </p>
+        <div class="ar-logic" data-l="MOVING SECTIONS IN LOGIC">
+          Select an arrangement marker and it highlights all regions inside. Now <span class="ar-kbd">drag</span> to
+          move, <span class="ar-kbd">Opt ⌥ + drag</span> to copy, <span class="ar-kbd">Delete</span> to remove.
+          To rearrange without leaving gaps, Logic shoves the following markers over automatically. Zoom to fit with
+          <span class="ar-kbd">Z</span>, and turn on <strong>Snap ▸ Bar</strong> so blocks always land on the downbeat.
+          Working with loops? Drag from the <strong>Loop Browser</strong> straight onto a track and the tempo/key follow
+          your project.
+        </div>
+      </section>
+
+      <!-- ═══ 4. ENERGY ═══ -->
+      <section class="ar-section" id="energy">
+        <div class="ar-section-label">④ What Plays When</div>
+        <h2 class="ar-section-title">Arranging Energy Over Time</h2>
+        <p class="ar-lead">
+          A great arrangement is mostly about <em>subtraction</em>. The same four-chord loop feels like a different
+          section depending on <strong>how many parts are playing</strong> and <strong>how loud</strong>. To lift into a
+          chorus you don't need new notes — you need <em>more</em>: the parts you muted in the verse come back, and the
+          contrast does the work.
+        </p>
+
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>To raise energy…</th><th>To lower energy…</th></tr></thead>
+            <tbody>
+              <tr><td>Add layers (harmonies, doubles, percussion, pads)</td><td class="ar-hi">Mute parts — drop to just vocal + one instrument</td></tr>
+              <tr><td>Open the hi-hats / add a crash on the downbeat</td><td class="ar-hi">Pull the drums back to kick &amp; snare, or out entirely</td></tr>
+              <tr><td>Widen the stereo image &amp; brighten the tone</td><td class="ar-hi">Narrow &amp; darken — filter the highs down</td></tr>
+              <tr><td>Push the vocal up / add ad-libs &amp; stacks</td><td class="ar-hi">Strip to a single, dry lead vocal</td></tr>
+              <tr><td>Bring in the bass &amp; low end for weight</td><td class="ar-hi">Drop the bass out — the "breakdown" before a drop</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="ar-lead" style="margin-top:1.1rem;">
+          The single biggest trick: <strong>take everything away right before the biggest moment.</strong> A bar of near
+          silence — just a vocal, or one hit — makes the full chorus that follows feel enormous. Loud isn't big;
+          <em>contrast</em> is big.
+        </p>
+        <div class="ar-logic" data-l="ENERGY IN LOGIC">
+          Build sections by muting: click a region and <span class="ar-kbd">M</span> to mute it, or use the
+          <strong>Track Mute</strong> to pull whole parts out of a verse. Automate the rise with <span class="ar-kbd">A</span>
+          to show <strong>Track Automation</strong> — draw <strong>Volume</strong> swells, or automate a
+          <a href="effects.html#eq" style="color:var(--glow)">Channel EQ</a> high-cut opening up into the chorus for a
+          filter-sweep lift. For a hands-on build, record automation live by grabbing a knob while it plays. The
+          <strong>MIDI Draw</strong> and region <strong>gain</strong> handles fine-tune without plugins.
+        </div>
+      </section>
+
+      <!-- ═══ 5. TRANSITIONS ═══ -->
+      <section class="ar-section" id="transitions">
+        <div class="ar-section-label">⑤ Gluing Sections Together</div>
+        <h2 class="ar-section-title">Transitions</h2>
+        <p class="ar-lead">
+          Sections that just <em>stop and start</em> feel like separate loops bolted together. <strong>Transitions</strong>
+          are the connective tissue — the fill, the riser, the drop — that carries the ear across a seam and signals
+          "something's about to change." They live in the last bar or two of a section.
+        </p>
+
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Drum Fill</h4>
+            <p>A tom roll or busier pattern in the <span class="ar-term">last bar</span> announces the next section. The oldest transition in the book, and still the most reliable into a chorus.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Riser / Sweep</h4>
+            <p>A sound that rises in pitch or brightness over 1–4 bars (white-noise sweep, reverse cymbal, synth glide) builds tension that the downbeat releases. The EDM staple.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Impact &amp; Downshifter</h4>
+            <p>A <span class="ar-term">crash or boom</span> on the first beat of the new section lands it; a reverse or falling sound eases <em>out</em> of a big part into a quiet one.</p>
+          </div>
+          <div class="ar-card">
+            <h4>The Cutout</h4>
+            <p>Drop everything for a beat — or throw a big <a href="effects.html#space" style="color:var(--glow)">reverb/delay</a> tail on the last word and let it ring into silence. Negative space <em>is</em> a transition.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Filter Sweep</h4>
+            <p>Automate a low-pass filter opening across the pre-chorus so the mix "un-muffles" into the chorus. Tension you can hear building, resolved on the downbeat.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Anticipation</h4>
+            <p>Bring the next section's hook in a beat <em>early</em>, or hold a vocal note across the bar line. Overlapping the seam stitches two sections into one continuous motion.</p>
+          </div>
+        </div>
+        <div class="ar-logic" data-l="TRANSITIONS IN LOGIC">
+          Automate a filter sweep with the stock <strong>Channel EQ</strong> or <strong>Auto Filter</strong> — show
+          automation (<span class="ar-kbd">A</span>), pick the cutoff, and draw a ramp across the pre-chorus. For risers
+          &amp; impacts, drop samples on a dedicated <strong>FX track</strong> aligned to the section boundary. A giant
+          reverb throw: put a reverb on a <strong>send</strong>, then automate the <em>send level</em> up for one word so
+          only that word washes out. Crossfade overlapping audio regions by dragging the <strong>fade</strong> handles.
+        </div>
+      </section>
+
+      <!-- ═══ 6. WORKFLOW ═══ -->
+      <section class="ar-section" id="workflow">
+        <div class="ar-section-label">⑥ Ways of Working</div>
+        <h2 class="ar-section-title">Arrangement Workflow &amp; Habits</h2>
+        <p class="ar-lead">
+          A few habits keep arranging fast and keep you from getting lost in a forty-track project. Most are one key
+          command away.
+        </p>
+
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Skeleton First</h4>
+            <p>Lay down all the <span class="ar-term">empty named blocks</span> for the whole song before you perfect any one. Seeing the full map stops you from writing a great verse into a song with no shape.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Cycle a Section</h4>
+            <p>Set the <span class="ar-term">Cycle</span> region to one arrangement block and loop it while you write or record takes for just that part. <span class="ar-kbd">C</span> toggles it; drag in the ruler to set it.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Reference the Form</h4>
+            <p>Pull up a song you love and count its bars &amp; sections. Stealing a proven <em>structure</em> (not the notes) is how you learn what lengths &amp; orders actually work.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Comp by Section</h4>
+            <p>Record several passes of a section into a <a href="recording.html#comping" style="color:var(--glow)">Take Folder</a> and comp the best — arrange the <em>performance</em>, not just the parts.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Colors &amp; Names</h4>
+            <p>Color regions by section or instrument and name your tracks. A readable project is a fast project — you arrange better when you can see the shape at a glance.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Save a Template</h4>
+            <p>Once you have a track layout, routing, and a blank section skeleton you like, save it as a <span class="ar-term">Template</span> (File ▸ Save as Template). Every new song starts arranged.</p>
+          </div>
+        </div>
+        <div class="ar-logic" data-l="HANDY KEY COMMANDS">
+          <span class="ar-kbd">C</span> Cycle · <span class="ar-kbd">A</span> Automation · <span class="ar-kbd">M</span> Mute ·
+          <span class="ar-kbd">Z</span> Zoom to fit · <span class="ar-kbd">Opt ⌥ + drag</span> Copy a marker/region ·
+          <span class="ar-kbd">Cmd ⌘ + Shift + D</span> Summing Stack (group tracks) ·
+          <span class="ar-kbd">Shift + ↩</span> Play from selection. Open the <strong>Key Commands</strong> window
+          (<span class="ar-kbd">Opt ⌥ + K</span>) to bind anything you reach for often — the faster you can move blocks,
+          the more arrangements you'll actually try.
+        </div>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Arrangement is the song's architecture — the invisible plan that decides whether it drags or soars. Block the
+        shape out first, move it around freely until the energy breathes, and Logic's Arrangement track keeps the whole
+        structure in your hands. Then it's ready to <a href="effects.html" style="color:var(--glow-warm)">mix</a>.
+      </p>
+
+    </main>
+  </div>
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>

@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Effects Guide — What Every Audio Effect Does, the Signal Chain Order & How to Practice Mixing (Logic Pro)</title>
+  <meta name="keywords" content="audio effects, signal chain order, EQ, equalizer, subtractive EQ, compression, limiter, gate, de-esser, reverb, delay, pre-delay, chorus, flanger, phaser, modulation, saturation, distortion, harmonics, insert vs send, parallel processing, gain staging, reference track, mixing practice, ear training, Logic Pro X">
+  <meta name="description" content="A visual guide to audio effects: what EQ, dynamics, reverb, delay, modulation and saturation actually do, the order they go in the signal chain, which effects pair together, and how to practice mixing effectively — with Logic Pro X workflow throughout.">
+  <link rel="canonical" href="https://methodictruth.com/effects.html">
+  <meta property="og:title" content="Effects Guide — What Every Effect Does & the Signal-Chain Order">
+  <meta property="og:description" content="See how it works: EQ curves, compression, reverb and delay impulses, modulation and saturation — the order effects go in, which pair together, and how to practice mixing. A visual reference with Logic Pro X workflow.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/effects.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Effects Guide — What Every Audio Effect Does, the Signal-Chain Order & How to Practice Mixing",
+    "description": "A visual guide to audio effects: what EQ, dynamics, reverb, delay, modulation and saturation actually do, the order they go in the signal chain, which effects pair together, and how to practice mixing effectively — with Logic Pro X workflow throughout.",
+    "url": "https://methodictruth.com/effects.html",
+    "image": "https://methodictruth.com/og-image.png",
+    "author": { "@type": "Person", "name": "Sergio Macedo" },
+    "publisher": { "@type": "Organization", "name": "Methodic Truth", "url": "https://methodictruth.com" },
+    "about": ["audio effects", "equalization", "audio compression", "reverb", "mixing", "Logic Pro"]
+  }
+  </script>
+  <style>
+    /* ─── EFFECTS GUIDE PAGE ─── */
+    .fx-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .fx-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .fx-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .fx-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .fx-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .fx-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .fx-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .fx-lead em { color: var(--glow); font-style: italic; }
+    .fx-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .fx-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .fx-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .fx-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .fx-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.fx-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .fx-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .fx-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .fx-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .fx-table td.fx-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .fx-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .fx-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .fx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .fx-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .fx-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .fx-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .fx-card p + p { margin-top: 0.5rem; }
+    .fx-card .fx-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .fx-diagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.1rem; margin: 0.8rem 0 0.4rem; }
+    .fx-dia { text-align: center; }
+    .fx-dia svg { width: 100%; max-width: 185px; height: auto; }
+    .fx-dia-cap { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--glow); margin-top: 0.35rem; text-transform: uppercase; }
+    .fx-dia-sub { font-family: 'EB Garamond', Georgia, serif; font-size: 0.82rem; color: var(--stone-dark); margin-top: 0.2rem; line-height: 1.4; }
+    .fx-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 560px; height: auto; }
+    .fx-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .fx-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .fx-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .fx-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .fx-lbl-f { fill: var(--glow); }
+    .fx-lbl-w { fill: var(--glow-warm); }
+    .fx-txt { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: var(--parchment); }
+    .fx-txt-w { fill: var(--glow-warm); }
+    .fx-txt-c { fill: var(--glow); }
+    .fx-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .fx-flowbox-w { fill: rgba(26, 18, 10, 0.55); stroke: rgba(232, 168, 124, 0.4); stroke-width: 1.2; }
+    .fx-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .fx-curve { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .fx-curve-w { fill: none; stroke: var(--glow-warm); stroke-width: 2; }
+    .fx-fill { fill: rgba(0, 229, 255, 0.10); stroke: var(--glow); stroke-width: 1.8; }
+    .fx-ref { fill: none; stroke: rgba(138, 126, 107, 0.45); stroke-width: 1; stroke-dasharray: 3 3; }
+    .fx-bar { fill: rgba(0, 229, 255, 0.55); }
+    .fx-bar-w { fill: rgba(232, 168, 124, 0.6); }
+
+    /* toc */
+    .fx-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .fx-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .fx-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .fx-section { padding: 1.1rem 0.9rem; }
+      .fx-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <!-- shared SVG marker defs (arrowheads) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <marker id="fxArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#00e5ff"/>
+      </marker>
+      <marker id="fxArrowW" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#e8a87c"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="recording.html">Recording</a>
+          <a href="effects.html" class="active">Effects</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="fx-page">
+    <main class="fx-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>The Effects Guide</h1>
+        <div class="subtitle">What every effect does, the order they go in — and how to practice hearing it</div>
+      </div>
+
+      <p class="fx-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Once a sound is <a href="recording.html" style="color:var(--glow-warm)">recorded well</a>, effects shape it.
+        But a rack of plugins is only as good as knowing <em>what each one actually does</em>, <strong>the order to
+        put them in</strong>, and which ones team up. This guide draws the invisible part — an EQ curve, a compressor's
+        clamp, a reverb's tail, a flanger's moving notches — then lays out the signal chain, the classic pairings, and
+        a real method for <strong>practicing your ears</strong>. Workflow notes are for <strong>Logic Pro X</strong>;
+        the concepts are universal.
+      </p>
+
+      <nav class="fx-toc" aria-label="Sections">
+        <a href="#chain">Signal Chain</a>
+        <a href="#eq">EQ &amp; Filters</a>
+        <a href="#dynamics">Dynamics</a>
+        <a href="#space">Reverb &amp; Delay</a>
+        <a href="#mod">Modulation</a>
+        <a href="#drive">Saturation</a>
+        <a href="#pairs">What Goes Together</a>
+        <a href="#practice">How to Practice</a>
+      </nav>
+
+      <!-- ═══ 1. SIGNAL CHAIN ═══ -->
+      <section class="fx-section" id="chain">
+        <div class="fx-section-label">① Order Is Everything</div>
+        <h2 class="fx-section-title">The Signal Chain</h2>
+        <p class="fx-lead">
+          Effects process in sequence — each one hears the <em>output</em> of the one before it. So the order changes
+          the result: compressing <strong>after</strong> a big EQ boost squashes that boost; distorting
+          <strong>before</strong> reverb keeps the tail clean; distorting <strong>after</strong> reverb smears
+          everything. There's no single law, but there is a reliable default that solves most problems.
+        </p>
+
+        <svg class="fx-wide-dia" viewBox="0 0 560 150" role="img" aria-label="The default insert signal chain, left to right: gate, subtractive EQ, compressor, additive EQ, saturation, then to sends for modulation, delay and reverb">
+          <text class="fx-lbl fx-lbl-f" x="20" y="16">INSERTS — processed in order, in series on the channel</text>
+          <!-- chain of insert boxes -->
+          <g>
+            <rect class="fx-flowbox-w" x="20"  y="28" width="58" height="30" rx="3"/><text class="fx-flowtxt" x="49"  y="46" text-anchor="middle">Gate</text>
+            <line class="fx-axis" x1="78"  y1="43" x2="90"  y2="43" marker-end="url(#fxArrow)"/>
+            <rect class="fx-flowbox" x="90"  y="28" width="70" height="30" rx="3"/><text class="fx-flowtxt" x="125" y="42" text-anchor="middle">EQ</text><text class="fx-lbl" x="125" y="52" text-anchor="middle">cut / clean</text>
+            <line class="fx-axis" x1="160" y1="43" x2="172" y2="43" marker-end="url(#fxArrow)"/>
+            <rect class="fx-flowbox" x="172" y="28" width="78" height="30" rx="3"/><text class="fx-flowtxt" x="211" y="46" text-anchor="middle">Compressor</text>
+            <line class="fx-axis" x1="250" y1="43" x2="262" y2="43" marker-end="url(#fxArrow)"/>
+            <rect class="fx-flowbox" x="262" y="28" width="70" height="30" rx="3"/><text class="fx-flowtxt" x="297" y="42" text-anchor="middle">EQ</text><text class="fx-lbl" x="297" y="52" text-anchor="middle">shape / add</text>
+            <line class="fx-axis" x1="332" y1="43" x2="344" y2="43" marker-end="url(#fxArrow)"/>
+            <rect class="fx-flowbox-w" x="344" y="28" width="78" height="30" rx="3"/><text class="fx-flowtxt" x="383" y="46" text-anchor="middle">Saturation</text>
+            <line class="fx-axis" x1="422" y1="43" x2="434" y2="43" marker-end="url(#fxArrow)"/>
+            <rect class="fx-flowbox" x="434" y="28" width="106" height="30" rx="3"/><text class="fx-flowtxt" x="487" y="46" text-anchor="middle">→ channel fader</text>
+          </g>
+          <!-- send to time fx -->
+          <line class="fx-ref" x1="487" y1="58" x2="487" y2="86"/>
+          <text class="fx-lbl fx-lbl-f" x="20" y="100">SENDS — one shared effect, many channels feed it (parallel, on a bus)</text>
+          <rect class="fx-flowbox" x="150" y="108" width="90" height="28" rx="3"/><text class="fx-flowtxt" x="195" y="125" text-anchor="middle">Modulation</text>
+          <rect class="fx-flowbox" x="250" y="108" width="70" height="28" rx="3"/><text class="fx-flowtxt" x="285" y="125" text-anchor="middle">Delay</text>
+          <rect class="fx-flowbox" x="330" y="108" width="70" height="28" rx="3"/><text class="fx-flowtxt" x="365" y="125" text-anchor="middle">Reverb</text>
+          <line class="fx-ref" x1="487" y1="86" x2="195" y2="86"/><line class="fx-axis" x1="195" y1="86" x2="195" y2="108" marker-end="url(#fxArrow)"/>
+          <line class="fx-axis" x1="285" y1="86" x2="285" y2="108" marker-end="url(#fxArrow)"/>
+          <line class="fx-axis" x1="365" y1="86" x2="365" y2="108" marker-end="url(#fxArrow)"/>
+        </svg>
+        <div class="fx-figcap">A dependable default. It's a starting point, not a commandment — but break it on purpose, not by accident.</div>
+
+        <div class="fx-grid" style="margin-top:1rem;">
+          <div class="fx-card">
+            <h4>Insert vs. Send</h4>
+            <p>An <span class="fx-term">insert</span> sits <em>in</em> the channel — the whole signal passes through it (EQ, compression). A <span class="fx-term">send</span> taps a copy off to a shared bus (reverb, delay) so many tracks share one space and you blend it in. Time-based effects almost always live on sends.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Subtractive → Corrective → Colorful</h4>
+            <p>Clean up problems <em>first</em> (gate noise, cut mud), control dynamics <em>next</em> (compress), then add character <em>last</em> (tone EQ, saturation, space). Fix before you flatter.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Why Time Effects Go Last</h4>
+            <p>Reverb and delay create the illusion of <span class="fx-term">space</span> around the finished sound. Put dynamics or distortion after them and you're processing the room, not the source — it turns to mush.</p>
+          </div>
+        </div>
+
+        <p class="fx-note">
+          The two EQs aren't a mistake: a narrow <em>subtractive</em> EQ before the compressor stops boomy lows from
+          triggering it, and a broad <em>tone-shaping</em> EQ after lets you sculpt the already-controlled signal. One
+          removes, one flatters.
+        </p>
+        <div class="fx-logic" data-l="IN LOGIC PRO">
+          Insert effects go in the <strong>Audio FX</strong> slots at the top of a channel strip — they run top-to-bottom,
+          and you can <em>drag to reorder</em> them live. For sends, click a <strong>Sends</strong> slot ▸ pick a
+          <strong>Bus</strong>; Logic auto-creates an <strong>Aux</strong> channel where you load one reverb. Turn the
+          send knob up to taste. Save a whole chain as a <strong>Channel Strip setting</strong> to recall it in one click.
+        </div>
+      </section>
+
+      <!-- ═══ 2. EQ ═══ -->
+      <section class="fx-section" id="eq">
+        <div class="fx-section-label">② Sculpting the Spectrum</div>
+        <h2 class="fx-section-title">EQ &amp; Filters</h2>
+        <p class="fx-lead">
+          An <strong>equalizer</strong> turns individual frequency ranges up or down. That's the whole idea — but it's
+          the single most-used effect in mixing, because every problem of "too boomy / too harsh / too dull / not clear"
+          lives at a <em>frequency</em>. The curve below is one channel of EQ: a cut in the mud, a boost for presence,
+          a lift of air.
+        </p>
+
+        <svg class="fx-wide-dia" viewBox="0 0 560 175" role="img" aria-label="An EQ response curve over a logarithmic frequency axis from 20 hertz to 20 kilohertz, showing a cut around 250 hertz, a boost around 3 kilohertz, and a high shelf lift above 8 kilohertz">
+          <!-- plot frame -->
+          <rect x="40" y="20" width="500" height="110" fill="none" class="fx-grid-line"/>
+          <!-- 0 dB line -->
+          <line class="fx-ref" x1="40" y1="75" x2="540" y2="75"/>
+          <text class="fx-lbl" x="44" y="72">0 dB</text>
+          <!-- decade gridlines -->
+          <line class="fx-grid-line" x1="156.5" y1="20" x2="156.5" y2="130"/>
+          <line class="fx-grid-line" x1="323.2" y1="20" x2="323.2" y2="130"/>
+          <line class="fx-grid-line" x1="489.8" y1="20" x2="489.8" y2="130"/>
+          <!-- curve -->
+          <path class="fx-curve" d="M40.0,75.2 L42.1,75.2 L44.3,75.2 L46.4,75.2 L48.6,75.3 L50.7,75.3 L52.8,75.3 L55.0,75.4 L57.1,75.4 L59.3,75.5 L61.4,75.5 L63.5,75.6 L65.7,75.6 L67.8,75.7 L70.0,75.8 L72.1,75.8 L74.2,75.9 L76.4,76.0 L78.5,76.1 L80.7,76.2 L82.8,76.3 L84.9,76.4 L87.1,76.5 L89.2,76.7 L91.3,76.8 L93.5,77.0 L95.6,77.1 L97.8,77.3 L99.9,77.5 L102.0,77.7 L104.2,77.9 L106.3,78.1 L108.5,78.3 L110.6,78.6 L112.7,78.8 L114.9,79.1 L117.0,79.4 L119.2,79.7 L121.3,80.0 L123.4,80.3 L125.6,80.6 L127.7,81.0 L129.9,81.3 L132.0,81.7 L134.1,82.1 L136.3,82.5 L138.4,82.9 L140.6,83.3 L142.7,83.7 L144.8,84.2 L147.0,84.6 L149.1,85.1 L151.3,85.5 L153.4,86.0 L155.5,86.5 L157.7,86.9 L159.8,87.4 L162.0,87.9 L164.1,88.4 L166.2,88.9 L168.4,89.4 L170.5,89.8 L172.7,90.3 L174.8,90.8 L176.9,91.2 L179.1,91.7 L181.2,92.1 L183.3,92.6 L185.5,93.0 L187.6,93.4 L189.8,93.8 L191.9,94.2 L194.0,94.5 L196.2,94.9 L198.3,95.2 L200.5,95.5 L202.6,95.7 L204.7,96.0 L206.9,96.2 L209.0,96.4 L211.2,96.6 L213.3,96.7 L215.4,96.8 L217.6,96.9 L219.7,96.9 L221.9,97.0 L224.0,97.0 L226.1,96.9 L228.3,96.9 L230.4,96.8 L232.6,96.6 L234.7,96.5 L236.8,96.3 L239.0,96.1 L241.1,95.9 L243.3,95.6 L245.4,95.3 L247.5,95.0 L249.7,94.6 L251.8,94.3 L254.0,93.9 L256.1,93.5 L258.2,93.1 L260.4,92.6 L262.5,92.2 L264.7,91.7 L266.8,91.2 L268.9,90.7 L271.1,90.1 L273.2,89.6 L275.3,89.1 L277.5,88.5 L279.6,87.9 L281.8,87.3 L283.9,86.7 L286.0,86.1 L288.2,85.5 L290.3,84.9 L292.5,84.3 L294.6,83.7 L296.7,83.0 L298.9,82.4 L301.0,81.7 L303.2,81.1 L305.3,80.4 L307.4,79.7 L309.6,79.1 L311.7,78.4 L313.9,77.7 L316.0,77.0 L318.1,76.4 L320.3,75.7 L322.4,75.0 L324.6,74.3 L326.7,73.6 L328.8,72.8 L331.0,72.1 L333.1,71.4 L335.3,70.7 L337.4,70.0 L339.5,69.3 L341.7,68.6 L343.8,67.8 L346.0,67.1 L348.1,66.4 L350.2,65.7 L352.4,65.0 L354.5,64.3 L356.7,63.6 L358.8,63.0 L360.9,62.3 L363.1,61.6 L365.2,61.0 L367.3,60.4 L369.5,59.8 L371.6,59.2 L373.8,58.7 L375.9,58.1 L378.0,57.6 L380.2,57.1 L382.3,56.7 L384.5,56.2 L386.6,55.9 L388.7,55.5 L390.9,55.2 L393.0,54.9 L395.2,54.6 L397.3,54.4 L399.4,54.2 L401.6,54.0 L403.7,53.9 L405.9,53.8 L408.0,53.7 L410.1,53.7 L412.3,53.7 L414.4,53.7 L416.6,53.8 L418.7,53.9 L420.8,54.0 L423.0,54.1 L425.1,54.3 L427.3,54.5 L429.4,54.7 L431.5,54.9 L433.7,55.2 L435.8,55.4 L438.0,55.7 L440.1,55.9 L442.2,56.2 L444.4,56.5 L446.5,56.8 L448.7,57.1 L450.8,57.4 L452.9,57.7 L455.1,57.9 L457.2,58.2 L459.3,58.5 L461.5,58.7 L463.6,59.0 L465.8,59.2 L467.9,59.4 L470.0,59.7 L472.2,59.9 L474.3,60.0 L476.5,60.2 L478.6,60.4 L480.7,60.5 L482.9,60.6 L485.0,60.7 L487.2,60.8 L489.3,60.9 L491.4,61.0 L493.6,61.1 L495.7,61.1 L497.9,61.2 L500.0,61.2 L502.1,61.2 L504.3,61.2 L506.4,61.2 L508.6,61.2 L510.7,61.2 L512.8,61.1 L515.0,61.1 L517.1,61.0 L519.3,61.0 L521.4,60.9 L523.5,60.9 L525.7,60.8 L527.8,60.8 L530.0,60.7 L532.1,60.6 L534.2,60.6 L536.4,60.5 L538.5,60.4"/>
+          <!-- annotations -->
+          <text class="fx-lbl fx-lbl-w" x="224" y="112" text-anchor="middle">− cut mud</text>
+          <text class="fx-lbl fx-lbl-f" x="408" y="48" text-anchor="middle">+ presence</text>
+          <text class="fx-lbl fx-lbl-f" x="512" y="52" text-anchor="middle">air ↗</text>
+          <!-- x axis labels -->
+          <text class="fx-lbl" x="106.3" y="145" text-anchor="middle">50</text>
+          <text class="fx-lbl" x="156.5" y="145" text-anchor="middle">100</text>
+          <text class="fx-lbl" x="206.7" y="145" text-anchor="middle">200</text>
+          <text class="fx-lbl" x="273.0" y="145" text-anchor="middle">500</text>
+          <text class="fx-lbl fx-lbl-f" x="323.2" y="145" text-anchor="middle">1k</text>
+          <text class="fx-lbl" x="373.3" y="145" text-anchor="middle">2k</text>
+          <text class="fx-lbl" x="439.7" y="145" text-anchor="middle">5k</text>
+          <text class="fx-lbl fx-lbl-f" x="489.8" y="145" text-anchor="middle">10k</text>
+          <text class="fx-lbl" x="540" y="145" text-anchor="end">20k</text>
+          <text class="fx-lbl" x="290" y="165" text-anchor="middle">frequency (Hz) — logarithmic, the way we hear</text>
+        </svg>
+
+        <div class="fx-table-wrap" style="margin-top:0.6rem;">
+          <table class="fx-table">
+            <thead><tr><th>Range</th><th>Band</th><th>Lives there</th><th>Too much =</th></tr></thead>
+            <tbody>
+              <tr><td class="fx-hi">20–60 Hz</td><td>Sub-bass</td><td>Rumble, kick/bass weight, felt more than heard</td><td>Muddy, wooly, wasted headroom</td></tr>
+              <tr><td class="fx-hi">60–250 Hz</td><td>Bass / body</td><td>Fundamentals, warmth, fullness</td><td>Boomy, thick</td></tr>
+              <tr><td class="fx-hi">250–500 Hz</td><td>Low-mids</td><td>Body of guitars &amp; vocals</td><td class="fx-hi">Mud, boxy, congested</td></tr>
+              <tr><td class="fx-hi">500 Hz–2 kHz</td><td>Mids</td><td>Presence, attack, "the honk"</td><td>Nasal, cardboard, harsh</td></tr>
+              <tr><td class="fx-hi">2–6 kHz</td><td>Presence</td><td>Definition, consonants, pick attack</td><td>Harsh, fatiguing, sibilant</td></tr>
+              <tr><td class="fx-hi">6–20 kHz</td><td>Air / brilliance</td><td>Sparkle, "expensive" sheen, openness</td><td>Brittle, hissy, glassy</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="fx-grid" style="margin-top:1rem;">
+          <div class="fx-dia" style="max-width:260px;">
+            <svg viewBox="0 0 120 70" role="img" aria-label="Subtractive EQ: a narrow dip below the zero line">
+              <line class="fx-ref" x1="6" y1="35" x2="114" y2="35"/>
+              <path class="fx-curve-w" d="M10.0,35.1 L10.8,35.1 L11.7,35.1 L12.5,35.2 L13.4,35.2 L14.2,35.2 L15.1,35.3 L15.9,35.4 L16.7,35.4 L17.6,35.5 L18.4,35.6 L19.3,35.8 L20.1,35.9 L21.0,36.1 L21.8,36.3 L22.7,36.5 L23.5,36.8 L24.3,37.1 L25.2,37.4 L26.0,37.8 L26.9,38.2 L27.7,38.6 L28.6,39.1 L29.4,39.7 L30.2,40.3 L31.1,40.9 L31.9,41.6 L32.8,42.3 L33.6,43.0 L34.5,43.8 L35.3,44.6 L36.1,45.4 L37.0,46.2 L37.8,47.1 L38.7,47.9 L39.5,48.7 L40.4,49.5 L41.2,50.3 L42.1,51.0 L42.9,51.6 L43.7,52.2 L44.6,52.8 L45.4,53.2 L46.3,53.6 L47.1,53.9 L48.0,54.1 L48.8,54.2 L49.6,54.2 L50.5,54.1 L51.3,53.9 L52.2,53.6 L53.0,53.2 L53.9,52.8 L54.7,52.2 L55.6,51.6 L56.4,50.9 L57.2,50.2 L58.1,49.5 L58.9,48.7 L59.8,47.8 L60.6,47.0 L61.5,46.2 L62.3,45.4 L63.1,44.5 L64.0,43.7 L64.8,43.0 L65.7,42.2 L66.5,41.5 L67.4,40.9 L68.2,40.2 L69.0,39.7 L69.9,39.1 L70.7,38.6 L71.6,38.2 L72.4,37.8 L73.3,37.4 L74.1,37.1 L75.0,36.8 L75.8,36.5 L76.6,36.3 L77.5,36.1 L78.3,35.9 L79.2,35.8 L80.0,35.6 L80.9,35.5 L81.7,35.4 L82.5,35.4 L83.4,35.3 L84.2,35.2 L85.1,35.2 L85.9,35.1 L86.8,35.1 L87.6,35.1 L110,35.0"/>
+              <text class="fx-lbl fx-lbl-w" x="48" y="66" text-anchor="middle">narrow cut</text>
+            </svg>
+            <div class="fx-dia-cap">Subtractive</div>
+            <div class="fx-dia-sub">Find the ugly frequency and <strong>remove</strong> it. Cleaner, more natural, no added headroom. <em>Do this first, and most.</em></div>
+          </div>
+          <div class="fx-dia" style="max-width:260px;">
+            <svg viewBox="0 0 120 70" role="img" aria-label="Additive EQ: a broad bump above the zero line">
+              <line class="fx-ref" x1="6" y1="35" x2="114" y2="35"/>
+              <path class="fx-curve" d="M10.0,35.0 L30,35.0 L37.0,35.0 L44.6,34.5 L52.2,34.0 L58.1,32.5 L63.1,30.0 L68.2,27.0 L73.3,23.5 L78.3,20.5 L83.4,19.6 L85.1,19.2 L86.8,19.0 L88.4,19.2 L91.0,20.0 L94.4,22.0 L98.6,25.4 L103.6,29.3 L109.5,32.6"/>
+              <text class="fx-lbl fx-lbl-f" x="72" y="66" text-anchor="middle">broad boost</text>
+            </svg>
+            <div class="fx-dia-cap">Additive</div>
+            <div class="fx-dia-sub">Gently <strong>lift</strong> a wide region to flatter — a broad "smile," not a spike. Use a low Q and a light hand.</div>
+          </div>
+        </div>
+
+        <p class="fx-note">
+          <strong>Cut narrow, boost wide.</strong> Problems are surgical — a resonance, a honk — so cut them with a tight
+          band. Enhancements are musical — warmth, air — so boost them with a gentle, wide one. And whenever you can,
+          reach for a cut before a boost: subtractive EQ doesn't eat headroom or add harshness.
+        </p>
+        <div class="fx-logic" data-l="LOGIC'S CHANNEL EQ">
+          Logic's <strong>Channel EQ</strong> shows a live <strong>Analyzer</strong> — turn it on to <em>see</em> the
+          frequencies as you play. To hunt a problem: grab a band, boost it hard with a narrow Q, and sweep left/right
+          until the ugliness jumps out — then flip that boost to a <em>cut</em>. The leftmost band is a one-click
+          <strong>Low Cut</strong> (high-pass); the rightmost, a High Cut. For surgical resonance-hunting, reach for the
+          <strong>Linear Phase EQ</strong>.
+        </div>
+      </section>
+
+      <!-- ═══ 3. DYNAMICS ═══ -->
+      <section class="fx-section" id="dynamics">
+        <div class="fx-section-label">③ Controlling Loud &amp; Quiet</div>
+        <h2 class="fx-section-title">Dynamics Processors</h2>
+        <p class="fx-lead">
+          Where EQ works on <em>frequency</em>, dynamics processors work on <em>level over time</em> — they make loud
+          parts and quiet parts more (or less) alike. The compressor is the family's heart;
+          <a href="recording.html#compression" style="color:var(--glow-warm)">its full transfer curve and attack/release
+          are drawn in the Recording Guide</a>. The rest of the family are all variations on "watch the level, then act."
+        </p>
+
+        <div class="fx-grid">
+          <div class="fx-card">
+            <h4>Compressor</h4>
+            <p>Turns down whatever crosses a <span class="fx-term">threshold</span>, shrinking the gap between loud and soft so the track sits steady and forward. The everyday dynamics tool.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> vocals, bass, drums, bus glue — nearly everything.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Limiter</h4>
+            <p>A compressor with an <span class="fx-term">infinite ratio</span> and fast attack — a hard ceiling nothing gets past. Protects against clipping and raises perceived loudness.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> the master bus, or any peak you must cap.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Gate / Expander</h4>
+            <p>The opposite end: turns <span class="fx-term">down (or off)</span> anything <em>below</em> a threshold. Silences bleed, hiss, and hum between notes; an expander does it gently.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> tom mics, noisy guitar amps, gated vocals.</p>
+          </div>
+          <div class="fx-card">
+            <h4>De-esser</h4>
+            <p>A compressor that only listens to a <span class="fx-term">narrow high band</span> (~5–8 kHz), taming harsh "s" and "t" sounds without dulling the whole vocal.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> lead vocals, especially after bright EQ.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Transient Shaper</h4>
+            <p>Directly boosts or softens the <span class="fx-term">attack</span> and <span class="fx-term">sustain</span> of hits — level-independent, no threshold. Add snap to a snare, kill a boomy room tail.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> drums, percussion, plucky guitars.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Clipper</h4>
+            <p>Slices peaks off flat instead of turning them down. Grabs a few dB of loudness with a bit of grit — the modern loud-master's secret weapon before the limiter.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> drum bus, master (in moderation).</p>
+          </div>
+        </div>
+
+        <div class="fx-logic" data-l="DYNAMICS IN LOGIC">
+          Logic ships all of these: <strong>Compressor</strong> (seven modeled circuits in one), <strong>Limiter</strong>
+          and the transparent <strong>Adaptive Limiter</strong>, <strong>Noise Gate</strong>, <strong>DeEsser 2</strong>,
+          and <strong>Enveloper</strong> (the transient shaper). Most compressors have a hidden
+          <strong>side-chain</strong> input — feed the kick into the bass compressor's side-chain and the bass ducks
+          every time the kick hits, carving them apart. It's the same trick behind rhythmic "pumping" pads.
+        </div>
+      </section>
+
+      <!-- ═══ 4. REVERB & DELAY ═══ -->
+      <section class="fx-section" id="space">
+        <div class="fx-section-label">④ Depth &amp; Space</div>
+        <h2 class="fx-section-title">Reverb &amp; Delay</h2>
+        <p class="fx-lead">
+          These are the <em>time</em> effects — they add copies of the sound, delayed. <strong>Delay</strong> gives you
+          distinct, countable echoes. <strong>Reverb</strong> gives you thousands of echoes so dense they blur into the
+          wash of a <em>room</em>. Both place a sound in space and push it back from the listener. The picture below is
+          what a single clap becomes inside a reverb.
+        </p>
+
+        <svg class="fx-wide-dia" viewBox="0 0 280 145" style="max-width:460px;" role="img" aria-label="A reverb impulse over time: the dry sound, a short pre-delay gap, a burst of discrete early reflections, then a smooth exponentially decaying diffuse tail">
+          <line class="fx-grid-line" x1="10" y1="110" x2="272" y2="110"/>
+          <!-- dry -->
+          <line x1="14" y1="110" x2="14" y2="20" class="fx-curve-w"/>
+          <text class="fx-lbl fx-lbl-w" x="14" y="16" text-anchor="middle">dry</text>
+          <!-- pre-delay bracket -->
+          <line class="fx-ref" x1="14" y1="128" x2="70" y2="128"/>
+          <text class="fx-lbl" x="42" y="138" text-anchor="middle">pre-delay</text>
+          <!-- early reflections -->
+          <line x1="70" y1="110" x2="70" y2="64" class="fx-curve"/>
+          <line x1="84" y1="110" x2="84" y2="58" class="fx-curve"/>
+          <line x1="96" y1="110" x2="96" y2="70" class="fx-curve"/>
+          <line x1="110" y1="110" x2="110" y2="66" class="fx-curve"/>
+          <line x1="126" y1="110" x2="126" y2="76" class="fx-curve"/>
+          <line x1="140" y1="110" x2="140" y2="80" class="fx-curve"/>
+          <line x1="152" y1="110" x2="152" y2="86" class="fx-curve"/>
+          <text class="fx-lbl fx-lbl-f" x="104" y="46" text-anchor="middle">early reflections</text>
+          <!-- diffuse tail -->
+          <path class="fx-fill" d="M150.0,40.0 L153.0,43.7 L156.0,47.2 L159.0,50.6 L162.0,53.7 L165.0,56.7 L168.0,59.5 L171.0,62.2 L174.0,64.8 L177.0,67.2 L180.0,69.4 L183.0,71.6 L186.0,73.6 L189.0,75.6 L192.0,77.4 L195.0,79.1 L198.0,80.8 L201.0,82.3 L204.0,83.8 L207.0,85.2 L210.0,86.5 L213.0,87.7 L216.0,88.9 L219.0,90.0 L222.0,91.1 L225.0,92.1 L228.0,93.0 L231.0,93.9 L234.0,94.8 L237.0,95.6 L240.0,96.4 L243.0,97.1 L246.0,97.8 L249.0,98.4 L252.0,99.0 L255.0,99.6 L258.0,100.2 L261.0,100.7 L264.0,101.2 L267.0,101.7 L270.0,102.1 L270,110 L150,110 Z"/>
+          <text class="fx-lbl fx-lbl-f" x="215" y="60" text-anchor="middle">diffuse tail (RT60)</text>
+          <text class="fx-lbl" x="140" y="128" text-anchor="middle">time →</text>
+        </svg>
+        <div class="fx-figcap">One clap → dry hit, a gap, a scatter of early reflections, then a smooth decaying tail. Every reverb knob shapes one of these.</div>
+
+        <div class="fx-table-wrap" style="margin-top:0.6rem;">
+          <table class="fx-table">
+            <thead><tr><th>Knob</th><th>Shapes</th><th>Use it to…</th></tr></thead>
+            <tbody>
+              <tr><td class="fx-hi">Pre-delay</td><td>Gap before the tail</td><td>Keep the source clear &amp; up-front — longer pre-delay = vocal stays intelligible.</td></tr>
+              <tr><td class="fx-hi">Decay / RT60</td><td>Tail length</td><td>Small room (0.4s) vs. cathedral (4s+). Match it to the song's tempo &amp; density.</td></tr>
+              <tr><td class="fx-hi">Size</td><td>Space dimensions</td><td>Set the sense of a closet vs. a hall, apart from how long it rings.</td></tr>
+              <tr><td class="fx-hi">Damping / HF</td><td>How fast highs fade</td><td>Darker tail = warmer, more natural, less hiss cluttering the top.</td></tr>
+              <tr><td class="fx-hi">Mix / Wet</td><td>Amount blended in</td><td>On a send, keep it 100% wet and blend with the send knob.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="fx-lead" style="margin-top:1.1rem;">
+          <strong>Delay</strong> is simpler to picture — it's just the echo, repeated. The <em>pattern</em> of repeats is
+          the whole personality:
+        </p>
+
+        <div class="fx-diagrid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));">
+          <div class="fx-dia">
+            <svg viewBox="0 0 170 90" role="img" aria-label="Slapback delay: the dry hit and a single short echo">
+              <line class="fx-grid-line" x1="8" y1="68" x2="162" y2="68"/>
+              <line x1="16" y1="68" x2="16" y2="18" class="fx-curve-w"/>
+              <line x1="70" y1="68" x2="70" y2="38" class="fx-curve"/>
+              <text class="fx-lbl fx-lbl-w" x="16" y="14" text-anchor="middle">dry</text>
+              <text class="fx-lbl" x="70" y="82" text-anchor="middle">one echo</text>
+            </svg>
+            <div class="fx-dia-cap">Slapback</div>
+            <div class="fx-dia-sub">A single fast echo (~80–120 ms). Rockabilly vocals &amp; guitar — thickens without obvious repeats.</div>
+          </div>
+          <div class="fx-dia">
+            <svg viewBox="0 0 170 90" role="img" aria-label="Feedback delay: the dry hit then a decaying series of evenly spaced echoes">
+              <line class="fx-grid-line" x1="8" y1="68" x2="162" y2="68"/>
+              <line x1="16" y1="68" x2="16" y2="18" class="fx-curve-w"/>
+              <line x1="42" y1="68" x2="42" y2="37" class="fx-curve"/>
+              <line x1="68" y1="68" x2="68" y2="49" class="fx-curve"/>
+              <line x1="94" y1="68" x2="94" y2="56" class="fx-curve"/>
+              <line x1="120" y1="68" x2="120" y2="61" class="fx-curve"/>
+              <line x1="146" y1="68" x2="146" y2="63" class="fx-curve"/>
+              <text class="fx-lbl fx-lbl-w" x="16" y="14" text-anchor="middle">dry</text>
+              <text class="fx-lbl" x="90" y="82" text-anchor="middle">feedback decays</text>
+            </svg>
+            <div class="fx-dia-cap">Feedback (Mono)</div>
+            <div class="fx-dia-sub">Repeats fed back on themselves, fading out. Sync to note values (⅛, dotted-⅛) so it grooves.</div>
+          </div>
+          <div class="fx-dia">
+            <svg viewBox="0 0 170 100" role="img" aria-label="Ping-pong delay: echoes alternating above and below the center line, bouncing left and right">
+              <line class="fx-grid-line" x1="8" y1="50" x2="162" y2="50"/>
+              <line x1="16" y1="50" x2="16" y2="8" class="fx-curve-w"/>
+              <line x1="42" y1="50" x2="42" y2="78" class="fx-curve"/>
+              <line x1="68" y1="50" x2="68" y2="32" class="fx-curve"/>
+              <line x1="94" y1="50" x2="94" y2="62" class="fx-curve"/>
+              <line x1="120" y1="50" x2="120" y2="42" class="fx-curve"/>
+              <line x1="146" y1="50" x2="146" y2="55" class="fx-curve"/>
+              <text class="fx-lbl fx-lbl-f" x="150" y="16">L</text>
+              <text class="fx-lbl fx-lbl-f" x="150" y="90">R</text>
+              <text class="fx-lbl" x="85" y="98" text-anchor="middle">bounces L ↔ R</text>
+            </svg>
+            <div class="fx-dia-cap">Ping-Pong</div>
+            <div class="fx-dia-sub">Echoes alternate hard left &amp; right — instant width &amp; motion. Gorgeous on a mono vocal or lead.</div>
+          </div>
+        </div>
+
+        <div class="fx-logic" data-l="SPACE IN LOGIC">
+          Put reverb &amp; delay on a <strong>Bus/Aux send</strong>, not an insert — many tracks share one space (that's
+          how real rooms work) and it's lighter on CPU. Logic's <strong>ChromaVerb</strong> and <strong>Space Designer</strong>
+          (a convolution reverb using impulse responses of real rooms) are the go-tos; <strong>Tape Delay</strong> and
+          <strong>Stereo Delay</strong> both have a <span class="fx-chip">Sync</span> button to lock repeats to the
+          project tempo. Roll a little low-end off the reverb return so the space doesn't muddy the mix.
+        </div>
+      </section>
+
+      <!-- ═══ 5. MODULATION ═══ -->
+      <section class="fx-section" id="mod">
+        <div class="fx-section-label">⑤ Movement &amp; Shimmer</div>
+        <h2 class="fx-section-title">Modulation Effects</h2>
+        <p class="fx-lead">
+          Modulation effects add <em>motion</em> by using a slow oscillator (an <strong>LFO</strong>) to continuously
+          nudge some parameter — a tiny delay time, a filter, the pitch. That gentle back-and-forth is what makes a part
+          shimmer, swirl, or widen. One wave drives them all:
+        </p>
+
+        <svg class="fx-wide-dia" viewBox="0 0 240 90" style="max-width:340px;" role="img" aria-label="A low-frequency oscillator: a slow sine wave, its height labelled depth and its speed labelled rate">
+          <line class="fx-grid-line" x1="6" y1="40" x2="234" y2="40"/>
+          <path class="fx-curve" d="M10.0,40.0 L11.8,37.2 L13.7,34.5 L15.5,31.9 L17.3,29.3 L19.2,26.9 L21.0,24.7 L22.8,22.7 L24.7,20.9 L26.5,19.3 L28.3,18.1 L30.2,17.1 L32.0,16.4 L33.8,16.1 L35.7,16.0 L37.5,16.3 L39.3,16.9 L41.2,17.8 L43.0,19.0 L44.8,20.4 L46.7,22.2 L48.5,24.1 L50.3,26.3 L52.2,28.7 L54.0,31.2 L55.8,33.8 L57.7,36.5 L59.5,39.2 L61.3,42.0 L63.2,44.7 L65.0,47.4 L66.8,50.0 L68.7,52.4 L70.5,54.7 L72.3,56.8 L74.2,58.7 L76.0,60.3 L77.8,61.6 L79.7,62.7 L81.5,63.4 L83.3,63.9 L85.2,64.0 L87.0,63.8 L88.8,63.3 L90.7,62.5 L92.5,61.4 L94.3,60.0 L96.2,58.3 L98.0,56.4 L99.8,54.3 L101.7,52.0 L103.5,49.5 L105.3,46.9 L107.2,44.3 L109.0,41.5 L110.8,38.7 L112.7,36.0 L114.5,33.3 L116.3,30.7 L118.2,28.2 L120.0,25.9 L121.8,23.8 L123.7,21.8 L125.5,20.2 L127.3,18.7 L129.2,17.6 L131.0,16.8 L132.8,16.2 L134.7,16.0 L136.5,16.1 L138.3,16.5 L140.2,17.3 L142.0,18.3 L143.8,19.6 L145.7,21.2 L147.5,23.0 L149.3,25.1 L151.2,27.4 L153.0,29.8 L154.8,32.3 L156.7,35.0 L158.5,37.7 L160.3,40.5 L162.2,43.3 L164.0,46.0 L165.8,48.6 L167.7,51.1 L169.5,53.5 L171.3,55.7 L173.2,57.7 L175.0,59.4 L176.8,60.9 L178.7,62.1 L180.5,63.0 L182.3,63.7 L184.2,64.0 L186.0,64.0 L187.8,63.6 L189.7,63.0 L191.5,62.0 L193.3,60.8 L195.2,59.3 L197.0,57.5 L198.8,55.5 L200.7,53.3 L202.5,50.9 L204.3,48.4 L206.2,45.7 L208.0,43.0 L209.8,40.3 L211.7,37.5 L213.5,34.8 L215.3,32.1 L217.2,29.6 L219.0,27.1 L220.8,24.9 L222.7,22.9 L224.5,21.0 L226.3,19.5 L228.2,18.2 L230.0,17.2"/>
+          <line class="fx-ref" x1="35" y1="16" x2="35" y2="64"/>
+          <text class="fx-lbl fx-lbl-f" x="40" y="80">depth (how far)</text>
+          <line class="fx-ref" x1="85" y1="70" x2="185" y2="70"/>
+          <text class="fx-lbl fx-lbl-f" x="135" y="80" text-anchor="middle">rate (how fast) →</text>
+        </svg>
+        <div class="fx-figcap">The LFO. <em>Depth</em> = how much it moves the target; <em>rate</em> = how fast it sweeps. Change what it moves, and you get a different effect.</div>
+
+        <div class="fx-grid" style="margin-top:0.8rem;">
+          <div class="fx-card">
+            <h4>Chorus</h4>
+            <p>A short delayed copy (~15–30 ms) whose delay time the LFO wobbles, detuning it slightly. Blended back, it sounds like <span class="fx-term">many voices/strings at once</span> — lush and wide.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> clean guitars, synth pads, backing vocals.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Flanger</h4>
+            <p>Same idea, much <em>shorter</em> delay (~1–5 ms) plus feedback. The copies comb-filter the original into sweeping notches — that <span class="fx-term">jet-plane whoosh</span>.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> drum bus sweeps, psychedelic guitar, risers.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Phaser</h4>
+            <p>No delay at all — a chain of all-pass filters carves moving notches into the spectrum. <span class="fx-term">Swirly, watery, hypnotic</span>; subtler than a flanger.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> funk guitar (Rhodes-y), synths, keys.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Tremolo / Auto-Pan</h4>
+            <p>The LFO modulates <span class="fx-term">volume</span> (tremolo) or <span class="fx-term">pan position</span> (auto-pan) instead of pitch. Rhythmic pulsing &amp; side-to-side motion.</p>
+            <p><strong style="color:var(--glow-warm)">On:</strong> surf guitar, dreamy keys, rhythmic pads.</p>
+          </div>
+        </div>
+
+        <p class="fx-lead" style="margin-top:1rem;">
+          Flanger and phaser both work by carving <strong>notches</strong> into the frequency response and sliding them
+          around — this "comb filter" is why they whoosh:
+        </p>
+        <svg class="fx-wide-dia" viewBox="0 0 280 115" style="max-width:420px;" role="img" aria-label="A comb filter frequency response: a series of evenly spaced notches, like the teeth of a comb, that slide across the spectrum">
+          <line class="fx-grid-line" x1="10" y1="95" x2="270" y2="95"/>
+          <path class="fx-curve" d="M10.0,25.0 L10.9,25.4 L11.9,26.4 L12.8,28.2 L13.7,30.6 L14.6,33.7 L15.6,37.5 L16.5,41.8 L17.4,46.6 L18.4,52.0 L19.3,57.8 L20.2,63.9 L21.1,70.4 L22.1,77.1 L23.0,84.0 L23.9,91.1 L24.9,91.9 L25.8,84.8 L26.7,77.9 L27.6,71.1 L28.6,64.6 L29.5,58.4 L30.4,52.6 L31.4,47.2 L32.3,42.3 L33.2,37.9 L34.1,34.1 L35.1,30.9 L36.0,28.4 L36.9,26.6 L37.9,25.4 L38.8,25.0 L39.7,25.3 L40.6,26.3 L41.6,28.0 L42.5,30.3 L43.4,33.4 L44.4,37.0 L45.3,41.3 L46.2,46.1 L47.1,51.4 L48.1,57.1 L49.0,63.2 L49.9,69.7 L50.9,76.4 L51.8,83.3 L52.7,90.3 L53.6,92.6 L54.6,85.6 L55.5,78.7 L56.4,71.9 L57.4,65.3 L58.3,59.1 L59.2,53.2 L60.1,47.8 L61.1,42.8 L62.0,38.4 L62.9,34.5 L63.9,31.3 L64.8,28.7 L65.7,26.8 L66.6,25.5 L67.6,25.0 L68.5,25.2 L69.4,26.1 L70.4,27.7 L71.3,30.0 L72.2,33.0 L73.1,36.6 L74.1,40.8 L75.0,45.5 L75.9,50.7 L76.9,56.4 L77.8,62.5 L78.7,68.9 L79.6,75.6 L80.6,82.5 L81.5,89.5 L82.4,93.4 L83.4,86.4 L84.3,79.4 L85.2,72.6 L86.1,66.1 L87.1,59.8 L88.0,53.9 L88.9,48.4 L89.9,43.3 L90.8,38.8 L91.7,34.9 L92.6,31.6 L93.6,28.9 L94.5,26.9 L95.4,25.6 L96.4,25.0 L97.3,25.2 L98.2,26.0 L99.1,27.5 L100.1,29.7 L101.0,32.6 L101.9,36.2 L102.9,40.3 L103.8,45.0 L104.7,50.1 L105.6,55.8 L106.6,61.8 L107.5,68.2 L108.4,74.9 L109.4,81.7 L110.3,88.7 L111.2,94.2 L112.1,87.2 L113.1,80.2 L114.0,73.4 L114.9,66.8 L115.9,60.5 L116.8,54.5 L117.7,48.9 L118.6,43.9 L119.6,39.3 L120.5,35.3 L121.4,31.9 L122.4,29.2 L123.3,27.1 L124.2,25.7 L125.1,25.1 L126.1,25.1 L127.0,25.9 L127.9,27.3 L128.9,29.5 L129.8,32.3 L130.7,35.7 L131.6,39.8 L132.6,44.4 L133.5,49.5 L134.4,55.1 L135.4,61.1 L136.3,67.5 L137.2,74.1 L138.1,81.0 L139.1,87.9 L140.0,95.0 L140.9,87.9 L141.9,81.0 L142.8,74.1 L143.7,67.5 L144.6,61.1 L145.6,55.1 L146.5,49.5 L147.4,44.4 L148.4,39.8 L149.3,35.7 L150.2,32.3 L151.1,29.5 L152.1,27.3 L153.0,25.9 L153.9,25.1 L154.9,25.1 L155.8,25.7 L156.7,27.1 L157.6,29.2 L158.6,31.9 L159.5,35.3 L160.4,39.3 L161.4,43.9 L162.3,48.9 L163.2,54.5 L164.1,60.5 L165.1,66.8 L166.0,73.4 L166.9,80.2 L167.9,87.2 L168.8,94.2 L169.7,88.7 L170.6,81.7 L171.6,74.9 L172.5,68.2 L173.4,61.8 L174.4,55.8 L175.3,50.1 L176.2,45.0 L177.1,40.3 L178.1,36.2 L179.0,32.6 L179.9,29.7 L180.9,27.5 L181.8,26.0 L182.7,25.2 L183.6,25.0 L184.6,25.6 L185.5,26.9 L186.4,28.9 L187.4,31.6 L188.3,34.9 L189.2,38.8 L190.1,43.3 L191.1,48.4 L192.0,53.9 L192.9,59.8 L193.9,66.1 L194.8,72.6 L195.7,79.4 L196.6,86.4 L197.6,93.4 L198.5,89.5 L199.4,82.5 L200.4,75.6 L201.3,68.9 L202.2,62.5 L203.1,56.4 L204.1,50.7 L205.0,45.5 L205.9,40.8 L206.9,36.6 L207.8,33.0 L208.7,30.0 L209.6,27.7 L210.6,26.1 L211.5,25.2 L212.4,25.0 L213.4,25.5 L214.3,26.8 L215.2,28.7 L216.1,31.3 L217.1,34.5 L218.0,38.4 L218.9,42.8 L219.9,47.8 L220.8,53.2 L221.7,59.1 L222.6,65.3 L223.6,71.9 L224.5,78.7 L225.4,85.6 L226.4,92.6 L227.3,90.3 L228.2,83.3 L229.1,76.4 L230.1,69.7 L231.0,63.2 L231.9,57.1 L232.9,51.4 L233.8,46.1 L234.7,41.3 L235.6,37.0 L236.6,33.4 L237.5,30.3 L238.4,28.0 L239.4,26.3 L240.3,25.3 L241.2,25.0 L242.1,25.4 L243.1,26.6 L244.0,28.4 L244.9,30.9 L245.9,34.1 L246.8,37.9 L247.7,42.3 L248.6,47.2 L249.6,52.6 L250.5,58.4 L251.4,64.6 L252.4,71.1 L253.3,77.9 L254.2,84.8 L255.1,91.9 L256.1,91.1 L257.0,84.0 L257.9,77.1 L258.9,70.4 L259.8,63.9 L260.7,57.8 L261.6,52.0 L262.6,46.6 L263.5,41.8 L264.4,37.5 L265.4,33.7 L266.3,30.6 L267.2,28.2 L268.1,26.4 L269.1,25.4 L270.0,25.0"/>
+          <path class="fx-ref" d="M40,20 L60,20" marker-end="url(#fxArrowW)"/>
+          <text class="fx-lbl fx-lbl-w" x="90" y="18">notches sweep →</text>
+          <text class="fx-lbl" x="140" y="110" text-anchor="middle">frequency →</text>
+        </svg>
+        <div class="fx-figcap">The "teeth" of a comb filter. The LFO drags them up and down the spectrum — that motion is the whoosh you hear.</div>
+
+        <div class="fx-logic" data-l="MODULATION IN LOGIC">
+          Logic has them all as inserts: <strong>Chorus</strong>, <strong>Flanger</strong>, <strong>Phaser</strong>,
+          <strong>Tremolo</strong>, plus the lush <strong>Ensemble</strong> and the vintage-modeled <strong>Modulation</strong>
+          collection (Roland-style choruses). Keep <span class="fx-chip">depth</span> and <span class="fx-chip">mix</span>
+          modest — modulation is a seasoning; a little reads as "rich," a lot reads as "seasick." For width, many let you
+          set the L/R LFOs slightly out of phase (a <strong>Stereo Phase</strong> control).
+        </div>
+      </section>
+
+      <!-- ═══ 6. SATURATION ═══ -->
+      <section class="fx-section" id="drive">
+        <div class="fx-section-label">⑥ Adding Harmonics</div>
+        <h2 class="fx-section-title">Saturation &amp; Distortion</h2>
+        <p class="fx-lead">
+          Every other effect so far <em>rearranges</em> the sound you have. Saturation and distortion <strong>add new
+          frequencies</strong> that weren't there — harmonics, generated when you push a signal hard enough to bend its
+          shape. A whisper of it reads as "warm," "analog," "expensive"; a lot of it is a fuzz pedal. It's the same
+          process at every dose. And <em>which</em> harmonics appear defines the character:
+        </p>
+
+        <div class="fx-diagrid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.4rem;">
+          <div class="fx-dia" style="max-width:240px;">
+            <svg viewBox="0 0 180 120" role="img" aria-label="Even-harmonic saturation spectrum: a tall fundamental with strong second and fourth harmonics, characteristic of tube and tape warmth">
+              <line class="fx-grid-line" x1="14" y1="100" x2="170" y2="100"/>
+              <rect class="fx-bar-w" x="20" y="0"  width="14" height="100"/>
+              <rect class="fx-bar-w" x="42" y="42" width="14" height="58"/>
+              <rect class="fx-bar-w" x="64" y="80" width="14" height="20"/>
+              <rect class="fx-bar-w" x="86" y="66" width="14" height="34"/>
+              <rect class="fx-bar-w" x="108" y="90" width="14" height="10"/>
+              <rect class="fx-bar-w" x="130" y="82" width="14" height="18"/>
+              <text class="fx-lbl" x="27" y="112">f</text>
+              <text class="fx-lbl fx-lbl-w" x="49" y="112">2</text>
+              <text class="fx-lbl" x="71" y="112">3</text>
+              <text class="fx-lbl fx-lbl-w" x="93" y="112">4</text>
+              <text class="fx-lbl" x="115" y="112">5</text>
+              <text class="fx-lbl" x="137" y="112">6</text>
+            </svg>
+            <div class="fx-dia-cap">Even harmonics — Warm</div>
+            <div class="fx-dia-sub">Tubes &amp; tape emphasize the <strong>2nd &amp; 4th</strong> (octaves) — musically consonant, so it just sounds "fuller" and richer.</div>
+          </div>
+          <div class="fx-dia" style="max-width:240px;">
+            <svg viewBox="0 0 180 120" role="img" aria-label="Odd-harmonic saturation spectrum: a tall fundamental with strong third and fifth harmonics, characteristic of transistor and clipping edge">
+              <line class="fx-grid-line" x1="14" y1="100" x2="170" y2="100"/>
+              <rect class="fx-bar" x="20" y="0"  width="14" height="100"/>
+              <rect class="fx-bar" x="42" y="86" width="14" height="14"/>
+              <rect class="fx-bar" x="64" y="48" width="14" height="52"/>
+              <rect class="fx-bar" x="86" y="90" width="14" height="10"/>
+              <rect class="fx-bar" x="108" y="60" width="14" height="40"/>
+              <rect class="fx-bar" x="130" y="92" width="14" height="8"/>
+              <text class="fx-lbl" x="27" y="112">f</text>
+              <text class="fx-lbl" x="49" y="112">2</text>
+              <text class="fx-lbl fx-lbl-f" x="71" y="112">3</text>
+              <text class="fx-lbl" x="93" y="112">4</text>
+              <text class="fx-lbl fx-lbl-f" x="115" y="112">5</text>
+              <text class="fx-lbl" x="137" y="112">6</text>
+            </svg>
+            <div class="fx-dia-cap">Odd harmonics — Edgy</div>
+            <div class="fx-dia-sub">Transistors &amp; hard clipping favor the <strong>3rd &amp; 5th</strong> — more dissonant, so it reads as "gritty," "aggressive," "present."</div>
+          </div>
+        </div>
+
+        <div class="fx-table-wrap" style="margin-top:1rem;">
+          <table class="fx-table">
+            <thead><tr><th>Flavor</th><th>Character</th><th>Reach for it on…</th></tr></thead>
+            <tbody>
+              <tr><td class="fx-hi">Tape</td><td>Warm, glued, gently compressed, softened highs</td><td>Drum bus, master, anything "too digital"</td></tr>
+              <tr><td class="fx-hi">Tube</td><td>Round, fat, even-harmonic richness</td><td>Vocals, bass, DI guitars</td></tr>
+              <tr><td class="fx-hi">Console / transformer</td><td>Subtle weight &amp; cohesion, "mixed on a desk"</td><td>Every channel, a hair each</td></tr>
+              <tr><td class="fx-hi">Overdrive</td><td>Obvious grit &amp; sustain, still musical</td><td>Guitars, aggressive synths, snare</td></tr>
+              <tr><td class="fx-hi">Fuzz / distortion</td><td>Broken, buzzy, extreme</td><td>Effect guitar, sound design, parallel bass</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="fx-note">
+          Because saturation <em>brightens</em> (it adds upper harmonics), a touch on a dull sound can do what an EQ air
+          boost can't — it creates highs that weren't recorded. Try it in <strong>parallel</strong> (a distorted copy
+          blended under the clean) to add density &amp; grit while keeping the original intact — a classic move on bass
+          and drums.
+        </p>
+        <div class="fx-logic" data-l="DRIVE IN LOGIC">
+          Logic's warmth lives in <strong>Tape</strong> emulations and the <strong>Vintage</strong> Console/EQ collection;
+          for grit, use <strong>Distortion</strong>, <strong>Overdrive</strong>, <strong>Bitcrusher</strong>, and the full
+          amp/pedal rigs in <strong>Amp Designer</strong> &amp; <strong>Pedalboard</strong>. Saturation adds highs and
+          loudness — <strong>gain-match</strong> the bypass so you judge the <em>color</em>, not just "louder = better,"
+          and drop it on a <strong>parallel bus</strong> when you want density without losing the clean core.
+        </div>
+      </section>
+
+      <!-- ═══ 7. WHAT GOES TOGETHER ═══ -->
+      <section class="fx-section" id="pairs">
+        <div class="fx-section-label">⑦ Effects That Team Up</div>
+        <h2 class="fx-section-title">What Generally Goes Together</h2>
+        <p class="fx-lead">
+          Effects rarely work solo — the pros reach for the same <em>combinations</em> again and again, because each one
+          covers the other's weakness. Here are the pairings worth memorizing, and <strong>why</strong> the order works.
+        </p>
+
+        <div class="fx-table-wrap">
+          <table class="fx-table">
+            <thead><tr><th>Combo</th><th>Order</th><th>Why they pair</th></tr></thead>
+            <tbody>
+              <tr><td class="fx-hi">EQ → Compressor</td><td>Cut <em>before</em></td><td>Remove boomy lows first so they don't trigger the compressor and make it pump on bass it should ignore.</td></tr>
+              <tr><td class="fx-hi">Compressor → EQ</td><td>Shape <em>after</em></td><td>Compression can dull a signal; a tone EQ after restores air &amp; presence on the now-steady level.</td></tr>
+              <tr><td class="fx-hi">Compressor → De-esser</td><td>De-ess <em>after</em></td><td>Compression pushes quiet "s" sounds up and forward — tame them <em>after</em>, or you'll chase a moving target.</td></tr>
+              <tr><td class="fx-hi">Saturation → Compressor</td><td>Usually saturate first</td><td>Saturating first adds harmonics the compressor then evens out — glued &amp; consistent. (Flip it for a more raw, dynamic grit.)</td></tr>
+              <tr><td class="fx-hi">Delay + Reverb</td><td>Together, on sends</td><td>Delay gives rhythmic depth, reverb gives ambient space. Together they place a sound in a believable room without drowning it.</td></tr>
+              <tr><td class="fx-hi">Delay → Reverb</td><td>Reverb <em>after</em> delay</td><td>Feeding the delay's echoes into the reverb makes repeats melt into the space instead of stacking up as clutter.</td></tr>
+              <tr><td class="fx-hi">Chorus + Reverb</td><td>Chorus, then reverb</td><td>Chorus widens &amp; thickens; reverb sets it back. The classic lush clean-guitar / dream-pop wash.</td></tr>
+              <tr><td class="fx-hi">Distortion → EQ → Delay</td><td>In that order</td><td>The guitar-tone recipe: shape the dirt with EQ, then throw the finished tone into time-based space.</td></tr>
+              <tr><td class="fx-hi">Gate → everything</td><td>Gate first</td><td>Kill bleed &amp; hiss up front so nothing downstream (compression, reverb) amplifies the noise between notes.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="fx-grid" style="margin-top:1rem;">
+          <div class="fx-card">
+            <h4>Series vs. Parallel</h4>
+            <p><span class="fx-term">Series</span> = effects in a line, each feeding the next (inserts). <span class="fx-term">Parallel</span> = a copy processed separately and blended under the original (a bus, or a Mix knob). Parallel lets you go <em>extreme</em> on the copy — crushed compression, heavy distortion — while the untouched original keeps the life. Drums, bass, and vocals love it.</p>
+          </div>
+          <div class="fx-card">
+            <h4>The "Depth" Trio</h4>
+            <p>To place things front-to-back: <span class="fx-term">volume</span> (louder = closer), <span class="fx-term">high end</span> (brighter = closer; darker = farther), and <span class="fx-term">reverb</span> (drier = closer; wetter = farther). Move all three together and a flat mix gains a third dimension.</p>
+          </div>
+          <div class="fx-card">
+            <h4>Group, Then Glue</h4>
+            <p>Route like things (all drums, all BGVs) to a <span class="fx-term">bus</span>, then treat the group as one — a gentle bus compressor and shared reverb "glue" them into a single element instead of many competing ones.</p>
+          </div>
+        </div>
+        <div class="fx-logic" data-l="ROUTING IN LOGIC">
+          Build parallel chains with <strong>Sends</strong> to a Bus, or duplicate a track with <span class="fx-kbd">Cmd ⌘ + D</span>.
+          Group drums by selecting the tracks ▸ <strong>Summing Stack</strong> (<span class="fx-kbd">Cmd ⌘ + Shift + D</span>) —
+          you get one Aux to compress &amp; saturate the whole kit at once. Reverb &amp; delay each get their own Aux so
+          every track shares them.
+        </div>
+      </section>
+
+      <!-- ═══ 8. HOW TO PRACTICE ═══ -->
+      <section class="fx-section" id="practice">
+        <div class="fx-section-label">⑧ Training the Only Tool That Matters</div>
+        <h2 class="fx-section-title">How to Practice Effectively</h2>
+        <p class="fx-lead">
+          Plugins are easy; <em>hearing</em> is the skill. The engineers you admire aren't clicking magic presets —
+          they've spent years training their ears to notice what's wrong and know what fixes it. That's practicable, and
+          it's faster than you'd think when you practice <strong>deliberately</strong> instead of just noodling.
+        </p>
+
+        <div class="fx-grid">
+          <div class="fx-card">
+            <h4>① Gain-Match Everything</h4>
+            <p>Louder always sounds "better" for about ten seconds, then fools you. Before/after any effect, match the levels so the <em>only</em> difference you hear is the effect. Most bad mix decisions are just "this one's louder."</p>
+          </div>
+          <div class="fx-card">
+            <h4>② One Move at a Time</h4>
+            <p>Make a single change, then A/B <span class="fx-term">bypass</span> it. Did it help? Keep it. Stacking ten tweaks you never verified is how mixes get worse while you're "improving" them.</p>
+          </div>
+          <div class="fx-card">
+            <h4>③ Reference Tracks</h4>
+            <p>Load two or three commercial songs you love (gain-matched) into the session and switch to them constantly. They're your ground truth — your ears drift in twenty minutes; the reference doesn't.</p>
+          </div>
+          <div class="fx-card">
+            <h4>④ EQ Ear-Training</h4>
+            <p>The single highest-value drill: boost a narrow EQ band way up and sweep until you can <em>name</em> the frequency by ear. Do it daily and "harsh at 3k / mud at 300" stops being jargon.</p>
+          </div>
+          <div class="fx-card">
+            <h4>⑤ Mix Quiet, Check Loud</h4>
+            <p>Work at conversation volume — balances that survive quiet survive everywhere. Check loud briefly for excitement, check on phone speakers for the real world, and check in <span class="fx-term">mono</span> for phase.</p>
+          </div>
+          <div class="fx-card">
+            <h4>⑥ Solo to Find, Judge in Context</h4>
+            <p>Solo a track to <em>locate</em> a problem, but make the actual decision with everything playing. A vocal that sounds perfect soloed can vanish in the mix — and vice versa.</p>
+          </div>
+          <div class="fx-card">
+            <h4>⑦ Rest Your Ears</h4>
+            <p>Ears fatigue and lie after ~45 minutes — you stop hearing highs and keep boosting them. Take breaks. The best "trick" for a stuck mix is sleeping on it and opening it fresh.</p>
+          </div>
+          <div class="fx-card">
+            <h4>⑧ Recreate Mixes You Love</h4>
+            <p>Pick a sound you admire and chase it from scratch — a vocal, a drum bus. Reverse-engineering forces every "why," and you keep the technique long after that one song.</p>
+          </div>
+          <div class="fx-card">
+            <h4>⑨ Less, Then Less Again</h4>
+            <p>The mark of experience is <em>restraint</em>. If an effect isn't clearly helping, remove it. Ten subtle moves beat one heavy-handed one — and a mix is done when nothing's left to take away.</p>
+          </div>
+        </div>
+
+        <p class="fx-note">
+          A tight practice loop: pick <em>one</em> source (say, a vocal), give yourself <em>one</em> goal ("make it sit
+          forward and clear"), use the <em>fewest</em> effects that get there, and A/B against a reference the whole
+          time. Twenty focused minutes like that beats three hours of aimless tweaking — and it compounds every session.
+        </p>
+        <div class="fx-logic" data-l="PRACTICE IN LOGIC">
+          Bind <strong>Bypass</strong> to a key so A/B is instant, and use <strong>Gain</strong> plugins (or the plugin's
+          own auto-gain) to level-match. Import references onto a track routed <em>straight to output</em>, bypassing your
+          master chain, so the comparison is fair. Logic's <strong>Test Oscillator</strong> and <strong>Channel EQ
+          Analyzer</strong> train your eyes while your ears catch up — and our own
+          <a href="ear-training.html" style="color:var(--glow)">Ear Training</a> tool drills intervals &amp; chords the
+          same deliberate way.
+        </div>
+      </section>
+
+      <p class="fx-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Effects don't fix a bad recording — they reward a good one. Learn what each does, put them in a sensible order,
+        reach for the pairings that work, and above all <strong>train the ears</strong> that decide when it's right. The
+        gear is just the hands; the hearing is the craft.
+      </p>
+
+    </main>
+  </div>
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
