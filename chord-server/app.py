@@ -9,12 +9,14 @@ Run with: python app.py
 """
 import faulthandler
 import fcntl
+import hashlib
 import json
 import os
 import queue
 import re
 import shutil
 import signal
+import subprocess
 import sys
 import tempfile
 import threading
@@ -56,6 +58,78 @@ CACHE_MAX_SONGS = max(10, int(os.environ.get('CACHE_MAX_SONGS', '300')))
 # worker is killed. The background analysis keeps running and caches its result,
 # so a retry lands instantly.
 STREAM_DEADLINE = max(30, int(os.environ.get('STREAM_DEADLINE', '100')))
+
+# ── YouTube download budget ──
+# YouTube throttles per-IP based on request *pattern* more than volume: a burst
+# of back-to-back downloads trips its bot detector and burns the IP for hours,
+# while the same downloads spaced out sail through. So we deliberately pace:
+# at least YT_MIN_GAP seconds between download starts (bursts queue), and at
+# most YT_HOURLY_CAP fresh downloads per rolling hour (beyond that, callers get
+# an honest "paused to stay under the radar" message instead of a doomed
+# attempt that would deepen the throttle). Uploads and cached songs are
+# unaffected — this gates only actual YouTube traffic.
+YT_MIN_GAP = max(0, int(os.environ.get('YT_MIN_GAP', '20')))
+YT_HOURLY_CAP = max(1, int(os.environ.get('YT_HOURLY_CAP', '12')))
+
+# Direct file uploads (the no-YouTube path). 30 MB covers a ~30-minute MP3.
+app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
+
+
+class BudgetExceeded(Exception):
+    """Raised when the rolling-hour YouTube download budget is spent."""
+
+
+def _yt_recent_downloads():
+    # Timestamps (epoch seconds) of downloads in the last hour, from the shared
+    # log file. Tolerates a missing/corrupt file.
+    path = os.path.join(CACHE_DIR, '.yt-downloads.log')
+    cutoff = time.time() - 3600
+    try:
+        with open(path) as f:
+            return [t for line in f if (t := float(line.strip() or 0)) > cutoff]
+    except (OSError, ValueError):
+        return []
+
+
+def yt_download_gate(progress=None):
+    # Cross-process pacing gate, entered right before a YouTube download.
+    # 1) Budget check: if the rolling hour is spent, fail fast with a friendly
+    #    message rather than making a throttle-deepening attempt.
+    # 2) Spacing: under a lock, wait until YT_MIN_GAP has passed since the last
+    #    download started, then stamp our start time. Concurrent requests queue
+    #    on the flock, so bursts become an evenly spaced trickle.
+    recent = _yt_recent_downloads()
+    if len(recent) >= YT_HOURLY_CAP:
+        wait_min = max(1, int((min(recent) + 3600 - time.time()) / 60))
+        raise BudgetExceeded(
+            f'Taking a short break from YouTube downloads to stay under its '
+            f'rate limits ({YT_HOURLY_CAP} fresh songs/hour). Try again in '
+            f'~{wait_min} min — or pick a song from the Library, those play '
+            f'instantly.')
+
+    gate_path = os.path.join(CACHE_DIR, '.yt-gate.lock')
+    stamp_path = os.path.join(CACHE_DIR, '.yt-last-download')
+    with open(gate_path, 'w') as gate:
+        fcntl.flock(gate, fcntl.LOCK_EX)
+        try:
+            try:
+                last = float(open(stamp_path).read().strip() or 0)
+            except (OSError, ValueError):
+                last = 0.0
+            wait = last + YT_MIN_GAP - time.time()
+            if wait > 0:
+                if progress:
+                    progress({'stage': 'paced'})
+                time.sleep(wait)
+            now = time.time()
+            with open(stamp_path, 'w') as f:
+                f.write(str(now))
+            # Record into the rolling budget log, pruning old entries.
+            keep = [t for t in _yt_recent_downloads()] + [now]
+            with open(os.path.join(CACHE_DIR, '.yt-downloads.log'), 'w') as f:
+                f.write('\n'.join(str(t) for t in keep) + '\n')
+        finally:
+            fcntl.flock(gate, fcntl.LOCK_UN)
 
 
 def prune_cache():
@@ -389,6 +463,9 @@ def download_audio(url, workdir, video_id, progress=None):
     }
     if os.path.exists(COOKIES_FILE):
         ydl_opts['cookiefile'] = COOKIES_FILE
+    # Pace + budget-check the actual YouTube hit (raises BudgetExceeded when
+    # the hourly budget is spent; sleeps to space out bursts otherwise).
+    yt_download_gate(progress)
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
 
@@ -433,6 +510,48 @@ def serve_audio(video_id):
     return resp
 
 
+def analyze_file(audio_path, emit):
+    # The source-agnostic analysis core: takes any audio file (YouTube-derived
+    # or user-uploaded) and returns bpm/key/chords/measures/duration. Every way
+    # into the analyzer funnels through here, so improvements land everywhere.
+    t1 = time.monotonic()
+    emit({'stage': 'load'})
+    # 11 kHz mono is plenty for chord/beat analysis — the constant-Q chroma
+    # covers the same note range (C1–C8 sits well under the 5.5 kHz Nyquist),
+    # so chords are unchanged — but it's roughly half the samples to load and
+    # transform, shaving a few seconds off the analysis.
+    y, sr = librosa.load(audio_path, sr=11025, mono=True)
+    t2 = time.monotonic()
+    _log(f'librosa.load: {t2 - t1:.1f}s')
+
+    emit({'stage': 'analyze'})
+    # beat_track gives us both tempo and the beat grid; we keep the grid so
+    # chord detection can be beat-synchronous instead of fixed-window.
+    tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=512)
+    bpm = int(round(float(np.asarray(tempo).item())))
+
+    # chroma_cqt is the most expensive step here, so compute it once and
+    # reuse it for both key detection and chord detection instead of
+    # running it twice.
+    chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
+    key = detect_key(chroma.mean(axis=1))
+    chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=512)
+    try:
+        measures = build_measures(beat_frames, chords, sr, hop_length=512)
+    except Exception as exc:  # measures are a bonus, never break analysis
+        _log(f'build_measures failed: {exc}')
+        measures = []
+    _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
+
+    return {
+        'bpm': bpm,
+        'key': key,
+        'duration': int(len(y) / sr),
+        'chords': chords,
+        'measures': measures,
+    }
+
+
 def run_analysis(url, video_id, progress=None):
     def emit(ev):
         if progress:
@@ -443,45 +562,15 @@ def run_analysis(url, video_id, progress=None):
         t0 = time.monotonic()
         emit({'stage': 'download', 'pct': 0})
         audio_path, title, duration = download_audio(url, workdir, video_id, progress=progress)
-        t1 = time.monotonic()
-        _log(f'download_audio (yt-dlp download + ffmpeg->mp3): {t1 - t0:.1f}s')
-        emit({'stage': 'load'})
-        # 11 kHz mono is plenty for chord/beat analysis — the constant-Q chroma
-        # covers the same note range (C1–C8 sits well under the 5.5 kHz Nyquist),
-        # so chords are unchanged — but it's roughly half the samples to load and
-        # transform, shaving a few seconds off the analysis.
-        y, sr = librosa.load(audio_path, sr=11025, mono=True)
-        t2 = time.monotonic()
-        _log(f'librosa.load: {t2 - t1:.1f}s')
-
-        emit({'stage': 'analyze'})
-        # beat_track gives us both tempo and the beat grid; we keep the grid so
-        # chord detection can be beat-synchronous instead of fixed-window.
-        tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=512)
-        bpm = int(round(float(np.asarray(tempo).item())))
-
-        # chroma_cqt is the most expensive step here, so compute it once and
-        # reuse it for both key detection and chord detection instead of
-        # running it twice.
-        chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
-        key = detect_key(chroma.mean(axis=1))
-        chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=512)
-        try:
-            measures = build_measures(beat_frames, chords, sr, hop_length=512)
-        except Exception as exc:  # measures are a bonus, never break analysis
-            _log(f'build_measures failed: {exc}')
-            measures = []
-        _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
+        _log(f'download_audio (yt-dlp download + ffmpeg->mp3): {time.monotonic() - t0:.1f}s')
+        core = analyze_file(audio_path, emit)
+        core['duration'] = duration or core['duration']
 
         return {
             'success': True,
             'title': title,
-            'bpm': bpm,
-            'key': key,
-            'duration': duration,
-            'chords': chords,
-            'measures': measures,
-            'description': describe(key, bpm, chords),
+            **core,
+            'description': describe(core['key'], core['bpm'], core['chords']),
             'audio_url': f'/audio/{video_id}',
         }
     finally:
@@ -520,6 +609,132 @@ def produce_result(url, video_id, progress=None):
             return result
         finally:
             fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
+@app.route('/library', methods=['GET'])
+def library():
+    # The cache, made visible: every already-analyzed song as a browsable list
+    # so visitors replay at zero YouTube cost instead of triggering downloads.
+    items = []
+    try:
+        for name in os.listdir(CACHE_DIR):
+            if not name.endswith('.json'):
+                continue
+            vid = name[:-5]
+            mp3 = os.path.join(CACHE_DIR, f'{vid}.mp3')
+            if not os.path.isfile(mp3):
+                continue  # play-along needs the audio
+            try:
+                with open(os.path.join(CACHE_DIR, name)) as f:
+                    d = json.load(f)
+                items.append({'id': vid, 'title': d.get('title', 'Unknown'),
+                              'key': d.get('key'), 'bpm': d.get('bpm'),
+                              'duration': d.get('duration'),
+                              'mtime': os.path.getmtime(mp3)})
+            except (OSError, ValueError):
+                continue
+    except OSError:
+        pass
+    items.sort(key=lambda x: x['mtime'], reverse=True)
+    for it in items:
+        del it['mtime']
+    resp = jsonify(items[:60])
+    resp.headers['Cache-Control'] = 'no-cache'
+    return resp
+
+
+@app.route('/result/<video_id>', methods=['GET'])
+def cached_result(video_id):
+    # Instant fetch of an already-analyzed song (Library clicks, shared links).
+    # Never triggers a download — 404 means "not analyzed yet".
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,20}', video_id):
+        abort(404)
+    path = os.path.join(CACHE_DIR, f'{video_id}.json')
+    if not os.path.isfile(path):
+        abort(404)
+    with open(path) as f:
+        return jsonify(json.load(f))
+
+
+def produce_upload_result(upload_id, src_path, title, emit):
+    # Upload twin of produce_result: same cache/lock/slot discipline, no
+    # YouTube anywhere. Transcodes to the cache MP3 (same loudness treatment
+    # as the YouTube path), then runs the shared analysis core.
+    cache_path = os.path.join(CACHE_DIR, f'{upload_id}.json')
+    if os.path.exists(cache_path):
+        with open(cache_path) as f:
+            return json.load(f)
+
+    lock_path = os.path.join(CACHE_DIR, f'{upload_id}.lock')
+    with open(lock_path, 'w') as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            if os.path.exists(cache_path):
+                with open(cache_path) as f:
+                    return json.load(f)
+
+            with analysis_slot():
+                emit({'stage': 'convert'})
+                mp3_path = os.path.join(CACHE_DIR, f'{upload_id}.mp3')
+                proc = subprocess.run(
+                    ['ffmpeg', '-y', '-i', src_path, '-vn', '-map_metadata', '-1',
+                     '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-b:a', '128k', mp3_path],
+                    capture_output=True, timeout=180)
+                if proc.returncode != 0 or not os.path.isfile(mp3_path):
+                    try:
+                        os.remove(mp3_path)
+                    except OSError:
+                        pass
+                    raise ValueError("Couldn't read that file as audio — try an "
+                                     "MP3, M4A, WAV, OGG, or FLAC.")
+
+                core = analyze_file(mp3_path, emit)
+                result = {
+                    'success': True,
+                    'id': upload_id,
+                    'title': title,
+                    **core,
+                    'description': describe(core['key'], core['bpm'], core['chords']),
+                    'audio_url': f'/audio/{upload_id}',
+                }
+            with open(cache_path, 'w') as f:
+                json.dump(result, f)
+            prune_cache()
+            return result
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
+@app.route('/upload', methods=['POST', 'OPTIONS'])
+def upload():
+    # The no-YouTube path: analyze a file the user already has. Content-hash id
+    # means the same file re-uploaded (by anyone) is an instant cache hit.
+    if request.method == 'OPTIONS':
+        return '', 204
+    f = request.files.get('file')
+    if f is None or not f.filename:
+        return jsonify(success=False, error='No audio file received'), 400
+
+    data = f.read()
+    if len(data) < 1024:
+        return jsonify(success=False, error='That file looks empty'), 400
+    upload_id = 'up-' + hashlib.sha1(data).hexdigest()[:12]
+    title = re.sub(r'\.[A-Za-z0-9]{1,5}$', '', os.path.basename(f.filename))[:120] or 'Uploaded track'
+
+    workdir = tempfile.mkdtemp(prefix='song-upload-')
+    try:
+        src = os.path.join(workdir, 'in' + os.path.splitext(f.filename)[1][:8])
+        with open(src, 'wb') as out:
+            out.write(data)
+        result = produce_upload_result(upload_id, src, title, emit=lambda ev: None)
+        return jsonify(result)
+    except ValueError as exc:
+        return jsonify(success=False, error=str(exc)), 400
+    except Exception:
+        app.logger.exception('Upload analysis failed')
+        return jsonify(success=False, error='Analysis failed — try a different file.'), 500
+    finally:
+        shutil.rmtree(workdir, ignore_errors=True)
 
 
 @app.route('/', methods=['POST', 'OPTIONS'])

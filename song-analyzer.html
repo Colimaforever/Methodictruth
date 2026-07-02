@@ -121,6 +121,24 @@
         .sa-progress-bar.sa-indeterminate { width: 40% !important; animation: sa-sweep 1.1s ease-in-out infinite; transition: none; }
         @keyframes sa-sweep { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
 
+        .sa-drop {
+            margin-top: 0.8rem; padding: 0.9rem 1rem; text-align: center; cursor: pointer;
+            border: 1px dashed rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.03);
+            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.06em;
+            color: var(--stone-dark); transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .sa-drop:hover, .sa-drop.sa-dragover { background: rgba(0, 229, 255, 0.09); border-color: var(--glow); color: var(--glow); }
+
+        .sa-library { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .sa-lib-item {
+            border: 1px solid rgba(0, 229, 255, 0.2); background: rgba(0, 229, 255, 0.04);
+            padding: 0.5rem 0.8rem; cursor: pointer; text-align: left; max-width: 100%;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .sa-lib-item:hover { background: rgba(0, 229, 255, 0.1); border-color: var(--glow); }
+        .sa-lib-title { font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; color: var(--parchment); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 34ch; }
+        .sa-lib-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--glow); opacity: 0.8; margin-top: 0.15rem; }
+
         .sa-share { display: flex; justify-content: center; margin-bottom: 1.2rem; }
         .sa-share-btn { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--glow); background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.25); padding: 0.4rem 0.9rem; cursor: pointer; transition: background 0.2s ease; }
         .sa-share-btn:hover { background: rgba(0,229,255,0.14); }
@@ -280,6 +298,16 @@
             >
             <button class="sa-btn" id="analyzeBtn">Analyze</button>
         </div>
+        <div class="sa-drop" id="dropZone" role="button" tabindex="0"
+             aria-label="Upload an audio file to analyze">
+            ⤓ or drop an audio file here (MP3 · M4A · WAV · FLAC) — no YouTube involved, no rate limits
+        </div>
+        <input type="file" id="fileInput" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" style="display:none">
+      </div>
+
+      <div class="sa-section" id="librarySection" style="display:none; margin-top:1.2rem;">
+        <div class="sa-section-label">Library — already analyzed, plays instantly</div>
+        <div class="sa-library" id="libraryList"></div>
       </div>
 
       <div class="sa-error" id="error"></div>
@@ -412,10 +440,106 @@
                 .catch(() => { window.prompt('Copy this link:', link); });
         });
 
-        // Deep link: ?v=<id> auto-runs the analysis on load (cache makes it instant).
-        (function () {
+        // ─── Upload path (no YouTube, no rate limits) ───
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+        ['dragover', 'dragenter'].forEach(ev => dropZone.addEventListener(ev, (e) => {
+            e.preventDefault(); dropZone.classList.add('sa-dragover');
+        }));
+        ['dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, (e) => {
+            e.preventDefault(); dropZone.classList.remove('sa-dragover');
+        }));
+        dropZone.addEventListener('drop', (e) => {
+            const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+            if (file) uploadFile(file);
+        });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files[0]) uploadFile(fileInput.files[0]);
+            fileInput.value = '';
+        });
+
+        async function uploadFile(file) {
+            if (file.size > 30 * 1024 * 1024) {
+                showError('That file is over 30 MB — try a compressed format like MP3.');
+                return;
+            }
+            document.getElementById('error').classList.remove('visible');
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('loading').classList.add('visible');
+            document.getElementById('analyzeBtn').disabled = true;
+            stopPolling();
+            resetProgress();
+            document.getElementById('loadingText').textContent = 'Analyzing your file… (~15 seconds)';
+            try {
+                const fd = new FormData();
+                fd.append('file', file);
+                const resp = await fetch(API_URL + '/upload', { method: 'POST', body: fd });
+                const data = await resp.json();
+                if (!data.success) throw new Error(data.error || 'Analysis failed');
+                displayResults(data, data.id);
+                loadLibrary();
+            } catch (err) {
+                showError(err.message || 'Upload failed — please try again.');
+            } finally {
+                document.getElementById('loading').classList.remove('visible');
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+
+        // ─── Library: every analyzed song, instant replay from cache ───
+        async function loadLibrary() {
+            try {
+                const resp = await fetch(API_URL + '/library');
+                if (!resp.ok) return;
+                const items = await resp.json();
+                const list = document.getElementById('libraryList');
+                const section = document.getElementById('librarySection');
+                if (!Array.isArray(items) || !items.length) { section.style.display = 'none'; return; }
+                list.innerHTML = '';
+                items.forEach(it => {
+                    const btn = document.createElement('button');
+                    btn.className = 'sa-lib-item';
+                    btn.type = 'button';
+                    const t = document.createElement('div');
+                    t.className = 'sa-lib-title';
+                    t.textContent = it.title || 'Unknown';
+                    const m = document.createElement('div');
+                    m.className = 'sa-lib-meta';
+                    m.textContent = [it.key, it.bpm ? it.bpm + ' BPM' : null].filter(Boolean).join(' · ');
+                    btn.appendChild(t); btn.appendChild(m);
+                    btn.addEventListener('click', () => openCached(it.id));
+                    list.appendChild(btn);
+                });
+                section.style.display = '';
+            } catch (_) { /* library is a bonus; never break the page */ }
+        }
+
+        // Fetch an already-analyzed song straight from the cache — never
+        // triggers a download. Returns false if it isn't cached.
+        async function openCached(id) {
+            try {
+                const resp = await fetch(API_URL + '/result/' + id);
+                if (!resp.ok) return false;
+                const data = await resp.json();
+                if (!data.success) return false;
+                displayResults(data, id);
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return true;
+            } catch (_) { return false; }
+        }
+
+        loadLibrary();
+
+        // Deep link: ?v=<id>. Try the cache first (instant, works for uploads
+        // and YouTube songs alike); only fall back to a fresh YouTube analysis
+        // when it's an uncached YouTube id.
+        (async function () {
             const v = new URLSearchParams(location.search).get('v');
-            if (v && /^[A-Za-z0-9_-]{1,20}$/.test(v)) {
+            if (!v || !/^[A-Za-z0-9_-]{1,20}$/.test(v)) return;
+            if (await openCached(v)) return;
+            if (/^[A-Za-z0-9_-]{11}$/.test(v)) {
                 document.getElementById('youtubeUrl').value = 'https://www.youtube.com/watch?v=' + v;
                 analyzeVideo();
             }
@@ -482,6 +606,7 @@
                 if (data && data.success) {
                     document.getElementById('progressBar').style.width = '100%';
                     displayResults(data, videoId);
+                    loadLibrary();
                 } else {
                     throw new Error((data && data.error) || 'Unknown error');
                 }
@@ -545,6 +670,7 @@
             bar.classList.remove('sa-indeterminate');
             let pct = null, label = 'Working…';
             switch (ev.stage) {
+                case 'paced':    pct = 4;  label = 'Waiting our turn — spacing out YouTube requests…'; break;
                 case 'download': pct = 5 + Math.round((ev.pct || 0) * 0.65); label = 'Downloading audio…'; break;
                 case 'convert':  pct = 75; label = 'Normalizing audio…'; break;
                 case 'load':     pct = 85; label = 'Decoding waveform…'; break;

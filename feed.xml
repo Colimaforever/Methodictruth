@@ -12,7 +12,7 @@
     <link>https://methodictruth.com/changelog.html#2026-07-02</link>
     <guid isPermaLink="false">changelog-2026-07-02</guid>
     <pubDate>Thu, 02 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Site hygiene pass: sitemap now covers all 35 indexable pages with real last-modified dates (it listed 16), every page carries a canonical URL, five tool pages gained social-preview cards, and two orphaned early Song Analyzer pages now redirect to the real one.</description>
+    <description>Song Analyzer learns to live with YouTube's limits: downloads are paced and budgeted instead of bursting, the cache is now a browsable Library with instant replays, and a new drag-and-drop upload path analyzes your own audio files with no YouTube involved at all. Plus a site hygiene pass: full sitemap (35 pages, was 16), canonical URLs everywhere, social-preview cards on five tool pages, and orphaned duplicate pages retired.</description>
   </item>
 
   <item>
