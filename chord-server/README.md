@@ -350,6 +350,52 @@ buffers the stream still gets a correct answer — the frontend reads it with
 `fetch` + a stream reader and falls back to a plain read otherwise. Cache
 hits emit a single `done` line instantly.
 
+## Staying under YouTube's rate limits
+
+YouTube throttles per-IP based on request *pattern* more than volume — a
+burst of back-to-back downloads trips its bot detector and burns the IP for
+hours, while the same downloads spaced out sail through. Three layers keep
+this in check:
+
+1. **Pacing + budget (built in).** Fresh YouTube downloads are spaced at
+   least `YT_MIN_GAP` seconds apart (default 20; bursts queue) and capped at
+   `YT_HOURLY_CAP` per rolling hour (default 12). Past the cap, users get an
+   honest "paused to stay under the radar, try the Library" message instead
+   of a doomed attempt that would deepen the throttle. Cached songs and
+   uploads are never gated.
+2. **Fresh cookies.** Authenticated sessions get far more tolerance.
+   Re-export `cookies.txt` (see the bot-check section above) when throttling
+   gets frequent — cookies age out over weeks.
+3. **PO-token provider (optional, strongest).** yt-dlp can attach "proof of
+   origin" tokens that YouTube's anti-bot wants to see. Install the
+   community provider (needs Node, already present for the JS runtime):
+
+   ```bash
+   source venv/bin/activate
+   pip install -U bgutil-ytdlp-pot-provider
+   deactivate
+   sudo systemctl restart chord-analyzer
+   ```
+
+   The plugin is picked up by yt-dlp automatically; check
+   `yt-dlp -v` output for `[pot]` lines to confirm it loaded.
+
+## Library, cached results, and uploads
+
+Three endpoints turn the permanent cache into a catalog and open a
+no-YouTube path:
+
+- `GET /library` — the analyzed songs (id, title, key, bpm, duration),
+  newest first, for the frontend's Library strip. Replays cost zero
+  YouTube traffic.
+- `GET /result/<id>` — an already-analyzed song's full result, instantly.
+  Never triggers a download; 404 means "not analyzed yet".
+- `POST /upload` (multipart `file`, ≤30 MB) — analyze a user-provided audio
+  file: transcoded with the same loudness treatment, analyzed by the same
+  core, cached under a content-hash id (`up-…`), so re-uploads of the same
+  file are instant for everyone. No YouTube involvement at all — this path
+  has no rate limits.
+
 ## Accuracy notes
 
 Chord detection is **beat-synchronous** template matching: `librosa` tracks
