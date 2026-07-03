@@ -1,0 +1,21 @@
+# 301 redirects for pages that once existed and were removed.
+# Google Search Console flags these as "Not found (404)" because they were
+# indexed while live; redirecting old URLs to a relevant live page clears the
+# error and keeps any lingering links working. Cloudflare Pages _redirects.
+# Format:  <from>  <to>  <status>
+
+# Removed community/experimental pages → best live successor
+/sequencer.html   /synth.html      301
+/sequencer        /synth.html      301
+/guestbook.html   /feedback.html   301
+/guestbook        /feedback.html   301
+/library.html     /                301
+/library          /                301
+/agora.html       /                301
+/agora            /                301
+/salon.html       /                301
+/salon            /                301
+/gallery.html     /                301
+/gallery          /                301
+/workshop.html    /                301
+/workshop         /                301
