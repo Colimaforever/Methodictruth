@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Learn Music Production — A Visual Guide to Recording, Arranging & Mixing in Logic Pro X</title>
+  <meta name="keywords" content="learn music production, how to produce music, home studio, recording guide, mixing guide, song arrangement, Logic Pro X tutorial, music production for beginners, visual production guide, record arrange mix">
+  <meta name="description" content="Learn music production from capture to mix — a free, visual three-part guide: recording (mics, placement, compression), arrangement (song structure & energy), and effects (EQ, dynamics, reverb, the signal chain). Built around Logic Pro X, diagrams throughout.">
+  <link rel="canonical" href="https://methodictruth.com/production.html">
+  <meta property="og:title" content="Learn Music Production — Record, Arrange & Mix (Visual, Logic Pro X)">
+  <meta property="og:description" content="A free, visual three-part path from a raw idea to a finished mix: recording, arrangement, and effects — with Logic Pro X workflow and diagrams throughout.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/production.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Learn Music Production — Record, Arrange & Mix",
+    "description": "A free, visual three-part guide to music production built around Logic Pro X: recording, arrangement, and effects.",
+    "url": "https://methodictruth.com/production.html",
+    "publisher": { "@type": "Organization", "name": "Methodic Truth", "url": "https://methodictruth.com" },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListOrder": "https://schema.org/ItemListOrderAscending",
+      "numberOfItems": 3,
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Recording Guide", "url": "https://methodictruth.com/recording.html" },
+        { "@type": "ListItem", "position": 2, "name": "Arrangement Guide", "url": "https://methodictruth.com/arrangement.html" },
+        { "@type": "ListItem", "position": 3, "name": "Effects Guide", "url": "https://methodictruth.com/effects.html" }
+      ]
+    }
+  }
+  </script>
+  <style>
+    /* ─── LEARN PRODUCTION HUB ─── */
+    .lp-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .lp-main { max-width: 940px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .lp-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1.05rem;
+      color: var(--stone); line-height: 1.7; max-width: 68ch; margin: 0 auto 1.6rem;
+      text-align: center;
+    }
+    .lp-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .lp-lead em { color: var(--glow); font-style: italic; }
+
+    /* flow diagram */
+    .lp-flow { display: block; margin: 0 auto 2rem; width: 100%; max-width: 560px; height: auto; }
+    .lp-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.4); stroke-width: 1.3; }
+    .lp-flow-t { font-family: 'Cinzel', serif; font-size: 13px; fill: var(--parchment); letter-spacing: 0.04em; }
+    .lp-flow-s { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--glow); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* the three-step cards */
+    .lp-steps { display: grid; grid-template-columns: 1fr; gap: 1.2rem; margin-bottom: 2.4rem; }
+    .lp-step {
+      display: block; text-decoration: none;
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.16); padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .lp-step:hover { border-color: rgba(0, 229, 255, 0.5); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
+    .lp-step-head { display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+    .lp-step-num {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em;
+      color: var(--glow); text-transform: uppercase; border: 1px solid rgba(0,229,255,0.3);
+      padding: 0.15rem 0.5rem; border-radius: 2px; white-space: nowrap;
+    }
+    .lp-step-title { font-family: 'Cinzel', serif; font-size: 1.35rem; color: var(--parchment); letter-spacing: 0.05em; }
+    .lp-step-title .lp-icon { margin-right: 0.4rem; }
+    .lp-step-verb { font-family: 'EB Garamond', serif; font-style: italic; font-size: 1rem; color: var(--glow-warm); }
+    .lp-step-desc { font-family: 'EB Garamond', Georgia, serif; font-size: 0.98rem; color: var(--stone); line-height: 1.6; margin-bottom: 0.8rem; }
+    .lp-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
+    .lp-topic {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--stone);
+      background: rgba(10, 14, 26, 0.5); border: 1px solid rgba(138, 126, 107, 0.2);
+      padding: 0.2rem 0.5rem; border-radius: 2px; letter-spacing: 0.02em;
+    }
+    .lp-step-go { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--glow); letter-spacing: 0.08em; text-transform: uppercase; }
+    .lp-step:hover .lp-step-go { color: var(--glow-warm); }
+
+    .lp-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.6; max-width: 66ch; margin: 0 auto;
+      text-align: center; border-top: 1px solid rgba(232, 168, 124, 0.14); padding-top: 1.4rem;
+    }
+    .lp-note a { color: var(--glow); }
+
+    @media (max-width: 560px) {
+      .lp-step { padding: 1.1rem 0.95rem; }
+      .lp-step-title { font-size: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <marker id="lpArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#00e5ff"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="production.html" class="active">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="effects.html">Effects</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="lp-page">
+    <main class="lp-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Learn Production</h1>
+        <div class="subtitle">From a raw idea to a finished mix — seen, not just described</div>
+      </div>
+
+      <p class="lp-lead">
+        Making a record is really <em>three</em> crafts, in order: <strong>capture</strong> the sound, <strong>arrange</strong>
+        it into a song, then <strong>mix</strong> it so it hits. Most tutorials bury this under jargon. These three free
+        guides <em>draw</em> it instead — polar patterns, an energy arc, an EQ curve — with the exact
+        <strong>Logic Pro X</strong> steps to do each. Read them in order, or jump to what you need.
+      </p>
+
+      <svg class="lp-flow" viewBox="0 0 560 92" role="img" aria-label="The production path: Record, then Arrange, then Mix">
+        <rect class="lp-flowbox" x="14"  y="26" width="150" height="44" rx="4"/>
+        <text class="lp-flow-s" x="89"  y="45" text-anchor="middle">Part 1</text>
+        <text class="lp-flow-t" x="89"  y="61" text-anchor="middle">🎙 Record</text>
+        <line x1="168" y1="48" x2="196" y2="48" stroke="#00e5ff" stroke-width="1.4" marker-end="url(#lpArrow)"/>
+        <rect class="lp-flowbox" x="200" y="26" width="160" height="44" rx="4"/>
+        <text class="lp-flow-s" x="280" y="45" text-anchor="middle">Part 2</text>
+        <text class="lp-flow-t" x="280" y="61" text-anchor="middle">🎚 Arrange</text>
+        <line x1="360" y1="48" x2="388" y2="48" stroke="#00e5ff" stroke-width="1.4" marker-end="url(#lpArrow)"/>
+        <rect class="lp-flowbox" x="392" y="26" width="154" height="44" rx="4"/>
+        <text class="lp-flow-s" x="469" y="45" text-anchor="middle">Part 3</text>
+        <text class="lp-flow-t" x="469" y="61" text-anchor="middle">🎛 Mix</text>
+      </svg>
+
+      <div class="lp-steps">
+        <a href="recording.html" class="lp-step">
+          <div class="lp-step-head">
+            <span class="lp-step-num">Part 1 · Capture</span>
+            <span class="lp-step-title"><span class="lp-icon">🎙</span>Recording</span>
+            <span class="lp-step-verb">get the sound in</span>
+          </div>
+          <p class="lp-step-desc">
+            A great mix is mostly decided <em>before</em> a plugin opens — at the mic. What each microphone is for,
+            what a polar pattern actually looks like, how two inches of placement changes the tone, stereo technique,
+            reamping, how compression works, and how to punch in and comp a flawless take.
+          </p>
+          <div class="lp-topics">
+            <span class="lp-topic">mic types</span><span class="lp-topic">polar patterns</span><span class="lp-topic">placement</span><span class="lp-topic">stereo miking</span><span class="lp-topic">DI &amp; reamping</span><span class="lp-topic">compression</span><span class="lp-topic">punch &amp; comping</span>
+          </div>
+          <div class="lp-step-go">Start here ⟶</div>
+        </a>
+
+        <a href="arrangement.html" class="lp-step">
+          <div class="lp-step-head">
+            <span class="lp-step-num">Part 2 · Structure</span>
+            <span class="lp-step-title"><span class="lp-icon">🎚</span>Arrangement</span>
+            <span class="lp-step-verb">shape the song</span>
+          </div>
+          <p class="lp-step-desc">
+            What plays when. The anatomy of song sections and the energy arc that makes a chorus <em>feel</em> like a
+            chorus — then exactly how to block it out, name it, and move whole sections as blocks with Logic's
+            Arrangement track, plus transitions that carry the ear across every seam.
+          </p>
+          <div class="lp-topics">
+            <span class="lp-topic">song sections</span><span class="lp-topic">energy arc</span><span class="lp-topic">Arrangement track</span><span class="lp-topic">moving sections</span><span class="lp-topic">transitions</span><span class="lp-topic">workflow</span>
+          </div>
+          <div class="lp-step-go">Read Part 2 ⟶</div>
+        </a>
+
+        <a href="effects.html" class="lp-step">
+          <div class="lp-step-head">
+            <span class="lp-step-num">Part 3 · Mix</span>
+            <span class="lp-step-title"><span class="lp-icon">🎛</span>Effects</span>
+            <span class="lp-step-verb">make it hit</span>
+          </div>
+          <p class="lp-step-desc">
+            What every effect actually does — EQ, dynamics, reverb &amp; delay, modulation, saturation — the order they
+            belong in the signal chain, which effects pair together, and a real method for practicing mixing and
+            training the only tool that matters: your ears.
+          </p>
+          <div class="lp-topics">
+            <span class="lp-topic">EQ</span><span class="lp-topic">dynamics</span><span class="lp-topic">reverb &amp; delay</span><span class="lp-topic">modulation</span><span class="lp-topic">saturation</span><span class="lp-topic">signal chain</span><span class="lp-topic">how to practice</span>
+          </div>
+          <div class="lp-step-go">Read Part 3 ⟶</div>
+        </a>
+      </div>
+
+      <p class="lp-note">
+        Written for anyone with a mic, an interface, and Logic Pro X — beginners who want the <em>why</em>, and players
+        who can already record but want to record <em>better</em>. Every diagram is drawn from the actual math, so the
+        pictures are true. When you're ready to hear your own progress, the
+        <a href="ear-training.html">Ear Training</a> and <a href="song-analyzer.html">Song Analyzer</a> tools are a click away.
+      </p>
+
+    </main>
+  </div>
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
