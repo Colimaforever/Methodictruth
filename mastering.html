@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Mastering Guide — How to Master a Song in Logic Pro X (Loudness, LUFS, Limiting & the Chain)</title>
+  <meta name="keywords" content="mastering, how to master a song, Logic Pro X mastering, LUFS, loudness, true peak, limiter, adaptive limiter, multipressor, linear phase EQ, match EQ, mid-side, dithering, mastering chain, streaming loudness, -14 LUFS, Mastering Assistant, loudness meter">
+  <meta name="description" content="A practical, in-depth mastering guide for Logic Pro X: what mastering is, how to prep the mix, the mastering chain in order, EQ and compression, loudness and LUFS targets, true-peak limiting, metering, and the bounce with dithering — with Logic's stock tools throughout.">
+  <link rel="canonical" href="https://methodictruth.com/mastering.html">
+  <meta property="og:title" content="Mastering Guide — Master a Song in Logic Pro X">
+  <meta property="og:description" content="See how mastering works: the chain in order, EQ and glue compression, loudness and LUFS targets, true-peak limiting, and the dithered bounce — a practical in-depth reference with Logic Pro X tools.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/mastering.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Mastering Guide — How to Master a Song in Logic Pro X",
+    "description": "A practical, in-depth mastering guide for Logic Pro X: prepping the mix, the mastering chain, EQ and compression, loudness and LUFS targets, true-peak limiting, metering, and the dithered bounce — with Logic's stock tools throughout.",
+    "url": "https://methodictruth.com/mastering.html",
+    "image": "https://methodictruth.com/og-image.png",
+    "author": { "@type": "Person", "name": "Sergio Macedo" },
+    "publisher": { "@type": "Organization", "name": "Methodic Truth", "url": "https://methodictruth.com" },
+    "about": ["audio mastering", "loudness", "LUFS", "Logic Pro", "music production"]
+  }
+  </script>
+  <style>
+    /* ─── MASTERING GUIDE ─── */
+    .ms-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ms-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ms-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ms-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ms-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ms-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ms-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ms-lead em { color: var(--glow); font-style: italic; }
+    .ms-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ms-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ms-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ms-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ms-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ms-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ms-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ms-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ms-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ms-table td.ms-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ms-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ms-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ms-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ms-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ms-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ms-card .ms-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ms-diagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.1rem; margin: 0.8rem 0 0.4rem; }
+    .ms-dia { text-align: center; }
+    .ms-dia svg { width: 100%; height: auto; }
+    .ms-dia-cap { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--glow); margin-top: 0.35rem; text-transform: uppercase; }
+    .ms-dia-sub { font-family: 'EB Garamond', Georgia, serif; font-size: 0.82rem; color: var(--stone-dark); margin-top: 0.2rem; line-height: 1.4; }
+    .ms-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 580px; height: auto; }
+    .ms-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ms-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ms-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ms-lbl-f { fill: var(--glow); }
+    .ms-lbl-w { fill: var(--glow-warm); }
+    .ms-wave { fill: rgba(0, 229, 255, 0.16); stroke: var(--glow); stroke-width: 1; }
+    .ms-wave-w { fill: rgba(232, 168, 124, 0.14); stroke: var(--glow-warm); stroke-width: 1; }
+    .ms-wave-r { fill: rgba(232, 90, 90, 0.18); stroke: #e85a5a; stroke-width: 1; }
+    .ms-ceil { stroke: #e85a5a; stroke-width: 1.1; stroke-dasharray: 4 3; fill: none; }
+    .ms-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ms-flowbox-w { fill: rgba(26, 18, 10, 0.55); stroke: rgba(232, 168, 124, 0.4); stroke-width: 1.2; }
+    .ms-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; fill: var(--parchment); }
+    .ms-flowsub { font-family: 'EB Garamond', serif; font-size: 7px; fill: var(--stone-dark); }
+
+    /* toc */
+    .ms-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ms-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ms-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ms-section { padding: 1.1rem 0.9rem; }
+      .ms-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <marker id="msArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#00e5ff"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="effects.html">Effects</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="mastering.html" class="active">Mastering</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ms-page">
+    <main class="ms-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>The Mastering Guide</h1>
+        <div class="subtitle">The final polish — loudness, translation, and the last 2 dB, in Logic Pro X</div>
+      </div>
+
+      <p class="ms-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Mastering is the <em>last</em> step — taking a finished <a href="effects.html" style="color:var(--glow-warm)">mix</a>
+        and making it <strong>loud enough</strong>, <strong>tonally balanced</strong>, and <strong>consistent</strong> so
+        it holds up on every system, from AirPods to a car to a club. It's a game of <em>small</em> moves — a decibel
+        here, a hair of glue there. This guide draws what those moves do and gives you the exact
+        <strong>Logic Pro X</strong> tools for each.
+      </p>
+
+      <nav class="ms-toc" aria-label="Sections">
+        <a href="#what">What It Is</a>
+        <a href="#prep">Prep the Mix</a>
+        <a href="#chain">The Chain</a>
+        <a href="#eq">EQ &amp; Dynamics</a>
+        <a href="#loudness">Loudness &amp; Limiting</a>
+        <a href="#meter">Metering &amp; Bounce</a>
+      </nav>
+
+      <!-- ═══ 1. WHAT IT IS ═══ -->
+      <section class="ms-section" id="what">
+        <div class="ms-section-label">① The Last 2 dB</div>
+        <h2 class="ms-section-title">What Mastering Is (and Isn't)</h2>
+        <p class="ms-lead">
+          Mastering is the bridge between your mix and the world. It does three jobs: raise the track to
+          <strong>competitive loudness</strong>, apply a final <strong>tonal balance</strong> so it translates
+          everywhere, and — across an album — make every song feel <strong>consistent</strong>. What it <em>isn't</em>:
+          a rescue mission. Mastering polishes a good mix a few percent; it can't fix a muddy or unbalanced one. Fix
+          those in the <a href="effects.html#pairs" style="color:var(--glow)">mix</a> and come back.
+        </p>
+
+        <div class="ms-diagrid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));">
+          <div class="ms-dia">
+            <svg viewBox="0 0 180 80" role="img" aria-label="A dynamic, un-mastered waveform with lots of headroom and varying peaks">
+              <line class="ms-grid-line" x1="6" y1="40" x2="174" y2="40"/>
+              <path class="ms-wave-w" d="M6.0,26.2 L7.4,26.1 L8.8,27.1 L10.2,28.4 L11.6,29.0 L13.1,27.7 L14.5,25.5 L15.9,24.2 L17.3,23.6 L18.7,22.8 L20.1,21.9 L21.5,18.7 L22.9,17.7 L24.4,16.9 L25.8,17.9 L27.2,17.1 L28.6,17.0 L30.0,16.5 L31.4,16.6 L32.8,15.6 L34.2,15.1 L35.6,13.8 L37.1,13.8 L38.5,13.9 L39.9,13.7 L41.3,12.7 L42.7,11.9 L44.1,11.5 L45.5,11.5 L46.9,11.5 L48.4,11.5 L49.8,12.0 L51.2,12.0 L52.6,12.9 L54.0,13.5 L55.4,15.0 L56.8,14.8 L58.2,14.2 L59.6,12.7 L61.1,12.0 L62.5,11.5 L63.9,11.9 L65.3,12.1 L66.7,13.0 L68.1,13.2 L69.5,14.6 L70.9,15.8 L72.4,16.3 L73.8,15.9 L75.2,14.8 L76.6,14.5 L78.0,13.2 L79.4,12.4 L80.8,12.4 L82.2,12.4 L83.6,12.2 L85.1,11.7 L86.5,12.9 L87.9,13.9 L89.3,14.3 L90.7,13.4 L92.1,12.4 L93.5,12.8 L94.9,13.2 L96.4,14.4 L97.8,14.4 L99.2,15.0 L100.6,15.4 L102.0,16.4 L103.4,15.8 L104.8,15.5 L106.2,15.2 L107.6,15.5 L109.1,15.9 L110.5,15.5 L111.9,16.1 L113.3,15.4 L114.7,14.3 L116.1,13.1 L117.5,12.2 L118.9,12.6 L120.4,12.6 L121.8,12.6 L123.2,12.7 L124.6,12.2 L126.0,12.2 L127.4,12.3 L128.8,12.5 L130.2,13.0 L131.6,12.8 L133.1,12.7 L134.5,13.3 L135.9,12.8 L137.3,13.2 L138.7,12.1 L140.1,11.9 L141.5,11.5 L142.9,12.0 L144.4,13.0 L145.8,13.9 L147.2,13.6 L148.6,12.5 L150.0,11.7 L151.4,11.5 L152.8,12.6 L154.2,14.3 L155.6,15.8 L157.1,16.3 L158.5,15.9 L159.9,16.4 L161.3,16.7 L162.7,17.6 L164.1,17.9 L165.5,18.9 L166.9,18.6 L168.4,17.1 L169.8,15.2 L171.2,15.2 L172.6,17.0 L174.0,18.2 L174.0,61.8 L172.6,63.0 L171.2,64.8 L169.8,64.8 L168.4,62.9 L166.9,61.4 L165.5,61.1 L164.1,62.1 L162.7,62.4 L161.3,63.3 L159.9,63.6 L158.5,64.1 L157.1,63.7 L155.6,64.2 L154.2,65.7 L152.8,67.4 L151.4,68.5 L150.0,68.3 L148.6,67.5 L147.2,66.4 L145.8,66.1 L144.4,67.0 L142.9,68.0 L141.5,68.5 L140.1,68.1 L138.7,67.9 L137.3,66.8 L135.9,67.2 L134.5,66.7 L133.1,67.3 L131.6,67.2 L130.2,67.0 L128.8,67.5 L127.4,67.7 L126.0,67.8 L124.6,67.8 L123.2,67.3 L121.8,67.4 L120.4,67.4 L118.9,67.4 L117.5,67.8 L116.1,66.9 L114.7,65.7 L113.3,64.6 L111.9,63.9 L110.5,64.5 L109.1,64.1 L107.6,64.5 L106.2,64.8 L104.8,64.5 L103.4,64.2 L102.0,63.6 L100.6,64.6 L99.2,65.0 L97.8,65.6 L96.4,65.6 L94.9,66.8 L93.5,67.2 L92.1,67.6 L90.7,66.6 L89.3,65.7 L87.9,66.1 L86.5,67.1 L85.1,68.3 L83.6,67.8 L82.2,67.6 L80.8,67.6 L79.4,67.6 L78.0,66.8 L76.6,65.5 L75.2,65.2 L73.8,64.1 L72.4,63.7 L70.9,64.2 L69.5,65.4 L68.1,66.8 L66.7,67.0 L65.3,67.9 L63.9,68.1 L62.5,68.5 L61.1,68.0 L59.6,67.3 L58.2,65.8 L56.8,65.2 L55.4,65.0 L54.0,66.5 L52.6,67.1 L51.2,68.0 L49.8,68.0 L48.4,68.5 L46.9,68.5 L45.5,68.5 L44.1,68.5 L42.7,68.1 L41.3,67.3 L39.9,66.3 L38.5,66.1 L37.1,66.2 L35.6,66.2 L34.2,64.9 L32.8,64.4 L31.4,63.4 L30.0,63.5 L28.6,63.0 L27.2,62.9 L25.8,62.1 L24.4,63.1 L22.9,62.3 L21.5,61.3 L20.1,58.1 L18.7,57.2 L17.3,56.4 L15.9,55.8 L14.5,54.5 L13.1,52.3 L11.6,51.0 L10.2,51.6 L8.8,52.9 L7.4,53.9 L6.0,53.8 Z"/>
+            </svg>
+            <div class="ms-dia-cap">Unmastered</div>
+            <div class="ms-dia-sub">Dynamic &amp; quiet — lots of headroom, peaks all over. Sounds small next to released tracks.</div>
+          </div>
+          <div class="ms-dia">
+            <svg viewBox="0 0 180 80" role="img" aria-label="A well-mastered waveform: louder and more even, but still with visible dynamics">
+              <line class="ms-grid-line" x1="6" y1="40" x2="174" y2="40"/>
+              <path class="ms-wave" d="M6.0,20.6 L7.4,20.6 L8.8,21.2 L10.2,21.9 L11.6,22.2 L13.1,21.5 L14.5,20.3 L15.9,19.5 L17.3,19.2 L18.7,18.8 L20.1,18.2 L21.5,16.4 L22.9,15.9 L24.4,15.4 L25.8,16.0 L27.2,15.6 L28.6,15.5 L30.0,15.2 L31.4,15.3 L32.8,14.7 L34.2,14.4 L35.6,13.7 L37.1,13.7 L38.5,13.8 L39.9,13.6 L41.3,13.1 L42.7,13.0 L44.1,13.0 L45.5,13.0 L46.9,13.0 L48.4,13.0 L49.8,13.0 L51.2,13.0 L52.6,13.2 L54.0,13.5 L55.4,14.4 L56.8,14.3 L58.2,13.9 L59.6,13.1 L61.1,13.0 L62.5,13.0 L63.9,13.0 L65.3,13.0 L66.7,13.2 L68.1,13.3 L69.5,14.1 L70.9,14.8 L72.4,15.1 L73.8,14.9 L75.2,14.3 L76.6,14.1 L78.0,13.4 L79.4,13.0 L80.8,13.0 L82.2,13.0 L83.6,13.0 L85.1,13.0 L86.5,13.2 L87.9,13.7 L89.3,14.0 L90.7,13.5 L92.1,13.0 L93.5,13.1 L94.9,13.4 L96.4,14.0 L97.8,14.0 L99.2,14.4 L100.6,14.6 L102.0,15.1 L103.4,14.8 L104.8,14.6 L106.2,14.4 L107.6,14.6 L109.1,14.9 L110.5,14.6 L111.9,15.0 L113.3,14.6 L114.7,13.9 L116.1,13.3 L117.5,13.0 L118.9,13.0 L120.4,13.0 L121.8,13.0 L123.2,13.1 L124.6,13.0 L126.0,13.0 L127.4,13.0 L128.8,13.0 L130.2,13.2 L131.6,13.2 L133.1,13.1 L134.5,13.4 L135.9,13.1 L137.3,13.4 L138.7,13.0 L140.1,13.0 L141.5,13.0 L142.9,13.0 L144.4,13.2 L145.8,13.7 L147.2,13.6 L148.6,13.0 L150.0,13.0 L151.4,13.0 L152.8,13.0 L154.2,14.0 L155.6,14.8 L157.1,15.1 L158.5,14.9 L159.9,15.1 L161.3,15.3 L162.7,15.8 L164.1,16.0 L165.5,16.5 L166.9,16.4 L168.4,15.5 L169.8,14.5 L171.2,14.5 L172.6,15.5 L174.0,16.2 L174.0,63.8 L172.6,64.5 L171.2,65.5 L169.8,65.5 L168.4,64.5 L166.9,63.6 L165.5,63.5 L164.1,64.0 L162.7,64.2 L161.3,64.7 L159.9,64.9 L158.5,65.1 L157.1,64.9 L155.6,65.2 L154.2,66.0 L152.8,67.0 L151.4,67.0 L150.0,67.0 L148.6,67.0 L147.2,66.4 L145.8,66.3 L144.4,66.8 L142.9,67.0 L141.5,67.0 L140.1,67.0 L138.7,67.0 L137.3,66.6 L135.9,66.9 L134.5,66.6 L133.1,66.9 L131.6,66.8 L130.2,66.8 L128.8,67.0 L127.4,67.0 L126.0,67.0 L124.6,67.0 L123.2,66.9 L121.8,67.0 L120.4,67.0 L118.9,67.0 L117.5,67.0 L116.1,66.7 L114.7,66.1 L113.3,65.4 L111.9,65.0 L110.5,65.4 L109.1,65.1 L107.6,65.4 L106.2,65.6 L104.8,65.4 L103.4,65.2 L102.0,64.9 L100.6,65.4 L99.2,65.6 L97.8,66.0 L96.4,66.0 L94.9,66.6 L93.5,66.9 L92.1,67.0 L90.7,66.5 L89.3,66.0 L87.9,66.3 L86.5,66.8 L85.1,67.0 L83.6,67.0 L82.2,67.0 L80.8,67.0 L79.4,67.0 L78.0,66.6 L76.6,65.9 L75.2,65.7 L73.8,65.1 L72.4,64.9 L70.9,65.2 L69.5,65.9 L68.1,66.7 L66.7,66.8 L65.3,67.0 L63.9,67.0 L62.5,67.0 L61.1,67.0 L59.6,66.9 L58.2,66.1 L56.8,65.7 L55.4,65.6 L54.0,66.5 L52.6,66.8 L51.2,67.0 L49.8,67.0 L48.4,67.0 L46.9,67.0 L45.5,67.0 L44.1,67.0 L42.7,67.0 L41.3,66.9 L39.9,66.4 L38.5,66.2 L37.1,66.3 L35.6,66.3 L34.2,65.6 L32.8,65.3 L31.4,64.7 L30.0,64.8 L28.6,64.5 L27.2,64.4 L25.8,64.0 L24.4,64.6 L22.9,64.1 L21.5,63.6 L20.1,61.8 L18.7,61.2 L17.3,60.8 L15.9,60.5 L14.5,59.7 L13.1,58.5 L11.6,57.8 L10.2,58.1 L8.8,58.8 L7.4,59.4 L6.0,59.4 Z"/>
+            </svg>
+            <div class="ms-dia-cap">Well Mastered</div>
+            <div class="ms-dia-sub">Louder &amp; even, <strong>but breathing</strong> — the peaks and life survive. This is the target.</div>
+          </div>
+          <div class="ms-dia">
+            <svg viewBox="0 0 180 80" role="img" aria-label="An over-limited, brickwalled waveform: a flat sausage with no dynamics">
+              <line class="ms-grid-line" x1="6" y1="40" x2="174" y2="40"/>
+              <path class="ms-wave-r" d="M6.0,15.7 L7.4,15.7 L8.8,16.0 L10.2,16.0 L11.6,16.0 L13.1,16.0 L14.5,15.6 L15.9,15.4 L17.3,15.3 L18.7,15.2 L20.1,15.1 L21.5,14.7 L22.9,14.5 L24.4,14.4 L25.8,14.5 L27.2,14.4 L28.6,14.4 L30.0,14.4 L31.4,14.4 L32.8,14.2 L34.2,14.2 L35.6,14.0 L37.1,14.0 L38.5,14.0 L39.9,14.0 L41.3,13.8 L42.7,13.7 L44.1,13.7 L45.5,13.7 L46.9,13.7 L48.4,13.7 L49.8,13.7 L51.2,13.7 L52.6,13.9 L54.0,13.9 L55.4,14.2 L56.8,14.1 L58.2,14.0 L59.6,13.8 L61.1,13.7 L62.5,13.7 L63.9,13.7 L65.3,13.8 L66.7,13.9 L68.1,13.9 L69.5,14.1 L70.9,14.3 L72.4,14.3 L73.8,14.3 L75.2,14.1 L76.6,14.1 L78.0,13.9 L79.4,13.8 L80.8,13.8 L82.2,13.8 L83.6,13.8 L85.1,13.7 L86.5,13.9 L87.9,14.0 L89.3,14.1 L90.7,13.9 L92.1,13.8 L93.5,13.9 L94.9,13.9 L96.4,14.1 L97.8,14.1 L99.2,14.2 L100.6,14.2 L102.0,14.3 L103.4,14.3 L104.8,14.2 L106.2,14.2 L107.6,14.2 L109.1,14.3 L110.5,14.2 L111.9,14.3 L113.3,14.2 L114.7,14.1 L116.1,13.9 L117.5,13.8 L118.9,13.8 L120.4,13.8 L121.8,13.8 L123.2,13.8 L124.6,13.8 L126.0,13.8 L127.4,13.8 L128.8,13.8 L130.2,13.9 L131.6,13.9 L133.1,13.8 L134.5,13.9 L135.9,13.9 L137.3,13.9 L138.7,13.8 L140.1,13.7 L141.5,13.7 L142.9,13.7 L144.4,13.9 L145.8,14.0 L147.2,14.0 L148.6,13.8 L150.0,13.7 L151.4,13.7 L152.8,13.8 L154.2,14.1 L155.6,14.3 L157.1,14.3 L158.5,14.3 L159.9,14.3 L161.3,14.4 L162.7,14.5 L164.1,14.6 L165.5,14.7 L166.9,14.7 L168.4,14.4 L169.8,14.2 L171.2,14.2 L172.6,14.4 L174.0,14.6 L174.0,65.4 L172.6,65.6 L171.2,65.8 L169.8,65.8 L168.4,65.6 L166.9,65.3 L165.5,65.3 L164.1,65.4 L162.7,65.5 L161.3,65.6 L159.9,65.7 L158.5,65.7 L157.1,65.7 L155.6,65.7 L154.2,65.9 L152.8,66.2 L151.4,66.3 L150.0,66.3 L148.6,66.2 L147.2,66.0 L145.8,66.0 L144.4,66.1 L142.9,66.3 L141.5,66.3 L140.1,66.3 L138.7,66.2 L137.3,66.1 L135.9,66.1 L134.5,66.1 L133.1,66.2 L131.6,66.1 L130.2,66.1 L128.8,66.2 L127.4,66.2 L126.0,66.2 L124.6,66.2 L123.2,66.2 L121.8,66.2 L120.4,66.2 L118.9,66.2 L117.5,66.2 L116.1,66.1 L114.7,65.9 L113.3,65.8 L111.9,65.7 L110.5,65.8 L109.1,65.7 L107.6,65.8 L106.2,65.8 L104.8,65.8 L103.4,65.7 L102.0,65.7 L100.6,65.8 L99.2,65.8 L97.8,65.9 L96.4,65.9 L94.9,66.1 L93.5,66.1 L92.1,66.2 L90.7,66.1 L89.3,65.9 L87.9,66.0 L86.5,66.1 L85.1,66.3 L83.6,66.2 L82.2,66.2 L80.8,66.2 L79.4,66.2 L78.0,66.1 L76.6,65.9 L75.2,65.9 L73.8,65.7 L72.4,65.7 L70.9,65.7 L69.5,65.9 L68.1,66.1 L66.7,66.1 L65.3,66.2 L63.9,66.3 L62.5,66.3 L61.1,66.3 L59.6,66.2 L58.2,66.0 L56.8,65.9 L55.4,65.8 L54.0,66.1 L52.6,66.1 L51.2,66.3 L49.8,66.3 L48.4,66.3 L46.9,66.3 L45.5,66.3 L44.1,66.3 L42.7,66.3 L41.3,66.2 L39.9,66.0 L38.5,66.0 L37.1,66.0 L35.6,66.0 L34.2,65.8 L32.8,65.8 L31.4,65.6 L30.0,65.6 L28.6,65.6 L27.2,65.6 L25.8,65.5 L24.4,65.6 L22.9,65.5 L21.5,65.3 L20.1,64.9 L18.7,64.8 L17.3,64.7 L15.9,64.6 L14.5,64.4 L13.1,64.0 L11.6,64.0 L10.2,64.0 L8.8,64.0 L7.4,64.3 L6.0,64.3 Z"/>
+            </svg>
+            <div class="ms-dia-cap">Over-Limited</div>
+            <div class="ms-dia-sub">Crushed flat chasing loudness — a "sausage." Fatiguing, lifeless, and streaming turns it <em>down</em> anyway.</div>
+          </div>
+        </div>
+        <p class="ms-note">
+          The whole art is the middle picture. Since every streaming service now <strong>normalizes loudness</strong>,
+          the loudness war is over — smashing a track flat just costs you punch and gets turned down to the same level
+          as everyone else. Dynamics are a feature, not a bug.
+        </p>
+      </section>
+
+      <!-- ═══ 2. PREP ═══ -->
+      <section class="ms-section" id="prep">
+        <div class="ms-section-label">② Set Yourself Up to Win</div>
+        <h2 class="ms-section-title">Before You Master</h2>
+        <p class="ms-lead">
+          The best masters start with the right handoff from the mix. Ideally master with <em>fresh ears</em> on a
+          <em>different day</em> — mastering is a decision job, and tired ears make loud, bad decisions.
+        </p>
+        <div class="ms-grid">
+          <div class="ms-card">
+            <h4>Leave Headroom</h4>
+            <p>Bounce the mix peaking around <span class="ms-term">−6 dB</span> (no limiter on the mix bus). The master needs room to work — a mix already slammed to 0 leaves nothing to shape.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Fix It in the Mix</h4>
+            <p>If something's wrong — harsh, boomy, a buried vocal — go back and <span class="ms-term">fix the mix</span>. Mastering EQ is broad; it can't surgically undo a mix problem without hurting everything else.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Bounce a Clean File</h4>
+            <p>Export a high-resolution <span class="ms-term">24-bit WAV</span> at the project sample rate. Master that flat file in a fresh project, not on your busy mix session — you'll judge it more honestly.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Line Up References</h4>
+            <p>Pull 2–3 commercial songs in the same style. They're your target for tone <em>and</em> loudness — gain-match them so you're not fooled by their level.</p>
+          </div>
+        </div>
+        <div class="ms-logic" data-l="IN LOGIC PRO">
+          Bounce the mix with <strong>File ▸ Bounce ▸ Project or Section</strong> (<span class="ms-kbd">⌘</span><span> + </span><span class="ms-kbd">B</span>), 24-bit WAV, <em>Normalize: Off</em>. Start a new project, import that file onto a single stereo track, and build your master chain on that track's inserts (or on the <strong>Stereo Out</strong>). Drag reference tracks onto muted tracks routed <em>straight to Output</em> so your master chain never touches them.
+        </div>
+      </section>
+
+      <!-- ═══ 3. THE CHAIN ═══ -->
+      <section class="ms-section" id="chain">
+        <div class="ms-section-label">③ Order of Operations</div>
+        <h2 class="ms-section-title">The Mastering Chain</h2>
+        <p class="ms-lead">
+          A master is a short, deliberate chain of gentle processors. Each does a <em>little</em>. The order matters —
+          clean up, glue, shape, color, widen, then raise the level <strong>last</strong> with the limiter, watching a
+          meter the whole way.
+        </p>
+
+        <svg class="ms-wide-dia" viewBox="0 0 560 96" role="img" aria-label="The mastering chain in order: subtractive EQ, glue compression, tonal EQ, saturation, stereo width, then the limiter, with metering across the whole chain">
+          <rect class="ms-flowbox" x="8"   y="20" width="80" height="34" rx="3"/><text class="ms-flowtxt" x="48"  y="37" text-anchor="middle">EQ</text><text class="ms-flowsub" x="48" y="47" text-anchor="middle">clean up</text>
+          <line x1="88"  y1="37" x2="101" y2="37" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#msArrow)"/>
+          <rect class="ms-flowbox" x="101" y="20" width="80" height="34" rx="3"/><text class="ms-flowtxt" x="141" y="37" text-anchor="middle">Comp</text><text class="ms-flowsub" x="141" y="47" text-anchor="middle">glue 1–2 dB</text>
+          <line x1="181" y1="37" x2="194" y2="37" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#msArrow)"/>
+          <rect class="ms-flowbox" x="194" y="20" width="80" height="34" rx="3"/><text class="ms-flowtxt" x="234" y="37" text-anchor="middle">EQ</text><text class="ms-flowsub" x="234" y="47" text-anchor="middle">tone / tilt</text>
+          <line x1="274" y1="37" x2="287" y2="37" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#msArrow)"/>
+          <rect class="ms-flowbox-w" x="287" y="20" width="80" height="34" rx="3"/><text class="ms-flowtxt" x="327" y="37" text-anchor="middle">Saturate</text><text class="ms-flowsub" x="327" y="47" text-anchor="middle">warmth</text>
+          <line x1="367" y1="37" x2="380" y2="37" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#msArrow)"/>
+          <rect class="ms-flowbox-w" x="380" y="20" width="80" height="34" rx="3"/><text class="ms-flowtxt" x="420" y="37" text-anchor="middle">Width</text><text class="ms-flowsub" x="420" y="47" text-anchor="middle">M/S · mono bass</text>
+          <line x1="460" y1="37" x2="473" y2="37" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#msArrow)"/>
+          <rect class="ms-flowbox" x="473" y="20" width="80" height="34" rx="3" stroke="#e85a5a"/><text class="ms-flowtxt" x="513" y="37" text-anchor="middle">Limiter</text><text class="ms-flowsub" x="513" y="47" text-anchor="middle">loudness · last</text>
+          <!-- meter bar -->
+          <rect x="8" y="66" width="545" height="16" rx="3" fill="rgba(232,168,124,0.06)" stroke="rgba(232,168,124,0.3)"/>
+          <text class="ms-lbl ms-lbl-w" x="280" y="77" text-anchor="middle">METER EVERYTHING — LUFS · true peak · spectrum · stereo — and A/B against references at matched loudness</text>
+        </svg>
+        <div class="ms-figcap">Gentle, in order. Not every track needs every stage — use the fewest that get it there.</div>
+
+        <p class="ms-note">
+          Some engineers put a broad subtractive EQ <em>before</em> the compressor (so boomy lows don't pump it) and a
+          tonal EQ <em>after</em> (to shape the glued result) — exactly like a mix chain, just gentler. The limiter is
+          always last: it sets the final ceiling nothing may cross.
+        </p>
+      </section>
+
+      <!-- ═══ 4. EQ & DYNAMICS ═══ -->
+      <section class="ms-section" id="eq">
+        <div class="ms-section-label">④ Shape &amp; Glue</div>
+        <h2 class="ms-section-title">EQ, Compression &amp; Width</h2>
+        <p class="ms-lead">
+          On the whole mix, every move is <strong>broad and small</strong>. You're nudging the balance of the entire
+          song at once, so a 1 dB shelf is a big move and a 3 dB boost is enormous. Reach for wide, gentle curves and
+          <em>low</em> ratios.
+        </p>
+
+        <div class="ms-grid">
+          <div class="ms-card">
+            <h4>Tonal EQ</h4>
+            <p>Gentle, wide moves for the <span class="ms-term">whole-mix balance</span>: a touch of low-end weight, a dip where it's harsh (2–4 kHz), a shelf of "air" up top. Think ±1–2 dB, low Q. A subtle high-to-low <span class="ms-term">tilt</span> fixes most tonal imbalances.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Glue Compression</h4>
+            <p>One gentle bus compressor for cohesion — <span class="ms-term">low ratio (1.5–2:1)</span>, slow attack, auto/slow release, only <strong>1–2 dB</strong> of gain reduction on peaks. You want it to <em>breathe</em> with the song, not squeeze it. More on how compression works in the <a href="recording.html#compression" style="color:var(--glow)">Recording Guide</a>.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Multiband — Surgically</h4>
+            <p>When one band misbehaves (boomy lows pumping, harsh highs spiking), a <span class="ms-term">multiband compressor</span> tames just that range without touching the rest. Use it as a scalpel, not a default.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Saturation</h4>
+            <p>A whisper of <span class="ms-term">tape or tube</span> adds density, warmth, and harmonic "loudness" that survives normalization. Drive it gently — on a full mix, a little is a lot.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Stereo Width</h4>
+            <p>Widen the <span class="ms-term">sides</span> for openness with a Mid-Side tool — but <strong>keep the bass mono</strong>. Wide lows smear and can cancel on club systems &amp; vinyl. Widen the top, anchor the bottom.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Mid-Side EQ</h4>
+            <p>Master-grade trick: EQ the <span class="ms-term">mid</span> (center — vocal, kick, bass) separately from the <span class="ms-term">side</span> (width — cymbals, reverb, guitars). Add air to the sides, clarity to the mid, independently.</p>
+          </div>
+        </div>
+        <div class="ms-logic" data-l="LOGIC'S MASTERING TOOLS">
+          Use <strong>Linear Phase EQ</strong> for tonal moves — it shapes without the phase smearing that matters on a
+          full mix. For glue, the stock <strong>Compressor</strong> on a low ratio (try the <em>Vintage VCA</em> / SSL
+          bus-style circuit); for problem bands, the <strong>Multipressor</strong> (Logic's multiband). Width lives in
+          <strong>Direction Mixer</strong> (Spread, and it does M/S) and <strong>Stereo Spread</strong> for upper-band
+          width. <strong>Match EQ</strong> can even "learn" a reference track's spectrum and apply that curve to your
+          master as a starting point.
+        </div>
+      </section>
+
+      <!-- ═══ 5. LOUDNESS & LIMITING ═══ -->
+      <section class="ms-section" id="loudness">
+        <div class="ms-section-label">⑤ Loud, but Right</div>
+        <h2 class="ms-section-title">Loudness &amp; the Limiter</h2>
+        <p class="ms-lead">
+          The limiter is a brick wall: it sets a <strong>ceiling</strong> nothing crosses, then lets you push the whole
+          track <em>into</em> it to raise the average level. Push gently — the goal is competitive loudness with the
+          peaks shaved, not a flattened sausage. Below, the same signal hitting the ceiling: peaks over the line get
+          caught, everything else passes.
+        </p>
+
+        <svg class="ms-wide-dia" viewBox="0 0 310 120" style="max-width:460px;" role="img" aria-label="A limiter in action: the input waveform has peaks exceeding the ceiling; the output is clamped so no peak crosses the true-peak ceiling line">
+          <!-- ceiling lines -->
+          <line class="ms-ceil" x1="10" y1="26" x2="300" y2="26"/>
+          <line class="ms-ceil" x1="10" y1="94" x2="300" y2="94"/>
+          <text class="ms-lbl" x="10" y="20" fill="#e85a5a">ceiling −1 dBTP</text>
+          <!-- input (ghost, exceeds ceiling) -->
+          <path d="M10.0,47.7 L12.9,49.5 L15.9,50.3 L18.8,49.3 L21.7,47.3 L24.6,48.0 L27.6,50.2 L30.5,52.2 L33.4,53.2 L36.4,42.0 L39.3,30.2 L42.2,18.8 L45.2,19.1 L48.1,20.1 L51.0,19.6 L53.9,18.1 L56.9,17.0 L59.8,17.0 L62.7,17.5 L65.7,18.2 L68.6,18.2 L71.5,18.2 L74.4,17.5 L77.4,17.5 L80.3,18.5 L83.2,19.5 L86.2,21.8 L89.1,23.2 L92.0,25.6 L94.9,28.2 L97.9,31.6 L100.8,34.4 L103.7,34.3 L106.7,33.7 L109.6,32.2 L112.5,33.0 L115.5,27.7 L118.4,23.4 L121.3,18.3 L124.2,19.4 L127.2,20.2 L130.1,20.6 L133.0,22.0 L136.0,23.6 L138.9,25.4 L141.8,24.2 L144.7,23.7 L147.7,23.0 L150.6,24.5 L153.5,26.4 L156.5,29.6 L159.4,33.9 L162.3,35.6 L165.3,36.0 L168.2,33.2 L171.1,32.8 L174.0,32.6 L177.0,35.2 L179.9,36.1 L182.8,38.3 L185.8,38.5 L188.7,39.1 L191.6,38.9 L194.5,40.5 L197.5,43.4 L200.4,45.0 L203.3,47.3 L206.3,36.9 L209.2,27.8 L212.1,17.0 L215.1,18.4 L218.0,18.5 L220.9,20.3 L223.8,19.7 L226.8,19.6 L229.7,18.8 L232.6,19.2 L235.6,20.4 L238.5,19.5 L241.4,18.8 L244.3,17.5 L247.3,17.5 L250.2,17.9 L253.1,17.9 L256.1,18.7 L259.0,18.2 L261.9,18.2 L264.8,17.5 L267.8,18.0 L270.7,18.5 L273.6,18.5 L276.6,19.5 L279.5,21.2 L282.4,24.8 L285.4,27.6 L288.3,28.6 L291.2,29.1 L294.1,29.2 L297.1,28.6 L300.0,28.1 L300.0,91.9 L297.1,91.4 L294.1,90.8 L291.2,90.9 L288.3,91.4 L285.4,92.4 L282.4,95.2 L279.5,98.8 L276.6,100.5 L273.6,101.5 L270.7,101.5 L267.8,102.0 L264.8,102.5 L261.9,101.8 L259.0,101.8 L256.1,101.3 L253.1,102.1 L250.2,102.1 L247.3,102.5 L244.3,102.5 L241.4,101.2 L238.5,100.5 L235.6,99.6 L232.6,100.8 L229.7,101.2 L226.8,100.4 L223.8,100.3 L220.9,99.7 L218.0,101.5 L215.1,101.6 L212.1,103.0 L209.2,92.2 L206.3,83.1 L203.3,72.7 L200.4,75.0 L197.5,76.6 L194.5,79.5 L191.6,81.1 L188.7,80.9 L185.8,81.5 L182.8,81.7 L179.9,83.9 L177.0,84.8 L174.0,87.4 L171.1,87.2 L168.2,86.8 L165.3,84.0 L162.3,84.4 L159.4,86.1 L156.5,90.4 L153.5,93.6 L150.6,95.5 L147.7,97.0 L144.7,96.3 L141.8,95.8 L138.9,94.6 L136.0,96.4 L133.0,98.0 L130.1,99.4 L127.2,99.8 L124.2,100.6 L121.3,101.7 L118.4,96.6 L115.5,92.3 L112.5,87.0 L109.6,87.8 L106.7,86.3 L103.7,85.7 L100.8,85.6 L97.9,88.4 L94.9,91.8 L92.0,94.4 L89.1,96.8 L86.2,98.2 L83.2,100.5 L80.3,101.5 L77.4,102.5 L74.4,102.5 L71.5,101.8 L68.6,101.8 L65.7,101.8 L62.7,102.5 L59.8,103.0 L56.9,103.0 L53.9,101.9 L51.0,100.4 L48.1,99.9 L45.2,100.9 L42.2,101.2 L39.3,89.8 L36.4,78.0 L33.4,66.8 L30.5,67.8 L27.6,69.8 L24.6,72.0 L21.7,72.7 L18.8,70.7 L15.9,69.7 L12.9,70.5 L10.0,72.3 Z" fill="rgba(232,168,124,0.10)" stroke="rgba(232,168,124,0.4)" stroke-width="0.8"/>
+          <!-- output (clamped) -->
+          <path d="M10.0,47.7 L12.9,49.5 L15.9,50.3 L18.8,49.3 L21.7,47.3 L24.6,48.0 L27.6,50.2 L30.5,52.2 L33.4,53.2 L36.4,42.0 L39.3,30.2 L42.2,26.0 L45.2,26.0 L48.1,26.0 L51.0,26.0 L53.9,26.0 L56.9,26.0 L59.8,26.0 L62.7,26.0 L65.7,26.0 L68.6,26.0 L71.5,26.0 L74.4,26.0 L77.4,26.0 L80.3,26.0 L83.2,26.0 L86.2,26.0 L89.1,26.0 L92.0,26.0 L94.9,28.2 L97.9,31.6 L100.8,34.4 L103.7,34.3 L106.7,33.7 L109.6,32.2 L112.5,33.0 L115.5,27.7 L118.4,26.0 L121.3,26.0 L124.2,26.0 L127.2,26.0 L130.1,26.0 L133.0,26.0 L136.0,26.0 L138.9,26.0 L141.8,26.0 L144.7,26.0 L147.7,26.0 L150.6,26.0 L153.5,26.4 L156.5,29.6 L159.4,33.9 L162.3,35.6 L165.3,36.0 L168.2,33.2 L171.1,32.8 L174.0,32.6 L177.0,35.2 L179.9,36.1 L182.8,38.3 L185.8,38.5 L188.7,39.1 L191.6,38.9 L194.5,40.5 L197.5,43.4 L200.4,45.0 L203.3,47.3 L206.3,36.9 L209.2,27.8 L212.1,26.0 L215.1,26.0 L218.0,26.0 L220.9,26.0 L223.8,26.0 L226.8,26.0 L229.7,26.0 L232.6,26.0 L235.6,26.0 L238.5,26.0 L241.4,26.0 L244.3,26.0 L247.3,26.0 L250.2,26.0 L253.1,26.0 L256.1,26.0 L259.0,26.0 L261.9,26.0 L264.8,26.0 L267.8,26.0 L270.7,26.0 L273.6,26.0 L276.6,26.0 L279.5,26.0 L282.4,26.0 L285.4,27.6 L288.3,28.6 L291.2,29.1 L294.1,29.2 L297.1,28.6 L300.0,28.1 L300.0,91.9 L297.1,91.4 L294.1,90.8 L291.2,90.9 L288.3,91.4 L285.4,92.4 L282.4,94.0 L279.5,94.0 L276.6,94.0 L273.6,94.0 L270.7,94.0 L267.8,94.0 L264.8,94.0 L261.9,94.0 L259.0,94.0 L256.1,94.0 L253.1,94.0 L250.2,94.0 L247.3,94.0 L244.3,94.0 L241.4,94.0 L238.5,94.0 L235.6,94.0 L232.6,94.0 L229.7,94.0 L226.8,94.0 L223.8,94.0 L220.9,94.0 L218.0,94.0 L215.1,94.0 L212.1,94.0 L209.2,92.2 L206.3,83.1 L203.3,72.7 L200.4,75.0 L197.5,76.6 L194.5,79.5 L191.6,81.1 L188.7,80.9 L185.8,81.5 L182.8,81.7 L179.9,83.9 L177.0,84.8 L174.0,87.4 L171.1,87.2 L168.2,86.8 L165.3,84.0 L162.3,84.4 L159.4,86.1 L156.5,90.4 L153.5,93.6 L150.6,94.0 L147.7,94.0 L144.7,94.0 L141.8,94.0 L138.9,94.0 L136.0,94.0 L133.0,94.0 L130.1,94.0 L127.2,94.0 L124.2,94.0 L121.3,94.0 L118.4,94.0 L115.5,92.3 L112.5,87.0 L109.6,87.8 L106.7,86.3 L103.7,85.7 L100.8,85.6 L97.9,88.4 L94.9,91.8 L92.0,94.0 L89.1,94.0 L86.2,94.0 L83.2,94.0 L80.3,94.0 L77.4,94.0 L74.4,94.0 L71.5,94.0 L68.6,94.0 L65.7,94.0 L62.7,94.0 L59.8,94.0 L56.9,94.0 L53.9,94.0 L51.0,94.0 L48.1,94.0 L45.2,94.0 L42.2,94.0 L39.3,89.8 L36.4,78.0 L33.4,66.8 L30.5,67.8 L27.6,69.8 L24.6,72.0 L21.7,72.7 L18.8,70.7 L15.9,69.7 L12.9,70.5 L10.0,72.3 Z" class="ms-wave"/>
+          <text class="ms-lbl ms-lbl-w" x="155" y="112" text-anchor="middle">amber = over ceiling · cyan = limited, capped output</text>
+        </svg>
+        <div class="ms-figcap">The limiter catches the peaks so you can raise everything else — up to a point.</div>
+
+        <p class="ms-lead" style="margin-top:1.1rem;">
+          <strong>How loud?</strong> Loudness is measured in <span class="ms-chip">LUFS</span> (perceived loudness) and peaks
+          in <span class="ms-chip">dBTP</span> (true peak). Streaming platforms normalize everything to a target, so
+          mastering <em>past</em> it just gets turned down — losing dynamics for nothing. Aim for the target and keep true
+          peak at <strong>−1 dBTP</strong> to survive lossy encoding.
+        </p>
+
+        <div class="ms-table-wrap">
+          <table class="ms-table">
+            <thead><tr><th>Platform</th><th>Normalizes to</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td class="ms-hi">Spotify</td><td>−14 LUFS</td><td>Louder masters get turned <em>down</em> to this</td></tr>
+              <tr><td class="ms-hi">Apple Music</td><td>−16 LUFS</td><td>Sound Check; the quietest target</td></tr>
+              <tr><td class="ms-hi">YouTube</td><td>−14 LUFS</td><td>Turns loud masters down, never up</td></tr>
+              <tr><td class="ms-hi">Amazon / Tidal</td><td>−14 LUFS</td><td>Same ballpark</td></tr>
+              <tr><td class="ms-hi">Club / DJ / CD</td><td>−9 to −6 LUFS</td><td>No normalization — loudness still matters here</td></tr>
+              <tr><td class="ms-hi">True-peak ceiling</td><td>−1 dBTP</td><td class="ms-hi">Set this on the limiter, always</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="ms-note">
+          A practical target: master to around <strong>−14 to −10 LUFS integrated</strong> with a <strong>−1 dBTP</strong>
+          ceiling and it'll translate well everywhere. Don't chase a number at the cost of the music — if 2 dB of
+          loudness costs you all the punch, it's a bad trade. Let the song's energy, not the meter, decide the last dB.
+        </p>
+        <div class="ms-logic" data-l="LIMITING IN LOGIC">
+          Put the <strong>Adaptive Limiter</strong> (musical, colored) or <strong>Limiter</strong> (transparent, with a
+          <em>True Peak</em> mode) <strong>last</strong> in the chain. Set <strong>Output / Ceiling to −1.0 dB</strong>,
+          turn on true-peak detection, and raise <strong>Gain</strong> until you hit your LUFS target — watching the
+          <strong>Loudness Meter</strong> (below). Keep gain reduction modest; if the meter shows heavy limiting, the mix
+          is too hot going in — turn it down, don't push harder.
+        </div>
+      </section>
+
+      <!-- ═══ 6. METERING & BOUNCE ═══ -->
+      <section class="ms-section" id="meter">
+        <div class="ms-section-label">⑥ Trust the Meters, Then the Bounce</div>
+        <h2 class="ms-section-title">Metering, Reference &amp; the Bounce</h2>
+        <p class="ms-lead">
+          Loudness fools your ears in seconds — meters don't. Master with a <strong>LUFS meter</strong> open, check your
+          <strong>true peak</strong>, watch a <strong>spectrum</strong> against your references, and confirm the stereo
+          image is <strong>mono-safe</strong>. Then commit with a clean, dithered bounce.
+        </p>
+
+        <div class="ms-grid">
+          <div class="ms-card">
+            <h4>Loudness Meter</h4>
+            <p>Read <span class="ms-term">Integrated LUFS</span> (whole-song loudness — your target number), Short-term (moving), and <span class="ms-term">True Peak</span> (must stay under −1 dBTP).</p>
+          </div>
+          <div class="ms-card">
+            <h4>Spectrum &amp; Reference</h4>
+            <p>A/B your master against commercial references at <span class="ms-term">matched loudness</span> — a real-time analyzer shows if you're too dark, too bright, or bass-heavy versus the target.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Correlation / Mono</h4>
+            <p>Watch the <span class="ms-term">correlation meter</span> and check the whole thing in mono. If the low end vanishes or the image collapses, pull your width back.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Dither on Export</h4>
+            <p>Only when reducing bit depth (e.g. 24-bit → <span class="ms-term">16-bit</span> for CD), add <span class="ms-term">dither</span> on the final bounce to mask quantization noise. Streaming/24-bit? No dither needed.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Check Everywhere</h4>
+            <p>Bounce it and listen on <span class="ms-term">phone, laptop, car, earbuds</span>. A master that holds up on a phone speaker holds up anywhere — that's the whole point.</p>
+          </div>
+          <div class="ms-card">
+            <h4>Walk Away, Then Decide</h4>
+            <p>Sleep on it. The master that sounded perfect at 1 a.m. often needs a hair less limiting in the morning. Fresh ears are the best mastering tool there is.</p>
+          </div>
+        </div>
+        <div class="ms-logic" data-l="METERING &amp; BOUNCE IN LOGIC">
+          Logic's stock <strong>Loudness Meter</strong> shows Integrated/Short-term LUFS, LRA, and True Peak; the
+          <strong>Multimeter</strong> adds a spectrum analyzer, goniometer, and correlation meter — put both at the
+          <em>end</em> of the chain (post-limiter). When you're done, <strong>Bounce</strong> (<span class="ms-kbd">⌘</span><span> + </span><span class="ms-kbd">B</span>):
+          for streaming, a 24-bit WAV, <em>Normalize Off</em>; for CD, 16-bit with <strong>POW-r dithering</strong>. Logic 11's
+          <strong>Mastering Assistant</strong> can also analyze your track and build a balanced chain with a loudness
+          target in one click — a strong starting point you then adjust by ear.
+        </div>
+      </section>
+
+      <p class="ms-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Mastering is restraint under a microscope — the smallest moves on the whole song, judged against the best in the
+        world at matched loudness. Get the mix right, make a few gentle moves, respect the meters, and stop before you
+        squeeze the life out. That last 2 dB is where a track goes from "done" to <em>released</em>.
+      </p>
+
+      <nav aria-label="Production series" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="effects.html" style="color:var(--stone);text-decoration:none;">← Effects (Mix)</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">↑ Part 4 of 4</a>
+        <a href="production.html" style="color:var(--glow-warm);text-decoration:none;">Series overview ⟲</a>
+      </nav>
+
+    </main>
+  </div>
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
