@@ -7,3 +7,30 @@
 /r54a3a48a000156c0.html
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-cache, no-store, must-revalidate
+
+# ── Static-asset caching — raises Cloudflare's edge cache-hit rate,
+#    speeds repeat loads, and cuts origin traffic. ──
+
+# styles.css is cache-busted with ?v=NN in every <link>, so a new version is
+# a new URL — safe to cache forever.
+/styles.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images & fonts change rarely — cache a month at the edge and in browsers.
+/*.svg
+  Cache-Control: public, max-age=2592000
+/*.png
+  Cache-Control: public, max-age=2592000
+/*.jpg
+  Cache-Control: public, max-age=2592000
+/*.webp
+  Cache-Control: public, max-age=2592000
+/*.ico
+  Cache-Control: public, max-age=2592000
+/*.woff2
+  Cache-Control: public, max-age=2592000
+
+# JS is not version-stamped, so keep a one-day TTL — a deploy is reflected
+# within a day instead of being frozen.
+/*.js
+  Cache-Control: public, max-age=86400
