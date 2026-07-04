@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Logic Pro X Guide — Key Commands, Shortcuts & Features for Making Music</title>
+  <meta name="keywords" content="Logic Pro X, Logic Pro shortcuts, key commands, keyboard shortcuts, Logic Pro tutorial, Logic Pro features, Drummer, Flex Time, Flex Pitch, Smart Tempo, quantize, Apple Loops, automation, take folders, Track Stacks, Live Loops, how to use Logic Pro, music production">
+  <meta name="description" content="A practical Logic Pro X reference: the essential keyboard shortcuts worth memorizing, the toolbox, the main window laid out, and the features that make music — Drummer, Flex Time & Pitch, Smart Tempo, quantize, loops, automation and comping.">
+  <link rel="canonical" href="https://methodictruth.com/logic.html">
+  <meta property="og:title" content="Logic Pro X Guide — Shortcuts & Features for Making Music">
+  <meta property="og:description" content="The key commands worth memorizing, the toolbox, the main window explained, and the Logic Pro features that actually make music — a practical, scannable reference.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/logic.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Logic Pro X Guide — Key Commands, Shortcuts & Features for Making Music",
+    "description": "A practical Logic Pro X reference: essential keyboard shortcuts, the toolbox, the main window, and the features that make music — Drummer, Flex Time & Pitch, Smart Tempo, quantize, loops, automation and comping.",
+    "url": "https://methodictruth.com/logic.html",
+    "image": "https://methodictruth.com/og-image.png",
+    "author": { "@type": "Person", "name": "Sergio Macedo" },
+    "publisher": { "@type": "Organization", "name": "Methodic Truth", "url": "https://methodictruth.com" },
+    "about": ["Logic Pro", "keyboard shortcuts", "music production", "DAW"]
+  }
+  </script>
+  <style>
+    /* ─── LOGIC PRO GUIDE ─── */
+    .lg-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .lg-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .lg-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .lg-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .lg-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .lg-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .lg-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .lg-lead em { color: var(--glow); font-style: italic; }
+    .lg-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+
+    /* key-command tables */
+    .lg-kbgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem 1.6rem; margin-top: 0.4rem; }
+    .lg-kbcol h4 {
+      font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--glow); letter-spacing: 0.04em;
+      margin-bottom: 0.5rem; padding-bottom: 0.3rem; border-bottom: 1px solid rgba(0,229,255,0.18);
+    }
+    .lg-kb { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; padding: 0.28rem 0; border-bottom: 1px solid rgba(138, 126, 107, 0.1); }
+    .lg-kb:last-child { border-bottom: none; }
+    .lg-kb-act { font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; color: var(--stone); line-height: 1.35; }
+    .lg-kb-keys { white-space: nowrap; flex-shrink: 0; }
+    .lg-key {
+      display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+      color: var(--parchment); background: rgba(10,14,26,0.75); border: 1px solid rgba(138,126,107,0.4);
+      border-bottom-width: 2px; padding: 0.08rem 0.42rem; border-radius: 3px; letter-spacing: 0.02em;
+    }
+    .lg-key + .lg-key { margin-left: 0.15rem; }
+    .lg-plus { color: var(--stone-dark); font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; margin: 0 0.05rem; }
+
+    /* feature + tool cards */
+    .lg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .lg-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .lg-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .lg-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .lg-card .lg-term { color: var(--glow-warm); font-style: italic; }
+    .lg-card .lg-mini { display:block; margin-top:0.4rem; font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--stone-dark); letter-spacing:0.03em; }
+
+    /* diagram */
+    .lg-wide-dia { display: block; margin: 0.6rem auto 0.3rem; width: 100%; max-width: 600px; height: auto; }
+    .lg-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+    .lg-box { fill: rgba(10, 14, 26, 0.5); stroke: rgba(138, 126, 107, 0.3); stroke-width: 1; }
+    .lg-box-c { fill: rgba(0, 229, 255, 0.06); stroke: rgba(0, 229, 255, 0.3); stroke-width: 1.1; }
+    .lg-box-w { fill: rgba(232, 168, 124, 0.06); stroke: rgba(232, 168, 124, 0.32); stroke-width: 1.1; }
+    .lg-blbl { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; fill: var(--parchment); }
+    .lg-blbl-c { fill: var(--glow); }
+    .lg-blbl-w { fill: var(--glow-warm); }
+    .lg-bsub { font-family: 'EB Garamond', serif; font-size: 8px; fill: var(--stone-dark); }
+
+    /* toc */
+    .lg-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .lg-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .lg-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .lg-section { padding: 1.1rem 0.9rem; }
+      .lg-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="theory.html">Theory</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="effects.html">Effects</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="logic.html" class="active">Logic Pro</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="tapbpm.html">Tap BPM</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="lg-page">
+    <main class="lg-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Logic Pro X</h1>
+        <div class="subtitle">The shortcuts, tools, and features that actually make music</div>
+      </div>
+
+      <p class="lg-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Logic Pro is deep, and most of its speed lives in the <em>keyboard</em>. This is the practical reference — the
+        commands worth burning into muscle memory, the toolbox, the window laid out, and the features that take you from
+        a blank project to a finished track. It pairs with the
+        <a href="production.html" style="color:var(--glow-warm)">Learn Production</a> series: those teach the
+        <em>craft</em>, this is the <em>machine</em>.
+      </p>
+
+      <nav class="lg-toc" aria-label="Sections">
+        <a href="#window">The Window</a>
+        <a href="#shortcuts">Key Commands</a>
+        <a href="#tools">The Toolbox</a>
+        <a href="#features">Music Features</a>
+        <a href="#workflow">Workflow</a>
+      </nav>
+
+      <!-- ═══ 1. THE WINDOW ═══ -->
+      <section class="lg-section" id="window">
+        <div class="lg-section-label">① Know Your Cockpit</div>
+        <h2 class="lg-section-title">The Main Window</h2>
+        <p class="lg-lead">
+          Everything hangs off one window. The <strong>Control Bar</strong> up top drives transport and toggles the
+          panels; the <strong>Tracks Area</strong> in the center is where you arrange; and the panels tuck in and out
+          with single keys so the screen stays yours.
+        </p>
+
+        <svg class="lg-wide-dia" viewBox="0 0 560 300" role="img" aria-label="Logic Pro's main window: a control bar across the top, an Inspector and Library on the left, the Tracks area in the center, the Loop/List browsers on the right, and the Editors and Mixer along the bottom">
+          <!-- control bar -->
+          <rect class="lg-box-w" x="6" y="6" width="548" height="26" rx="3"/>
+          <text class="lg-blbl-w lg-blbl" x="14" y="22">CONTROL BAR</text>
+          <text class="lg-bsub" x="300" y="22">transport · record · metronome · panel toggles · LCD (tempo / key / position)</text>
+          <!-- inspector left -->
+          <rect class="lg-box" x="6" y="38" width="92" height="180" rx="3"/>
+          <text class="lg-blbl" x="52" y="120" text-anchor="middle">Inspector</text>
+          <text class="lg-bsub" x="52" y="134" text-anchor="middle">region &amp;</text>
+          <text class="lg-bsub" x="52" y="144" text-anchor="middle">channel</text>
+          <text class="lg-blbl-c lg-blbl" x="52" y="210" text-anchor="middle">Library — Y</text>
+          <!-- tracks area center -->
+          <rect class="lg-box-c" x="104" y="38" width="330" height="180" rx="3"/>
+          <text class="lg-blbl-c lg-blbl" x="269" y="54" text-anchor="middle">TRACKS AREA — arrange here</text>
+          <!-- track lanes -->
+          <line x1="164" y1="62" x2="164" y2="212" stroke="rgba(138,126,107,0.3)" stroke-width="1"/>
+          <text class="lg-bsub" x="134" y="90" text-anchor="middle">track</text>
+          <text class="lg-bsub" x="134" y="100" text-anchor="middle">headers</text>
+          <rect x="172" y="72" width="120" height="14" rx="2" fill="rgba(0,229,255,0.18)" stroke="rgba(0,229,255,0.4)"/>
+          <rect x="172" y="94" width="200" height="14" rx="2" fill="rgba(0,229,255,0.18)" stroke="rgba(0,229,255,0.4)"/>
+          <rect x="210" y="116" width="150" height="14" rx="2" fill="rgba(232,168,124,0.18)" stroke="rgba(232,168,124,0.4)"/>
+          <rect x="172" y="138" width="90" height="14" rx="2" fill="rgba(0,229,255,0.18)" stroke="rgba(0,229,255,0.4)"/>
+          <text class="lg-bsub" x="269" y="176" text-anchor="middle">regions = your recordings &amp; loops, on the timeline</text>
+          <!-- right browsers -->
+          <rect class="lg-box" x="440" y="38" width="114" height="180" rx="3"/>
+          <text class="lg-blbl" x="497" y="112" text-anchor="middle">Loops · Browser</text>
+          <text class="lg-bsub" x="497" y="126" text-anchor="middle">Apple Loops,</text>
+          <text class="lg-bsub" x="497" y="136" text-anchor="middle">files, lists</text>
+          <text class="lg-blbl-c lg-blbl" x="497" y="210" text-anchor="middle">Loops — O</text>
+          <!-- editors bottom -->
+          <rect class="lg-box-c" x="104" y="224" width="330" height="46" rx="3"/>
+          <text class="lg-blbl-c lg-blbl" x="269" y="244" text-anchor="middle">EDITORS — E</text>
+          <text class="lg-bsub" x="269" y="258" text-anchor="middle">Piano Roll · Audio · Step Sequencer · Score</text>
+          <!-- mixer -->
+          <rect class="lg-box-w" x="6" y="224" width="92" height="46" rx="3"/>
+          <text class="lg-blbl-w lg-blbl" x="52" y="244" text-anchor="middle">Mixer — X</text>
+          <text class="lg-bsub" x="52" y="258" text-anchor="middle">faders</text>
+          <rect class="lg-box-w" x="440" y="224" width="114" height="46" rx="3"/>
+          <text class="lg-blbl-w lg-blbl" x="497" y="244" text-anchor="middle">Smart Controls</text>
+          <text class="lg-bsub" x="497" y="258" text-anchor="middle">— B</text>
+          <text class="lg-bsub" x="280" y="288" text-anchor="middle">Each panel toggles with one key — learn those first and the screen bends to the task.</text>
+        </svg>
+      </section>
+
+      <!-- ═══ 2. KEY COMMANDS ═══ -->
+      <section class="lg-section" id="shortcuts">
+        <div class="lg-section-label">② Speed Lives Here</div>
+        <h2 class="lg-section-title">Key Commands Worth Memorizing</h2>
+        <p class="lg-lead">
+          These are Logic's <strong>factory defaults</strong> — the highest-value ones to make automatic. Learn a
+          handful a week and your hands stop leaving the keyboard. (On a laptop, add <span class="lg-key">fn</span> for
+          the function keys.)
+        </p>
+
+        <div class="lg-kbgrid">
+          <div class="lg-kbcol">
+            <h4>Transport &amp; Playback</h4>
+            <div class="lg-kb"><span class="lg-kb-act">Play / Stop</span><span class="lg-kb-keys"><span class="lg-key">Space</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Record</span><span class="lg-kb-keys"><span class="lg-key">R</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Go to beginning</span><span class="lg-kb-keys"><span class="lg-key">Return</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Play from selection</span><span class="lg-kb-keys"><span class="lg-key">⇧</span><span class="lg-plus">+</span><span class="lg-key">Return</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Rewind / Forward</span><span class="lg-kb-keys"><span class="lg-key">,</span><span class="lg-plus">/</span><span class="lg-key">.</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Go to position</span><span class="lg-kb-keys"><span class="lg-key">/</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Cycle (loop) on/off</span><span class="lg-kb-keys"><span class="lg-key">C</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Metronome click</span><span class="lg-kb-keys"><span class="lg-key">K</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Count-in</span><span class="lg-kb-keys"><span class="lg-key">⇧</span><span class="lg-plus">+</span><span class="lg-key">K</span></span></div>
+          </div>
+
+          <div class="lg-kbcol">
+            <h4>Windows &amp; Panels</h4>
+            <div class="lg-kb"><span class="lg-kb-act">Editors (Piano Roll / Audio)</span><span class="lg-kb-keys"><span class="lg-key">E</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Mixer</span><span class="lg-kb-keys"><span class="lg-key">X</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Library</span><span class="lg-kb-keys"><span class="lg-key">Y</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Smart Controls</span><span class="lg-kb-keys"><span class="lg-key">B</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Apple Loops browser</span><span class="lg-kb-keys"><span class="lg-key">O</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Automation show/hide</span><span class="lg-kb-keys"><span class="lg-key">A</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Global Tracks</span><span class="lg-kb-keys"><span class="lg-key">G</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Musical Typing keyboard</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">K</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Note Pads / Score</span><span class="lg-kb-keys"><span class="lg-key">N</span></span></div>
+          </div>
+
+          <div class="lg-kbcol">
+            <h4>Editing &amp; Regions</h4>
+            <div class="lg-kb"><span class="lg-kb-act">Undo / Redo</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">Z</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Copy / Cut / Paste</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">C</span><span class="lg-plus">·</span><span class="lg-key">X</span><span class="lg-plus">·</span><span class="lg-key">V</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Duplicate</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">D</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Repeat regions…</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">R</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Select all</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">A</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Delete selection</span><span class="lg-kb-keys"><span class="lg-key">⌫</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Loop a region on/off</span><span class="lg-kb-keys"><span class="lg-key">L</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Bounce (export)</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">B</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Save</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">S</span></span></div>
+          </div>
+
+          <div class="lg-kbcol">
+            <h4>Navigation, Zoom &amp; Tracks</h4>
+            <div class="lg-kb"><span class="lg-kb-act">Zoom to fit / back</span><span class="lg-kb-keys"><span class="lg-key">Z</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Zoom in/out (h · v)</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">←→</span><span class="lg-plus">·</span><span class="lg-key">↑↓</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">New audio / MIDI track</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">⌥</span><span class="lg-plus">+</span><span class="lg-key">A</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">New software-instrument track</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">⌥</span><span class="lg-plus">+</span><span class="lg-key">S</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Mute region / track</span><span class="lg-kb-keys"><span class="lg-key">M</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Solo selection</span><span class="lg-kb-keys"><span class="lg-key">S</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Track Stack (group)</span><span class="lg-kb-keys"><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">⇧</span><span class="lg-plus">+</span><span class="lg-key">D</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act">Open Key Commands</span><span class="lg-kb-keys"><span class="lg-key">⌥</span><span class="lg-plus">+</span><span class="lg-key">K</span></span></div>
+          </div>
+        </div>
+
+        <p class="lg-note">
+          Every command here is <strong>remappable</strong>, and a few shift slightly between Logic versions — the truth
+          for <em>your</em> install lives in <strong>Logic Pro ▸ Key Commands ▸ Edit</strong> (<span class="lg-key">⌥</span>
+          <span class="lg-plus">+</span> <span class="lg-key">K</span>). Search any action there to see (or set) its
+          shortcut. Bind the five things you do most and you've bought back hours.
+        </p>
+      </section>
+
+      <!-- ═══ 3. THE TOOLBOX ═══ -->
+      <section class="lg-section" id="tools">
+        <div class="lg-section-label">③ Point, Cut, Shape</div>
+        <h2 class="lg-section-title">The Toolbox</h2>
+        <p class="lg-lead">
+          Press <span class="lg-key">T</span> (or right-click) to pop the <strong>Tool menu</strong> at the pointer. Logic
+          holds <em>two</em> tools at once — a left-click tool and a <span class="lg-term">Command-click</span> tool — so
+          you can flip between, say, Pointer and Scissors without a trip to the menu.
+        </p>
+
+        <div class="lg-grid">
+          <div class="lg-card"><h4>Pointer</h4><p>Select, move, resize, and loop regions. Your default — the one you return to.</p></div>
+          <div class="lg-card"><h4>Pencil</h4><p>Draw in notes, automation points, or a new empty region. Create from nothing.</p></div>
+          <div class="lg-card"><h4>Scissors</h4><p>Split a region at the click point. Cut a loop into pieces, chop a vocal.</p></div>
+          <div class="lg-card"><h4>Glue</h4><p>Join selected regions into one. The undo of Scissors.</p></div>
+          <div class="lg-card"><h4>Eraser</h4><p>Delete what you click. Fast cleanup of stray notes or regions.</p></div>
+          <div class="lg-card"><h4>Marquee</h4><p>Select <span class="lg-term">any time range across any tracks</span> — then cut, move, or delete that exact slice. One of Logic's most powerful edits.</p></div>
+          <div class="lg-card"><h4>Solo</h4><p>Click-hold a region to hear it alone while the playhead runs through it. Audition in place.</p></div>
+          <div class="lg-card"><h4>Flex</h4><p>Grab and drag audio in time without changing pitch — tighten a lazy note, fix timing by hand.</p></div>
+          <div class="lg-card"><h4>Fade</h4><p>Drag fade-ins/outs and crossfades on audio edges. Smooth every seam.</p></div>
+        </div>
+      </section>
+
+      <!-- ═══ 4. MUSIC FEATURES ═══ -->
+      <section class="lg-section" id="features">
+        <div class="lg-section-label">④ What Actually Makes Music</div>
+        <h2 class="lg-section-title">Features for Making Music</h2>
+        <p class="lg-lead">
+          Beyond recording and editing, these are the engines that turn a sketch into a song — the parts of Logic that
+          <em>generate</em>, <em>fix</em>, and <em>perform</em> for you.
+        </p>
+
+        <div class="lg-grid">
+          <div class="lg-card">
+            <h4>Software Instruments</h4>
+            <p>Synths, sampled pianos, strings, drums — play them with <span class="lg-term">Musical Typing</span> (<span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">K</span>) or a MIDI keyboard. Alchemy, Sampler, and Vintage keys are studios in themselves.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Drummer</h4>
+            <p>A virtual session drummer that plays realistic grooves to your song — pick a style &amp; personality, dial complexity/loudness, and it follows your arrangement. <span class="lg-mini">Instant, human-feeling drums.</span></p>
+          </div>
+          <div class="lg-card">
+            <h4>Apple Loops</h4>
+            <p>Thousands of royalty-free loops (<span class="lg-key">O</span>) that <span class="lg-term">auto-match your tempo &amp; key</span>. Drag one in and it just fits — sketch a whole idea in minutes.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Quantize</h4>
+            <p>Snap notes to the grid to tighten timing — set the value in the Region inspector. Use <span class="lg-term">Q-Strength</span> to tighten <em>partway</em> so it stays human, not robotic.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Flex Time</h4>
+            <p>Stretch and nudge <span class="lg-term">audio</span> timing like MIDI — quantize a sloppy guitar take, tighten a drum performance, or align two tracks. No re-recording.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Flex Pitch</h4>
+            <p>Tune vocals and monophonic audio note-by-note — drag a flat note into place, straighten drift, reshape vibrato. Logic's built-in pitch correction.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Smart Tempo</h4>
+            <p>Logic <span class="lg-term">detects the tempo of a performance</span> and bends the project grid to match — or bends the audio to the grid. Record without a click and stay in time.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Automation</h4>
+            <p>Draw or record <span class="lg-term">changes over time</span> (<span class="lg-key">A</span>) — volume swells, filter sweeps, pan moves, any plugin knob. The mix that <em>moves</em> with the song.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Take Folders &amp; Comping</h4>
+            <p>Record several passes into one folder, then <span class="lg-term">Quick Swipe</span> the best bits into a flawless comp. <span class="lg-mini">Detailed in the <a href="recording.html#comping" style="color:var(--glow)">Recording Guide</a>.</span></p>
+          </div>
+          <div class="lg-card">
+            <h4>Track Stacks</h4>
+            <p>Fold many tracks into one — a <span class="lg-term">Summing Stack</span> (<span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">⇧</span><span class="lg-plus">+</span><span class="lg-key">D</span>) to process a group as one, or a Folder Stack to tidy. Big sessions stay sane.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Live Loops</h4>
+            <p>A grid of clips you trigger and layer in real time (like Ableton's session view) — jam an arrangement by launching cells, then record the performance into the timeline.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Bounce &amp; Stems</h4>
+            <p>Export the finished mix (<span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">B</span>) to WAV/MP3, or bounce each track as a <span class="lg-term">stem</span> for collaborators. The final step.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 5. WORKFLOW ═══ -->
+      <section class="lg-section" id="workflow">
+        <div class="lg-section-label">⑤ Habits That Compound</div>
+        <h2 class="lg-section-title">Workflow</h2>
+        <div class="lg-grid">
+          <div class="lg-card"><h4>Start From a Template</h4><p>Build a session with your usual tracks, routing, and tempo, then <span class="lg-term">Save as Template</span>. Every new song opens ready to work.</p></div>
+          <div class="lg-card"><h4>Name &amp; Color as You Go</h4><p>Rename tracks and color regions by section or instrument. A readable project is a fast project.</p></div>
+          <div class="lg-card"><h4>Save Versions</h4><p><span class="lg-key">⌘</span><span class="lg-plus">+</span><span class="lg-key">S</span> constantly, and use <span class="lg-term">File ▸ Save As</span> at milestones so you can always roll back a bold idea.</p></div>
+          <div class="lg-card"><h4>Learn Five Keys a Week</h4><p>Don't memorize the whole list — pick the five actions you repeat most and drill those until they're automatic. Then five more.</p></div>
+          <div class="lg-card"><h4>Freeze to Save CPU</h4><p>When a track's plugins get heavy, <span class="lg-term">Freeze</span> it — Logic renders it temporarily so it costs almost nothing, un-freeze to edit again.</p></div>
+          <div class="lg-card"><h4>Use the Arrangement Track</h4><p>Block the song into named sections you can drag — the whole method is in the <a href="arrangement.html" style="color:var(--glow)">Arrangement Guide</a>.</p></div>
+        </div>
+
+        <p class="lg-note">
+          The gear rewards fluency: the less you think about <em>where</em> a command is, the more you think about the
+          <em>music</em>. Learn the machine so you can forget it.
+        </p>
+      </section>
+
+      <nav aria-label="Production series" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.6rem 1.4rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">↑ Learn Production</a>
+        <a href="recording.html" style="color:var(--stone);text-decoration:none;">Record</a>
+        <a href="arrangement.html" style="color:var(--stone);text-decoration:none;">Arrange</a>
+        <a href="effects.html" style="color:var(--stone);text-decoration:none;">Mix</a>
+      </nav>
+
+    </main>
+  </div>
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
