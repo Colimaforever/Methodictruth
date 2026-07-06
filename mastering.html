@@ -274,9 +274,13 @@
             <h4>Line Up References</h4>
             <p>Pull 2–3 commercial songs in the same style. They're your target for tone <em>and</em> loudness — gain-match them so you're not fooled by their level.</p>
           </div>
+          <div class="ms-card">
+            <h4>Raise the Buffer</h4>
+            <p>Mastering plugins are <span class="ms-term">CPU-heavy</span> and you're not recording, so latency doesn't matter — set the <span class="ms-term">I/O Buffer Size</span> to <strong>512 or 1024</strong> for glitch-free playback. It never touches the bounce (that's rendered offline). <span style="display:block;margin-top:0.4rem;font-size:0.82rem;color:var(--stone-dark)">Full explainer in the <a href="logic.html#buffer" style="color:var(--glow)">Logic buffer &amp; latency guide</a>.</span></p>
+          </div>
         </div>
         <div class="ms-logic" data-l="IN LOGIC PRO">
-          Bounce the mix with <strong>File ▸ Bounce ▸ Project or Section</strong> (<span class="ms-kbd">⌘</span><span> + </span><span class="ms-kbd">B</span>), 24-bit WAV, <em>Normalize: Off</em>. Start a new project, import that file onto a single stereo track, and build your master chain on that track's inserts (or on the <strong>Stereo Out</strong>). Drag reference tracks onto muted tracks routed <em>straight to Output</em> so your master chain never touches them.
+          Bounce the mix with <strong>File ▸ Bounce ▸ Project or Section</strong> (<span class="ms-kbd">⌘</span><span> + </span><span class="ms-kbd">B</span>), 24-bit WAV, <em>Normalize: Off</em>. Start a new project, import that file onto a single stereo track, and build your master chain on that track's inserts (or on the <strong>Stereo Out</strong>). Drag reference tracks onto muted tracks routed <em>straight to Output</em> so your master chain never touches them. Bump the <strong>I/O Buffer Size</strong> (Settings ▸ Audio) up to <strong>512–1024</strong> so the heavy chain plays back clean.
         </div>
       </section>
 

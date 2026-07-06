@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0e1a">
   <title>Logic Pro X Guide — Key Commands, Shortcuts & Features for Making Music</title>
-  <meta name="keywords" content="Logic Pro X, Logic Pro shortcuts, key commands, keyboard shortcuts, Logic Pro tutorial, Logic Pro features, Drummer, Flex Time, Flex Pitch, Smart Tempo, quantize, Apple Loops, automation, take folders, Track Stacks, Live Loops, how to use Logic Pro, music production">
-  <meta name="description" content="A practical Logic Pro X reference: the essential keyboard shortcuts worth memorizing, the toolbox, the main window laid out, and the features that make music — Drummer, Flex Time & Pitch, Smart Tempo, quantize, loops, automation and comping.">
+  <meta name="keywords" content="Logic Pro X, Logic Pro shortcuts, key commands, keyboard shortcuts, buffer size, I/O buffer size, latency, low latency mode, sample rate, system overload, Logic Pro tutorial, Logic Pro features, Drummer, Flex Time, Flex Pitch, Smart Tempo, quantize, Apple Loops, automation, take folders, Track Stacks, Live Loops, how to use Logic Pro, music production">
+  <meta name="description" content="A practical Logic Pro X reference: the essential keyboard shortcuts, the toolbox, the main window, buffer size &amp; latency explained (and why it matters for mixing and mastering), and the features that make music — Drummer, Flex Time & Pitch, Smart Tempo, quantize, loops, automation and comping.">
   <link rel="canonical" href="https://methodictruth.com/logic.html">
   <meta property="og:title" content="Logic Pro X Guide — Shortcuts & Features for Making Music">
   <meta property="og:description" content="The key commands worth memorizing, the toolbox, the main window explained, and the Logic Pro features that actually make music — a practical, scannable reference.">
@@ -176,6 +176,7 @@
         <a href="#shortcuts">Key Commands</a>
         <a href="#tools">The Toolbox</a>
         <a href="#features">Music Features</a>
+        <a href="#buffer">Buffer &amp; Latency</a>
         <a href="#workflow">Workflow</a>
       </nav>
 
@@ -388,9 +389,93 @@
         </div>
       </section>
 
-      <!-- ═══ 5. WORKFLOW ═══ -->
+      <!-- ═══ 5. BUFFER SIZE & LATENCY ═══ -->
+      <section class="lg-section" id="buffer">
+        <div class="lg-section-label">⑤ The Most Important Setting Nobody Explains</div>
+        <h2 class="lg-section-title">Buffer Size &amp; Latency</h2>
+        <p class="lg-lead">
+          Your computer can't process audio one sample at a time — it would never keep up. Instead the interface
+          collects a small <em>batch</em> of samples, hands the whole batch to the CPU to process, and moves on. That
+          batch size is the <strong>I/O Buffer Size</strong>, measured in samples (32, 64, 128 … 1024). It's the single
+          most important performance setting in Logic — and it's a <strong>trade-off</strong> with no universally "right"
+          value. You change it depending on what you're doing.
+        </p>
+
+        <svg class="lg-wide-dia" viewBox="0 0 560 175" role="img" aria-label="The buffer-size trade-off: small buffers give low latency but high CPU strain and dropout risk — best for recording; large buffers give higher latency but rock-solid playback with CPU headroom — best for mixing and mastering">
+          <!-- latency wedge (grows to the right) -->
+          <path d="M40,90 L520,90 L520,34 Z" fill="rgba(0,229,255,0.12)"/>
+          <text class="lg-blbl-c lg-blbl" x="470" y="52" text-anchor="middle">more latency →</text>
+          <!-- dropout-risk wedge (grows to the left) -->
+          <path d="M40,92 L40,148 L520,92 Z" fill="rgba(232,168,124,0.12)"/>
+          <text class="lg-blbl-w lg-blbl" x="96" y="132" text-anchor="middle">← CPU strain / dropouts</text>
+          <!-- baseline + ticks -->
+          <line x1="40" y1="90" x2="520" y2="90" stroke="rgba(138,126,107,0.5)" stroke-width="1"/>
+          <g font-family="JetBrains Mono, monospace" font-size="8.5" fill="#e9ddc4" text-anchor="middle">
+            <line x1="40"  y1="86" x2="40"  y2="94" stroke="rgba(138,126,107,0.6)"/><text x="40"  y="106">32</text>
+            <line x1="136" y1="86" x2="136" y2="94" stroke="rgba(138,126,107,0.6)"/><text x="136" y="106">64</text>
+            <line x1="232" y1="86" x2="232" y2="94" stroke="rgba(138,126,107,0.6)"/><text x="232" y="106">128</text>
+            <line x1="328" y1="86" x2="328" y2="94" stroke="rgba(138,126,107,0.6)"/><text x="328" y="106">256</text>
+            <line x1="424" y1="86" x2="424" y2="94" stroke="rgba(138,126,107,0.6)"/><text x="424" y="106">512</text>
+            <line x1="520" y1="86" x2="520" y2="94" stroke="rgba(138,126,107,0.6)"/><text x="520" y="106">1024</text>
+          </g>
+          <text class="lg-bsub" x="280" y="122" text-anchor="middle" font-size="8.5">buffer size (samples) →</text>
+          <!-- zone brackets -->
+          <path d="M40,140 L40,148 L232,148 L232,140" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="1"/>
+          <text class="lg-blbl-c lg-blbl" x="136" y="162" text-anchor="middle">RECORD · 32–128</text>
+          <path d="M328,140 L328,148 L520,148 L520,140" fill="none" stroke="rgba(232,168,124,0.5)" stroke-width="1"/>
+          <text class="lg-blbl-w lg-blbl" x="424" y="162" text-anchor="middle">MIX &amp; MASTER · 512–1024</text>
+        </svg>
+        <div class="lg-figcap">Small buffer = play in real time; large buffer = run heavy sessions without glitches. Slide it to the job.</div>
+
+        <div class="lg-kbgrid" style="grid-template-columns:1fr;">
+          <div class="lg-kbcol">
+            <h4 style="border-color:rgba(0,229,255,0.25)">Latency vs. CPU, in one table</h4>
+            <div class="lg-kb"><span class="lg-kb-act"><strong style="color:var(--glow-warm)">Small</strong> (32–128) — low latency, high CPU load</span><span class="lg-kb-keys"><span class="lg-key">record</span></span></div>
+            <div class="lg-kb"><span class="lg-kb-act"><strong style="color:var(--glow-warm)">Large</strong> (512–1024) — high latency, rock-solid &amp; CPU headroom</span><span class="lg-kb-keys"><span class="lg-key">mix / master</span></span></div>
+          </div>
+        </div>
+
+        <p class="lg-lead" style="margin-top:1.1rem;">
+          <strong>Latency</strong> is the delay between playing a note and hearing it back. Bigger buffer = bigger delay
+          (128 samples ≈ 3 ms, 1024 ≈ 21 ms). That delay <em>only matters when you're recording live</em> and monitoring
+          through Logic — you don't want to hear yourself lag. So you record on a <strong>small</strong> buffer.
+        </p>
+        <p class="lg-lead">
+          But a small buffer makes the CPU process tiny batches thousands of times a second — pile on plugins and it
+          can't keep up, and you get crackles or a dreaded <span class="lg-term">"System Overload"</span> stop. When
+          you're <em>not</em> recording — mixing, and especially <strong>mastering</strong> — there's no live input, so
+          latency is harmless. Crank the buffer <strong>up</strong> to give heavy plugins the room to run clean.
+        </p>
+
+        <div class="lg-grid" style="margin-top:0.4rem;">
+          <div class="lg-card">
+            <h4>Why It Matters for Mastering</h4>
+            <p>Mastering chains are <span class="lg-term">CPU-hungry</span> — linear-phase EQ, look-ahead &amp; true-peak limiters, multiband, oversampling. With nothing to record, set the buffer to <strong>512 or 1024</strong> so playback never glitches while those heavy processors do their work.</p>
+          </div>
+          <div class="lg-card">
+            <h4>The Bounce Doesn't Care</h4>
+            <p>Buffer size only affects <em>real-time</em> monitoring. Your final <span class="lg-term">bounce is rendered offline</span> at full quality no matter the setting — so a big buffer costs you nothing in the exported master. Latency never reaches the file.</p>
+          </div>
+          <div class="lg-card">
+            <h4>Sample Rate ≠ Buffer Size</h4>
+            <p>Two different things. <span class="lg-term">Sample rate</span> (44.1/48 kHz) is the audio's resolution, set per project. <span class="lg-term">Buffer size</span> is a live-performance setting you change freely — it doesn't alter your audio, just how smoothly Logic plays it back.</p>
+          </div>
+        </div>
+
+        <div class="lg-note" style="border-left:2px solid rgba(0,229,255,0.4); background:rgba(0,229,255,0.03); padding:0.5rem 0 0.5rem 0.9rem; font-style:normal;">
+          <strong style="font-family:'JetBrains Mono',monospace; font-size:0.55rem; letter-spacing:0.15em; color:var(--glow); display:block; margin-bottom:0.25rem;">IN LOGIC PRO</strong>
+          Set it in <strong style="color:var(--glow)">Settings ▸ Audio ▸ Devices ▸ I/O Buffer Size</strong>. Logic shows a
+          <strong style="color:var(--glow)">Resulting/Roundtrip Latency</strong> readout right below so you can see the ms cost. Record at
+          <span class="lg-key">64</span> or <span class="lg-key">128</span>; mix and master at <span class="lg-key">512</span> or <span class="lg-key">1024</span>.
+          Need to record through a plugin-heavy session? Tap <strong style="color:var(--glow)">Low Latency Mode</strong> in the control bar —
+          it temporarily bypasses high-latency plugins instead of forcing you to lower the buffer. And if you hit
+          <strong style="color:var(--glow)">System Overload</strong>, raise the buffer or <strong style="color:var(--glow)">Freeze</strong> heavy tracks.
+        </div>
+      </section>
+
+      <!-- ═══ 6. WORKFLOW ═══ -->
       <section class="lg-section" id="workflow">
-        <div class="lg-section-label">⑤ Habits That Compound</div>
+        <div class="lg-section-label">⑥ Habits That Compound</div>
         <h2 class="lg-section-title">Workflow</h2>
         <div class="lg-grid">
           <div class="lg-card"><h4>Start From a Template</h4><p>Build a session with your usual tracks, routing, and tempo, then <span class="lg-term">Save as Template</span>. Every new song opens ready to work.</p></div>
