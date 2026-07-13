@@ -105,6 +105,9 @@
     <div class="divider" id="2026-07-08"><span class="leaf">🌿</span> <span>July 8, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
+      <p>Smoothed out the <a href="song-analyzer.html">Song Analyzer</a>'s play-along. The chord and bar highlighting followed the music on a coarse <span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--glow)">200&nbsp;ms</span> timer that re-scanned and re-scrolled the whole chart every tick — now it tracks the audio clock <strong>frame-accurately</strong> and only touches the page when the current chord, bar, or second actually changes, so the highlight glides instead of stepping. Re-analyzing a song also cleanly <strong>cancels the previous request</strong> instead of leaving it running in the background. Part of the ongoing pass to make every interactive feature more stable and more fluid.</p>
+    </article>
+    <article class="entry">
       <p>Made <a href="tapbpm.html">Tap BPM</a> smarter and steadier. Tap detection now uses a sliding window with <strong>median-based outlier rejection</strong> — an accidental double-tap or a skipped beat no longer wrecks the reading. And the metronome was rebuilt from a drifting <span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--glow)">setInterval</span> to <strong>lookahead scheduling on the audio clock</strong>, so it's sample-accurate and dead-on instead of slowly sliding out of time.</p>
     </article>
     <article class="entry">
