@@ -349,6 +349,7 @@
   </footer>
 
   <script src="scripts.js?v=68"></script>
+  <script src="audio-core.js?v=1"></script>
   <script>
   (function() {
     const NOTE_NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
@@ -479,6 +480,23 @@
       });
     });
 
+    // ─── ENGINE (shared audio-core.js) ───
+    let detector = null;                       // AudioCore.PitchDetector — FFT/NSDF, O(n log n)
+    const smoother = new AudioCore.MedianFilter(5);   // rejects octave blips → steady needle
+    let detectTimer = null;                    // pitch detection, decoupled from the paint loop
+    const timeBuf = new Float32Array(4096);
+    let waveNeedsSize = true;                  // resize the canvas only when it changes, not per frame
+    let lastNoteKey = '';                      // DOM dirty-check → no per-frame layout thrash
+
+    needleEl.style.transition = 'left 0.09s ease-out';   // glide smoothly between detections
+    window.addEventListener('resize', () => { waveNeedsSize = true; });
+
+    function sizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      waveCanvas.width = waveCanvas.clientWidth * dpr;
+      waveCanvas.height = waveCanvas.clientHeight * dpr;
+    }
+
     // ─── START / STOP ───
     startBtn.addEventListener('click', async () => {
       if (isRunning) { stopTuner(); return; }
@@ -486,142 +504,110 @@
         const constraints = { audio: { deviceId: deviceSelect.value ? { exact: deviceSelect.value } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false } };
         micStream = await navigator.mediaDevices.getUserMedia(constraints);
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        await AudioCore.resume(audioCtx);       // browsers start the context suspended until a gesture
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 4096;
-        analyser.smoothingTimeConstant = 0.8;
         const source = audioCtx.createMediaStreamSource(micStream);
         source.connect(analyser);
+        detector = new AudioCore.PitchDetector(2048, audioCtx.sampleRate);
+        smoother.reset();
         isRunning = true;
+        waveNeedsSize = true;
         startBtn.textContent = 'Stop Tuner';
         startBtn.classList.add('active');
-        detect();
+        startLoops();
       } catch (e) {
         infoEl.innerHTML = '<strong>Error:</strong> Could not access microphone. Check permissions.';
       }
     });
 
+    function startLoops() {
+      cancelLoops();
+      rafId = requestAnimationFrame(drawLoop);   // waveform at display rate
+      detectLoop();                              // pitch ~22×/sec, off the paint path
+    }
+    function cancelLoops() {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      if (detectTimer) { clearTimeout(detectTimer); detectTimer = null; }
+    }
+
     function stopTuner() {
       isRunning = false;
-      if (rafId) cancelAnimationFrame(rafId);
+      cancelLoops();
       if (micStream) micStream.getTracks().forEach(t => t.stop());
       if (audioCtx) audioCtx.close();
-      audioCtx = null; analyser = null; micStream = null;
+      audioCtx = null; analyser = null; micStream = null; detector = null;
       startBtn.textContent = 'Start Tuner';
       startBtn.classList.remove('active');
-      noteEl.textContent = '—';
-      noteEl.className = 'tn-note';
-      freqEl.textContent = '— Hz';
-      centsEl.textContent = '';
-      needleEl.style.left = '50%';
+      noteEl.textContent = '—'; noteEl.className = 'tn-note';
+      freqEl.textContent = '— Hz'; centsEl.textContent = '';
+      needleEl.style.left = '50%'; lastNoteKey = '';
     }
 
-    // ─── PITCH DETECTION (Autocorrelation) ───
-    function autoCorrelate(buf, sampleRate) {
-      // Check if there's enough signal
-      let rms = 0;
-      for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
-      rms = Math.sqrt(rms / buf.length);
-      if (rms < 0.01) return -1; // too quiet
+    // Free the CPU and audio graph when the tab is hidden; restore when it returns.
+    AudioCore.onVisibility(
+      () => { if (isRunning) { cancelLoops(); if (audioCtx) audioCtx.suspend(); } },
+      () => { if (isRunning) { if (audioCtx) AudioCore.resume(audioCtx); startLoops(); } }
+    );
 
-      // Trim silence from edges
-      let r1 = 0, r2 = buf.length - 1;
-      const threshold = 0.2;
-      for (let i = 0; i < buf.length / 2; i++) {
-        if (Math.abs(buf[i]) < threshold) { r1 = i; break; }
-      }
-      for (let i = 1; i < buf.length / 2; i++) {
-        if (Math.abs(buf[buf.length - i]) < threshold) { r2 = buf.length - i; break; }
-      }
-      buf = buf.slice(r1, r2);
-      const SIZE = buf.length;
-
-      // Autocorrelation
-      const c = new Float32Array(SIZE);
-      for (let i = 0; i < SIZE; i++) {
-        for (let j = 0; j < SIZE - i; j++) {
-          c[i] += buf[j] * buf[j + i];
-        }
-      }
-
-      // Find first dip then peak
-      let d = 0;
-      while (c[d] > c[d + 1]) d++;
-      let maxVal = -1, maxPos = -1;
-      for (let i = d; i < SIZE; i++) {
-        if (c[i] > maxVal) { maxVal = c[i]; maxPos = i; }
-      }
-
-      // Parabolic interpolation for sub-sample accuracy
-      let T0 = maxPos;
-      if (T0 > 0 && T0 < SIZE - 1) {
-        const x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
-        const a = (x1 + x3 - 2 * x2) / 2;
-        const b = (x3 - x1) / 2;
-        if (a) T0 = T0 - b / (2 * a);
-      }
-
-      return sampleRate / T0;
-    }
-
-    function freqToNote(freq) {
-      const noteNum = 12 * (Math.log2(freq / A4));
-      const nearest = Math.round(noteNum);
-      const cents = Math.round((noteNum - nearest) * 100);
-      const noteIndex = ((nearest % 12) + 12) % 12;
-      const octave = Math.floor((nearest + 69) / 12) - 1;
-      return { note: NOTE_NAMES[noteIndex], octave, cents, nearest };
-    }
-
-    // ─── DETECTION LOOP ───
-    const timeBuf = new Float32Array(4096);
-
-    function detect() {
-      if (!isRunning) return;
+    // ─── PITCH DETECTION LOOP (decoupled from paint, ~22 Hz) ───
+    function detectLoop() {
+      if (!isRunning || !analyser || !detector) return;
       analyser.getFloatTimeDomainData(timeBuf);
-      const freq = autoCorrelate(timeBuf, audioCtx.sampleRate);
+      const r = detector.detect(timeBuf.subarray(0, 2048));
+      if (r.freq > 0 && r.clarity > 0.5) updateReadout(smoother.push(r.freq));
+      detectTimer = setTimeout(detectLoop, 45);
+    }
 
+    // ─── WAVEFORM LOOP (display rate, cheap) ───
+    function drawLoop() {
+      if (!isRunning || !analyser) return;
+      if (waveNeedsSize) { sizeCanvas(); waveNeedsSize = false; }
+      analyser.getFloatTimeDomainData(timeBuf);
       drawWaveform(timeBuf);
+      rafId = requestAnimationFrame(drawLoop);
+    }
 
-      if (freq > 0 && freq < 1200) {
-        const info = freqToNote(freq);
+    // ─── READOUT (only rewrites text when the note actually changes) ───
+    function updateReadout(freq) {
+      if (!(freq > 0)) return;
+      const info = AudioCore.noteFromFreq(freq);
+      const absCents = Math.abs(info.cents);
+
+      needleEl.style.left = (50 + Math.max(-50, Math.min(50, info.cents))) + '%';
+      needleEl.className = 'tn-gauge-needle' + (absCents <= 3 ? ' in-tune' : '');
+      freqEl.textContent = freq.toFixed(1) + ' Hz';
+
+      const key = info.note + info.octave + (absCents <= 3 ? 'T' : (info.cents > 0 ? 'S' : 'F'));
+      if (key !== lastNoteKey) {
+        lastNoteKey = key;
         noteEl.innerHTML = info.note + '<span class="tn-octave">' + info.octave + '</span>';
-        freqEl.textContent = freq.toFixed(1) + ' Hz';
-
-        const absCents = Math.abs(info.cents);
         if (absCents <= 3) {
           noteEl.className = 'tn-note in-tune';
           centsEl.textContent = '✓ In Tune';
           centsEl.style.color = 'rgba(74,222,128,0.9)';
         } else {
           noteEl.className = 'tn-note ' + (info.cents > 0 ? 'sharp' : 'flat');
-          centsEl.textContent = (info.cents > 0 ? '+' : '') + info.cents + ' cents ' + (info.cents > 0 ? '♯ sharp' : '♭ flat');
           centsEl.style.color = info.cents > 0 ? 'rgba(232,168,124,0.8)' : 'rgba(123,104,238,0.8)';
         }
-
-        // Needle position: -50 to +50 cents mapped to 0% to 100%
-        const pct = 50 + (Math.max(-50, Math.min(50, info.cents)));
-        needleEl.style.left = pct + '%';
-        needleEl.className = 'tn-gauge-needle' + (absCents <= 3 ? ' in-tune' : '');
-
-        // If a string is selected, show distance to target
-        if (selectedString !== null) {
-          const target = TUNINGS[currentTuning][selectedString];
-          const targetCents = 1200 * Math.log2(freq / target.freq);
-          if (Math.abs(targetCents) <= 3) {
-            infoEl.innerHTML = `<strong>${target.note}${target.octave}</strong> — ✓ In tune!`;
-          } else {
-            infoEl.innerHTML = `<strong>${target.note}${target.octave}</strong> — ${targetCents > 0 ? '+' : ''}${Math.round(targetCents)} cents ${targetCents > 0 ? '(sharp)' : '(flat)'}`;
-          }
-        }
+      }
+      if (absCents > 3) {
+        centsEl.textContent = (info.cents > 0 ? '+' : '') + info.cents + ' cents ' + (info.cents > 0 ? '♯ sharp' : '♭ flat');
       }
 
-      rafId = requestAnimationFrame(detect);
+      // If a string is selected, show distance to target
+      if (selectedString !== null) {
+        const target = TUNINGS[currentTuning][selectedString];
+        const targetCents = 1200 * Math.log2(freq / target.freq);
+        infoEl.innerHTML = Math.abs(targetCents) <= 3
+          ? `<strong>${target.note}${target.octave}</strong> — ✓ In tune!`
+          : `<strong>${target.note}${target.octave}</strong> — ${targetCents > 0 ? '+' : ''}${Math.round(targetCents)} cents ${targetCents > 0 ? '(sharp)' : '(flat)'}`;
+      }
     }
 
     // ─── WAVEFORM DRAW ───
     function drawWaveform(buf) {
-      const w = waveCanvas.width = waveCanvas.clientWidth * (window.devicePixelRatio || 1);
-      const h = waveCanvas.height = waveCanvas.clientHeight * (window.devicePixelRatio || 1);
+      const w = waveCanvas.width, h = waveCanvas.height;
       waveCtx.clearRect(0, 0, w, h);
       waveCtx.strokeStyle = 'rgba(0,229,255,0.4)';
       waveCtx.lineWidth = 1.5;

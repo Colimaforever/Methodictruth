@@ -102,6 +102,12 @@
       <p>Everything shipped here, newest first. No version numbers — just the work, in the order it happened. <a href="feed.xml">RSS feed ⟶</a></p>
     </div>
 
+    <div class="divider" id="2026-07-08"><span class="leaf">🌿</span> <span>July 8, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p>Rebuilt the <a href="tuner.html">Tuner</a>'s engine for stability and fluidity. Pitch detection moved from a naive O(n²) autocorrelation recomputed on every animation frame to a fast FFT-based <strong>McLeod pitch method</strong> (~0.4&nbsp;ms per read, verified accurate to a fraction of a cent), decoupled from the paint loop, median-smoothed so the needle sits still, and paused when the tab is hidden. The DSP now lives in a shared <strong>audio-core.js</strong> — one fast, correct place for pitch/note math and audio lifecycle that every tool can build on. First step of an ongoing pass to make every interactive feature more stable and more fluid.</p>
+    </article>
+
     <div class="divider" id="2026-07-04"><span class="leaf">🌿</span> <span>July 4, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
