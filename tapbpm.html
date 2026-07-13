@@ -377,6 +377,7 @@
   </div>
 
   <script src="scripts.js?v=68"></script>
+  <script src="audio-core.js?v=1"></script>
   <script>
   (function() {
     const taps = [];
@@ -390,7 +391,7 @@
     const metroToggle = document.getElementById('metroToggle');
     const metroPanel = document.getElementById('metronomePanel');
     const msPerBeat = document.getElementById('msPerBeat');
-    let metroActive = false, metroInterval = null, metroBeat = 0;
+    let metroActive = false;
     let metroCtx = null, lastBpm = 0;
 
     const tempoNames = [
@@ -408,13 +409,31 @@
       return name;
     }
 
+    // Robust tempo estimate: a sliding window of the most recent intervals,
+    // with median-based outlier rejection so a stray double-tap or a skipped
+    // beat can't wreck the reading.
+    function estimateTempo(taps) {
+      const WINDOW = 6;                       // intervals — recent enough to feel responsive, enough to average jitter
+      const recent = taps.slice(-(WINDOW + 1));
+      const intervals = [];
+      for (let i = 1; i < recent.length; i++) intervals.push(recent[i] - recent[i - 1]);
+      if (intervals.length < 1) return null;
+      const sorted = intervals.slice().sort((a, b) => a - b);
+      const median = sorted[sorted.length >> 1];
+      const inliers = intervals.filter(v => v > median * 0.55 && v < median * 1.8);  // drop double-taps / missed beats
+      const use = inliers.length ? inliers : intervals;
+      const avg = use.reduce((a, b) => a + b, 0) / use.length;
+      if (!(avg > 0)) return null;
+      const variance = use.reduce((s, v) => s + (v - avg) * (v - avg), 0) / use.length;
+      return { bpm: Math.round(60000 / avg), avgMs: avg, stdDev: Math.round(Math.sqrt(variance)) };
+    }
+
     function tap() {
       const now = performance.now();
       // Reset if >3 seconds since last tap
-      if (taps.length > 0 && now - taps[taps.length - 1] > 3000) {
-        taps.length = 0;
-      }
+      if (taps.length > 0 && now - taps[taps.length - 1] > 3000) taps.length = 0;
       taps.push(now);
+      if (taps.length > 16) taps.shift();      // bound memory; the estimator only uses the recent window
 
       // Pulse effect
       display.classList.add('pulse');
@@ -423,7 +442,8 @@
 
       tapCount.textContent = taps.length;
 
-      if (taps.length < 2) {
+      const est = estimateTempo(taps);
+      if (!est) {
         display.textContent = '—';
         tempoName.textContent = 'keep tapping...';
         avgInterval.textContent = '—';
@@ -431,27 +451,14 @@
         return;
       }
 
-      // Calculate intervals
-      const intervals = [];
-      for (let i = 1; i < taps.length; i++) {
-        intervals.push(taps[i] - taps[i - 1]);
-      }
+      lastBpm = est.bpm;
+      display.textContent = est.bpm;
+      tempoName.textContent = getTempoName(est.bpm);
+      avgInterval.textContent = Math.round(est.avgMs);
+      deviationEl.textContent = est.stdDev;
+      msPerBeat.textContent = Math.round(est.avgMs) + ' ms/beat';
 
-      const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-      const bpm = Math.round(60000 / avg);
-      lastBpm = bpm;
-
-      // Standard deviation
-      const variance = intervals.reduce((sum, v) => sum + Math.pow(v - avg, 2), 0) / intervals.length;
-      const stdDev = Math.round(Math.sqrt(variance));
-
-      display.textContent = bpm;
-      tempoName.textContent = getTempoName(bpm);
-      avgInterval.textContent = Math.round(avg);
-      deviationEl.textContent = stdDev;
-      msPerBeat.textContent = Math.round(avg) + ' ms/beat';
-
-      if (!rhythmActive) rhythmBpmInput.value = bpm;
+      if (!rhythmActive) rhythmBpmInput.value = est.bpm;
     }
 
     function reset() {
@@ -465,49 +472,73 @@
       stopMetronome();
     }
 
-    function startMetronome() {
+    // ── Metronome: lookahead scheduling on the audio clock (sample-accurate, no drift) ──
+    // setInterval drifts and jitters; instead a coarse timer schedules precise click
+    // times ahead on ctx.currentTime, and the visual dots light from the same clock.
+    let metroBpm = 120, nextClickTime = 0, schedBeat = 0, schedTimer = null, metroRAF = null;
+    const METRO_LOOKAHEAD = 25;      // ms between scheduler wakeups
+    const METRO_AHEAD = 0.12;        // seconds scheduled in advance
+    const pendingBeats = [];         // {time, beat} queued for visual sync
+
+    async function startMetronome() {
       if (!lastBpm || lastBpm < 20) return;
       metroActive = true;
       metroToggle.textContent = '■ Stop';
       metroPanel.style.display = 'block';
-      metroBeat = 0;
-
-      // Audio context for click sound
       if (!metroCtx) metroCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-      const interval = 60000 / lastBpm;
-      tick();
-      metroInterval = setInterval(tick, interval);
+      await AudioCore.resume(metroCtx);        // in case the context starts suspended
+      metroBpm = lastBpm;
+      schedBeat = 0;
+      pendingBeats.length = 0;
+      nextClickTime = metroCtx.currentTime + 0.08;
+      scheduler();
+      metroRAF = requestAnimationFrame(metroVisuals);
     }
 
-    function tick() {
-      // Visual
-      document.querySelectorAll('.metro-dot').forEach(d => { d.classList.remove('beat', 'downbeat'); });
-      const dot = document.getElementById('dot' + (metroBeat % 4));
-      dot.classList.add(metroBeat % 4 === 0 ? 'downbeat' : 'beat');
-
-      // Audio click
-      if (metroCtx) {
-        const osc = metroCtx.createOscillator();
-        const gain = metroCtx.createGain();
-        osc.connect(gain);
-        gain.connect(metroCtx.destination);
-        osc.frequency.value = metroBeat % 4 === 0 ? 1000 : 700;
-        gain.gain.value = 0.08;
-        gain.gain.exponentialRampToValueAtTime(0.001, metroCtx.currentTime + 0.05);
-        osc.start(metroCtx.currentTime);
-        osc.stop(metroCtx.currentTime + 0.05);
+    function scheduler() {
+      const secPerBeat = 60 / metroBpm;
+      while (nextClickTime < metroCtx.currentTime + METRO_AHEAD) {
+        scheduleClick(nextClickTime, schedBeat % 4);
+        pendingBeats.push({ time: nextClickTime, beat: schedBeat % 4 });
+        nextClickTime += secPerBeat;
+        schedBeat++;
       }
+      schedTimer = setTimeout(scheduler, METRO_LOOKAHEAD);
+    }
 
-      metroBeat++;
+    function scheduleClick(time, beat) {
+      const osc = metroCtx.createOscillator();
+      const gain = metroCtx.createGain();
+      osc.connect(gain);
+      gain.connect(metroCtx.destination);
+      osc.frequency.value = beat === 0 ? 1000 : 700;
+      gain.gain.setValueAtTime(0.0001, time);
+      gain.gain.exponentialRampToValueAtTime(0.12, time + 0.001);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
+      osc.start(time);
+      osc.stop(time + 0.06);
+    }
+
+    function metroVisuals() {
+      if (!metroActive) return;
+      const t = metroCtx.currentTime;
+      while (pendingBeats.length && pendingBeats[0].time <= t) {
+        const beat = pendingBeats.shift().beat;
+        document.querySelectorAll('.metro-dot').forEach(d => d.classList.remove('beat', 'downbeat'));
+        const dot = document.getElementById('dot' + beat);
+        if (dot) dot.classList.add(beat === 0 ? 'downbeat' : 'beat');
+      }
+      metroRAF = requestAnimationFrame(metroVisuals);
     }
 
     function stopMetronome() {
       metroActive = false;
       metroToggle.textContent = '▶ Metronome';
       metroPanel.style.display = 'none';
-      if (metroInterval) { clearInterval(metroInterval); metroInterval = null; }
-      document.querySelectorAll('.metro-dot').forEach(d => { d.classList.remove('beat', 'downbeat'); });
+      if (schedTimer) { clearTimeout(schedTimer); schedTimer = null; }
+      if (metroRAF) { cancelAnimationFrame(metroRAF); metroRAF = null; }
+      pendingBeats.length = 0;
+      document.querySelectorAll('.metro-dot').forEach(d => d.classList.remove('beat', 'downbeat'));
     }
 
     // Event listeners
