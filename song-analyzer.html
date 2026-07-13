@@ -426,7 +426,10 @@
         let currentChords = [];
         let currentMeasures = [];
         let currentVideoId = null;
-        let pollTimer = null;
+        let chordItems = [], measureCells = [];        // cached node lists — no querySelectorAll per frame
+        let lastChordIdx = -1, lastMeasureIdx = -1, lastSecond = -1;
+        let syncRAF = null;                            // smooth, frame-accurate play-along sync
+        let analyzeAbort = null;                       // cancels an in-flight analysis stream
         const audio = document.getElementById('audioPlayer');
 
         document.getElementById('analyzeBtn').addEventListener('click', analyzeVideo);
@@ -476,7 +479,7 @@
             document.getElementById('results').classList.remove('visible');
             document.getElementById('loading').classList.add('visible');
             document.getElementById('analyzeBtn').disabled = true;
-            stopPolling();
+            stopSync();
             resetProgress();
             document.getElementById('loadingText').textContent = 'Analyzing your file… (~15 seconds)';
             try {
@@ -587,8 +590,14 @@
             document.getElementById('results').classList.remove('visible');
             document.getElementById('loading').classList.add('visible');
             document.getElementById('analyzeBtn').disabled = true;
-            stopPolling();
+            stopSync();
             resetProgress();
+
+            // Cancel any analysis already streaming, and tag this run so a
+            // superseded run can't clobber the newer one's UI when it unwinds.
+            if (analyzeAbort) analyzeAbort.abort();
+            const myAbort = new AbortController();
+            analyzeAbort = myAbort;
 
             try {
                 const response = await fetch(API_URL, {
@@ -599,7 +608,8 @@
                         // back to a single JSON object for clients that don't.
                         'Accept': 'application/x-ndjson'
                     },
-                    body: JSON.stringify({ url })
+                    body: JSON.stringify({ url }),
+                    signal: myAbort.signal
                 });
 
                 if (!response.ok) {
@@ -619,10 +629,13 @@
                 }
 
             } catch (error) {
-                showError(error.message);
+                if (error.name === 'AbortError') return;            // superseded by a newer run
+                if (analyzeAbort === myAbort) showError(error.message);
             } finally {
-                document.getElementById('loading').classList.remove('visible');
-                document.getElementById('analyzeBtn').disabled = false;
+                if (analyzeAbort === myAbort) {                      // only the current run owns the UI
+                    document.getElementById('loading').classList.remove('visible');
+                    document.getElementById('analyzeBtn').disabled = false;
+                }
             }
         }
 
@@ -735,6 +748,8 @@
                 item.addEventListener('click', () => seekTo(chord.timestamp));
                 timeline.appendChild(item);
             });
+            chordItems = timeline.querySelectorAll('.sa-chord-item');   // cache once, not per frame
+            lastChordIdx = -1;
         }
 
         // Renders the bar-by-bar chord chart. Each measure is a clickable cell
@@ -743,7 +758,11 @@
             const chart = document.getElementById('chordChart');
             const section = document.getElementById('chartSection');
             chart.innerHTML = '';
-            if (!measures || !measures.length) { section.style.display = 'none'; return; }
+            if (!measures || !measures.length) {
+                section.style.display = 'none';
+                measureCells = []; lastMeasureIdx = -1;
+                return;
+            }
             section.style.display = '';
             measures.forEach((m, i) => {
                 const cell = document.createElement('div');
@@ -763,17 +782,22 @@
                 cell.addEventListener('click', () => seekTo(m.start));
                 chart.appendChild(cell);
             });
+            measureCells = chart.querySelectorAll('.sa-measure');   // cache once, not per frame
+            lastMeasureIdx = -1;
         }
 
         function highlightMeasureAt(seconds) {
-            if (!currentMeasures.length) return;
+            if (!currentMeasures.length || !measureCells.length) return;
             let active = 0;
             for (let i = 0; i < currentMeasures.length; i++) {
                 if (currentMeasures[i].start <= seconds) active = i; else break;
             }
-            const cells = document.querySelectorAll('.sa-measure');
-            cells.forEach((c, i) => c.classList.toggle('sa-current', i === active));
-            const cur = cells[active];
+            if (active === lastMeasureIdx) return;   // nothing changed — skip DOM work
+            lastMeasureIdx = active;
+            for (let i = 0; i < measureCells.length; i++) {
+                measureCells[i].classList.toggle('sa-current', i === active);
+            }
+            const cur = measureCells[active];
             // block:'nearest' scrolls within the chart's own scroll area, so the
             // page itself doesn't jump.
             if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -783,6 +807,7 @@
             document.getElementById('chordNow').textContent = currentChords.length ? currentChords[0].chord : '—';
             document.getElementById('chordNext').textContent = currentChords.length > 1 ? currentChords[1].chord : '—';
             document.getElementById('playerTime').textContent = '0:00 / 0:00';
+            lastChordIdx = -1; lastMeasureIdx = -1; lastSecond = -1;
             setPlayIcon(false);
         }
 
@@ -791,14 +816,14 @@
         // so playback is a plain HTML5 <audio> element — no YouTube embed, and
         // therefore none of YouTube's "confirm you're not a bot" player prompts.
 
-        audio.addEventListener('play', () => { setPlayIcon(true); startPolling(); });
-        audio.addEventListener('pause', () => { setPlayIcon(false); stopPolling(); });
-        audio.addEventListener('ended', () => { setPlayIcon(false); stopPolling(); highlightChordAt(Infinity); });
-        audio.addEventListener('loadedmetadata', updatePlayback);
+        audio.addEventListener('play', () => { setPlayIcon(true); startSync(); });
+        audio.addEventListener('pause', () => { setPlayIcon(false); stopSync(); });
+        audio.addEventListener('ended', () => { setPlayIcon(false); stopSync(); syncHighlights(Infinity); });
+        audio.addEventListener('loadedmetadata', () => { lastSecond = -1; syncHighlights(audio.currentTime || 0); });
         audio.addEventListener('loadstart', () => document.getElementById('audioArt').classList.add('sa-spinning'));
         audio.addEventListener('canplay', () => document.getElementById('audioArt').classList.remove('sa-spinning'));
         audio.addEventListener('error', () => {
-            stopPolling();
+            stopSync();
             setPlayIcon(false);
             document.getElementById('audioArt').classList.remove('sa-spinning');
         });
@@ -826,23 +851,34 @@
             document.getElementById('playBtn').setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
         }
 
-        function startPolling() {
-            stopPolling();
-            pollTimer = setInterval(updatePlayback, 200);
+        // Play-along sync runs on requestAnimationFrame, not a 200ms interval,
+        // so highlights track the audio clock frame-accurately. Every handler
+        // downstream dirty-checks, so a frame that changed nothing costs almost
+        // nothing (no querySelectorAll, no class churn, no scroll).
+        function startSync() {
+            stopSync();
+            const loop = () => {
+                syncHighlights(audio.currentTime || 0);
+                syncRAF = requestAnimationFrame(loop);
+            };
+            syncRAF = requestAnimationFrame(loop);
         }
 
-        function stopPolling() {
-            if (pollTimer) clearInterval(pollTimer);
-            pollTimer = null;
+        function stopSync() {
+            if (syncRAF) cancelAnimationFrame(syncRAF);
+            syncRAF = null;
         }
 
-        function updatePlayback() {
-            const current = audio.currentTime || 0;
-            const duration = audio.duration || 0;
-            document.getElementById('playerTime').textContent =
-                `${formatTime(Math.floor(current))} / ${formatTime(Math.floor(duration))}`;
-            highlightChordAt(current);
-            highlightMeasureAt(current);
+        function syncHighlights(t) {
+            const dur = audio.duration || 0;
+            const sec = Math.floor(Math.min(t, dur || t));
+            if (sec !== lastSecond) {
+                lastSecond = sec;
+                document.getElementById('playerTime').textContent =
+                    `${formatTime(sec)} / ${formatTime(Math.floor(dur))}`;
+            }
+            highlightChordAt(t);
+            highlightMeasureAt(t);
         }
 
         // ─── Spectrum analyzer (Windows-Media-Player style) ───
@@ -928,7 +964,7 @@
         window.addEventListener('resize', () => { if (vizRAF) resizeViz(); });
 
         function highlightChordAt(seconds) {
-            if (!currentChords.length) return;
+            if (!currentChords.length || !chordItems.length) return;
 
             let activeIdx = 0;
             for (let i = 0; i < currentChords.length; i++) {
@@ -936,17 +972,19 @@
                 else break;
             }
 
+            if (activeIdx === lastChordIdx) return;   // nothing changed — skip DOM work
+            lastChordIdx = activeIdx;
+
             document.getElementById('chordNow').textContent = currentChords[activeIdx].chord;
             document.getElementById('chordNext').textContent =
                 activeIdx + 1 < currentChords.length ? currentChords[activeIdx + 1].chord : '—';
 
-            const items = document.querySelectorAll('.sa-chord-item');
-            items.forEach((item, idx) => {
-                item.classList.toggle('sa-active', idx === activeIdx);
-                item.classList.toggle('sa-played', idx < activeIdx);
-            });
+            for (let idx = 0; idx < chordItems.length; idx++) {
+                chordItems[idx].classList.toggle('sa-active', idx === activeIdx);
+                chordItems[idx].classList.toggle('sa-played', idx < activeIdx);
+            }
 
-            const activeItem = items[activeIdx];
+            const activeItem = chordItems[activeIdx];
             if (activeItem) {
                 activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
