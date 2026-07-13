@@ -1,6 +1,6 @@
 // ─── AUDIO TOOL PAGE DETECTION ───
 // On pages with their own audio engines, suppress background music
-const audioToolPages = ['synth.html', 'guitar.html', 'live.html', 'songwriter.html'];
+const audioToolPages = ['synth.html', 'guitar.html', 'live.html', 'songwriter.html', 'song-analyzer.html'];
 const currentPage = location.pathname.split('/').pop() || 'index.html';
 const isAudioToolPage = audioToolPages.includes(currentPage);
 // Mutable flag — SPA router sets this on navigation
@@ -900,7 +900,7 @@ ensureSkipLink();
       document.body.classList.toggle('no-grain', isClean);
 
       // Hide music player AND kill audio on tool pages
-      const toolPages = ['synth.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html'];
+      const toolPages = ['synth.html', 'tuner.html', 'tapbpm.html', 'guitar.html', 'songwriter.html', 'live.html', 'song-analyzer.html'];
       const mp = document.getElementById('musicPlayer');
       if (toolPages.includes(pageName)) {
         musicSuppressed = true;

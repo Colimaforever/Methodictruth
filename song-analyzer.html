@@ -366,7 +366,7 @@
                     <div class="sa-chord-next-label">Next</div>
                     <div class="sa-chord-next" id="chordNext">—</div>
                     <div class="sa-transport">
-                        <button class="sa-play-btn" id="playBtn" aria-label="Play">▶</button>
+                        <button class="sa-play-btn" id="saPlayBtn" aria-label="Play">▶</button>
                         <div class="sa-time" id="playerTime">0:00 / 0:00</div>
                     </div>
                 </div>
@@ -421,6 +421,13 @@
   </div>
 
     <script>
+        // Wrapped in an IIFE so none of this page's declarations land on the
+        // global scope. scripts.js also declares top-level `const audio` /
+        // `let audioCtx`; without this wrapper the two collide (a SyntaxError
+        // that kills scripts.js on full loads and forces a full reload whenever
+        // the SPA router re-executes this script on nav). No identifier here is
+        // referenced from outside (no inline on* handlers), so scoping is safe.
+        (function () {
         const API_URL = 'https://api.methodictruth.com'; // local chord-server, tunneled via Cloudflare
 
         let currentChords = [];
@@ -436,7 +443,7 @@
         document.getElementById('youtubeUrl').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') analyzeVideo();
         });
-        document.getElementById('playBtn').addEventListener('click', togglePlay);
+        document.getElementById('saPlayBtn').addEventListener('click', togglePlay);
 
         // Share / permalink: copy a ?v=<id> link that reopens this exact
         // analysis (served instantly from cache).
@@ -847,8 +854,8 @@
         }
 
         function setPlayIcon(isPlaying) {
-            document.getElementById('playBtn').textContent = isPlaying ? '❚❚' : '▶';
-            document.getElementById('playBtn').setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+            document.getElementById('saPlayBtn').textContent = isPlaying ? '❚❚' : '▶';
+            document.getElementById('saPlayBtn').setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
         }
 
         // Play-along sync runs on requestAnimationFrame, not a 200ms interval,
@@ -1002,8 +1009,9 @@
             const secs = seconds % 60;
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
+        })();
     </script>
 
-  <script src="scripts.js?v=68"></script>
+  <script src="scripts.js?v=69"></script>
 </body>
 </html>
