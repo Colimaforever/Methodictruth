@@ -16,6 +16,7 @@
   <meta property="og:image" content="https://methodictruth.com/og/changelog.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=69">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -104,6 +105,9 @@
 
     <div class="divider" id="2026-07-08"><span class="leaf">🌿</span> <span>July 8, 2026</span> <span class="leaf">🌿</span></div>
 
+    <article class="entry">
+      <p>A round of performance tuning for faster loads. Every page now opens an early connection to Google's font-file server (<span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--glow)">fonts.gstatic.com</span>) — previously we only warmed up the stylesheet host, so the fonts themselves waited on a cold connection. The site's own JavaScript is now cached forever (it's version-stamped, so a new release is a new URL), matching how the stylesheet already worked, and the landing sigil is flagged as a high-priority image with its dimensions declared so it paints sooner and never shifts the layout.</p>
+    </article>
     <article class="entry">
       <p>Fixed a quiet but real bug on the <a href="song-analyzer.html">Song Analyzer</a>: a naming clash between the page's own audio element and the site's shared script left the shared script dead on that page, so navigating to the analyzer always forced a slow full-page reload instead of an instant transition. The page's script is now properly scoped, so it coexists with the shared one — smoother navigation, and the analyzer is now a first-class citizen of the site's fast page router.</p>
     </article>
