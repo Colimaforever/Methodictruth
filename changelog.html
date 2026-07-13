@@ -105,6 +105,12 @@
     <div class="divider" id="2026-07-08"><span class="leaf">🌿</span> <span>July 8, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
+      <p>Fixed a quiet but real bug on the <a href="song-analyzer.html">Song Analyzer</a>: a naming clash between the page's own audio element and the site's shared script left the shared script dead on that page, so navigating to the analyzer always forced a slow full-page reload instead of an instant transition. The page's script is now properly scoped, so it coexists with the shared one — smoother navigation, and the analyzer is now a first-class citizen of the site's fast page router.</p>
+    </article>
+    <article class="entry">
+      <p>Folded the <a href="theory.html">Music Theory</a> tool's note-playback onto the shared <strong>audio-core.js</strong> engine — one source of truth for turning a note into a frequency, and a reliable resume-on-tap so the very first chord you play always sounds (some browsers start audio muted until you interact). Same ongoing pass: every interactive feature standing on the same solid foundation.</p>
+    </article>
+    <article class="entry">
       <p>Smoothed out the <a href="song-analyzer.html">Song Analyzer</a>'s play-along. The chord and bar highlighting followed the music on a coarse <span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--glow)">200&nbsp;ms</span> timer that re-scanned and re-scrolled the whole chart every tick — now it tracks the audio clock <strong>frame-accurately</strong> and only touches the page when the current chord, bar, or second actually changes, so the highlight glides instead of stepping. Re-analyzing a song also cleanly <strong>cancels the previous request</strong> instead of leaving it running in the background. Part of the ongoing pass to make every interactive feature more stable and more fluid.</p>
     </article>
     <article class="entry">
@@ -361,6 +367,6 @@
     <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
   </footer>
 
-  <script src="scripts.js?v=68"></script>
+  <script src="scripts.js?v=69"></script>
 </body>
 </html>

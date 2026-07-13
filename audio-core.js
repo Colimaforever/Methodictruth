@@ -147,6 +147,10 @@
     const cents = Math.round((midiFloat - midi) * 100);
     return { note: NOTE_NAMES[((midi % 12) + 12) % 12], octave: Math.floor(midi / 12) - 1, cents, midi };
   }
+  // Inverse of noteFromFreq: equal-tempered frequency of a MIDI note number.
+  function freqFromMidi(midi, a4) {
+    return (a4 || 440) * Math.pow(2, (midi - 69) / 12);
+  }
 
   /* ── Lifecycle helpers: resume-on-gesture and suspend-when-hidden ── */
   function resume(ctx) {
@@ -160,7 +164,7 @@
     });
   }
 
-  const AudioCore = { FFT, PitchDetector, MedianFilter, noteFromFreq, resume, onVisibility, NOTE_NAMES };
+  const AudioCore = { FFT, PitchDetector, MedianFilter, noteFromFreq, freqFromMidi, resume, onVisibility, NOTE_NAMES };
   root.AudioCore = AudioCore;
   if (typeof module !== 'undefined' && module.exports) module.exports = AudioCore;
 

@@ -634,8 +634,9 @@
     </footer>
   </div>
 
-  <script src="scripts.js?v=68"></script>
+  <script src="scripts.js?v=69"></script>
   <script src="chord-theory.js?v=1"></script>
+  <script src="audio-core.js?v=2"></script>
   <script>
   // ═══════════════════════════════════════════════════════════
   // MUSIC THEORY ENGINE
@@ -1217,11 +1218,12 @@
       resolutionAudioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
     const ctx = resolutionAudioContext;
+    AudioCore.resume(ctx);   // some browsers create the context suspended until a gesture
     const now = ctx.currentTime + (when || 0);
     const baseMidi = 60 + (((chord.rootMidi % 12) + 12) % 12);
     chord.chordIntervals.forEach(interval => {
       const midiNote = baseMidi + interval;
-      const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+      const freq = AudioCore.freqFromMidi(midiNote);
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -1629,13 +1631,14 @@
     }
 
     const ctx = chordBuilderAudioContext;
+    AudioCore.resume(ctx);   // some browsers create the context suspended until a gesture
     const rootIdx = noteIndex(chordBuilderRoot);
     const now = ctx.currentTime;
 
     // Play each interval as a note
     chordBuilderIntervals.forEach(interval => {
       const midiNote = 60 + rootIdx + interval; // C4 + root + interval
-      const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+      const freq = AudioCore.freqFromMidi(midiNote);
       
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
