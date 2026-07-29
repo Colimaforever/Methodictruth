@@ -252,6 +252,15 @@
       min-width: 35px; text-align: right;
     }
 
+    /* Visual, draggable ADSR (Envelope module) */
+    .synth-adsr {
+      width: 100%; height: 54px; display: block; margin: 0.15rem 0 0.35rem;
+      background: rgba(0, 229, 255, 0.04);
+      border: 1px solid rgba(0, 229, 255, 0.18); border-radius: 3px;
+      cursor: grab; touch-action: none;
+    }
+    .synth-adsr:active { cursor: grabbing; }
+
     /* ─── PATCH CABLES ─── */
     .patch-cable {
       stroke-width: 2.5; fill: none;
@@ -804,18 +813,28 @@
       inputs: ['in'],
       outputs: ['out'],
       controls: [
-        { id: 'type', type: 'select', options: ['lowpass','highpass','bandpass'], default: 'lowpass', label: 'Type' },
-        { id: 'frequency', type: 'range', min: 20, max: 10000, default: 1000, step: 1, label: 'Cutoff', unit: 'Hz' },
-        { id: 'Q', type: 'range', min: 0.1, max: 20, default: 1, step: 0.1, label: 'Res', unit: '' },
+        { id: 'type', type: 'select', options: ['lowpass','highpass','bandpass','notch'], default: 'lowpass', label: 'Type' },
+        { id: 'frequency', type: 'range', min: 20, max: 12000, default: 1200, step: 1, label: 'Cutoff', unit: 'Hz' },
+        { id: 'Q', type: 'range', min: 0.1, max: 30, default: 2, step: 0.1, label: 'Res', unit: '' },
+        { id: 'rolloff', type: 'select', options: ['-12','-24','-48'], default: '-24', label: 'Slope' },
+        { id: 'drive', type: 'range', min: 0, max: 1, default: 0, step: 0.01, label: 'Drive', unit: '' },
       ],
+      // Signal path: Drive (pre-filter saturation) → multimode filter. The drive
+      // is what lets high resonance scream instead of thin out; the slope picks
+      // gentle (-12) to brutal (-48 dB/oct). At high Res a lowpass self-oscillates.
       create(params) {
-        const f = new Tone.Filter({ type: params.type, frequency: params.frequency, Q: params.Q });
-        return { node: f, in: f, out: f };
+        const drive = new Tone.Distortion({ distortion: params.drive, oversample: '2x' });
+        drive.wet.value = params.drive > 0 ? 1 : 0;
+        const f = new Tone.Filter({ type: params.type, frequency: params.frequency, Q: params.Q, rolloff: parseInt(params.rolloff, 10) });
+        drive.connect(f);
+        return { node: f, drive, in: drive, out: f };
       },
       update(audio, key, val) {
         if (key === 'type') audio.node.type = val;
         else if (key === 'frequency') audio.node.frequency.value = val;
         else if (key === 'Q') audio.node.Q.value = val;
+        else if (key === 'rolloff') audio.node.rolloff = parseInt(val, 10);
+        else if (key === 'drive') { audio.drive.distortion = val; audio.drive.wet.value = val > 0 ? 1 : 0; }
       }
     },
     lfo: {
@@ -1032,6 +1051,7 @@
       title: 'Envelope',
       glyph: '⏢',
       category: 'shape',
+      viz: 'adsr',
       inputs: ['in'],
       outputs: ['out'],
       controls: [
@@ -1147,6 +1167,11 @@
       }
     });
 
+    // Visual ADSR canvas (Envelope module)
+    if (def.viz === 'adsr') {
+      html += `<canvas class="synth-adsr" id="adsr_${id}" title="Drag the handles to shape the envelope"></canvas>`;
+    }
+
     // Ports
     html += `<div class="module-ports">`;
     html += `<div class="port-group inputs">`;
@@ -1171,6 +1196,7 @@
 
     modules[id] = { id, type, def, params, audio, el };
     setupDrag(el, id);
+    if (def.viz === 'adsr') setupADSR(id);
 
     if (type === 'output') {
       const fillEl = el.querySelector(`#vuFill_${id}`);
@@ -1229,7 +1255,108 @@
     if (typeof value === 'string' && !isNaN(value)) value = parseFloat(value);
     mod.params[paramId] = value;
     mod.def.update(mod.audio, paramId, value);
+    if (mod.redrawADSR) mod.redrawADSR();   // keep the visual envelope in sync with its sliders
     if (window.Analytics) Analytics.Synth.paramChanged(mod.type, paramId);
+  }
+
+  // ─── VISUAL ADSR ───
+  // Draws the Envelope module's A/D/S/R as a live curve and lets you drag the
+  // three handles (attack peak, decay→sustain corner, release end) to shape it.
+  // Dragging updates the sliders + audio; moving the sliders redraws the curve.
+  function setupADSR(id) {
+    const mod = modules[id];
+    const canvas = document.getElementById('adsr_' + id);
+    if (!mod || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    const RANGE = { attack:[0.001,2], decay:[0.001,2], sustain:[0,1], release:[0.001,5] };
+    const HOLD = 0.22; // fraction of width used for the (timeless) sustain band
+
+    function dims() { return { w: canvas.clientWidth || 200, h: canvas.clientHeight || 54 }; }
+
+    function layout() {
+      const { w, h } = dims();
+      const pad = 6, top = pad, bot = h - pad, left = pad, right = w - pad;
+      const p = mod.params, sum = (p.attack + p.decay + p.release) || 1;
+      const usable = (right - left) * (1 - HOLD);
+      const xA = left + usable * (p.attack / sum);
+      const xD = xA + usable * (p.decay / sum);
+      const xS = xD + (right - left) * HOLD;
+      const susY = bot - (bot - top) * p.sustain;
+      return { top, bot, left, right, xA, xD, xS, xR: right, susY, w, h };
+    }
+
+    function draw() {
+      const { w, h } = dims();
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (canvas.width !== Math.round(w * dpr)) { canvas.width = w * dpr; canvas.height = h * dpr; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const L = layout();
+      ctx.clearRect(0, 0, w, h);
+      ctx.beginPath();
+      ctx.moveTo(L.left, L.bot);
+      ctx.lineTo(L.xA, L.top);
+      ctx.lineTo(L.xD, L.susY);
+      ctx.lineTo(L.xS, L.susY);
+      ctx.lineTo(L.xR, L.bot);
+      ctx.strokeStyle = 'rgba(0,229,255,0.9)';
+      ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.stroke();
+      ctx.lineTo(L.left, L.bot); ctx.closePath();
+      ctx.fillStyle = 'rgba(0,229,255,0.10)'; ctx.fill();
+      ctx.fillStyle = '#e8a87c';
+      [[L.xA, L.top], [L.xD, L.susY], [L.xR, L.bot]].forEach(([x, y]) => {
+        ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.2832); ctx.fill();
+      });
+    }
+    mod.redrawADSR = draw;
+
+    // ── drag ──
+    const clamp = (v, r) => Math.max(r[0], Math.min(r[1], v));
+    function setP(param, val) {
+      val = clamp(val, RANGE[param]);
+      mod.params[param] = val;
+      mod.def.update(mod.audio, param, val);
+      const slider = mod.el.querySelector(`input[data-param="${param}"]`);
+      if (slider) {
+        slider.value = val;
+        const span = slider.nextElementSibling;
+        if (span) span.textContent = param === 'sustain' ? val.toFixed(2) : val.toFixed(3) + 's';
+      }
+      draw();
+    }
+    function pos(e) {
+      const r = canvas.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    }
+    function nearestHandle(px, py) {
+      const L = layout();
+      const cands = [ {k:'A',x:L.xA,y:L.top}, {k:'DS',x:L.xD,y:L.susY}, {k:'R',x:L.xR,y:L.bot} ];
+      let best = cands[0], bd = 1e9;
+      cands.forEach(c => { const d = (c.x-px)**2 + (c.y-py)**2; if (d < bd) { bd = d; best = c; } });
+      if (bd < 500) return best.k;               // grabbed a handle
+      return px < L.xD ? 'A' : px < L.xS ? 'DS' : 'R';  // otherwise pick by zone
+    }
+    let active = null, sx = 0, sy = 0, sv = null;
+    function onMove(e) {
+      if (!active) return;
+      const pt = pos(e), { w, h } = dims();
+      const dx = pt.x - sx, dy = pt.y - sy;
+      if (active === 'A') setP('attack', sv.attack + dx / w * 2);
+      else if (active === 'DS') { setP('decay', sv.decay + dx / w * 2); setP('sustain', sv.sustain - dy / h); }
+      else if (active === 'R') setP('release', sv.release + dx / w * 5);
+    }
+    function onUp() { active = null; window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); }
+    canvas.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      const pt = pos(e);
+      active = nearestHandle(pt.x, pt.y);
+      sx = pt.x; sy = pt.y;
+      sv = { attack: mod.params.attack, decay: mod.params.decay, sustain: mod.params.sustain, release: mod.params.release };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    });
+
+    draw();
+    requestAnimationFrame(draw);   // redraw once layout has settled
   }
 
   // ─── REMOVE MODULE ───
@@ -1248,6 +1375,7 @@
     // Dispose audio
     if (mod.meterRAF) cancelAnimationFrame(mod.meterRAF);
     if (mod.audio.meter) try { mod.audio.meter.dispose(); } catch(e) {}
+    if (mod.audio.drive) try { mod.audio.drive.dispose(); } catch(e) {}
     try { mod.audio.node.dispose(); } catch(e) {}
     mod.el.remove();
     if (window.Analytics) Analytics.Synth.moduleRemoved(mod.type);
