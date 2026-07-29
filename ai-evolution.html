@@ -320,13 +320,23 @@
         </div>
         <div class="ae-tl-item">
           <div class="ae-tl-year">2025–2026</div>
-          <div class="ae-tl-title">Orchestration and the agent stack</div>
-          <div class="ae-tl-body">The bottleneck shifts from "is the model smart enough" to "can it be wired into real systems reliably." Tools like Ollama (local model runtimes) and orchestration layers like OpenClaw mature, letting a single operator run and swap models across local and hosted backends from one control plane.</div>
+          <div class="ae-tl-title">Orchestration, and the agent stack</div>
+          <div class="ae-tl-body">The bottleneck shifts from "is the model smart enough" to "can it be wired into real systems reliably." Local runtimes (Ollama) and agentic harnesses like OpenClaw mature, and the Model Context Protocol — Anthropic's open standard, now supported across OpenAI and Google — turns tool-use into standard plumbing. A single operator can run and swap models across local and hosted backends from one control plane.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">2026 · a new generation</div>
+          <div class="ae-tl-title">Claude 5, GPT-5, Gemini 3 — and the million-token context</div>
+          <div class="ae-tl-body">The closed frontier turns over to a new generation — Anthropic's Claude 5 family (Opus, Sonnet, and the Fable "Mythos" class), OpenAI's GPT-5 series, Google's Gemini 3 — trading the lead benchmark to benchmark rather than any one lab running away with it. Million-token context windows go from rare to routine, and "reasoning" models that think before they answer become the default instead of a special mode.</div>
+        </div>
+        <div class="ae-tl-item">
+          <div class="ae-tl-year">2026 · open weights close in</div>
+          <div class="ae-tl-title">The gap narrows to months — and it's mostly Chinese</div>
+          <div class="ae-tl-body">Open-weight models pull to within roughly three months of the closed frontier — the smallest gap yet — led not by Meta but by Chinese labs: DeepSeek (V4, a million-token context at a fraction of the cost), Alibaba's Qwen, Moonshot's Kimi, and Z.ai's GLM, shipped under permissive MIT and Apache licenses. Meta pauses open Llama and pivots to a closed line. Frontier-grade AI you can download and self-host stops being a curiosity and starts running real, private workloads.</div>
         </div>
         <div class="ae-tl-item">
           <div class="ae-tl-year">Now</div>
-          <div class="ae-tl-title">Multi-agent systems, and regulation catching up</div>
-          <div class="ae-tl-body">Long-running agents, multi-agent collaboration, and on-device models running on consumer hardware are converging — while governments worldwide scramble to write rules for systems that are already deployed at scale. See the live feed below for what's actually happening this week.</div>
+          <div class="ae-tl-title">Agents in production, regulation catching up</div>
+          <div class="ae-tl-body">Long-running and multi-agent systems move from demos into production, on-device models run on consumer hardware, and open weights power workloads for anyone who won't send their data to someone else's API — while governments worldwide scramble to write rules for systems already deployed at scale. See the live feed below for what's actually happening this week.</div>
         </div>
       </div>
     </section>
@@ -417,7 +427,7 @@
         <div class="ae-compare-card">
           <h3>Closed / API-Only</h3>
           <ul>
-            <li>e.g. GPT-4/5, Claude, Gemini</li>
+            <li>e.g. Claude 5, GPT-5, Gemini 3</li>
             <li>Weights never leave the provider's servers</li>
             <li>You pay per token, get the latest model instantly</li>
             <li>Usually the strongest general-purpose reasoning</li>
@@ -427,7 +437,7 @@
         <div class="ae-compare-card cat-open">
           <h3>Open-Weight</h3>
           <ul>
-            <li>e.g. Llama, Mistral, Qwen, DeepSeek</li>
+            <li>e.g. DeepSeek, Qwen, Kimi, Llama</li>
             <li>Weights are published — anyone can download and run them</li>
             <li>Can be fine-tuned, inspected, and self-hosted</li>
             <li>Quality gap to closed frontier models keeps narrowing</li>
@@ -546,7 +556,7 @@
 
           <rect x="380" y="20" width="280" height="60" rx="10" fill="rgba(232,168,124,0.08)" stroke="rgba(232,168,124,0.5)" stroke-width="1.5"/>
           <text x="520" y="46" text-anchor="middle" class="ae-diagram-label">Self-Hosted Open-Weight</text>
-          <text x="520" y="62" text-anchor="middle" class="ae-diagram-caption">Llama, Mistral, DeepSeek — narrow, high-volume</text>
+          <text x="520" y="62" text-anchor="middle" class="ae-diagram-caption">DeepSeek, Qwen, Kimi — narrow, high-volume</text>
 
           <rect x="180" y="130" width="340" height="55" rx="10" fill="rgba(123,104,238,0.1)" stroke="rgba(123,104,238,0.55)" stroke-width="1.5"/>
           <text x="350" y="155" text-anchor="middle" class="ae-diagram-label">Internal MCP / Governance Layer</text>
