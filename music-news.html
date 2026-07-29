@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0e1a">
-  <title>AI Dispatches — Live AI News, Research & Analysis — Methodic Truth</title>
-  <meta name="description" content="A comprehensive, searchable feed of the latest AI news — research papers, product launches, and industry analysis — pulled live from 10 sources and refreshed automatically.">
-  <link rel="canonical" href="https://methodictruth.com/ai-news.html">
-  <meta property="og:title" content="AI Dispatches — Live AI News, Research & Analysis — Methodic Truth">
-  <meta property="og:description" content="A comprehensive, searchable feed of the latest AI news — research papers, product launches, and industry analysis — pulled live from 10 sources and refreshed automatically.">
+  <title>Sound Dispatches — Live Music Tech, Audio & Production News — Methodic Truth</title>
+  <meta name="description" content="A live, searchable feed of music-technology and audio news — audio research, synth and gear releases, production tools, and analysis — pulled from 10 sources and refreshed automatically.">
+  <link rel="canonical" href="https://methodictruth.com/music-news.html">
+  <meta property="og:title" content="Sound Dispatches — Live Music Tech, Audio & Production News">
+  <meta property="og:description" content="A live, searchable feed of music-technology and audio news — audio research, synth and gear releases, production tools, and analysis — from 10 sources, refreshed automatically.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://methodictruth.com/ai-news.html">
+  <meta property="og:url" content="https://methodictruth.com/music-news.html">
   <meta property="og:image" content="https://methodictruth.com/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="styles.css?v=70">
@@ -138,9 +138,8 @@
     <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
     <div class="nav-links" id="navLinks">
       <a href="index.html">Home</a>
-      <a href="ai-news.html">AI Dispatches</a>
       <a href="music-news.html">Sound Dispatches</a>
-      <a href="ai-evolution.html">AI Evolution</a>
+      <a href="ai-news.html">AI Dispatches</a>
       <div class="nav-dropdown">
         <button class="nav-drop-btn">Music ▾</button>
         <div class="nav-drop-menu">
@@ -171,20 +170,20 @@
 
   <div class="an-container">
     <header class="an-header">
-      <h1 class="an-title">AI Dispatches</h1>
-      <p class="an-subtitle">Research, products, and analysis — one feed, ten sources, refreshed automatically.</p>
+      <h1 class="an-title">Sound Dispatches</h1>
+      <p class="an-subtitle">Audio research, gear &amp; software releases, and production analysis — one feed, ten sources, refreshed automatically.</p>
     </header>
 
     <div class="an-panel">
       <div class="an-controls-row">
-        <input type="text" id="anSearch" class="an-search" placeholder="Search dispatches… (e.g. &quot;agents&quot;, &quot;OpenAI&quot;, &quot;benchmark&quot;)" autocomplete="off">
+        <input type="text" id="anSearch" class="an-search" placeholder="Search dispatches… (e.g. &quot;synth&quot;, &quot;Ableton&quot;, &quot;free plugin&quot;)" autocomplete="off">
         <button id="anRefresh" class="an-refresh-btn" title="Force refresh, bypassing cache">⟳ Refresh</button>
       </div>
       <div class="an-category-tabs" id="anCategoryTabs">
         <button class="an-tab active" data-category="all">All</button>
-        <button class="an-tab" data-category="research">Research</button>
-        <button class="an-tab" data-category="industry">Industry &amp; Product</button>
-        <button class="an-tab" data-category="media">Media &amp; Analysis</button>
+        <button class="an-tab" data-category="research">Audio Research</button>
+        <button class="an-tab" data-category="industry">Gear &amp; Software</button>
+        <button class="an-tab" data-category="media">Production &amp; Analysis</button>
       </div>
       <div class="an-source-chips" id="anSourceChips"></div>
     </div>
@@ -196,10 +195,10 @@
     <button class="an-load-more" id="anLoadMore" style="display:none;">Load more dispatches ↓</button>
 
     <div class="an-knowledge">
-      <h2>𒀭 Staying Current Without Drowning</h2>
-      <p>AI moves fast enough that "staying up to date" can turn into a part-time job. This feed exists to compress that down: <strong>research</strong> (arXiv preprints, lab blogs) tells you what's coming; <strong>industry &amp; product</strong> (company announcements, releases) tells you what just shipped; <strong>media &amp; analysis</strong> (independent tech press) tells you what it actually means and who's pushing back.</p>
-      <p>Use the search box to track a specific thread — a model name, a company, a technique — across every source at once. Toggle sources off if one publication is drowning out the rest; your preferences are remembered. <strong>Click a category tab</strong> to switch between "what's new" and "what's true."</p>
-      <p>Dispatches are cached for 20 minutes to keep things fast and avoid hammering the feeds — hit Refresh if you want the bleeding edge right now.</p>
+      <h2>𒌓 The Signal, Not the Noise</h2>
+      <p>Music technology moves in three currents at once, and this feed carries all of them. <strong>Audio research</strong> (arXiv preprints on sound, audio processing, and machine listening) tells you what's coming for tools like our <a href="song-analyzer.html" style="color:var(--glow)">Song Analyzer</a> years before it ships. <strong>Gear &amp; software</strong> (synth releases, free plugins, DAW updates) tells you what you can make music with <em>today</em> — a shocking amount of it free. <strong>Production &amp; analysis</strong> (the independent music-tech press) tells you how working musicians actually use it all.</p>
+      <p>Use the search to follow one thread across every source — a synth you're eyeing, a technique, "free plugin" is a perennially rewarding query. Toggle sources off if one is drowning the rest; your choices are remembered. And when something here inspires a sound, the <a href="synth.html" style="color:var(--glow)">Synth</a> is one tab away.</p>
+      <p>Dispatches are cached for 20 minutes to keep things fast and gentle on the sources — hit Refresh for the bleeding edge.</p>
     </div>
   </div>
 
@@ -208,18 +207,18 @@
   <script>
   (function() {
     const FEEDS = [
-      { name: 'ArXiv cs.AI', url: 'http://arxiv.org/rss/cs.AI', category: 'research' },
-      { name: 'ArXiv cs.LG', url: 'http://arxiv.org/rss/cs.LG', category: 'research' },
-      { name: 'Hugging Face Blog', url: 'https://huggingface.co/blog/feed.xml', category: 'research' },
-      { name: 'Google AI', url: 'https://blog.google/technology/ai/rss/', category: 'industry' },
-      { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/', category: 'industry' },
-      { name: 'MIT Tech Review', url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed', category: 'industry' },
-      { name: 'IEEE Spectrum AI', url: 'https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss', category: 'industry' },
-      { name: 'The Verge AI', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', category: 'media' },
-      { name: 'Wired AI', url: 'https://www.wired.com/feed/tag/ai/latest/rss', category: 'media' },
-      { name: 'MIT News — AI', url: 'https://news.mit.edu/rss/topic/artificial-intelligence2', category: 'media' }
+      { name: 'ArXiv eess.AS (Audio)', url: 'http://arxiv.org/rss/eess.AS', category: 'research' },
+      { name: 'ArXiv cs.SD (Sound)', url: 'http://arxiv.org/rss/cs.SD', category: 'research' },
+      { name: 'Synthtopia', url: 'https://www.synthtopia.com/feed/', category: 'industry' },
+      { name: 'Bedroom Producers Blog', url: 'https://bedroomproducersblog.com/feed/', category: 'industry' },
+      { name: 'Gearnews', url: 'https://www.gearnews.com/feed/', category: 'industry' },
+      { name: 'Attack Magazine', url: 'https://www.attackmagazine.com/feed/', category: 'media' },
+      { name: 'CDM — Create Digital Music', url: 'https://cdm.link/feed/', category: 'media' },
+      { name: 'MusicTech', url: 'https://musictech.com/feed/', category: 'media' },
+      { name: 'MusicRadar', url: 'https://www.musicradar.com/feeds/musicradar', category: 'media' },
+      { name: 'Sound on Sound', url: 'https://www.soundonsound.com/news/rss', category: 'media' }
     ];
-    const CACHE_KEY = 'ai-news-full-cache';
+    const CACHE_KEY = 'music-news-full-cache';
     const CACHE_TTL = 20 * 60 * 1000; // 20 min
     const PAGE_SIZE = 20;
     const SNIPPET_MAX = 180;
@@ -240,7 +239,7 @@
 
     function loadSourcePrefs() {
       try {
-        const raw = localStorage.getItem('ai-news-sources');
+        const raw = localStorage.getItem('music-news-sources');
         if (raw) {
           const arr = JSON.parse(raw);
           if (Array.isArray(arr) && arr.length) return new Set(arr);
@@ -249,7 +248,7 @@
       return new Set(FEEDS.map(f => f.name));
     }
     function saveSourcePrefs() {
-      localStorage.setItem('ai-news-sources', JSON.stringify([...activeSources]));
+      localStorage.setItem('music-news-sources', JSON.stringify([...activeSources]));
     }
 
     function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
