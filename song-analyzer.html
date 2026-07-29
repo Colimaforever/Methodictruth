@@ -301,20 +301,9 @@
         <div class="subtitle">Full Musical Analysis — From a YouTube Link or Your Own Audio File</div>
       </div>
 
-      <div class="sa-section sa-info">
-        <div class="sa-section-label">① What This Does</div>
-        <p>Paste a YouTube link <em>or drop in an audio file</em>, and get a full musical breakdown — then play it back with the current chord highlighted in sync, like Chordify.</p>
-        <ul>
-            <li><strong>Chord Progression</strong> — every chord change, timestamped, on a bar chart</li>
-            <li><strong>Tempo &amp; Meter</strong> — precise BPM, half/double-time reading, and the 3/4-vs-4/4 feel</li>
-            <li><strong>Key</strong> — with a confidence score and the closest alternative reading</li>
-            <li><strong>Structure &amp; Energy</strong> — the song's sections mapped out, with its energy arc drawn over time</li>
-            <li><strong>Character</strong> — tonal brightness and how dynamic or compressed the mix is</li>
-            <li><strong>Play-Along</strong> — hit play and watch the chords light up in time</li>
-        </ul>
-        <p style="opacity:0.7; font-size:0.9rem;">Works with any public YouTube video or an MP3/M4A/WAV/FLAC file. Analysis takes about 15 seconds (a little longer the very first time).</p>
-      </div>
-
+      <!-- The tool comes first. An explainer above the input pushed it below
+           the fold on phones, which makes the page look like it has no input
+           at all. Action first, explanation after. -->
       <div class="sa-section">
         <div class="sa-input-row">
             <input
@@ -330,6 +319,20 @@
             ⤓ or drop an audio file here (MP3 · M4A · WAV · FLAC) — no YouTube involved, no rate limits
         </div>
         <input type="file" id="fileInput" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" style="display:none">
+      </div>
+
+      <div class="sa-section sa-info">
+        <div class="sa-section-label">What This Does</div>
+        <p>Paste a YouTube link <em>or drop in an audio file</em>, and get a full musical breakdown — then play it back with the current chord highlighted in sync, like Chordify.</p>
+        <ul>
+            <li><strong>Chord Progression</strong> — every chord change, timestamped, on a bar chart</li>
+            <li><strong>Tempo &amp; Meter</strong> — precise BPM, half/double-time reading, and the 3/4-vs-4/4 feel</li>
+            <li><strong>Key</strong> — with a confidence score and the closest alternative reading</li>
+            <li><strong>Structure &amp; Energy</strong> — the song's sections mapped out, with its energy arc drawn over time</li>
+            <li><strong>Character</strong> — tonal brightness and how dynamic or compressed the mix is</li>
+            <li><strong>Play-Along</strong> — hit play and watch the chords light up in time</li>
+        </ul>
+        <p style="opacity:0.7; font-size:0.9rem;">Works with any public YouTube video or an MP3/M4A/WAV/FLAC file. Analysis takes about 15 seconds (a little longer the very first time).</p>
       </div>
 
       <div class="sa-section" id="librarySection" style="display:none; margin-top:1.2rem;">
