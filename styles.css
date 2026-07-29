@@ -1,3 +1,37 @@
+/* ─── SELF-HOSTED FONTS ───
+   Served from our own origin instead of Google Fonts — no render-blocking
+   external stylesheet, no extra DNS/TLS to fonts.googleapis.com + gstatic.com,
+   and privacy-clean. Latin-subset variable woff2 (≈136 KB total), font-display
+   swap so text never blocks on the font. */
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('fonts/cinzel.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('fonts/ebgaramond.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('fonts/ebgaramond-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('fonts/jetbrainsmono.woff2') format('woff2');
+}
+
 :root {
   --stone: #c4b799;
   --stone-dark: #847a68;
