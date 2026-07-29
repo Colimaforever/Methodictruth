@@ -197,6 +197,26 @@
       border-color: var(--glow);
     }
 
+    /* ─── PATCHING UX: bigger hit target, compatible-port hints, drag preview ─── */
+    .port { padding: 0.28rem 0.25rem; touch-action: none; }
+    .port-circle.sy-pending {
+      border-color: var(--glow);
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.75);
+      background: rgba(0, 229, 255, 0.28);
+    }
+    .synth-canvas.sy-patching .port { transition: opacity 0.15s; }
+    .synth-canvas.sy-patching .port.sy-incompatible { opacity: 0.22; }
+    .synth-canvas.sy-patching .port.sy-compatible .port-circle {
+      border-color: var(--glow);
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+      animation: sy-portpulse 1.1s ease-in-out infinite;
+    }
+    @keyframes sy-portpulse { 50% { box-shadow: 0 0 18px rgba(0, 229, 255, 0.95); } }
+    .patch-cable.sy-preview { pointer-events: none; opacity: 0.85; stroke-dasharray: 7 5; }
+    @media (prefers-reduced-motion: reduce) {
+      .synth-canvas.sy-patching .port.sy-compatible .port-circle { animation: none; }
+    }
+
     .port-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.5rem; color: var(--stone-dark);
@@ -558,6 +578,11 @@
         <button class="synth-btn preset" data-preset="scifi">Sci-Fi</button>
         <button class="synth-btn preset" data-preset="ritual">Ritual</button>
         <button class="synth-btn preset" data-preset="noisewash">Noise Wash</button>
+        <button class="synth-btn preset" data-preset="acid">Acid</button>
+        <button class="synth-btn preset" data-preset="subbass">Sub Bass</button>
+        <button class="synth-btn preset" data-preset="supersaw">Supersaw</button>
+        <button class="synth-btn preset" data-preset="growl">Growl</button>
+        <button class="synth-btn preset" data-preset="brass">Brass</button>
       </div>
       <div class="synth-toolbar-section">
         <button class="synth-btn" id="kbToggleBtn">⌨ Minimize</button>
@@ -636,18 +661,20 @@
   <div class="kb-panel" id="kbPanel">
     <h3>📖 Synth Guide</h3>
 
+    <p>Connect two modules either way: <strong>tap</strong> an <code>out</code> port and then a glowing <code>in</code> port, or <strong>drag</strong> a cable straight from one to the other. Compatible ports light up and the rest dim, so you can't miswire. Tap a cable to remove it. In a hurry? Hit a <strong>preset</strong> up top to drop a finished patch in one click — then pull it apart to see how it works.</p>
+
     <h3>Modules</h3>
     <dl>
       <dt>Oscillator</dt>
       <dd><code>sine</code> = pure/smooth · <code>saw</code> = bright/buzzy · <code>square</code> = hollow/retro · <code>triangle</code> = soft/mellow</dd>
       <dt>Filter</dt>
-      <dd><code>LP</code> cuts highs (warmth) · <code>HP</code> cuts lows (thin/bright) · <code>BP</code> isolates a band. Cutoff = where it cuts, Resonance = emphasis at cutoff.</dd>
+      <dd><code>LP</code> cuts highs (warmth) · <code>HP</code> cuts lows (thin/bright) · <code>BP</code> isolates a band · <code>notch</code> scoops one out. Cutoff = where it cuts, Res(onance) = emphasis at the cutoff. <strong>Slope</strong> = how steeply (−12 gentle → −48 brutal). <strong>Drive</strong> saturates the signal <em>before</em> the filter, so high Res screams instead of thinning out — the classic acid sound. Push Res near max on <code>LP</code> and it self-oscillates into a playable sine.</dd>
       <dt>LFO</dt>
       <dd>Slow modulation for movement. Rate = speed, Depth = intensity. Route to pitch = vibrato, filter = wah, volume = tremolo.</dd>
       <dt>FM (Frequency Modulation)</dt>
       <dd>Patch one oscillator's <code>out</code> into another's <code>FM</code> input to modulate its pitch at audio rate. <code>FM Amt</code> = depth in Hz of frequency deviation. Set the modulator at a simple ratio of the carrier: <code>1:1</code>/<code>2:1</code> = harmonic (clean, organ-like), <code>3.5:1</code>+ = inharmonic/metallic (bells, e-piano, gongs).</dd>
       <dt>Envelope (ADSR)</dt>
-      <dd>Attack = fade-in time · Decay = drop after peak · Sustain = held level · Release = fade after note off. Patch it between an oscillator and <code>Output</code> and it re-fires on every note — piano keys, MIDI, and the sequencer all retrigger it, so a short Decay gives plucked/percussive steps instead of a flat on/off.</dd>
+      <dd>Attack = fade-in time · Decay = drop after peak · Sustain = held level · Release = fade after note off. Patch it between an oscillator and <code>Output</code> and it re-fires on every note — piano keys, MIDI, and the sequencer all retrigger it, so a short Decay gives plucked/percussive steps instead of a flat on/off. <strong>Drag the handles on its curve</strong> (or the sliders) to shape it — the graph and sliders stay in sync.</dd>
       <dt>Delay</dt>
       <dd>Echo effect. Time = gap between repeats · Feedback = how many repeats · Mix = dry/wet balance.</dd>
       <dt>Reverb</dt>
@@ -1176,14 +1203,14 @@
     html += `<div class="module-ports">`;
     html += `<div class="port-group inputs">`;
     def.inputs.forEach(p => {
-      html += `<div class="port input" data-module="${id}" data-port="${p}" data-dir="input" onclick="handlePort(this)" ontouchend="event.preventDefault(); handlePort(this)">
+      html += `<div class="port input" data-module="${id}" data-port="${p}" data-dir="input">
         <span class="port-circle" id="port_${id}_${p}"></span>
         <span class="port-label">${p}</span>
       </div>`;
     });
     html += `</div><div class="port-group outputs">`;
     def.outputs.forEach(p => {
-      html += `<div class="port output" data-module="${id}" data-port="${p}" data-dir="output" onclick="handlePort(this)" ontouchend="event.preventDefault(); handlePort(this)">
+      html += `<div class="port output" data-module="${id}" data-port="${p}" data-dir="output">
         <span class="port-label">${p}</span>
         <span class="port-circle" id="port_${id}_${p}"></span>
       </div>`;
@@ -1372,11 +1399,18 @@
       }
       return true;
     });
-    // Dispose audio
+    // Dispose audio. Dispose EVERY Tone node the module created — not just
+    // .node — so extra nodes (an oscillator's FM gain, the filter's drive, a
+    // player's output gain) don't leak. Each object is disposed at most once.
     if (mod.meterRAF) cancelAnimationFrame(mod.meterRAF);
-    if (mod.audio.meter) try { mod.audio.meter.dispose(); } catch(e) {}
-    if (mod.audio.drive) try { mod.audio.drive.dispose(); } catch(e) {}
-    try { mod.audio.node.dispose(); } catch(e) {}
+    const disposed = new Set();
+    Object.keys(mod.audio).forEach(k => {
+      const n = mod.audio[k];
+      if (n && typeof n.dispose === 'function' && !disposed.has(n)) {
+        disposed.add(n);
+        try { n.dispose(); } catch(e) {}
+      }
+    });
     mod.el.remove();
     if (window.Analytics) Analytics.Synth.moduleRemoved(mod.type);
     delete modules[id];
@@ -1393,32 +1427,97 @@
   }
 
   // ─── PORT HANDLING ───
-  function handlePort(portEl) {
-    const moduleId = portEl.dataset.module;
-    const portName = portEl.dataset.port;
-    const dir = portEl.dataset.dir;
-    const circle = portEl.querySelector('.port-circle');
+  // ─── PATCHING — tap-to-connect AND drag-to-connect, with compatible-port hints ───
+  // Two ways to patch, both routed through here: tap a port then tap a compatible
+  // one, OR press-drag a live cable from one to the other. While either is active,
+  // every valid target glows and the rest dim, so you can't make a bad connection.
+  let patchPress = null;   // { from, previewLine, sx, sy, dragging }
 
-    if (!pendingPort) {
-      pendingPort = { moduleId, portName, dir, el: circle };
-      circle.style.boxShadow = '0 0 12px rgba(0, 229, 255, 0.6)';
-    } else {
-      // Must be different direction
-      if (pendingPort.dir === dir || pendingPort.moduleId === moduleId) {
-        // Cancel
-        pendingPort.el.style.boxShadow = '';
-        pendingPort = null;
-        return;
-      }
-
-      const from = dir === 'input' ? pendingPort : { moduleId, portName, dir, el: circle };
-      const to = dir === 'input' ? { moduleId, portName, dir, el: circle } : pendingPort;
-
-      createCable(from, to);
-      pendingPort.el.style.boxShadow = '';
-      pendingPort = null;
-    }
+  function portInfoOf(portEl) {
+    return {
+      moduleId: portEl.dataset.module, portName: portEl.dataset.port,
+      dir: portEl.dataset.dir, el: portEl.querySelector('.port-circle'), port: portEl
+    };
   }
+  function portsCompatible(a, b) { return a && b && a.dir !== b.dir && a.moduleId !== b.moduleId; }
+
+  function showPatchHints(from) {
+    synthCanvas.classList.add('sy-patching');
+    if (from.el) from.el.classList.add('sy-pending');
+    document.querySelectorAll('.port').forEach(pt => {
+      if (pt === from.port) return;
+      pt.classList.add(portsCompatible(from, portInfoOf(pt)) ? 'sy-compatible' : 'sy-incompatible');
+    });
+  }
+  function clearPatchHints() {
+    synthCanvas.classList.remove('sy-patching');
+    document.querySelectorAll('.sy-pending, .sy-compatible, .sy-incompatible')
+      .forEach(pt => pt.classList.remove('sy-pending', 'sy-compatible', 'sy-incompatible'));
+  }
+  function connectInfos(a, b) {
+    const from = a.dir === 'output' ? a : b;
+    const to   = a.dir === 'output' ? b : a;
+    createCable(from, to);
+  }
+  function resetPending() { pendingPort = null; clearPatchHints(); }
+
+  // A plain tap: first arms a port (persistent hint), second connects or cancels.
+  function tapPort(info) {
+    if (!pendingPort) { pendingPort = info; showPatchHints(info); return; }
+    if (pendingPort.port === info.port) { resetPending(); return; }   // tapped same → cancel
+    if (portsCompatible(pendingPort, info)) connectInfos(pendingPort, info);
+    resetPending();
+  }
+
+  function initPatching() {
+    const THRESH = 6; // px before a press becomes a drag
+    synthCanvas.addEventListener('pointerdown', (e) => {
+      const portEl = e.target.closest('.port');
+      if (!portEl) return;
+      e.preventDefault();
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      line.classList.add('patch-cable', 'sy-preview');
+      line.setAttribute('stroke', '#00e5ff');
+      patchSvg.appendChild(line);
+      patchPress = { from: portInfoOf(portEl), previewLine: line, sx: e.clientX, sy: e.clientY, dragging: false };
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!patchPress) return;
+      const dx = e.clientX - patchPress.sx, dy = e.clientY - patchPress.sy;
+      if (!patchPress.dragging && dx * dx + dy * dy > THRESH * THRESH) {
+        patchPress.dragging = true;
+        resetPending();                       // a drag supersedes any armed tap
+        showPatchHints(patchPress.from);
+      }
+      if (patchPress.dragging) {
+        const rect = synthCanvas.getBoundingClientRect();
+        const c = patchPress.from.el.getBoundingClientRect();
+        const x1 = c.left + c.width / 2 - rect.left, y1 = c.top + c.height / 2 - rect.top;
+        const x2 = e.clientX - rect.left, y2 = e.clientY - rect.top;
+        const cp = Math.max(40, Math.abs(x2 - x1) * 0.4);
+        patchPress.previewLine.setAttribute('d', `M ${x1} ${y1} C ${x1} ${y1 + cp}, ${x2} ${y2 + cp}, ${x2} ${y2}`);
+      }
+    });
+    window.addEventListener('pointerup', (e) => {
+      if (!patchPress) return;
+      const { from, previewLine, dragging } = patchPress;
+      patchPress = null;
+      if (previewLine) previewLine.remove();
+      if (dragging) {
+        const tgtEl = document.elementFromPoint(e.clientX, e.clientY);
+        const tgtPort = tgtEl && tgtEl.closest ? tgtEl.closest('.port') : null;
+        clearPatchHints();
+        pendingPort = null;
+        if (tgtPort) {
+          const to = portInfoOf(tgtPort);
+          if (portsCompatible(from, to)) connectInfos(from, to);
+        }
+      } else {
+        tapPort(from);   // no drag → treat as a tap
+      }
+    });
+  }
+  initPatching();
 
   // ─── CREATE CABLE ───
   function createCable(from, to) {
@@ -1866,6 +1965,75 @@
       autoConnect(carrier, 'out', env, 'in');
       autoConnect(env, 'out', rev, 'in');
       autoConnect(rev, 'out', out, 'in');
+    } else if (name === 'acid') {
+      // Squelchy 303-style: saw → resonant, driven lowpass (an LFO sweeps the
+      // cutoff) → snappy envelope → delay. High Res + Drive is the acid scream.
+      const osc = addModule('oscillator', 60, 40);
+      setParam(osc, 'type', 'sawtooth'); setParam(osc, 'frequency', 110);
+      const flt = addModule('filter', 300, 40);
+      setParam(flt, 'type', 'lowpass'); setParam(flt, 'frequency', 600);
+      setParam(flt, 'Q', 16); setParam(flt, 'rolloff', '-24'); setParam(flt, 'drive', 0.35);
+      const lfo = addModule('lfo', 60, 260);
+      setParam(lfo, 'type', 'sawtooth'); setParam(lfo, 'frequency', 3);
+      setParam(lfo, 'min', 300); setParam(lfo, 'max', 2200);
+      const env = addModule('envelope', 540, 40);
+      setParam(env, 'attack', 0.005); setParam(env, 'decay', 0.18);
+      setParam(env, 'sustain', 0.25); setParam(env, 'release', 0.2);
+      const dly = addModule('delay', 760, 40);
+      setParam(dly, 'delayTime', 0.18); setParam(dly, 'feedback', 0.35); setParam(dly, 'wet', 0.25);
+      const out = addModule('output', 980, 40); setParam(out, 'gain', 0.4);
+      autoConnect(osc, 'out', flt, 'in'); autoConnect(flt, 'out', env, 'in');
+      autoConnect(env, 'out', dly, 'in'); autoConnect(dly, 'out', out, 'in');
+      try { modules[lfo].audio.node.connect(modules[flt].audio.node.frequency); } catch(e) {}
+    } else if (name === 'subbass') {
+      // Clean sub: triangle low → gentle lowpass → envelope → output. Weight, no mud.
+      const osc = addModule('oscillator', 60, 40);
+      setParam(osc, 'type', 'triangle'); setParam(osc, 'frequency', 55);
+      const flt = addModule('filter', 320, 40);
+      setParam(flt, 'type', 'lowpass'); setParam(flt, 'frequency', 300);
+      setParam(flt, 'Q', 0.7); setParam(flt, 'rolloff', '-24');
+      const env = addModule('envelope', 560, 40);
+      setParam(env, 'attack', 0.01); setParam(env, 'decay', 0.2);
+      setParam(env, 'sustain', 0.9); setParam(env, 'release', 0.15);
+      const out = addModule('output', 780, 40); setParam(out, 'gain', 0.5);
+      autoConnect(osc, 'out', flt, 'in'); autoConnect(flt, 'out', env, 'in');
+      autoConnect(env, 'out', out, 'in');
+    } else if (name === 'supersaw') {
+      // Trance stack: three detuned saws → driven lowpass → reverb. Big and wide.
+      const o1 = addModule('oscillator', 60, 20);  setParam(o1, 'type', 'sawtooth'); setParam(o1, 'frequency', 220); setParam(o1, 'detune', -14);
+      const o2 = addModule('oscillator', 60, 190); setParam(o2, 'type', 'sawtooth'); setParam(o2, 'frequency', 220); setParam(o2, 'detune', 0);
+      const o3 = addModule('oscillator', 60, 360); setParam(o3, 'type', 'sawtooth'); setParam(o3, 'frequency', 220); setParam(o3, 'detune', 14);
+      const mix = addModule('gain', 300, 190); setParam(mix, 'gain', 0.3);
+      const flt = addModule('filter', 520, 190);
+      setParam(flt, 'type', 'lowpass'); setParam(flt, 'frequency', 2600); setParam(flt, 'Q', 1.2); setParam(flt, 'drive', 0.15);
+      const rev = addModule('reverb', 740, 190); setParam(rev, 'decay', 4); setParam(rev, 'wet', 0.4);
+      const out = addModule('output', 960, 190); setParam(out, 'gain', 0.3);
+      autoConnect(o1, 'out', mix, 'in'); autoConnect(o2, 'out', mix, 'in'); autoConnect(o3, 'out', mix, 'in');
+      autoConnect(mix, 'out', flt, 'in'); autoConnect(flt, 'out', rev, 'in'); autoConnect(rev, 'out', out, 'in');
+    } else if (name === 'growl') {
+      // Dubstep growl: saw → heavily-driven bandpass, an LFO wobbling the cutoff.
+      const osc = addModule('oscillator', 60, 40);
+      setParam(osc, 'type', 'sawtooth'); setParam(osc, 'frequency', 110);
+      const flt = addModule('filter', 320, 40);
+      setParam(flt, 'type', 'bandpass'); setParam(flt, 'frequency', 700); setParam(flt, 'Q', 9);
+      setParam(flt, 'rolloff', '-24'); setParam(flt, 'drive', 0.6);
+      const lfo = addModule('lfo', 60, 260);
+      setParam(lfo, 'type', 'sine'); setParam(lfo, 'frequency', 5.5); setParam(lfo, 'min', 300); setParam(lfo, 'max', 2400);
+      const out = addModule('output', 560, 40); setParam(out, 'gain', 0.34);
+      autoConnect(osc, 'out', flt, 'in'); autoConnect(flt, 'out', out, 'in');
+      try { modules[lfo].audio.node.connect(modules[flt].audio.node.frequency); } catch(e) {}
+    } else if (name === 'brass') {
+      // Synth brass: two saws → lowpass the envelope pushes open on the attack.
+      const o1 = addModule('oscillator', 60, 20);  setParam(o1, 'type', 'sawtooth'); setParam(o1, 'frequency', 220); setParam(o1, 'detune', -6);
+      const o2 = addModule('oscillator', 60, 200); setParam(o2, 'type', 'sawtooth'); setParam(o2, 'frequency', 220); setParam(o2, 'detune', 6);
+      const mix = addModule('gain', 300, 110); setParam(mix, 'gain', 0.34);
+      const flt = addModule('filter', 500, 110);
+      setParam(flt, 'type', 'lowpass'); setParam(flt, 'frequency', 1600); setParam(flt, 'Q', 2); setParam(flt, 'drive', 0.2);
+      const env = addModule('envelope', 720, 110);
+      setParam(env, 'attack', 0.06); setParam(env, 'decay', 0.3); setParam(env, 'sustain', 0.7); setParam(env, 'release', 0.25);
+      const out = addModule('output', 940, 110); setParam(out, 'gain', 0.36);
+      autoConnect(o1, 'out', mix, 'in'); autoConnect(o2, 'out', mix, 'in');
+      autoConnect(mix, 'out', flt, 'in'); autoConnect(flt, 'out', env, 'in'); autoConnect(env, 'out', out, 'in');
     }
   }
 
@@ -1885,6 +2053,7 @@
         valSpan.textContent = Number(value).toFixed(decimals) + (cDef ? cDef.unit : '');
       }
     }
+    if (mod.redrawADSR) mod.redrawADSR();   // keep the visual envelope in sync
   }
 
   function autoConnect(fromId, fromPort, toId, toPort) {
