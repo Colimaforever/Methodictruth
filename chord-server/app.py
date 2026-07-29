@@ -71,6 +71,22 @@ STREAM_DEADLINE = max(30, int(os.environ.get('STREAM_DEADLINE', '100')))
 YT_MIN_GAP = max(0, int(os.environ.get('YT_MIN_GAP', '20')))
 YT_HOURLY_CAP = max(1, int(os.environ.get('YT_HOURLY_CAP', '12')))
 
+# ── Egress proxy for YouTube fetches only ──
+# YouTube weighs the *reputation of the IP* heavily: a home/residential address
+# sails through where a datacenter address gets "Sign in to confirm you're not
+# a bot". That makes a cloud VM strictly worse at this than a home box unless
+# the YouTube hop is routed through a residential/ISP proxy. Set YT_PROXY to
+# such an endpoint (http://user:pass@host:port) and ONLY the yt-dlp request
+# uses it — uploads, analysis, and audio serving stay direct, so a proxy
+# outage can never take the whole service down. Empty = direct connection
+# (correct for a home/residential host).
+YT_PROXY = os.environ.get('YT_PROXY', '').strip()
+
+# Randomized pause before each fetch. Perfectly regular request timing is
+# itself a bot signal; a little jitter costs nothing and looks human.
+YT_SLEEP_MIN = max(0, int(os.environ.get('YT_SLEEP_MIN', '1')))
+YT_SLEEP_MAX = max(YT_SLEEP_MIN, int(os.environ.get('YT_SLEEP_MAX', '5')))
+
 # Direct file uploads (the no-YouTube path). 30 MB covers a ~30-minute MP3.
 app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
 
@@ -564,7 +580,14 @@ def download_audio(url, workdir, video_id, progress=None):
         'concurrent_fragment_downloads': 4,
         'progress_hooks': [dl_hook],
         'postprocessor_hooks': [_pp_hook],
+        # Jittered pause before the request — regular timing is a bot signal.
+        'sleep_interval': YT_SLEEP_MIN,
+        'max_sleep_interval': YT_SLEEP_MAX,
     }
+    # Route ONLY this request through the residential/ISP proxy when configured.
+    # Everything else (uploads, analysis, serving audio) stays direct.
+    if YT_PROXY:
+        ydl_opts['proxy'] = YT_PROXY
     if os.path.exists(COOKIES_FILE):
         ydl_opts['cookiefile'] = COOKIES_FILE
     # Pace + budget-check the actual YouTube hit (raises BudgetExceeded when
@@ -787,6 +810,28 @@ def produce_result(url, video_id, progress=None):
             return result
         finally:
             fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
+@app.route('/health', methods=['GET'])
+def health():
+    # A one-request answer to "is the box actually fine?" — used to verify a
+    # migration landed and to monitor an unattended host. Deliberately reports
+    # whether the egress proxy and cookies are configured (booleans only, never
+    # the credentials themselves) since those are the two things that silently
+    # degrade YouTube fetching on a datacenter IP.
+    try:
+        songs = len([f for f in os.listdir(CACHE_DIR) if f.endswith('.mp3')])
+    except OSError:
+        songs = -1
+    return jsonify(
+        ok=True,
+        cached_songs=songs,
+        yt_proxy_configured=bool(YT_PROXY),
+        cookies_present=os.path.exists(COOKIES_FILE),
+        yt_downloads_last_hour=len(_yt_recent_downloads()),
+        yt_hourly_cap=YT_HOURLY_CAP,
+        analysis_slots=ANALYSIS_SLOTS,
+    )
 
 
 @app.route('/library', methods=['GET'])

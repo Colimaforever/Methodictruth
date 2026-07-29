@@ -9,6 +9,11 @@ Designed to run on a machine you control (e.g. the N100 box) and be exposed
 through a Cloudflare Tunnel, since it needs `ffmpeg` and real CPU time per
 request — not something a Cloudflare Worker can do.
 
+> **Moving hosts?** See [MIGRATION.md](MIGRATION.md) for the runbook on moving
+> off WSL2 to a home server or cloud VM — including why a residential IP is a
+> real technical asset for the YouTube path, and how to configure `YT_PROXY`
+> if you land on a datacenter host anyway.
+
 ## 1. Install on the device
 
 ```bash
