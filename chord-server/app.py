@@ -223,16 +223,25 @@ def extract_video_id(url):
     return match.group(1) if match else None
 
 
-def detect_key(chroma_mean):
-    best_score, best_key = -1, 'C Major'
+def detect_key_detailed(chroma_mean):
+    # Krumhansl-style profile matching, but keep the whole scoreboard so we can
+    # report HOW decisive the winner was (gap to the runner-up, mapped to a
+    # 0-1 confidence) and what the plausible alternative reading is.
+    scores = []
     for i in range(12):
-        major_score = np.corrcoef(chroma_mean, np.roll(MAJOR_PROFILE, i))[0, 1]
-        if major_score > best_score:
-            best_score, best_key = major_score, f'{NOTES[i]} Major'
-        minor_score = np.corrcoef(chroma_mean, np.roll(MINOR_PROFILE, i))[0, 1]
-        if minor_score > best_score:
-            best_score, best_key = minor_score, f'{NOTES[i]} Minor'
-    return best_key
+        scores.append((float(np.corrcoef(chroma_mean, np.roll(MAJOR_PROFILE, i))[0, 1]), f'{NOTES[i]} Major'))
+        scores.append((float(np.corrcoef(chroma_mean, np.roll(MINOR_PROFILE, i))[0, 1]), f'{NOTES[i]} Minor'))
+    scores.sort(reverse=True)
+    best_score, best_key = scores[0]
+    second_score, second_key = scores[1]
+    # A 0.15 correlation gap over 23 competitors is decisively unambiguous;
+    # scale linearly below that. Floor at 0.05 so it never reads as zero.
+    confidence = round(min(1.0, max(0.05, (best_score - second_score) / 0.15)), 2)
+    return {'key': best_key, 'confidence': confidence, 'alternative': second_key}
+
+
+def detect_key(chroma_mean):
+    return detect_key_detailed(chroma_mean)['key']
 
 
 def _classify_column(col):
@@ -307,6 +316,68 @@ def detect_chords(chroma, sr, beat_frames=None, hop_length=512):
     return chords
 
 
+def estimate_meter(onset_env, beat_frames):
+    # Cheap accent-pattern test: sum onset strength at every beat, then compare
+    # how well the accents repeat with period 4 vs period 3. Pop/rock lands on
+    # 4 almost always; a clear 3 is usually a waltz/6-8 feel. This is a
+    # heuristic — treat it as an informed guess, not gospel.
+    beats = np.asarray(beat_frames)
+    if len(beats) < 12:
+        return {'beats_per_bar': 4, 'confidence': 'low'}
+    strengths = onset_env[np.clip(beats, 0, len(onset_env) - 1)]
+    def periodicity(p):
+        groups = [strengths[i::p] for i in range(p)]
+        means = np.array([g.mean() for g in groups if len(g)])
+        return float(means.max() - means.mean()) if len(means) else 0.0
+    s4, s3 = periodicity(4), periodicity(3)
+    if s3 > s4 * 1.25:
+        return {'beats_per_bar': 3, 'confidence': 'medium'}
+    return {'beats_per_bar': 4, 'confidence': 'high' if s4 > s3 * 1.25 else 'medium'}
+
+
+def detect_sections(chroma, rms, sr, duration, hop_length=512):
+    # Structural segmentation: agglomeratively cluster the chroma sequence into
+    # k contiguous segments (k scales with song length), then give segments
+    # that sound alike the SAME letter — so a returning chorus reads as the
+    # same "B" both times. Energy decides which letter gets called loudest.
+    n_frames = chroma.shape[1]
+    k = int(np.clip(round(duration / 35.0), 3, 9))
+    if n_frames < k * 8:
+        return []
+    bounds = librosa.segment.agglomerative(chroma, k)
+    bounds = np.concatenate([[0], bounds, [n_frames]]) if bounds[0] != 0 else np.concatenate([bounds, [n_frames]])
+    bounds = np.unique(bounds)
+    times = librosa.frames_to_time(bounds, sr=sr, hop_length=hop_length)
+
+    # Fingerprint each segment by its mean chroma; same-letter segments are
+    # those whose fingerprints correlate strongly with an earlier one.
+    fingerprints, letters, sections = [], [], []
+    for i in range(len(bounds) - 1):
+        seg = chroma[:, bounds[i]:bounds[i + 1]]
+        seg_rms = rms[bounds[i]:min(bounds[i + 1], len(rms))]
+        fp = seg.mean(axis=1)
+        letter = None
+        for j, prev in enumerate(fingerprints):
+            if np.corrcoef(fp, prev)[0, 1] > 0.90:
+                letter = letters[j]
+                break
+        if letter is None:
+            letter = chr(ord('A') + len(set(letters)))
+        fingerprints.append(fp)
+        letters.append(letter)
+        sections.append({
+            'start': round(float(times[i]), 1),
+            'end': round(float(times[i + 1]), 1),
+            'label': letter,
+            'energy': round(float(seg_rms.mean()) if len(seg_rms) else 0.0, 4),
+        })
+    # Normalize section energy 0-1 so the frontend can draw relative intensity.
+    peak = max((s['energy'] for s in sections), default=0) or 1
+    for s in sections:
+        s['energy'] = round(s['energy'] / peak, 2)
+    return sections
+
+
 def build_measures(beat_frames, chords, sr, hop_length=512, beats_per_bar=4):
     # Turn the flat chord-change list into a bar-by-bar chart — how a musician
     # actually reads a song ("4 bars of Fm, then Db–Eb"). Assumes 4/4 and picks
@@ -350,14 +421,47 @@ def build_measures(beat_frames, chords, sr, hop_length=512, beats_per_bar=4):
     return measures
 
 
-def describe(key, bpm, chords):
+def describe(core):
+    # Turn the analysis dict into a musician-readable paragraph. Every claim
+    # here comes from a measured value — no filler.
+    key, bpm, chords = core['key'], core['bpm'], core['chords']
+    parts = []
+
+    feel = ('a slow' if bpm < 76 else 'a laid-back' if bpm < 100 else
+            'a mid-tempo' if bpm < 120 else 'an upbeat' if bpm < 150 else 'a driving')
+    conf = core.get('key_confidence')
+    key_phrase = f'sits in {key}'
+    if conf is not None and conf < 0.35 and core.get('key_alternative'):
+        key_phrase += f" (though {core['key_alternative']} is a close second reading)"
+    meter = core.get('meter') or {}
+    meter_phrase = ' in a waltz-like 3 feel' if meter.get('beats_per_bar') == 3 else ''
+    tempo_phrase = f"moves at {feel} {core.get('bpm_precise', bpm)} BPM{meter_phrase}"
+    if core.get('bpm_alternative'):
+        tempo_phrase += f" (or {core['bpm_alternative']} if you feel it in half/double time)"
+    parts.append(f'This track {key_phrase} and {tempo_phrase}.')
+
     progression = ' → '.join(c['chord'] for c in chords[:6])
-    ellipsis = '...' if len(chords) > 6 else ''
-    return (
-        f'This track sits in {key}, moving at roughly {bpm} BPM. '
-        f'The progression opens with {progression}{ellipsis}, '
-        f'built from {len(chords)} chord changes across the song.'
-    )
+    if progression:
+        ellipsis = '…' if len(chords) > 6 else ''
+        parts.append(f'The progression opens {progression}{ellipsis}, '
+                     f'with {len(chords)} chord changes across the song.')
+
+    sections = core.get('sections') or []
+    if sections:
+        distinct = len({s['label'] for s in sections})
+        loudest = max(sections, key=lambda s: s.get('energy', 0))
+        m, s = divmod(int(loudest['start']), 60)
+        parts.append(f'Structurally it breaks into {len(sections)} sections '
+                     f'({distinct} distinct parts), peaking in intensity around {m}:{s:02d}.')
+
+    loud = core.get('loudness') or {}
+    dr = loud.get('dynamic_range_db')
+    if dr is not None:
+        dyn = ('tightly compressed' if dr < 6 else 'moderately dynamic' if dr < 12 else 'very dynamic')
+        parts.append(f"The mix is {core.get('brightness', 'balanced')} in tone and {dyn} "
+                     f'({dr} dB of loudness range).')
+
+    return ' '.join(parts)
 
 
 COOKIES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
@@ -466,8 +570,34 @@ def download_audio(url, workdir, video_id, progress=None):
     # Pace + budget-check the actual YouTube hit (raises BudgetExceeded when
     # the hourly budget is spent; sleeps to space out bursts otherwise).
     yt_download_gate(progress)
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+    except yt_dlp.utils.DownloadError as exc:
+        # Translate yt-dlp's raw failure text into something a visitor can act
+        # on. The upload path is always the reliable escape hatch, so point at
+        # it whenever YouTube itself is the obstacle.
+        msg = str(exc)
+        if 'Sign in to confirm' in msg or 'bot' in msg.lower():
+            raise RuntimeError(
+                "YouTube is asking this server for a human check on that video. "
+                "Easiest fix: download/export the audio yourself and drop the file "
+                "into the analyzer — the file path never touches YouTube.") from exc
+        if 'age' in msg.lower() and 'restrict' in msg.lower():
+            raise RuntimeError(
+                'That video is age-restricted, which blocks server-side downloads. '
+                'Drop the audio file into the analyzer instead.') from exc
+        if 'Private video' in msg or 'unavailable' in msg.lower() or 'removed' in msg.lower():
+            raise RuntimeError('That video is private, removed, or unavailable in this region.') from exc
+        if 'HTTP Error 429' in msg or 'rate' in msg.lower():
+            raise RuntimeError(
+                'YouTube is rate-limiting this server right now. Try again in a few '
+                'minutes, pick a song from the Library, or drop an audio file in directly.') from exc
+        if 'is not a valid URL' in msg or 'Unsupported URL' in msg:
+            raise RuntimeError('That link doesn\'t look like a YouTube video URL.') from exc
+        raise RuntimeError(
+            'The download failed — YouTube may have changed something. '
+            'Dropping the audio file into the analyzer always works.') from exc
 
     # Move the MP3 into the cache under the URL's video id (what the frontend
     # will request from /audio/<id>) so it persists for playback after the
@@ -525,30 +655,78 @@ def analyze_file(audio_path, emit):
     _log(f'librosa.load: {t2 - t1:.1f}s')
 
     emit({'stage': 'analyze'})
-    # beat_track gives us both tempo and the beat grid; we keep the grid so
-    # chord detection can be beat-synchronous instead of fixed-window.
-    tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=512)
-    bpm = int(round(float(np.asarray(tempo).item())))
+    hop = 512
+    # Onset envelope feeds beat tracking AND the meter estimate; computing it
+    # once keeps beat_track's internal result identical to before.
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop)
+    tempo, beat_frames = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop)
+    bpm_precise = float(np.asarray(tempo).item())
+    bpm = int(round(bpm_precise))
+    # Beat trackers routinely lock onto the half- or double-time reading of
+    # the same groove; surface the alternative inside the common 70-180 range
+    # so a "140 BPM" result also says "or 70, if you feel it in half time".
+    bpm_alternative = None
+    for cand in (bpm_precise / 2, bpm_precise * 2):
+        if 70 <= cand <= 180 and not 70 <= bpm_precise <= 180:
+            bpm_alternative = int(round(cand))
+    meter = estimate_meter(onset_env, beat_frames)
 
     # chroma_cqt is the most expensive step here, so compute it once and
-    # reuse it for both key detection and chord detection instead of
-    # running it twice.
-    chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=512)
-    key = detect_key(chroma.mean(axis=1))
-    chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=512)
+    # reuse it for key detection, chord detection, AND section structure.
+    chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=hop)
+    key_info = detect_key_detailed(chroma.mean(axis=1))
+    chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=hop)
     try:
-        measures = build_measures(beat_frames, chords, sr, hop_length=512)
+        measures = build_measures(beat_frames, chords, sr, hop_length=hop,
+                                  beats_per_bar=meter['beats_per_bar'])
     except Exception as exc:  # measures are a bonus, never break analysis
         _log(f'build_measures failed: {exc}')
         measures = []
-    _log(f'analysis (beat+key+chords): {time.monotonic() - t2:.1f}s')
+
+    # ── Energy, loudness, and tonal character ──
+    duration = len(y) / sr
+    rms = librosa.feature.rms(y=y, hop_length=hop)[0]
+    rms_db = 20 * np.log10(np.maximum(rms, 1e-6))
+    # 64-point normalized energy curve — enough to draw the song's whole arc.
+    pts = 64
+    edges = np.linspace(0, len(rms), pts + 1, dtype=int)
+    curve = np.array([rms[a:b].mean() if b > a else 0.0 for a, b in zip(edges[:-1], edges[1:])])
+    peak = curve.max() or 1.0
+    energy_curve = [round(float(v / peak), 3) for v in curve]
+    loudness = {
+        'mean_db': round(float(rms_db.mean()), 1),
+        'peak_db': round(float(rms_db.max()), 1),
+        # p95 - p10 of the RMS spread: how far the loud parts sit above the
+        # quiet parts. Small = flat/compressed, large = breathing dynamics.
+        'dynamic_range_db': round(float(np.percentile(rms_db, 95) - np.percentile(rms_db, 10)), 1),
+    }
+    centroid = float(librosa.feature.spectral_centroid(y=y, sr=sr, hop_length=hop).mean())
+    brightness = ('dark' if centroid < 1100 else 'balanced' if centroid < 2000 else 'bright')
+
+    try:
+        sections = detect_sections(chroma, rms, sr, duration, hop_length=hop)
+    except Exception as exc:  # structure is a bonus, never break analysis
+        _log(f'detect_sections failed: {exc}')
+        sections = []
+    _log(f'analysis (beat+key+chords+structure): {time.monotonic() - t2:.1f}s')
 
     return {
         'bpm': bpm,
-        'key': key,
-        'duration': int(len(y) / sr),
+        'bpm_precise': round(bpm_precise, 1),
+        'bpm_alternative': bpm_alternative,
+        'meter': meter,
+        'key': key_info['key'],
+        'key_confidence': key_info['confidence'],
+        'key_alternative': key_info['alternative'],
+        'duration': int(duration),
+        'beat_count': int(len(beat_frames)),
         'chords': chords,
         'measures': measures,
+        'sections': sections,
+        'energy_curve': energy_curve,
+        'loudness': loudness,
+        'brightness': brightness,
+        'spectral_centroid_hz': int(centroid),
     }
 
 
@@ -570,7 +748,7 @@ def run_analysis(url, video_id, progress=None):
             'success': True,
             'title': title,
             **core,
-            'description': describe(core['key'], core['bpm'], core['chords']),
+            'description': describe(core),
             'audio_url': f'/audio/{video_id}',
         }
     finally:
@@ -694,7 +872,7 @@ def produce_upload_result(upload_id, src_path, title, emit):
                     'id': upload_id,
                     'title': title,
                     **core,
-                    'description': describe(core['key'], core['bpm'], core['chords']),
+                    'description': describe(core),
                     'audio_url': f'/audio/{upload_id}',
                 }
             with open(cache_path, 'w') as f:

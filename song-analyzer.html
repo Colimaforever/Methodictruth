@@ -120,6 +120,27 @@
         .sa-progress-bar.sa-indeterminate { width: 40% !important; animation: sa-sweep 1.1s ease-in-out infinite; transition: none; }
         @keyframes sa-sweep { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
 
+        /* Deep analysis: metric sub-lines, structure strip, energy curve */
+        .sa-metric-sub {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+            color: var(--stone-dark); margin-top: 0.25rem; letter-spacing: 0.03em;
+        }
+        .sa-sections-strip { display: flex; gap: 3px; margin: 0.4rem 0 0.7rem; height: 44px; }
+        .sa-section-block {
+            position: relative; border: 1px solid rgba(0, 229, 255, 0.25);
+            background: rgba(0, 229, 255, 0.10); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            color: var(--parchment); transition: background 0.2s, border-color 0.2s;
+            min-width: 26px;
+        }
+        .sa-section-block:hover { border-color: var(--glow); background: rgba(0, 229, 255, 0.22); }
+        .sa-section-block .sa-sb-time {
+            position: absolute; bottom: 2px; left: 4px;
+            font-size: 0.48rem; color: var(--stone-dark);
+        }
+        .sa-energy { width: 100%; height: 46px; display: block; }
+
         .sa-drop {
             margin-top: 0.8rem; padding: 0.9rem 1rem; text-align: center; cursor: pointer;
             border: 1px dashed rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.03);
@@ -277,20 +298,21 @@
     <main style="max-width:900px; margin:0 auto;">
       <div class="page-header" style="padding:5.5rem 2rem 1.5rem;">
         <h1>Song Analyzer</h1>
-        <div class="subtitle">Chords, Key &amp; Tempo — From Any YouTube Link</div>
+        <div class="subtitle">Full Musical Analysis — From a YouTube Link or Your Own Audio File</div>
       </div>
 
       <div class="sa-section sa-info">
         <div class="sa-section-label">① What This Does</div>
-        <p>Paste a YouTube link and get instant musical analysis, then play the video back with the current chord highlighted in sync — like Chordify.</p>
+        <p>Paste a YouTube link <em>or drop in an audio file</em>, and get a full musical breakdown — then play it back with the current chord highlighted in sync, like Chordify.</p>
         <ul>
-            <li><strong>Chord Progression</strong> — what chords are being played and when</li>
-            <li><strong>Play-Along</strong> — hit play and watch the chord light up in time with the song</li>
-            <li><strong>BPM</strong> — beats per minute (tempo)</li>
-            <li><strong>Key</strong> — musical key (e.g., C Major, A Minor)</li>
-            <li><strong>Description</strong> — AI-generated musical summary</li>
+            <li><strong>Chord Progression</strong> — every chord change, timestamped, on a bar chart</li>
+            <li><strong>Tempo &amp; Meter</strong> — precise BPM, half/double-time reading, and the 3/4-vs-4/4 feel</li>
+            <li><strong>Key</strong> — with a confidence score and the closest alternative reading</li>
+            <li><strong>Structure &amp; Energy</strong> — the song's sections mapped out, with its energy arc drawn over time</li>
+            <li><strong>Character</strong> — tonal brightness and how dynamic or compressed the mix is</li>
+            <li><strong>Play-Along</strong> — hit play and watch the chords light up in time</li>
         </ul>
-        <p style="opacity:0.7; font-size:0.9rem;">Works with any public YouTube video. Analysis takes about 15 seconds (a little longer the very first time).</p>
+        <p style="opacity:0.7; font-size:0.9rem;">Works with any public YouTube video or an MP3/M4A/WAV/FLAC file. Analysis takes about 15 seconds (a little longer the very first time).</p>
       </div>
 
       <div class="sa-section">
@@ -334,15 +356,29 @@
             <div class="sa-metric">
                 <div class="sa-metric-label">BPM</div>
                 <div class="sa-metric-value" id="bpmValue">—</div>
+                <div class="sa-metric-sub" id="bpmSub"></div>
             </div>
             <div class="sa-metric">
                 <div class="sa-metric-label">Key</div>
                 <div class="sa-metric-value" id="keyValue">—</div>
+                <div class="sa-metric-sub" id="keySub"></div>
             </div>
             <div class="sa-metric">
                 <div class="sa-metric-label">Duration</div>
                 <div class="sa-metric-value" id="durationValue">—</div>
+                <div class="sa-metric-sub" id="durationSub"></div>
             </div>
+            <div class="sa-metric" id="dynMetric" style="display:none;">
+                <div class="sa-metric-label">Character</div>
+                <div class="sa-metric-value" id="dynValue" style="font-size:1.05rem;">—</div>
+                <div class="sa-metric-sub" id="dynSub"></div>
+            </div>
+        </div>
+
+        <div class="sa-section" style="margin-bottom:1.5rem; display:none;" id="structureSection">
+            <div class="sa-section-label">① Structure &amp; Energy</div>
+            <div class="sa-sections-strip" id="sectionsStrip"></div>
+            <canvas class="sa-energy" id="energyCanvas" height="46" aria-label="Song energy over time"></canvas>
         </div>
 
         <div class="sa-section" style="margin-bottom:1.5rem;" id="chartSection">
@@ -719,6 +755,7 @@
             document.getElementById('durationValue').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
             document.getElementById('description').textContent = data.description;
+            renderDeepAnalysis(data);
 
             currentChords = data.chords;
             currentMeasures = data.measures || [];
@@ -728,6 +765,93 @@
             loadAudio(data.audio_url || ('/audio/' + videoId));
 
             document.getElementById('results').classList.add('visible');
+        }
+
+        // The comprehensive layer: meter, key confidence, dynamics, song
+        // structure, and the energy arc. Every part checks for its field first,
+        // so results analyzed by an older backend still render cleanly.
+        function renderDeepAnalysis(data) {
+            const bpmSub = document.getElementById('bpmSub');
+            bpmSub.textContent = [
+                data.bpm_precise && data.bpm_precise !== data.bpm ? `precisely ${data.bpm_precise}` : '',
+                data.bpm_alternative ? `or ${data.bpm_alternative} half-time` : '',
+                data.meter ? `${data.meter.beats_per_bar}/4 feel` : ''
+            ].filter(Boolean).join(' · ');
+
+            const keySub = document.getElementById('keySub');
+            keySub.textContent = data.key_confidence != null
+                ? `${Math.round(data.key_confidence * 100)}% sure` +
+                  (data.key_confidence < 0.35 && data.key_alternative ? ` · maybe ${data.key_alternative}` : '')
+                : '';
+
+            document.getElementById('durationSub').textContent =
+                data.beat_count ? `${data.beat_count} beats` : '';
+
+            const dynMetric = document.getElementById('dynMetric');
+            if (data.loudness && data.brightness) {
+                const dr = data.loudness.dynamic_range_db;
+                dynMetric.style.display = '';
+                document.getElementById('dynValue').textContent =
+                    data.brightness.charAt(0).toUpperCase() + data.brightness.slice(1);
+                document.getElementById('dynSub').textContent =
+                    `${dr < 6 ? 'compressed' : dr < 12 ? 'dynamic' : 'very dynamic'} · ${dr} dB range`;
+            } else {
+                dynMetric.style.display = 'none';
+            }
+
+            const structure = document.getElementById('structureSection');
+            const strip = document.getElementById('sectionsStrip');
+            const canvas = document.getElementById('energyCanvas');
+            const hasSections = Array.isArray(data.sections) && data.sections.length > 0;
+            const hasEnergy = Array.isArray(data.energy_curve) && data.energy_curve.length > 4;
+            structure.style.display = (hasSections || hasEnergy) ? '' : 'none';
+
+            strip.innerHTML = '';
+            if (hasSections) {
+                const total = data.duration || data.sections[data.sections.length - 1].end || 1;
+                data.sections.forEach(s => {
+                    const block = document.createElement('div');
+                    block.className = 'sa-section-block';
+                    block.style.flexGrow = Math.max(1, Math.round((s.end - s.start) / total * 100));
+                    block.style.background = `rgba(0, 229, 255, ${0.06 + 0.20 * (s.energy || 0)})`;
+                    block.title = `Section ${s.label} · ${formatTime(s.start)}–${formatTime(s.end)}`;
+                    block.textContent = s.label;
+                    const t = document.createElement('span');
+                    t.className = 'sa-sb-time';
+                    t.textContent = formatTime(s.start);
+                    block.appendChild(t);
+                    block.addEventListener('click', () => seekTo(s.start));
+                    strip.appendChild(block);
+                });
+            }
+
+            if (hasEnergy) {
+                canvas.style.display = 'block';
+                const dpr = Math.min(2, window.devicePixelRatio || 1);
+                const w = canvas.clientWidth || 600, h = 46;
+                canvas.width = w * dpr; canvas.height = h * dpr;
+                const ctx = canvas.getContext('2d');
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, w, h);
+                const pts = data.energy_curve;
+                ctx.beginPath();
+                ctx.moveTo(0, h - 2);
+                pts.forEach((v, i) => ctx.lineTo(i / (pts.length - 1) * w, h - 3 - v * (h - 8)));
+                ctx.lineTo(w, h - 2);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.14)';
+                ctx.fill();
+                ctx.beginPath();
+                pts.forEach((v, i) => {
+                    const x = i / (pts.length - 1) * w, y = h - 3 - v * (h - 8);
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                });
+                ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)';
+                ctx.lineWidth = 1.4;
+                ctx.stroke();
+            } else {
+                canvas.style.display = 'none';
+            }
         }
 
         function renderTimeline(chords) {
