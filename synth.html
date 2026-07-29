@@ -225,6 +225,13 @@
       max-width: 90vw; text-align: center;
     }
     .synth-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    /* Recording state */
+    .synth-btn.recording {
+      border-color: #e85c5c; color: #e85c5c;
+      animation: sy-recpulse 1s ease-in-out infinite;
+    }
+    @keyframes sy-recpulse { 50% { box-shadow: 0 0 14px rgba(232, 92, 92, 0.6); } }
     @media (prefers-reduced-motion: reduce) {
       .synth-canvas.sy-patching .port.sy-compatible .port-circle { animation: none; }
     }
@@ -605,6 +612,7 @@
         </select>
       </div>
       <div class="synth-toolbar-section">
+        <button class="synth-btn" id="recordBtn" title="Record your jam to an audio file you can download and share">● Record</button>
         <button class="synth-btn" id="sharePatchBtn" title="Copy a link to this exact patch — sound design you can send to anyone">⤴ Share Patch</button>
         <button class="synth-btn danger" id="clearAllBtn">✕ Clear</button>
       </div>
@@ -1527,6 +1535,55 @@
     el.classList.add('show');
     clearTimeout(synthToastTimer);
     synthToastTimer = setTimeout(() => el.classList.remove('show'), 3400);
+  }
+
+  // ─── RECORD YOUR JAM TO A FILE ───
+  // The counterpart to Share: taps the master output through Tone.Recorder and
+  // hands back a downloadable audio file. Capture what you play, not just the patch.
+  let jamRecorder = null, jamRecording = false, jamStart = 0, jamTimer = null;
+
+  async function toggleRecord() {
+    const btn = document.getElementById('recordBtn');
+    if (!jamRecording) {
+      if (Tone.context.state !== 'running') { try { await Tone.start(); } catch (e) {} }
+      try {
+        jamRecorder = new Tone.Recorder();
+        Tone.getDestination().connect(jamRecorder);
+        jamRecorder.start();
+      } catch (e) { synthToast('Recording isn’t supported in this browser'); jamRecorder = null; return; }
+      jamRecording = true;
+      jamStart = Date.now();
+      btn.classList.add('recording');
+      btn.textContent = '● 0:00';
+      jamTimer = setInterval(() => {
+        const s = Math.floor((Date.now() - jamStart) / 1000);
+        btn.textContent = `● ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+      }, 250);
+      synthToast('● Recording — play something, then hit the button again to stop');
+    } else {
+      jamRecording = false;
+      clearInterval(jamTimer);
+      let blob = null;
+      try { blob = await jamRecorder.stop(); } catch (e) {}
+      try { Tone.getDestination().disconnect(jamRecorder); } catch (e) {}
+      try { jamRecorder.dispose(); } catch (e) {}
+      jamRecorder = null;
+      btn.classList.remove('recording');
+      btn.textContent = '● Record';
+      if (blob && blob.size > 0) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const d = new Date(), pad = n => String(n).padStart(2, '0');
+        a.href = url;
+        a.download = `methodictruth-jam-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.webm`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 8000);
+        synthToast('◈ Recording saved to your downloads');
+        if (window.Analytics) Analytics.trackDebounced('synth_jam_recorded', {}, 2000);
+      } else {
+        synthToast('Nothing was captured — make some sound, then record');
+      }
+    }
   }
 
   // ─── PORT HANDLING ───
@@ -2955,6 +3012,9 @@
 
   // Clear
   tapHandler(document.getElementById('clearAllBtn'), clearAll);
+
+  // Record jam to a file
+  tapHandler(document.getElementById('recordBtn'), toggleRecord);
 
   // Share patch by URL
   tapHandler(document.getElementById('sharePatchBtn'), sharePatch);
