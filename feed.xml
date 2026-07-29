@@ -8,6 +8,22 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>The Asset I Didn't Know I Had</title>
+    <link>https://methodictruth.com/chronicle-2026-07-29-residential-ip.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-07-29-residential-ip.html</guid>
+    <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Moving the Song Analyzer's backend off a cheap home PC into a $4 cloud VM looked like an obvious upgrade — faster CPU, real uptime, native Linux. The research reversed the decision. YouTube reads an IP's owner from public registry data, and a datacenter address is a high-signal prior for automation — inherited from whoever held that address last. The cloud plan meant paying for a VM, losing the residential IP, then paying again to rent one back. Also: the escalation ladder from attestation challenge to silent throttling, why proof-of-origin tokens stopped working, and a DNS outage that left a whole feature dark behind a green status light.</description>
+  </item>
+
+  <item>
+    <title>Changelog: July 29, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-07-29</link>
+    <guid isPermaLink="false">changelog-2026-07-29</guid>
+    <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+    <description>A heavy week on the Synth: a filter with real teeth (drive, selectable slope, notch, self-oscillating resonance), an ADSR you shape by dragging its curve, drag-to-patch with compatible-port highlighting, five new presets, shareable patch links, and jam recording to a downloadable file. The Song Analyzer gained comprehensive analysis — meter detection, key confidence, song structure with an energy arc, and dynamics. Plus Sound Dispatches, a live music-tech news feed, and self-hosted fonts for faster loads.</description>
+  </item>
+
+  <item>
     <title>Changelog: July 4, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-07-04</link>
     <guid isPermaLink="false">changelog-2026-07-04</guid>
