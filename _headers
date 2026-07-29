@@ -16,6 +16,10 @@
 /styles.css
   Cache-Control: public, max-age=31536000, immutable
 
+# Self-hosted fonts — content-stable (a change would be a new filename), cache a year.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # Images & fonts change rarely — cache a month at the edge and in browsers.
 /*.svg
   Cache-Control: public, max-age=2592000
