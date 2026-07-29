@@ -105,6 +105,9 @@
     <div class="divider" id="2026-07-08"><span class="leaf">🌿</span> <span>July 8, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
+      <p>Tuned the site's caching so repeat visits are near-instant. Every piece of the site's own JavaScript now carries a version stamp, which lets the browser and Cloudflare's edge cache it permanently instead of re-downloading it on every page — so once you've loaded the site, moving between pages and coming back pulls almost nothing over the network. Pinned third-party libraries are cached for a month. Fewer requests to the origin, faster loads, a higher cache-hit rate.</p>
+    </article>
+    <article class="entry">
       <p>Fixed a quiet but real bug on the <a href="song-analyzer.html">Song Analyzer</a>: a naming clash between the page's own audio element and the site's shared script left the shared script dead on that page, so navigating to the analyzer always forced a slow full-page reload instead of an instant transition. The page's script is now properly scoped, so it coexists with the shared one — smoother navigation, and the analyzer is now a first-class citizen of the site's fast page router.</p>
     </article>
     <article class="entry">
