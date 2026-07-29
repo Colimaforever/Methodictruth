@@ -213,6 +213,18 @@
     }
     @keyframes sy-portpulse { 50% { box-shadow: 0 0 18px rgba(0, 229, 255, 0.95); } }
     .patch-cable.sy-preview { pointer-events: none; opacity: 0.85; stroke-dasharray: 7 5; }
+
+    /* Share-patch toast */
+    .synth-toast {
+      position: fixed; left: 50%; bottom: 90px; transform: translate(-50%, 20px);
+      background: rgba(10, 14, 26, 0.96); border: 1px solid var(--glow);
+      color: var(--parchment); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+      letter-spacing: 0.04em; padding: 0.7rem 1.1rem; border-radius: 4px;
+      box-shadow: 0 4px 24px rgba(0, 229, 255, 0.25); z-index: 300;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s;
+      max-width: 90vw; text-align: center;
+    }
+    .synth-toast.show { opacity: 1; transform: translate(-50%, 0); }
     @media (prefers-reduced-motion: reduce) {
       .synth-canvas.sy-patching .port.sy-compatible .port-circle { animation: none; }
     }
@@ -593,6 +605,7 @@
         </select>
       </div>
       <div class="synth-toolbar-section">
+        <button class="synth-btn" id="sharePatchBtn" title="Copy a link to this exact patch — sound design you can send to anyone">⤴ Share Patch</button>
         <button class="synth-btn danger" id="clearAllBtn">✕ Clear</button>
       </div>
     </div>
@@ -774,10 +787,22 @@
 
   let modules = {};
   let cables = [];
+  let modConnections = [];   // hidden modulation links (LFO → an AudioParam), tracked so patches save/restore faithfully
   let moduleIdCounter = 0;
   let pendingPort = null; // {moduleId, portName, type, el}
   let cableColorIdx = 0;
   const CABLE_COLORS = ['#00e5ff', '#7b68ee', '#e8a87c'];
+
+  // Wire a module's output to a target module's AudioParam (e.g. LFO → filter cutoff)
+  // AND record it, so save/share can rebuild the modulation that isn't a visible cable.
+  function modConnect(fromId, toId, param) {
+    try {
+      const target = modules[toId].audio.node[param];
+      if (!target) return;
+      modules[fromId].audio.node.connect(target);
+      modConnections.push({ from: fromId, to: toId, param });
+    } catch (e) {}
+  }
 
   // ─── AUDIO START ───
   async function startAudio() {
@@ -1421,9 +1446,87 @@
     Object.keys(modules).forEach(id => removeModule(id));
     modules = {};
     cables = [];
+    modConnections = [];
     pendingPort = null;
     moduleIdCounter = 0;
     if (window.Analytics) Analytics.Synth.clearAll();
+  }
+
+  // ─── SAVE / SHARE A PATCH BY URL ───
+  // Serialize the whole rack — modules (type, position, params), visible cables,
+  // and the hidden modulation links — into a compact string that rides in the URL.
+  // Open that link and the patch rebuilds itself exactly. Every sound is shareable.
+  function serializePatch() {
+    const ids = Object.keys(modules);
+    const index = {}; ids.forEach((id, i) => index[id] = i);
+    const mods = ids.map(id => {
+      const m = modules[id];
+      const params = {};
+      m.def.controls.forEach(c => {
+        if (c.type === 'file') return;                 // uploaded audio can't ride in a URL
+        if (m.params[c.id] !== undefined) params[c.id] = m.params[c.id];
+      });
+      return { t: m.type, x: parseInt(m.el.style.left) || 0, y: parseInt(m.el.style.top) || 0, p: params };
+    });
+    const cbl = cables
+      .map(c => [index[c.from.moduleId], c.from.portName, index[c.to.moduleId], c.to.portName])
+      .filter(c => c[0] !== undefined && c[2] !== undefined);
+    const mod = modConnections
+      .map(c => [index[c.from], index[c.to], c.param])
+      .filter(c => c[0] !== undefined && c[1] !== undefined);
+    return { v: 1, m: mods, c: cbl, x: mod };
+  }
+
+  function encodePatch(patch) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(patch))))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');   // URL-safe base64
+  }
+  function decodePatch(str) {
+    try {
+      const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(decodeURIComponent(escape(atob(b64))));
+    } catch (e) { return null; }
+  }
+
+  function buildPatch(patch) {
+    if (!patch || !Array.isArray(patch.m)) return false;
+    clearAll();
+    const newIds = patch.m.map(md => {
+      const id = addModule(md.t, md.x, md.y);
+      if (id && md.p) Object.keys(md.p).forEach(k => setParam(id, k, md.p[k]));
+      return id;
+    });
+    (patch.c || []).forEach(c => { const a = newIds[c[0]], b = newIds[c[2]]; if (a && b) autoConnect(a, c[1], b, c[3]); });
+    (patch.x || []).forEach(c => { const a = newIds[c[0]], b = newIds[c[1]]; if (a && b) modConnect(a, b, c[2]); });
+    return true;
+  }
+
+  async function sharePatch() {
+    if (Object.keys(modules).length === 0) { synthToast('Add a module or load a preset first'); return; }
+    const code = encodePatch(serializePatch());
+    const url = location.origin + location.pathname + '#p=' + code;
+    try { history.replaceState(null, '', '#p=' + code); } catch (e) {}
+    let copied = false;
+    try { await navigator.clipboard.writeText(url); copied = true; } catch (e) {}
+    synthToast(copied ? '🔗 Link copied — paste it anywhere to share this patch' : 'Patch link is in your address bar — copy it to share');
+    if (window.Analytics) Analytics.trackDebounced('synth_patch_shared', {}, 2000);
+  }
+
+  function restorePatchFromURL() {
+    const m = location.hash.match(/[#&]p=([^&]+)/);
+    if (!m) return;
+    const patch = decodePatch(m[1]);
+    if (patch) { try { buildPatch(patch); synthToast('◈ Shared patch loaded — press a key to play'); } catch (e) { console.warn('patch restore failed', e); } }
+  }
+
+  let synthToastTimer = null;
+  function synthToast(msg) {
+    let el = document.getElementById('synthToast');
+    if (!el) { el = document.createElement('div'); el.id = 'synthToast'; el.className = 'synth-toast'; document.body.appendChild(el); }
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(synthToastTimer);
+    synthToastTimer = setTimeout(() => el.classList.remove('show'), 3400);
   }
 
   // ─── PORT HANDLING ───
@@ -1692,7 +1795,7 @@
 
       // LFO → osc frequency modulation (direct Tone.js connect)
       try {
-        modules[lfo].audio.node.connect(modules[osc].audio.node.frequency);
+        modConnect(lfo, osc, 'frequency');
       } catch(e) {}
       // Visual cable for LFO
       const lfoCircle = document.getElementById(`port_${lfo}_out`);
@@ -1845,7 +1948,7 @@
       autoConnect(osc, 'out', flt, 'in');
       autoConnect(flt, 'out', gain1, 'in');
       autoConnect(gain1, 'out', out, 'in');
-      try { modules[lfo].audio.node.connect(modules[flt].audio.node.frequency); } catch(e) {}
+      modConnect(lfo, flt, 'frequency');
 
     } else if (name === 'organ') {
       // Organ: sine + detuned sine → gain → reverb
@@ -1901,8 +2004,8 @@
       autoConnect(dly, 'out', rev, 'in');
       autoConnect(rev, 'out', out, 'in');
       try {
-        modules[lfo].audio.node.connect(modules[osc1].audio.node.frequency);
-        modules[lfo].audio.node.connect(modules[osc2].audio.node.frequency);
+        modConnect(lfo, osc1, 'frequency');
+        modConnect(lfo, osc2, 'frequency');
       } catch(e) {}
 
     } else if (name === 'ritual') {
@@ -1984,7 +2087,7 @@
       const out = addModule('output', 980, 40); setParam(out, 'gain', 0.4);
       autoConnect(osc, 'out', flt, 'in'); autoConnect(flt, 'out', env, 'in');
       autoConnect(env, 'out', dly, 'in'); autoConnect(dly, 'out', out, 'in');
-      try { modules[lfo].audio.node.connect(modules[flt].audio.node.frequency); } catch(e) {}
+      modConnect(lfo, flt, 'frequency');
     } else if (name === 'subbass') {
       // Clean sub: triangle low → gentle lowpass → envelope → output. Weight, no mud.
       const osc = addModule('oscillator', 60, 40);
@@ -2021,7 +2124,7 @@
       setParam(lfo, 'type', 'sine'); setParam(lfo, 'frequency', 5.5); setParam(lfo, 'min', 300); setParam(lfo, 'max', 2400);
       const out = addModule('output', 560, 40); setParam(out, 'gain', 0.34);
       autoConnect(osc, 'out', flt, 'in'); autoConnect(flt, 'out', out, 'in');
-      try { modules[lfo].audio.node.connect(modules[flt].audio.node.frequency); } catch(e) {}
+      modConnect(lfo, flt, 'frequency');
     } else if (name === 'brass') {
       // Synth brass: two saws → lowpass the envelope pushes open on the attack.
       const o1 = addModule('oscillator', 60, 20);  setParam(o1, 'type', 'sawtooth'); setParam(o1, 'frequency', 220); setParam(o1, 'detune', -6);
@@ -2852,6 +2955,12 @@
 
   // Clear
   tapHandler(document.getElementById('clearAllBtn'), clearAll);
+
+  // Share patch by URL
+  tapHandler(document.getElementById('sharePatchBtn'), sharePatch);
+
+  // If this page was opened with a shared patch in the URL, rebuild it
+  restorePatchFromURL();
 
   // Channel strip macro
   tapHandler(document.getElementById('channelStripBtn'), addChannelStrip);
