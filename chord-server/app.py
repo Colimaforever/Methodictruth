@@ -1007,23 +1007,49 @@ def analyze():
         threading.Thread(target=worker, daemon=True).start()
 
         deadline = time.monotonic() + STREAM_DEADLINE
+        last_stage, last_pct = None, None
         while True:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
-                # Throttled/stuck download running long. Return a clear message
-                # instead of letting the worker hit gunicorn's hard timeout and
-                # drop the connection. The background thread keeps going and
-                # caches its result, so the next try is instant.
-                yield _ndjson({'stage': 'error', 'success': False,
-                               'error': "YouTube is rate-limiting this server's "
-                                        "downloads right now. It'll finish in the "
-                                        "background — try again in a minute."})
+                # We ran past the streaming budget. The background thread keeps
+                # going and caches its result, so a retry lands instantly either
+                # way — but report WHY as precisely as we can. This used to
+                # assert "YouTube is rate-limiting you" unconditionally, which
+                # is an expensive thing to claim when the real cause is usually
+                # a slow first run: it sends you debugging the wrong system.
+                # We know which stage we stalled in, so say that instead.
+                if last_stage in ('analyze', 'load'):
+                    msg = ('Still analyzing — the first run after a restart is slower '
+                           'while the audio engine warms up. It’s finishing in the '
+                           'background; try again in a moment and it should be instant.')
+                elif last_stage == 'download':
+                    where = f' (stalled around {last_pct}%)' if last_pct is not None else ''
+                    msg = (f'The audio download is crawling{where}, which usually means '
+                           'YouTube is throttling this server. It’ll finish in the '
+                           'background — or drop the audio file in directly, which '
+                           'skips YouTube entirely.')
+                elif last_stage == 'paced':
+                    msg = ('Queued behind another download to stay under YouTube’s rate '
+                           'limits. Try again shortly, or pick a song from the Library — '
+                           'those play instantly.')
+                else:
+                    msg = ('This is taking longer than expected. It’s still running in '
+                           'the background — try again in a minute, or drop an audio file '
+                           'in to skip YouTube entirely.')
+                yield _ndjson({'stage': 'error', 'success': False, 'error': msg,
+                               'stalled_at': last_stage or 'start'})
                 return
             try:
                 kind, payload = events.get(timeout=min(remaining, 5))
             except queue.Empty:
                 continue
             if kind == 'progress':
+                # Remember where we got to, so a deadline hit can name the stage.
+                if isinstance(payload, dict):
+                    if payload.get('stage'):
+                        last_stage = payload['stage']
+                    if payload.get('pct') is not None:
+                        last_pct = payload['pct']
                 yield _ndjson(payload)
             elif kind == 'done':
                 yield _ndjson({'stage': 'done', **payload})
