@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Rhythm &amp; Beats — Patterns, Percussion, Technique and Practice</title>
+  <meta name="keywords" content="rhythm, what makes a good beat, beat patterns, drum patterns, backbeat, four on the floor, boom bap, trap hi hats, funk ghost notes, reggae one drop, tresillo, dembow, bossa nova, afrobeat, drum kit roles, percussion instruments, shaker, tambourine, congas, bongos, cowbell, claves, rimshot, cross stick, flam, paradiddle, rudiments, clave, polyrhythm, three against two, time signatures, subdivision, rhythm practice, metronome exercises">
+  <meta name="description" content="What makes a beat good, ten load-bearing beat patterns written as sixteen-box grids, what each drum and percussion instrument is actually for, the techniques that make a part sound played, clave and polyrhythm, and rhythm exercises you can do without an instrument.">
+  <link rel="canonical" href="https://methodictruth.com/rhythm.html">
+  <meta property="og:title" content="Rhythm &amp; Beats — What Makes a Beat Good">
+  <meta property="og:description" content="Ten load-bearing beat patterns as readable grids, what every drum and percussion instrument is for, the techniques that make a part sound played, clave and polyrhythm, and practice you can do anywhere.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/rhythm.html">
+  <meta property="og:image" content="https://methodictruth.com/og/rhythm.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Rhythm & Beats \u2014 Patterns, Percussion, Technique and Practice",
+  "description": "What makes a beat good, ten load-bearing beat patterns written as sixteen-box grids, what each drum and percussion instrument is actually for, the techniques that make a part sound played, clave and polyrhythm, and rhythm exercises you can do without an instrument.",
+  "url": "https://methodictruth.com/rhythm.html",
+  "image": "https://methodictruth.com/og/rhythm.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "rhythm",
+    "drumming",
+    "percussion",
+    "beat making",
+    "music theory"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "Rhythm & Beats", "item": "https://methodictruth.com/rhythm.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+
+    /* ─── BEAT GRIDS ─── */
+    /* Patterns are written the way the synth's drum machine writes them:
+       sixteen boxes to a bar, so anything here can be typed straight in. */
+    .rh-beatwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1rem -0.4rem 0.3rem; padding: 0 0.4rem 0.35rem; }
+    .rh-beat { min-width: 452px; max-width: 620px; }
+    .rh-row, .rh-count { display: grid; grid-template-columns: 68px repeat(16, 1fr); gap: 3px; align-items: center; }
+    .rh-row + .rh-row { margin-top: 3px; }
+    .rh-lbl {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; color: var(--stone-dark);
+      text-transform: uppercase; letter-spacing: 0.06em; text-align: right; padding-right: 0.35rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rh-cell {
+      aspect-ratio: 1 / 1; border: 1px solid rgba(138, 126, 107, 0.16);
+      background: rgba(10, 14, 26, 0.45); border-radius: 1px;
+    }
+    .rh-cell.dn { border-color: rgba(138, 126, 107, 0.34); }          /* downbeat column */
+    .rh-cell.on { background: rgba(0, 229, 255, 0.34); border-color: rgba(0, 229, 255, 0.75); }
+    .rh-cell.ac { background: var(--glow); border-color: var(--glow); box-shadow: 0 0 7px rgba(0, 229, 255, 0.45); }
+    .rh-cell.gh { background: rgba(0, 229, 255, 0.11); border-color: rgba(0, 229, 255, 0.28); }
+    .rh-cell.op { background: rgba(232, 168, 124, 0.42); border-color: var(--glow-warm); }
+    .rh-count { margin-bottom: 0.35rem; }
+    .rh-count span { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--stone-dark); text-align: center; opacity: 0.55; }
+    .rh-count span.b { color: var(--glow-warm); opacity: 0.95; }
+    .rh-caption { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.85rem; color: var(--stone-dark); margin-top: 0.1rem; }
+    .rh-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; margin: 0.4rem 0 0.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--stone-dark); letter-spacing: 0.05em; text-transform: uppercase; }
+    .rh-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 1px; margin-right: 0.3rem; vertical-align: -1px; }
+    .rh-beatname { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.05em; margin: 1.3rem 0 0.1rem; }
+    .rh-beatname:first-of-type { margin-top: 0.4rem; }
+    @media (max-width: 560px) {
+      .rh-row, .rh-count { grid-template-columns: 52px repeat(16, 1fr); gap: 2px; }
+      .rh-lbl { font-size: 0.48rem; padding-right: 0.2rem; }
+      .rh-beat { min-width: 400px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html" class="active">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Rhythm &amp; Beats</h1>
+        <div class="subtitle">What makes a beat good, and what to hit to make one</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Melody gets written about endlessly and rhythm gets treated as the thing underneath it, which is backwards for
+        most of the music anyone actually listens to. This is the <em>note-level</em> half of rhythm: which hits go
+        where, why some patterns feel good and others feel like a metronome, what each drum and percussion instrument is
+        actually <strong>for</strong>, the techniques that make them sound played, and how to practise any of it. Its
+        companion, <a href="groove.html" style="color:var(--glow-warm)">Groove &amp; Timing</a>, covers the other half —
+        the microseconds and velocities that decide how those same notes <em>feel</em>.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#grid">The Grid</a>
+        <a href="#good">What Makes a Beat Good</a>
+        <a href="#vocab">Beat Vocabulary</a>
+        <a href="#kit">The Kit</a>
+        <a href="#percussion">Percussion</a>
+        <a href="#technique">Techniques</a>
+        <a href="#clave">Clave &amp; Polyrhythm</a>
+        <a href="#practice">Practice</a>
+      </nav>
+
+      <!-- ═══ 1. THE GRID ═══ -->
+      <section class="ar-section" id="grid">
+        <div class="ar-section-label">① First Principles</div>
+        <h2 class="ar-section-title">Pulse, Subdivision, and the Bar</h2>
+        <p class="ar-lead">
+          Every rhythm is built from three nested things. The <strong>pulse</strong> is what you tap your foot to. The
+          <strong>bar</strong> is how many pulses group together before the pattern restarts. The
+          <strong>subdivision</strong> is how finely you slice each pulse — and it's the one that determines what a beat
+          sounds like, because it decides where notes are <em>allowed</em> to be.
+        </p>
+        <p class="ar-lead">
+          Learning to count subdivisions out loud is the single highest-return five minutes in all of rhythm. Everything
+          else on this page assumes you can find where you are in a bar without thinking about it.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Subdivision</th><th>Count it</th><th>Per bar of 4/4</th><th>Feels</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Quarter notes</td><td>1 &nbsp; 2 &nbsp; 3 &nbsp; 4</td><td>4</td><td>The pulse itself — plain, marching</td></tr>
+              <tr><td class="ar-hi">Eighth notes</td><td>1 &amp; 2 &amp; 3 &amp; 4 &amp;</td><td>8</td><td>The default of rock and pop</td></tr>
+              <tr><td class="ar-hi">Sixteenth notes</td><td>1 e &amp; a 2 e &amp; a</td><td>16</td><td>Funk, hip-hop, drum &amp; bass — busier, more detailed</td></tr>
+              <tr><td class="ar-hi">Triplets</td><td>1 trip-let 2 trip-let</td><td>12</td><td>Shuffle, blues, swing — rolling instead of square</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Every pattern on this page is written as <strong>sixteen boxes to a bar</strong> — one row per instrument, one
+          box per sixteenth note. It's the same layout as the
+          <a href="synth.html" style="color:var(--glow-warm)">synth's drum machine</a>, deliberately, so you can read a
+          pattern here and type it in there in about twenty seconds. The numbered columns are the beats; the boxes
+          between them are the <em>e</em>, <em>&amp;</em> and <em>a</em>.
+        </p>
+        <div class="rh-legend"><span><i style="background:var(--glow)"></i>accent</span><span><i style="background:rgba(0,229,255,0.34);border:1px solid rgba(0,229,255,0.75)"></i>hit</span><span><i style="background:rgba(0,229,255,0.11);border:1px solid rgba(0,229,255,0.28)"></i>ghost note</span><span><i style="background:rgba(232,168,124,0.42);border:1px solid var(--glow-warm)"></i>open hat</span><span><i style="background:rgba(10,14,26,0.45);border:1px solid rgba(138,126,107,0.16)"></i>rest</span></div>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Hat</span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Snare</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <p class="rh-caption">The plain backbeat, read left to right. Kick on 1 and 3, snare on 2 and 4, hats on every eighth.</p>
+
+        <h3 style="font-family:'Cinzel',serif;color:var(--glow-warm);font-size:1rem;letter-spacing:0.06em;margin:1.6rem 0 0.5rem;">Time signatures</h3>
+        <p class="ar-lead">
+          The top number is how many beats are in a bar; the bottom is what kind of note gets a beat. Nearly all popular
+          music is in 4/4, and it's worth knowing why: four is the smallest number that lets you have a strong beat, a
+          weak one, a semi-strong one and another weak one — enough asymmetry to feel like a shape, few enough to
+          predict.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Signature</th><th>Count</th><th>Where you hear it</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">4/4</td><td>1 2 3 4</td><td>Almost everything. Rock, pop, hip-hop, house, funk</td></tr>
+              <tr><td class="ar-hi">3/4</td><td>1 2 3</td><td>Waltz, many ballads, country. Circular rather than driving</td></tr>
+              <tr><td class="ar-hi">6/8</td><td>1 2 3 4 5 6 (felt as 2 groups of 3)</td><td>Blues ballads, doo-wop, a great deal of West African music</td></tr>
+              <tr><td class="ar-hi">12/8</td><td>four groups of 3</td><td>Slow blues, gospel — a shuffle written honestly</td></tr>
+              <tr><td class="ar-hi">5/4 &middot; 7/8</td><td>1 2 3 4 5 &middot; 1 2 3 4 5 6 7</td><td>Prog, math rock, Balkan folk. Feels like it's tripping deliberately</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          6/8 and 3/4 contain the same six eighth notes and are not the same thing: 3/4 groups them
+          <strong>3&times;2</strong> and 6/8 groups them <strong>2&times;3</strong>. Which one you're in is a question
+          about where the accents fall, not about how many notes there are — and that difference is the whole distinction
+          between a waltz and a blues shuffle.
+        </p>
+      </section>
+
+      <!-- ═══ 2. WHAT MAKES A BEAT GOOD ═══ -->
+      <section class="ar-section" id="good">
+        <div class="ar-section-label">② The Actual Craft</div>
+        <h2 class="ar-section-title">What Makes a Beat Good</h2>
+        <p class="ar-lead">
+          A good beat is not a complicated one. Most of the most successful rhythms in recorded history are simple to
+          the point of being trivial on paper. What they have in common is a small number of properties that are worth
+          naming, because once you can name them you can diagnose a beat that isn't working.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>You can find the one</h4>
+            <p>The listener must always know where the bar starts, even without counting. If your beat is so syncopated
+            that the downbeat is ambiguous, people can't move to it. Syncopation is only exciting when there's a clear
+            grid to be <span class="ar-term">syncopated against</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Repetition, then a break in it</h4>
+            <p>The near-universal pattern is three bars the same and a variation on the fourth — a fill, an extra kick,
+            a dropped hat. Enough repetition to be hypnotic, enough change to stop being wallpaper.
+            <span class="ar-term">Four bars is the natural unit.</span></p>
+          </div>
+          <div class="ar-card">
+            <h4>Space</h4>
+            <p>The notes you don't play define the ones you do. A beat with a hit on every sixteenth has no dynamics
+            available to it — nowhere left to go. <span class="ar-term">Reggae's one drop</span> is the extreme case: its
+            defining feature is a beat 1 with nothing on it.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Question and answer</h4>
+            <p>Great beats phrase in <span class="ar-term">two-bar units</span>, not one. The first bar poses something
+            and the second resolves or answers it. Loop a single bar and it feels static; loop two related bars and it
+            feels like it's going somewhere.</p>
+          </div>
+          <div class="ar-card">
+            <h4>One thing is busy</h4>
+            <p>If the hats are playing sixteenths, the kick should be sparse. If the kick is dense and syncopated, keep
+            the hats simple. <span class="ar-term">Two busy layers cancel out</span> — the ear can only follow one
+            subdivision at a time.</p>
+          </div>
+          <div class="ar-card">
+            <h4>It changes between sections</h4>
+            <p>A beat that's identical in the verse and the chorus makes the chorus feel like nothing happened. Add the
+            open hat, double the kick, bring in the ride. <span class="ar-term">The drums are part of the
+            arrangement</span>, not a bed underneath it.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          There's a diagnostic worth applying when a beat isn't working: <strong>can you sing it?</strong> Real rhythms
+          are memorable the way melodies are — you can vocalise the Amen break, the Funky Drummer, a dembow. If your
+          pattern can't be hummed back after two listens, it's probably a texture rather than a beat, and no amount of
+          sound selection will turn it into one.
+        </p>
+        <p class="ar-note">
+          The most common beginner mistake is not simplicity — it's <em>uniform density</em>. Something on every
+          sixteenth, all at the same volume, in every bar. Delete half of it and put accents on what's left, and the
+          same pattern becomes a groove.
+        </p>
+      </section>
+
+      <!-- ═══ 3. VOCABULARY ═══ -->
+      <section class="ar-section" id="vocab">
+        <div class="ar-section-label">③ The Patterns Themselves</div>
+        <h2 class="ar-section-title">A Vocabulary of Beats</h2>
+        <p class="ar-lead">
+          These are the load-bearing rhythms of popular music. They're worth knowing not to copy but to
+          <em>recognise</em> — nearly everything you hear is one of these, a hybrid of two, or a deliberate departure
+          from one. Program each of them once and you'll start hearing them everywhere.
+        </p>
+        <div class="rh-legend"><span><i style="background:var(--glow)"></i>accent</span><span><i style="background:rgba(0,229,255,0.34);border:1px solid rgba(0,229,255,0.75)"></i>hit</span><span><i style="background:rgba(0,229,255,0.11);border:1px solid rgba(0,229,255,0.28)"></i>ghost note</span><span><i style="background:rgba(232,168,124,0.42);border:1px solid var(--glow-warm)"></i>open hat</span><span><i style="background:rgba(10,14,26,0.45);border:1px solid rgba(138,126,107,0.16)"></i>rest</span></div>
+        <h3 class="rh-beatname">The Backbeat</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">Rock, pop, and the default beat of Western popular music. Kick on 1 and 3, snare on 2 and 4, eighth notes on the hat. Everything else on this page is a departure from this.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Hat</span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Snare</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Four on the Floor</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">House, disco, techno. The kick marks every beat, which is why it's so easy to dance to — there is no ambiguity about where you are. The open hat on the off-beats is the genre's signature lift.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Open hat</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on op"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on op"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on op"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on op"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Clap</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Boom Bap</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">Classic hip-hop. Sparse kick, hard snare on the backbeat, and — crucially — the second kick lands just <em>before</em> beat 3 rather than on it. That displacement is most of the feel.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Hat</span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Snare</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Trap</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">The kick pattern is sparse and syncopated while the hats carry everything, subdividing into 32nds and triplets. The 808 is a bass instrument as much as a drum — it plays notes, not just hits.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Hat</span><span class="rh-cell on dn"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell on dn"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell on dn"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell on dn"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell on"></span></div>
+        <div class="rh-row"><span class="rh-lbl">Snare</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">808</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">The Funk Beat</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">The ghost notes are the entire point. The loud snare hits are on 2 and 4 as always, but the quiet ones filling the gaps are what makes it funk instead of rock. Play them at a third of the volume.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Hat</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Snare</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell gh"></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell gh"></span><span class="rh-cell "></span><span class="rh-cell gh dn"></span><span class="rh-cell "></span><span class="rh-cell gh"></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell gh"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">One Drop</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">Reggae. There is deliberately <strong>no kick on beat 1</strong> — the bar drops into emptiness and the kick and snare land together on beat 3. It's the clearest example of a beat defined by what it leaves out.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Hat</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Snare</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Tresillo</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">Three-three-two. The most widespread rhythmic cell in popular music on earth — it underlies reggaeton, most Latin music, a great deal of hip-hop, and an enormous amount of pop. Count 1 &ndash; and-of-2 &ndash; 4.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Accent</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Shaker</span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Dembow</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">Reggaeton and dancehall. The tresillo in the kick against a steady backbeat snare — two patterns pulling on each other, which is why it feels like it's leaning forward the whole time.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Hat</span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Snare</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Bossa Nova</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">Brazilian, and built on the clave family. The rim-click pattern is the identity; the kick is soft and constant underneath. Sparse, unhurried, and much harder to program convincingly than it looks.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Rim</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Hat</span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Afrobeat</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">West African, and polyrhythmic by design: the shaker, bell and kick are each playing a different cycle, and the interest comes from where they coincide rather than from any single pattern.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Shaker</span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell  dn"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell "></span><span class="rh-cell on dn"></span><span class="rh-cell "></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell  dn"></span><span class="rh-cell on"></span><span class="rh-cell on"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Bell</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Snare</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell gh dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell gh dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Kick</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <p class="ar-note" style="margin-top:1.3rem;">
+          Notice how few notes most of these contain. The ones that feel most complex — the funk beat, afrobeat — are
+          complex in their <em>accents</em>, not their note count. That's the lesson of the whole section.
+        </p>
+      </section>
+
+      <!-- ═══ 4. THE KIT ═══ -->
+      <section class="ar-section" id="kit">
+        <div class="ar-section-label">④ What Each Piece Is For</div>
+        <h2 class="ar-section-title">The Drum Kit as a Set of Jobs</h2>
+        <p class="ar-lead">
+          A drum kit isn't a collection of drums — it's a set of distinct <em>roles</em>, each occupying a different
+          frequency range and a different job in the pattern. Understanding the role is what lets you substitute:
+          once you know the hats are keeping the subdivision, a shaker or a closed rim can do it instead.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Piece</th><th>Job</th><th>Lives around</th><th>Substitutes</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Kick</td><td>The pulse and the weight. Tells your body where the beat is</td><td>50&ndash;100 Hz + 2&ndash;4 kHz click</td><td>808, floor tom, stomp</td></tr>
+              <tr><td class="ar-hi">Snare</td><td>The backbeat. The thing you clap along to</td><td>150&ndash;250 Hz body, 3&ndash;8 kHz crack</td><td>Clap, rimshot, snap, tambourine</td></tr>
+              <tr><td class="ar-hi">Hi-hat</td><td>Keeps the subdivision — says whether you're in eighths or sixteenths</td><td>6 kHz and up</td><td>Shaker, cabasa, closed ride, mouth noise</td></tr>
+              <tr><td class="ar-hi">Ride</td><td>Same job as the hat but sustained — opens a section up</td><td>Broad, with a long wash</td><td>Open hat, crash on the beat</td></tr>
+              <tr><td class="ar-hi">Toms</td><td>Melodic movement, fills, tribal weight. Pitched</td><td>80&ndash;400 Hz</td><td>Congas, timbales, 808 toms</td></tr>
+              <tr><td class="ar-hi">Crash</td><td>Punctuation. Marks an arrival, almost always on a downbeat</td><td>Broadband wash</td><td>Reverse cymbal, white-noise impact</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The useful reframe: <strong>a beat is three jobs, not three instruments.</strong> Something marks the pulse,
+          something marks the backbeat, something keeps the subdivision. Fill those three roles with anything at all —
+          a stomp, a clap and a shaker — and you have a beat. Fill them with a kick, snare and hat and you have a
+          conventional one. The roles are the invariant; the instruments are a choice.
+        </p>
+      </section>
+
+      <!-- ═══ 5. PERCUSSION ═══ -->
+      <section class="ar-section" id="percussion">
+        <div class="ar-section-label">⑤ Everything Else You Can Hit</div>
+        <h2 class="ar-section-title">Percussion and What It Adds</h2>
+        <p class="ar-lead">
+          Percussion is the cheapest way to make a programmed beat sound like people. It occupies frequency ranges the
+          kit leaves empty, it moves constantly in a way a looped kit doesn't, and almost all of it can be recorded on a
+          phone. One shaker layer is often the difference between a beat that sounds like a demo and one that doesn't.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Shaker</h4>
+            <p>Keeps sixteenths without adding a transient that competes with anything. The workhorse. Its motion is
+            <span class="ar-term">forward-back</span>, so the return stroke is a note too — that's why real shaker
+            playing has an alternating accent a programmed one lacks.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Tambourine</h4>
+            <p>Sits on the backbeat with the snare and makes it sound bigger without adding low end. Two ways to play
+            it: <span class="ar-term">hit it</span> for a sharp accent, or <span class="ar-term">shake it</span> for a
+            sustained wash. Pop choruses use both at once.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Congas</h4>
+            <p>Pitched hand drums, usually a pair. Three core tones: <span class="ar-term">open</span> (fingers on the
+            edge, rings), <span class="ar-term">slap</span> (sharp crack), <span class="ar-term">bass</span> (flat palm
+            in the centre). Nearly all Latin conga parts are those three in a repeating cycle.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Bongos</h4>
+            <p>Smaller, higher, faster than congas, and played between the knees. They handle the busy improvised layer
+            — the <span class="ar-term">martillo</span> pattern is the standard — sitting above everything else in
+            pitch.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Cowbell</h4>
+            <p>Cuts through anything, which is the point and the danger. Used as a <span class="ar-term">timekeeper</span>
+            in salsa and mambo rather than as a joke. Mix it well below where it feels right in solo.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Claves</h4>
+            <p>Two sticks, one pattern, enormous consequences. They state the <span class="ar-term">clave</span> that the
+            rest of the ensemble organises itself around — see the section below. Dry, sharp, and almost never played
+            with any variation at all.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Cabasa &amp; Guiro</h4>
+            <p>Scraped rather than struck, so they produce a <span class="ar-term">sustained texture</span> with a
+            rhythmic edge. Excellent for filling the space between a sparse kit and a busy top end without adding more
+            transients.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Claps &amp; Snaps</h4>
+            <p>Not lesser snares — a different instrument. A clap is many slightly-offset transients, which is why a
+            <span class="ar-term">stacked, spread clap</span> sounds wide and human where a single one sounds thin.
+            Record eight takes of yourself and layer them.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Djembe &amp; Frame Drums</h4>
+            <p>Hand drums with a wide dynamic range and, on the djembe, the same three-tone vocabulary as congas — bass,
+            tone, slap. A frame drum can cover both the pulse and the subdivision at once, which is why so much folk
+            music needs only one player.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Found percussion</h4>
+            <p>Keys, a table, a book, a pen on a mug, your chest. Genuinely used on records constantly. The
+            <span class="ar-term">imperfection is the value</span> — nothing in a sample library sounds like a specific
+            room and a specific object.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          A practical layering order that rarely fails: <strong>shaker for the sixteenths, tambourine on the backbeat,
+          and one pitched hand drum doing something syncopated.</strong> Three layers, each quiet, each panned away from
+          centre — see <a href="mixing.html" style="color:var(--glow-warm)">panning</a> — and a static loop starts
+          breathing.
+        </p>
+      </section>
+
+      <!-- ═══ 6. TECHNIQUES ═══ -->
+      <section class="ar-section" id="technique">
+        <div class="ar-section-label">⑥ How It's Actually Played</div>
+        <h2 class="ar-section-title">Techniques Worth Knowing</h2>
+        <p class="ar-lead">
+          These are the moves that separate a part that sounds played from one that sounds entered. Every one of them is
+          available whether you're behind a kit or programming — knowing the physical technique tells you what to
+          program.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Technique</th><th>What it is</th><th>Use it for</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Ghost note</td><td>A very quiet stroke between the loud ones, on the snare</td><td>The single most important funk technique. Fills space without adding weight</td></tr>
+              <tr><td class="ar-hi">Rimshot</td><td>Stick hits head and rim simultaneously — much louder and sharper</td><td>Backbeats that need to cut. The default snare sound in most pop</td></tr>
+              <tr><td class="ar-hi">Cross-stick</td><td>Stick laid across the head, butt end tapping the rim — a dry click</td><td>Verses, ballads, bossa. Quiet intimacy without losing the backbeat</td></tr>
+              <tr><td class="ar-hi">Open hat</td><td>Hats loosened so they ring instead of clicking</td><td>Lift and release. On the off-beat it's the sound of house music</td></tr>
+              <tr><td class="ar-hi">Pedal hat</td><td>Closing the hats with the foot — a soft chick, usually on 2 and 4</td><td>Keeping time while your hands are on the ride</td></tr>
+              <tr><td class="ar-hi">Flam</td><td>Two strokes a few milliseconds apart, heard as one thick hit</td><td>Making a single hit sound bigger. Program as two notes ~15 ms apart</td></tr>
+              <tr><td class="ar-hi">Drag / ruff</td><td>Two fast grace notes before the main stroke</td><td>Ornamenting a backbeat without changing the pattern</td></tr>
+              <tr><td class="ar-hi">Buzz roll</td><td>Sticks pressed so they bounce into a sustained rasp</td><td>Builds and transitions. The snare-roll crescendo into a chorus</td></tr>
+              <tr><td class="ar-hi">Brushes</td><td>Wire brushes swept or tapped instead of struck</td><td>Jazz, ballads. The sweep is a <em>sustained</em> sound — a texture, not a hit</td></tr>
+              <tr><td class="ar-hi">Heel-toe</td><td>Two kick notes from one foot motion</td><td>Fast double kicks without a double pedal</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-family:'Cinzel',serif;color:var(--glow-warm);font-size:1rem;letter-spacing:0.06em;margin:1.6rem 0 0.5rem;">The rudiments worth your time</h3>
+        <p class="ar-lead">
+          There are forty official drum rudiments and you need about four. They're patterns of left and right strokes,
+          and their value is that they make your weaker hand as reliable as your stronger one — which is what makes
+          everything else possible.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Single stroke roll</h4>
+            <p><code>R L R L R L R L</code> — alternating. Underlies nearly every fill you'll ever play. Practise it
+            slowly and evenly before you practise it fast.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Double stroke roll</h4>
+            <p><code>R R L L R R L L</code> — two per hand, the second from a controlled bounce. This is the one that
+            unlocks speed, and the one that takes longest.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Paradiddle</h4>
+            <p><code>R L R R L R L L</code> — the sticking flips every bar, which is why it's the standard tool for
+            <span class="ar-term">moving around the kit</span> and for accenting patterns your hands couldn't otherwise
+            reach.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Flam tap</h4>
+            <p><code>lR R rL L</code> — a flam followed by a tap. Teaches control of two different dynamic levels in the
+            same hand, which is the physical basis of ghost notes.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          If you're programming rather than playing, rudiments still matter — they tell you what's <em>physically
+          plausible</em>. A fill that a human couldn't stick will sound synthetic even when every note is in the right
+          place, and knowing the sticking is how you avoid writing one.
+        </p>
+      </section>
+
+      <!-- ═══ 7. CLAVE ═══ -->
+      <section class="ar-section" id="clave">
+        <div class="ar-section-label">⑦ The Deep End</div>
+        <h2 class="ar-section-title">Clave, Tresillo &amp; Polyrhythm</h2>
+        <p class="ar-lead">
+          Most rhythm education stops at the backbeat, which leaves out the organising principles behind an enormous
+          proportion of the world's music — and behind a great deal of what's on the radio, usually without credit.
+          These three ideas will change how you hear rhythm.
+        </p>
+        <div class="rh-legend"><span><i style="background:var(--glow)"></i>accent</span><span><i style="background:rgba(0,229,255,0.34);border:1px solid rgba(0,229,255,0.75)"></i>hit</span><span><i style="background:rgba(0,229,255,0.11);border:1px solid rgba(0,229,255,0.28)"></i>ghost note</span><span><i style="background:rgba(232,168,124,0.42);border:1px solid var(--glow-warm)"></i>open hat</span><span><i style="background:rgba(10,14,26,0.45);border:1px solid rgba(138,126,107,0.16)"></i>rest</span></div>
+        <h3 class="rh-beatname">Son Clave (3-2)</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">Five notes across two bars — the organising principle of Cuban music and, through it, a great deal of everything else. The first bar has three notes, the second has two. Everything in the arrangement is placed relative to it.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Bar 1 &middot; three</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Bar 2 &middot; two</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Son Clave (2-3)</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">The same five notes with the bars swapped. It is not a different rhythm — it's the same rhythm entered from the other side, and a band playing one while the singer phrases the other is the classic way to sound wrong in Latin music.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Bar 1 &middot; two</span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Bar 2 &middot; three</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <h3 class="rh-beatname">Three Against Two</h3>
+        <p class="ar-lead" style="margin-bottom:0.2rem;">The simplest polyrhythm and the gateway to all of them. Two evenly spaced notes and three evenly spaced notes across the same span. Say <em>&ldquo;nice cup of tea&rdquo;</em> — <em>nice</em> and <em>of</em> are the two, <em>nice</em>, <em>cup</em>, <em>tea</em> are the three.</p>
+        <div class="rh-beatwrap"><div class="rh-beat">
+        <div class="rh-count"><span></span><span class="b">1</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">2</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">3</span><span class="">e</span><span class="">&</span><span class="">a</span><span class="b">4</span><span class="">e</span><span class="">&</span><span class="">a</span></div>
+        <div class="rh-row"><span class="rh-lbl">Three</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        <div class="rh-row"><span class="rh-lbl">Two</span><span class="rh-cell on ac dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell on ac"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell  dn"></span><span class="rh-cell "></span><span class="rh-cell "></span><span class="rh-cell "></span></div>
+        </div></div>
+        <p class="ar-lead" style="margin-top:1.4rem;">
+          <strong>Clave is not a drum part — it's a rule.</strong> In Cuban music the clave states a two-bar cycle and
+          every other instrument is written to agree with it; a phrase that lands correctly against 3-2 will feel wrong
+          against 2-3, and musicians will tell you the arrangement is "crossed." You don't have to play salsa to use
+          this: the idea that <em>an arrangement can have an asymmetric two-bar reference</em> is portable to any genre,
+          and it's a fast way to make a loop stop feeling like one bar repeated.
+        </p>
+        <p class="ar-lead">
+          <strong>Tresillo</strong> — the 3-3-2 cell above — is worth singling out as probably the most widespread
+          rhythmic figure in popular music worldwide. It's the habanera, it's the bassline of half of New Orleans, it's
+          reggaeton's kick, it's in an extraordinary amount of contemporary pop. If a beat of yours feels four-square
+          and you want it to lean, replacing an even kick pattern with tresillo is the shortest path there.
+        </p>
+        <p class="ar-lead">
+          <strong>Polyrhythm</strong> is two different subdivisions running at once — three against two, four against
+          three. It's the core of West African music and it's why afrobeat feels like it's rotating rather than marching.
+          The practical version for a producer: give the shaker a cycle whose length doesn't divide evenly into the bar,
+          and the loop stops sounding like a loop because the pattern takes several bars to come back around.
+        </p>
+        <p class="ar-note">
+          A gentle way in: put a 3-note cycle on a percussion layer over a 4/4 beat. The percussion returns to the
+          downbeat every three bars instead of every one, and four bars of an otherwise static loop suddenly have a
+          shape. This is the cheapest trick on this entire page.
+        </p>
+      </section>
+
+      <!-- ═══ 8. PRACTICE ═══ -->
+      <section class="ar-section" id="practice">
+        <div class="ar-section-label">⑧ Getting Better</div>
+        <h2 class="ar-section-title">How to Practise Rhythm</h2>
+        <p class="ar-lead">
+          Rhythm improves faster than almost any other musical skill because the feedback is binary — you're either with
+          it or you aren't — and because you can practise it without an instrument, anywhere, using your hands and your
+          voice. None of what follows requires a drum kit.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Exercise</th><th>Do this</th><th>Builds</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Count out loud</td><td>Say &ldquo;1 e &amp; a 2 e &amp; a&rdquo; while you clap the pattern. Out loud, not internally</td><td>The foundation. Most timing problems are actually counting problems</td></tr>
+              <tr><td class="ar-hi">The subdivision ladder</td><td>Over one steady click: 4 bars of quarters, 4 of eighths, 4 of triplets, 4 of sixteenths, then back down</td><td>Switching subdivision without the tempo drifting — the core skill</td></tr>
+              <tr><td class="ar-hi">Click on 2 and 4</td><td>Set the metronome to half speed and treat it as the backbeat, not the downbeat</td><td>Brutal at first. The fastest way to stop leaning on the click</td></tr>
+              <tr><td class="ar-hi">Click every other bar</td><td>Mute the metronome for one bar in two, then one in four</td><td>Internal time. You find out exactly how much you were drifting</td></tr>
+              <tr><td class="ar-hi">Three against two</td><td>Tap three with one hand and two with the other. Say &ldquo;nice cup of tea&rdquo;</td><td>Limb independence and polyrhythm, from nothing</td></tr>
+              <tr><td class="ar-hi">Clave while you walk</td><td>Clap son clave over your footsteps as the pulse, for a whole walk</td><td>Holding a pattern against an unrelated pulse — the real skill</td></tr>
+              <tr><td class="ar-hi">Transcribe by ear</td><td>Take one beat you love and write it into a 16-box grid, one instrument at a time</td><td>Ear training and vocabulary at once. Ten of these will change your programming</td></tr>
+              <tr><td class="ar-hi">Program it, then play it</td><td>Sequence a pattern, then try to play along with it live</td><td>Exposes the gap between what you can imagine and what you can execute</td></tr>
+              <tr><td class="ar-hi">Vocalise it</td><td>Beatbox the pattern before you program it. If you can't say it, you don't know it</td><td>Turns rhythm into something you own rather than something you assemble</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Two tools here help directly. Use <a href="tapbpm.html" style="color:var(--glow-warm)">Tap BPM</a> to find the
+          tempo of anything you want to play along with, and the
+          <a href="synth.html" style="color:var(--glow-warm)">synth's drum machine</a> to program any pattern on this
+          page in its own sixteen-box grid — then use its swing and step-length controls to hear what
+          <a href="groove.html" style="color:var(--glow-warm)">groove</a> does to the notes you just placed. The
+          <a href="song-analyzer.html" style="color:var(--glow-warm)">Song Analyzer</a> will give you the tempo and
+          meter of a record you're trying to transcribe.
+        </p>
+        <p class="ar-note">
+          Five focused minutes a day beats an hour on Sunday, and the reason is specific: rhythm is a motor skill, and
+          motor skills consolidate between sessions rather than during them. Frequency matters more than duration.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        A beat is three jobs — pulse, backbeat, subdivision — filled by whatever you like. Keep one layer busy and the
+        rest sparse, phrase in twos, leave the fourth bar free to break the pattern, and count out loud until you don't
+        have to. Then go and program one on the
+        <a href="synth.html" style="color:var(--glow-warm)">drum machine</a>.
+      </p>
+
+      <nav aria-label="Craft guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="sound-selection.html" style="color:var(--stone);text-decoration:none;">&larr; Sound Selection</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">&uarr; Craft Guides</a>
+        <a href="groove.html" style="color:var(--glow-warm);text-decoration:none;">Next: Groove &amp; Timing &rarr;</a>
+      </nav>
+
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+

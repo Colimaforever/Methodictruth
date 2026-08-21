@@ -347,6 +347,26 @@ body::after {
   background: rgba(0, 229, 255, 0.06);
 }
 
+/* Group headings inside a long dropdown — a list of fifteen links reads as a
+   wall; the same fifteen under four labels reads as four short lists. */
+.nav-drop-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--glow-warm);
+  opacity: 0.55;
+  padding: 0.5rem 1.2rem 0.2rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.nav-drop-label + a { margin-top: 0; }
+.nav-drop-label:not(:first-child) {
+  margin-top: 0.3rem;
+  border-top: 1px solid rgba(138, 126, 107, 0.12);
+  padding-top: 0.5rem;
+}
+
 .site-nav .nav-glyph {
   color: var(--stone-dark);
   opacity: 0.2;
@@ -1290,6 +1310,8 @@ footer .donate-link:hover {
   .nav-drop-menu a {
     padding: 0.4rem 0.8rem;
   }
+  .nav-drop-label { padding: 0.4rem 0.8rem 0.15rem; font-size: 0.46rem; }
+  .nav-drop-label:not(:first-child) { margin-top: 0.25rem; padding-top: 0.4rem; }
   .pillar-left, .pillar-right, .vine-accent { display: none; }
 
   /* Music player: full-width bottom bar on small screens */
