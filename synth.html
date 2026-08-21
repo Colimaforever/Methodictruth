@@ -475,11 +475,70 @@
       -webkit-appearance: none; border-radius: 0;
     }
 
+    /* ─── DRUM MACHINE GRID ─── */
+    .seq-drum-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin: 0.5rem 0 0.3rem;
+      padding-top: 0.4rem; border-top: 1px solid rgba(138, 126, 107, 0.18);
+    }
+    .seq-drum-grid { display: grid; gap: 3px; width: 100%; overflow-x: auto; }
+    .seq-drum-row { display: contents; }
+    .seq-drum-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.06em; text-transform: uppercase;
+      display: flex; align-items: center; padding-right: 0.3rem;
+      white-space: nowrap; user-select: none;
+    }
+    .drum-cell {
+      height: 26px; min-width: 22px;
+      border: 1px solid rgba(138, 126, 107, 0.22);
+      background: rgba(26, 18, 10, 0.5);
+      cursor: pointer; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent; user-select: none;
+      transition: border-color 0.12s, background 0.12s, box-shadow 0.1s;
+    }
+    .drum-cell.beat { border-left: 1px solid rgba(232, 168, 124, 0.35); }
+    .drum-cell.on {
+      border-color: var(--glow-warm);
+      background: rgba(232, 168, 124, 0.28);
+      box-shadow: inset 0 0 6px rgba(232, 168, 124, 0.25);
+    }
+    .drum-cell.playing {
+      box-shadow: 0 0 10px rgba(232, 168, 124, 0.65);
+      border-color: var(--glow-warm);
+    }
+
+    /* ─── PIANO OCTAVE / REMAP CONTROLS ─── */
+    .piano-oct-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      color: var(--stone); background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.25);
+      padding: 0.15rem 0.55rem; cursor: pointer; line-height: 1.4;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      user-select: none; transition: border-color 0.15s, color 0.15s;
+    }
+    .piano-oct-btn:hover { border-color: var(--glow); color: var(--glow); }
+    .piano-oct-btn.active {
+      border-color: var(--glow-warm); color: var(--glow-warm);
+      background: rgba(232, 168, 124, 0.12);
+      animation: remap-pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes remap-pulse { 50% { box-shadow: 0 0 10px rgba(232, 168, 124, 0.5); } }
+    .piano-key.remap-target {
+      outline: 2px solid var(--glow-warm);
+      outline-offset: -2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .piano-oct-btn.active { animation: none; }
+    }
+
     @media (max-width: 768px) {
       .seq-panel { padding: 0.4rem 0.4rem 0.5rem; }
       .seq-step { min-width: 30px; }
       .seq-cell { height: 40px; }
       .seq-label { display: none; }
+      .seq-drum-label { font-size: 0.5rem; }
+      .drum-cell { height: 24px; min-width: 18px; }
     }
   </style>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -504,25 +563,30 @@
     <div class="nav-links" id="navLinks">
       <a href="index.html">Home</a>
       <div class="nav-dropdown">
-        <button class="nav-drop-btn">Music ▾</button>
+        <button class="nav-drop-btn">Music Tools ▾</button>
         <div class="nav-drop-menu">
           <a href="synth" class="active">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
           <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
           <a href="guitar.html">Fretboard</a>
-          <a href="theory.html">Theory</a>
           <a href="chord-voicings.html">Chord Voicings</a>
-          <a href="chord-trainer.html">Chord-Tone Trainer</a>
-          <a href="ear-training.html">Ear Training</a>
-          <a href="jam-guide.html">Jam Guide</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
           <a href="production.html">Learn Production</a>
           <a href="recording.html">Recording</a>
-          <a href="effects.html">Effects</a>
           <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
           <a href="mastering.html">Mastering</a>
           <a href="logic.html">Logic Pro</a>
-          <a href="song-analyzer.html">Song Analyzer</a>
-          <a href="songwriter.html">Songwriter</a>
-          <a href="tapbpm.html">Tap BPM</a>
+          <a href="theory.html">Theory</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
         </div>
       </div>
       <div class="nav-dropdown">
@@ -631,9 +695,12 @@
   <!-- Musical Typing Piano Keyboard -->
   <div class="piano-container" id="pianoContainer">
     <div class="piano-info">
+      <button class="piano-oct-btn" id="octDownBtn" title="Octave down (or press Z)">−</button>
       <span class="piano-info-item" id="pianoOctave">Oct: 4</span>
+      <button class="piano-oct-btn" id="octUpBtn" title="Octave up (or press X)">+</button>
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
-      <span class="piano-info-hint" id="pianoHint"></span>
+      <button class="piano-oct-btn" id="remapBtn" title="Bind your own keyboard keys to the piano">⌨ Remap</button>
+      <span class="piano-info-hint" id="pianoHint">Z/X octave · C/V velocity</span>
     </div>
     <div class="piano-keys" id="pianoKeys"></div>
   </div>
@@ -670,6 +737,14 @@
       </div>
     </div>
     <div class="seq-grid" id="seqGrid"></div>
+
+    <!-- Drum Machine: its own programmable grid on the same transport -->
+    <div class="seq-drum-header">
+      <span class="seq-label">Drums</span>
+      <button class="synth-btn" id="drumBeatBtn" title="Drop in a basic four-on-the-floor pattern to start from">Beat</button>
+      <button class="synth-btn danger" id="drumClearBtn">Clear Drums</button>
+    </div>
+    <div class="seq-drum-grid" id="seqDrumGrid"></div>
   </div>
 
   <div class="audio-status" id="audioStatus">◇ audio suspended</div>
@@ -742,6 +817,18 @@
       <dd>Open with <code>🎼 Sequencer</code> in the toolbar. It plays your <em>patched sound</em> — build a basic synth first (Oscillator → … → Output), press Start Audio, then hit Play. Tap a step to turn it on/off; use the <code>−</code>/<code>+</code> under an active step to change its pitch. Set length (8/16/32 steps), BPM, swing, and gate length. The matching piano key lights up as each step fires. Patterns auto-save and reload.</dd>
       <dt>Shaping each step (Decay/ADSR)</dt>
       <dd>The sequencer has no envelope of its own — it plays through whatever's patched on the canvas. Add an <code>ADSR</code> module before <code>Output</code> and set a short <code>Dec</code> (decay) with low <code>Sus</code> (sustain) for plucky, percussive steps, or a longer Decay/higher Sustain for pads that bleed into the next step. It retriggers on every step automatically.</dd>
+      <dt>Drum Machine</dt>
+      <dd>Below the melodic grid, four drum rows — <code>Kick</code>, <code>Snare</code>, <code>Hat</code>, <code>Clap</code> — on the same clock and step count. Click cells to program a beat; each hit auditions as you click so you can build it by ear while stopped. <strong>Beat</strong> drops in a four-on-the-floor starting point (kick on every beat, snare on 2 and 4, hats on eighths) to edit from. The drums are synthesized and routed straight to the output, so they work <em>without</em> a patch on the canvas — you can program a beat before you've built a sound. <code>Clear</code> only wipes the melody; <code>Clear Drums</code> only wipes the beat.</dd>
+    </dl>
+
+    <h3>Musical Typing</h3>
+    <dl>
+      <dt>Playing with your computer keyboard</dt>
+      <dd>The default layout follows Logic Pro: <code>A W S E D F T G Y H U J</code> walks up the chromatic scale from C, continuing <code>K O L P ;</code> — a range of a tenth. The on-screen keys always show the letter that plays them.</dd>
+      <dt>Reaching other octaves</dt>
+      <dd>Press <code>Z</code>/<code>X</code> (or the <code>−</code>/<code>+</code> buttons by the octave readout) to shift the whole keyboard down or up an octave, across the full MIDI range. <code>C</code>/<code>V</code> lower and raise velocity. Holding a note while you change octave is safe — the note you started is the note that stops.</dd>
+      <dt>Binding your own keys</dt>
+      <dd>Keyboard layouts differ, so nothing is fixed. Click <code>⌨ Remap</code>, click a piano key, then press whatever key you want to play it — repeat for as many as you like, then <code>Esc</code> to finish. Bindings save automatically and persist between visits. Right-click <code>⌨ Remap</code> to reset to the default layout. A custom binding on <code>Z</code>, <code>X</code>, <code>C</code>, or <code>V</code> takes priority over that key's built-in shortcut.</dd>
     </dl>
 
     <h3>MIDI — Controllers and DAWs</h3>
@@ -2263,15 +2350,46 @@
   // Note names
   const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
-  // Logic Pro X style keyboard mapping: key → semitone offset from C
-  const KEY_MAP = {
+  // Logic Pro X style keyboard mapping: key → semitone offset from C.
+  // This is only the DEFAULT — every binding is user-remappable (⌨ Remap),
+  // because keyboard layouts differ and one hardcoded map can't fit them all.
+  // Extended past Logic's A–L row with P and ; so the default already spans
+  // a 10th (C to E of the next octave).
+  const DEFAULT_KEY_MAP = {
     'a':0, 'w':1, 's':2, 'e':3, 'd':4, 'f':5, 't':6,
     'g':7, 'y':8, 'h':9, 'u':10, 'j':11,
-    'k':12, 'o':13, 'l':14
+    'k':12, 'o':13, 'l':14, 'p':15, ';':16
   };
+  const KEYMAP_STORAGE = 'synthKeyMap';
+  let keyMap = loadKeyMap();
 
-  const MAPPED_KEYS = new Set([...Object.keys(KEY_MAP), 'z','x','c','v']);
-  const heldKeys = new Set();
+  function loadKeyMap() {
+    try {
+      const raw = localStorage.getItem(KEYMAP_STORAGE);
+      if (raw) {
+        const data = JSON.parse(raw);
+        // Only accept sane entries: single-char keys → semitone 0-26
+        const clean = {};
+        for (const [k, v] of Object.entries(data)) {
+          if (typeof k === 'string' && k.length >= 1 && k.length <= 1 &&
+              Number.isInteger(v) && v >= 0 && v <= 26) clean[k] = v;
+        }
+        if (Object.keys(clean).length) return clean;
+      }
+    } catch (e) {}
+    return { ...DEFAULT_KEY_MAP };
+  }
+  function saveKeyMap() {
+    try { localStorage.setItem(KEYMAP_STORAGE, JSON.stringify(keyMap)); } catch (e) {}
+  }
+
+  // Control keys (octave/velocity). A custom note binding on one of these
+  // wins over the control — the user asked for that key explicitly.
+  const CTRL_KEYS = new Set(['z','x','c','v']);
+  // key → the exact MIDI note that key started, so releasing after an octave
+  // shift still stops the RIGHT note (this was a stuck-note bug: keyup used
+  // to recompute from the CURRENT octave).
+  const heldKeys = new Map();
 
   // Convert MIDI note number to frequency
   function midiToFreq(note) { return 440 * Math.pow(2, (note - 69) / 12); }
@@ -2520,44 +2638,83 @@
     if (window.Analytics) Analytics.Synth.kbToggled(!minimized);
   }
 
+  function setOctave(oct) {
+    keyboardOctave = Math.max(0, Math.min(8, oct));
+    document.getElementById('pianoOctave').textContent = 'Oct: ' + keyboardOctave;
+  }
+  function setVelocity(vel) {
+    keyboardVelocity = Math.max(1, Math.min(127, vel));
+    document.getElementById('pianoVelocity').textContent = 'Vel: ' + keyboardVelocity;
+  }
+
+  // ─── REMAP MODE: bind any keyboard key to any piano key ───
+  // Click ⌨ Remap, click a piano key, press the key you want — repeat for as
+  // many keys as you like, Esc (or Remap again) to finish. Right-click Remap
+  // (or long-press its hint) resets to the Logic-style default map.
+  let remapMode = false;
+  let remapTarget = null;   // semitone awaiting a key press
+
+  function setRemapMode(on) {
+    remapMode = on;
+    remapTarget = null;
+    document.getElementById('remapBtn').classList.toggle('active', on);
+    pianoKeysEl.querySelectorAll('.remap-target').forEach(k => k.classList.remove('remap-target'));
+    document.getElementById('pianoHint').textContent = on
+      ? 'Click a piano key, then press the keyboard key to bind it · Esc to finish'
+      : 'Z/X octave · C/V velocity';
+  }
+  function remapPickTarget(semitone, keyEl) {
+    pianoKeysEl.querySelectorAll('.remap-target').forEach(k => k.classList.remove('remap-target'));
+    remapTarget = semitone;
+    keyEl.classList.add('remap-target');
+    document.getElementById('pianoHint').textContent =
+      'Press a key for ' + NOTE_NAMES[semitone % 12] + (semitone >= 12 ? ' (upper)' : '') + ' — Esc to cancel';
+  }
+
   document.addEventListener('keydown', (e) => {
     // Fast rejection paths
     if (e.repeat) return;
-    
+
     const targetTag = e.target.tagName;
     if (targetTag === 'INPUT' || targetTag === 'TEXTAREA' || targetTag === 'SELECT') return;
-    
+
     const key = e.key.toLowerCase();
-    if (!MAPPED_KEYS.has(key)) return;
-    
+
+    // Remap capture: the next key pressed becomes the binding for the
+    // selected piano key. One keyboard key maps to one note (rebinding a key
+    // steals it from its old note), and Escape backs out.
+    if (remapMode) {
+      if (key === 'escape') { e.preventDefault(); setRemapMode(false); return; }
+      if (remapTarget !== null && key.length === 1) {
+        e.preventDefault(); e.stopPropagation();
+        keyMap[key] = remapTarget;
+        saveKeyMap();
+        buildPiano();
+        remapTarget = null;
+        document.getElementById('pianoHint').textContent =
+          '"' + key.toUpperCase() + '" bound · click another key, or Esc to finish';
+      }
+      return;
+    }
+
+    const isNote = keyMap[key] !== undefined;
+    if (!isNote && !CTRL_KEYS.has(key)) return;
+
     // Prevent default immediately to avoid any browser lag
     e.preventDefault();
     e.stopPropagation();
 
-    if (key === 'z') {
-      keyboardOctave = Math.max(0, keyboardOctave - 1);
-      document.getElementById('pianoOctave').textContent = 'Oct: ' + keyboardOctave;
-      return;
-    }
-    if (key === 'x') {
-      keyboardOctave = Math.min(8, keyboardOctave + 1);
-      document.getElementById('pianoOctave').textContent = 'Oct: ' + keyboardOctave;
-      return;
-    }
-    if (key === 'c') {
-      keyboardVelocity = Math.max(1, keyboardVelocity - 10);
-      document.getElementById('pianoVelocity').textContent = 'Vel: ' + keyboardVelocity;
-      return;
-    }
-    if (key === 'v') {
-      keyboardVelocity = Math.min(127, keyboardVelocity + 10);
-      document.getElementById('pianoVelocity').textContent = 'Vel: ' + keyboardVelocity;
-      return;
+    // A user's explicit note binding on z/x/c/v outranks the built-in control.
+    if (!isNote) {
+      if (key === 'z') { setOctave(keyboardOctave - 1); return; }
+      if (key === 'x') { setOctave(keyboardOctave + 1); return; }
+      if (key === 'c') { setVelocity(keyboardVelocity - 10); return; }
+      if (key === 'v') { setVelocity(keyboardVelocity + 10); return; }
     }
 
-    if (KEY_MAP[key] !== undefined && !heldKeys.has(key)) {
-      heldKeys.add(key);
-      const midiNote = (keyboardOctave + 1) * 12 + KEY_MAP[key];
+    if (isNote && !heldKeys.has(key)) {
+      const midiNote = (keyboardOctave + 1) * 12 + keyMap[key];
+      heldKeys.set(key, midiNote);   // remember the exact note we started
       noteOn(midiNote, keyboardVelocity, 'keyboard');
     }
   }, { passive: false }); // Non-passive for immediate preventDefault
@@ -2565,10 +2722,11 @@
   document.addEventListener('keyup', (e) => {
     // Fast path - no preventDefault needed for keyup
     const key = e.key.toLowerCase();
-    if (KEY_MAP[key] !== undefined && heldKeys.has(key)) {
+    if (heldKeys.has(key)) {
+      // Release the note this key actually started — NOT one recomputed from
+      // the current octave, which goes wrong if Z/X was tapped mid-hold.
+      noteOff(heldKeys.get(key));
       heldKeys.delete(key);
-      const midiNote = (keyboardOctave + 1) * 12 + KEY_MAP[key];
-      noteOff(midiNote);
     }
   }, { passive: true }); // Passive for keyup (faster)
 
@@ -2579,8 +2737,14 @@
     const totalSemitones = 27; // C0 to D2 (relative)
     const blackIndices = new Set([1,3,6,8,10,13,15,18,20,22,25]);
 
-    // Computer key labels for each semitone
-    const keyLabels = ['A','W','S','E','D','F','T','G','Y','H','U','J','K','O','L','','','','','','','','','','','',''];
+    // Computer key labels come from the LIVE key map (default or remapped),
+    // so the on-screen keys always show what your keyboard actually plays.
+    const labelFor = (semitone) => {
+      for (const [k, v] of Object.entries(keyMap)) {
+        if (v === semitone) return k.toUpperCase();
+      }
+      return '';
+    };
 
     for (let i = 0; i < totalSemitones; i++) {
       const isBlack = blackIndices.has(i);
@@ -2588,7 +2752,7 @@
       keyEl.className = 'piano-key' + (isBlack ? ' black' : ' white');
       keyEl.dataset.semitone = i;
 
-      const label = keyLabels[i] || '';
+      const label = labelFor(i);
       if (label) {
         const labelEl = document.createElement('span');
         labelEl.className = 'piano-key-label';
@@ -2599,6 +2763,7 @@
       // Mouse/touch interaction
       keyEl.addEventListener('mousedown', (e) => {
         e.preventDefault();
+        if (remapMode) { remapPickTarget(i, keyEl); return; }
         const midiNote = (keyboardOctave + 1) * 12 + i;
         noteOn(midiNote, keyboardVelocity, 'mouse');
         keyEl.dataset.mouseHeld = '1';
@@ -2617,6 +2782,7 @@
       });
       keyEl.addEventListener('touchstart', (e) => {
         e.preventDefault();
+        if (remapMode) { remapPickTarget(i, keyEl); return; }
         const midiNote = (keyboardOctave + 1) * 12 + i;
         noteOn(midiNote, keyboardVelocity, 'touch');
       }, { passive: false });
@@ -2642,6 +2808,21 @@
   buildPiano();
   initMIDI();
 
+  // Octave buttons — the on-screen, discoverable version of Z/X
+  tapHandler(document.getElementById('octDownBtn'), () => setOctave(keyboardOctave - 1));
+  tapHandler(document.getElementById('octUpBtn'), () => setOctave(keyboardOctave + 1));
+
+  // Remap: click toggles the mode; right-click resets to the default map
+  tapHandler(document.getElementById('remapBtn'), () => setRemapMode(!remapMode));
+  document.getElementById('remapBtn').addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    keyMap = { ...DEFAULT_KEY_MAP };
+    saveKeyMap();
+    buildPiano();
+    setRemapMode(false);
+    document.getElementById('pianoHint').textContent = 'Key bindings reset to default';
+  });
+
   // ─── KNOWLEDGE BASE TOGGLE ───
   document.getElementById('kbToggle').addEventListener('click', () => {
     const panel = document.getElementById('kbPanel');
@@ -2656,12 +2837,22 @@
   const SEQ_STORAGE_KEY = 'synthSequencerState';
   const SEQ_NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
+  // Drum rows: id, label, and how the voice is synthesized (all Tone-based,
+  // built lazily on first play — zero cost until the drums are used).
+  const DRUM_ROWS = [
+    { id: 'kick',  label: 'Kick' },
+    { id: 'snare', label: 'Snare' },
+    { id: 'hat',   label: 'Hat' },
+    { id: 'clap',  label: 'Clap' }
+  ];
+
   const seqState = {
     length: 16,
     bpm: 120,
     swing: 0,      // 0-60 (%)
     gate: 80,      // 10-100 (% of step length the note is held)
-    steps: []      // [{on:bool, note:midiNum}]
+    steps: [],     // [{on:bool, note:midiNum}]
+    drums: { kick: [], snare: [], hat: [], clap: [] }  // bool per step
   };
   let seqPlaying = false;
   let seqSequence = null;     // Tone.Sequence
@@ -2670,13 +2861,64 @@
   let seqGateToken = 0;       // invalidates stale gate timeouts
 
   const seqGridEl = document.getElementById('seqGrid');
+  const seqDrumGridEl = document.getElementById('seqDrumGrid');
   const seqPanelEl = document.getElementById('seqPanel');
+
+  // ─── DRUM VOICES ───
+  // Synthesized rather than sampled: no files to load, no licensing, and they
+  // stay in character with the rest of the rack. Built lazily on first hit and
+  // routed straight to the destination, so drums are independent of whatever
+  // the modular patch is doing (you can program a beat with no oscillator).
+  let drumVoices = null;
+  function ensureDrumVoices() {
+    if (drumVoices) return drumVoices;
+    try {
+      const out = new Tone.Gain(0.8).toDestination();
+      drumVoices = {
+        out,
+        kick: new Tone.MembraneSynth({
+          pitchDecay: 0.03, octaves: 6,
+          envelope: { attack: 0.001, decay: 0.32, sustain: 0 }
+        }).connect(out),
+        snare: new Tone.NoiseSynth({
+          noise: { type: 'white' },
+          envelope: { attack: 0.001, decay: 0.16, sustain: 0 }
+        }).connect(new Tone.Filter(1400, 'highpass').connect(out)),
+        hat: new Tone.NoiseSynth({
+          noise: { type: 'white' },
+          envelope: { attack: 0.001, decay: 0.045, sustain: 0 }
+        }).connect(new Tone.Filter(7000, 'highpass').connect(out)),
+        clap: new Tone.NoiseSynth({
+          noise: { type: 'pink' },
+          envelope: { attack: 0.002, decay: 0.22, sustain: 0 }
+        }).connect(new Tone.Filter(900, 'bandpass').connect(out))
+      };
+    } catch (e) {
+      drumVoices = null;   // no drums rather than a broken page
+    }
+    return drumVoices;
+  }
+
+  function triggerDrum(id, time) {
+    const v = ensureDrumVoices();
+    if (!v || !v[id]) return;
+    try {
+      if (id === 'kick') v.kick.triggerAttackRelease('C1', '8n', time);
+      else v[id].triggerAttackRelease('16n', time);
+    } catch (e) {}
+  }
 
   function seqDefaultStep() { return { on: false, note: 60 }; } // C4
 
   function seqEnsureSteps() {
     while (seqState.steps.length < seqState.length) seqState.steps.push(seqDefaultStep());
     if (seqState.steps.length > seqState.length) seqState.steps.length = seqState.length;
+    // Keep every drum row the same length as the melodic row.
+    DRUM_ROWS.forEach(r => {
+      const row = seqState.drums[r.id] || (seqState.drums[r.id] = []);
+      while (row.length < seqState.length) row.push(false);
+      if (row.length > seqState.length) row.length = seqState.length;
+    });
   }
 
   function seqNoteName(midi) {
@@ -2703,6 +2945,13 @@
           on: !!(s && s.on),
           note: (s && typeof s.note === 'number') ? s.note : 60
         }));
+      }
+      // Drums are newer than this save format, so tolerate their absence.
+      if (data.drums && typeof data.drums === 'object') {
+        DRUM_ROWS.forEach(r => {
+          const row = data.drums[r.id];
+          seqState.drums[r.id] = Array.isArray(row) ? row.map(v => !!v) : [];
+        });
       }
     } catch(e) {}
   }
@@ -2755,10 +3004,46 @@
     }
   }
 
+  // Drum grid: one labelled row per voice, sharing the melodic grid's step
+  // count so both read as one bar. A label column plus N step columns.
+  function seqRenderDrumGrid() {
+    seqEnsureSteps();
+    seqDrumGridEl.style.gridTemplateColumns = `auto repeat(${seqState.length}, 1fr)`;
+    seqDrumGridEl.innerHTML = '';
+    DRUM_ROWS.forEach(r => {
+      const label = document.createElement('div');
+      label.className = 'seq-drum-label';
+      label.textContent = r.label;
+      seqDrumGridEl.appendChild(label);
+
+      for (let i = 0; i < seqState.length; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'drum-cell' + (seqState.drums[r.id][i] ? ' on' : '') + (i % 4 === 0 ? ' beat' : '');
+        cell.dataset.row = r.id;
+        cell.dataset.idx = i;
+        cell.addEventListener('click', () => {
+          const nowOn = !seqState.drums[r.id][i];
+          seqState.drums[r.id][i] = nowOn;
+          cell.classList.toggle('on', nowOn);
+          // Audition the hit so programming by ear works while stopped.
+          if (nowOn && !seqPlaying) { Tone.start().catch(()=>{}); triggerDrum(r.id); }
+          seqSave();
+        });
+        seqDrumGridEl.appendChild(cell);
+      }
+    });
+  }
+
   function seqHighlight(idx) {
     const cells = seqGridEl.querySelectorAll('.seq-cell');
     cells.forEach(c => c.classList.remove('playing'));
     if (idx >= 0 && cells[idx]) cells[idx].classList.add('playing');
+    // Same playhead across the drum rows.
+    seqDrumGridEl.querySelectorAll('.drum-cell.playing').forEach(c => c.classList.remove('playing'));
+    if (idx >= 0) {
+      seqDrumGridEl.querySelectorAll(`.drum-cell[data-idx="${idx}"]`)
+        .forEach(c => c.classList.add('playing'));
+    }
   }
 
   // Stop any note the sequencer is currently sounding
@@ -2782,6 +3067,15 @@
     const indices = Array.from({ length: seqState.length }, (_, i) => i);
     seqSequence = new Tone.Sequence((time, idx) => {
       const step = seqState.steps[idx];
+
+      // Drums fire on the audio clock directly with the scheduled `time` —
+      // sample-accurate, which is the whole point of a drum machine. (The
+      // melodic voice below goes through Tone.Draw because noteOn builds
+      // per-voice nodes against the live patch and must run on the main thread.)
+      DRUM_ROWS.forEach(r => {
+        if (seqState.drums[r.id] && seqState.drums[r.id][idx]) triggerDrum(r.id, time);
+      });
+
       // Schedule UI updates on the draw queue (audio-thread safe)
       Tone.Draw.schedule(() => {
         seqCurrentStep = idx;
@@ -2851,6 +3145,7 @@
     seqState.length = len;
     seqEnsureSteps();
     seqRenderGrid();
+    seqRenderDrumGrid();
     document.querySelectorAll('[data-seq-len]').forEach(b => {
       b.classList.toggle('active', Number(b.dataset.seqLen) === len);
     });
@@ -2859,8 +3154,30 @@
   }
 
   function seqClear() {
+    // Melodic only — drums have their own Clear, so wiping a melody doesn't
+    // cost you the beat you just programmed.
     seqState.steps = seqState.steps.map(() => seqDefaultStep());
     seqRenderGrid();
+    seqSave();
+  }
+
+  function drumClear() {
+    DRUM_ROWS.forEach(r => { seqState.drums[r.id] = new Array(seqState.length).fill(false); });
+    seqRenderDrumGrid();
+    seqSave();
+  }
+
+  // A starting point rather than a random pattern: four-on-the-floor kick,
+  // backbeat snare, eighth-note hats. Scales to whatever step count is set.
+  function drumBasicBeat() {
+    seqEnsureSteps();
+    DRUM_ROWS.forEach(r => { seqState.drums[r.id] = new Array(seqState.length).fill(false); });
+    for (let i = 0; i < seqState.length; i++) {
+      if (i % 4 === 0) seqState.drums.kick[i] = true;   // every beat
+      if (i % 8 === 4) seqState.drums.snare[i] = true;  // beats 2 and 4
+      if (i % 2 === 0) seqState.drums.hat[i] = true;    // eighths
+    }
+    seqRenderDrumGrid();
     seqSave();
   }
 
@@ -2893,6 +3210,7 @@
     seqLoad();
     seqEnsureSteps();
     seqRenderGrid();
+    seqRenderDrumGrid();
     document.getElementById('seqBpm').value = seqState.bpm;
     document.getElementById('seqSwing').value = seqState.swing;
     document.getElementById('seqSwingOut').textContent = seqState.swing + '%';
@@ -2904,6 +3222,8 @@
     tapHandler(document.getElementById('seqPlayBtn'), seqTogglePlay);
     tapHandler(document.getElementById('seqClearBtn'), seqClear);
     tapHandler(document.getElementById('seqRandomBtn'), seqRandomize);
+    tapHandler(document.getElementById('drumBeatBtn'), drumBasicBeat);
+    tapHandler(document.getElementById('drumClearBtn'), drumClear);
     document.querySelectorAll('[data-seq-len]').forEach(btn => {
       tapHandler(btn, () => seqSetLength(Number(btn.dataset.seqLen)));
     });

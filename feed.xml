@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: August 21, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-08-21</link>
+    <guid isPermaLink="false">changelog-2026-08-21</guid>
+    <pubDate>Fri, 21 Aug 2026 00:00:00 GMT</pubDate>
+    <description>The Synth's computer keyboard breaks out of one octave: Z/X shift across the full MIDI range, the default layout spans a tenth, and you can now bind any key to any note yourself — saved between visits, because no two keyboard layouts agree. Plus a four-voice drum machine (kick, snare, hat, clap) on its own grid beneath the sequencer, locked to the same tempo and swing and scheduled sample-accurately on the audio clock. And the music menu split into Music Tools (the things you use) and Music Education (the things you read).</description>
+  </item>
+
+  <item>
     <title>The Asset I Didn't Know I Had</title>
     <link>https://methodictruth.com/chronicle-2026-07-29-residential-ip.html</link>
     <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-07-29-residential-ip.html</guid>
