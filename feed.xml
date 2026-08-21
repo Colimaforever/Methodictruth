@@ -12,7 +12,7 @@
     <link>https://methodictruth.com/changelog.html#2026-08-21</link>
     <guid isPermaLink="false">changelog-2026-08-21</guid>
     <pubDate>Fri, 21 Aug 2026 00:00:00 GMT</pubDate>
-    <description>The Synth's computer keyboard breaks out of one octave: Z/X shift across the full MIDI range, the default layout spans a tenth, and you can now bind any key to any note yourself — saved between visits, because no two keyboard layouts agree. Plus a four-voice drum machine (kick, snare, hat, clap) on its own grid beneath the sequencer, locked to the same tempo and swing and scheduled sample-accurately on the audio clock. And the music menu split into Music Tools (the things you use) and Music Education (the things you read).</description>
+    <description>The Synth now wires itself: click Osc and you have a working instrument, and everything you add afterwards joins the signal path on its own — sources in parallel at the front, effects at the end, gaps closing when you delete. Order became the interesting decision instead of the tedious one, so every module got arrows to walk itself up and down the chain. The LFO gained a Drives menu listing every parameter in the rack, which is the first time modulation has been routable by hand at all — no cable can carry it. Hand-drawn cables are never re-routed. Plus: the computer keyboard breaks out of one octave with Z/X and fully remappable key bindings, and a four-voice drum machine on its own grid beneath the sequencer.</description>
   </item>
 
   <item>
