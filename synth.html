@@ -150,12 +150,32 @@
       color: var(--glow); letter-spacing: 0.1em;
     }
 
+    .module-actions { display: flex; align-items: center; gap: 0.1rem; }
+
     .module-close {
       background: none; border: none; color: var(--stone-dark);
       font-size: 0.7rem; cursor: pointer; padding: 0 0.2rem;
       transition: color 0.2s;
     }
     .module-close:hover { color: rgba(220, 60, 60, 0.8); }
+
+    /* Move a module along the signal chain without touching a cable. */
+    .module-move {
+      background: none; border: none; color: var(--stone-dark);
+      font-size: 0.6rem; cursor: pointer; padding: 0 0.15rem; line-height: 1;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+    .module-move:hover { color: var(--glow); text-shadow: 0 0 6px rgba(0,229,255,0.5); }
+
+    /* Modulation routing row (LFO "Drives" target) */
+    .module-control.mod-route select {
+      border-color: rgba(123, 104, 238, 0.35);
+      color: rgba(200, 190, 255, 0.9);
+    }
+    .module-control.mod-route label { color: rgba(123, 104, 238, 0.9); }
+
+    /* Modulation isn't audio, so it gets a dashed line rather than a cable. */
+    .patch-cable.mod-cable { pointer-events: none; }
 
     .module-body { padding: 0.5rem 0.6rem; }
 
@@ -330,6 +350,16 @@
       .synth-canvas { min-height: calc(100vh - 200px); min-height: calc(100dvh - 200px); margin-top: 40px; }
       .synth-module { width: 155px; }
       .module-title { font-size: 0.55rem; }
+      /* Reorder arrows need a real tap target on a phone, not a 15px glyph.
+         30px square each still leaves room for the title in a 155px card. */
+      .module-header { padding: 0.3rem 0.3rem 0.3rem 0.5rem; }
+      .module-move, .module-close {
+        min-width: 30px; min-height: 30px; padding: 0;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .module-move { font-size: 0.7rem; }
+      .module-close { font-size: 0.85rem; }
+      .module-actions { gap: 0; }
     }
 
     /* ─── KNOWLEDGE BASE PANEL ─── */
@@ -673,6 +703,7 @@
         </select>
       </div>
       <div class="synth-toolbar-section">
+        <button class="synth-btn" id="tidyBtn" title="Lay the rack out left-to-right in signal order">⌗ Tidy</button>
         <button class="synth-btn" id="recordBtn" title="Record your jam to an audio file you can download and share">● Record</button>
         <button class="synth-btn" id="sharePatchBtn" title="Copy a link to this exact patch — sound design you can send to anyone">⤴ Share Patch</button>
         <button class="synth-btn danger" id="clearAllBtn">✕ Clear</button>
@@ -754,7 +785,11 @@
   <div class="kb-panel" id="kbPanel">
     <h3>📖 Synth Guide</h3>
 
-    <p>Connect two modules either way: <strong>tap</strong> an <code>out</code> port and then a glowing <code>in</code> port, or <strong>drag</strong> a cable straight from one to the other. Compatible ports light up and the rest dim, so you can't miswire. Tap a cable to remove it. In a hurry? Hit a <strong>preset</strong> up top to drop a finished patch in one click — then pull it apart to see how it works.</p>
+    <p><strong>You don't have to wire anything.</strong> Click <code>Osc</code> and you have a working synth — an Output appears and the cable is drawn for you. Every module you add after that joins the signal path automatically: sources stack in parallel at the front, effects land at the end just before the Output. Delete something and the chain closes over the gap. Hit a <strong>preset</strong> up top for a finished patch in one click.</p>
+
+    <h3>Changing the order</h3>
+    <p>Order is the whole of sound design, so it's a choice, not a consequence of what you plugged in first. Use the <code>◂</code> <code>▸</code> arrows in a module's header to walk it up and down the chain — filter before delay is a different instrument than delay before filter. <code>⌗ Tidy</code> re-lays the rack out left-to-right in signal order, so what you see matches what you hear.</p>
+    <p>Cables are still real, and still yours if you want them: <strong>tap</strong> an <code>out</code> port and then a glowing <code>in</code> port, or <strong>drag</strong> from one to the other, for parallel paths and feedback loops the automatic routing won't build on its own. Compatible ports light up and the rest dim. Tap a cable to remove it. Hand-drawn cables are never overwritten by the auto-routing.</p>
 
     <h3>Modules</h3>
     <dl>
@@ -763,7 +798,7 @@
       <dt>Filter</dt>
       <dd><code>LP</code> cuts highs (warmth) · <code>HP</code> cuts lows (thin/bright) · <code>BP</code> isolates a band · <code>notch</code> scoops one out. Cutoff = where it cuts, Res(onance) = emphasis at the cutoff. <strong>Slope</strong> = how steeply (−12 gentle → −48 brutal). <strong>Drive</strong> saturates the signal <em>before</em> the filter, so high Res screams instead of thinning out — the classic acid sound. Push Res near max on <code>LP</code> and it self-oscillates into a playable sine.</dd>
       <dt>LFO</dt>
-      <dd>Slow modulation for movement. Rate = speed, Depth = intensity. Route to pitch = vibrato, filter = wah, volume = tremolo.</dd>
+      <dd>Slow modulation for movement. Pick what it drives from its <code>Drives</code> menu — every parameter in the rack is listed, and choosing one sets a depth range that suits it (<code>Min</code>/<code>Max</code> are the two ends of the sweep, <code>Rate</code> is how fast). Pitch = vibrato · Filter cutoff = wah · Vol = tremolo · Pan = auto-pan. A dashed violet line shows what it's driving. Modulation isn't audio, so no cable can carry it — that's why it's a menu.</dd>
       <dt>FM (Frequency Modulation)</dt>
       <dd>Patch one oscillator's <code>out</code> into another's <code>FM</code> input to modulate its pitch at audio rate. <code>FM Amt</code> = depth in Hz of frequency deviation. Set the modulator at a simple ratio of the carrier: <code>1:1</code>/<code>2:1</code> = harmonic (clean, organ-like), <code>3.5:1</code>+ = inharmonic/metallic (bells, e-piano, gongs).</dd>
       <dt>Envelope (ADSR)</dt>
@@ -795,7 +830,7 @@
     <ul>
       <li><strong style="color:#00e5ff">Source</strong> — Oscillator, Noise, Audio File: where the sound starts.</li>
       <li><strong style="color:#e8a87c">Shape</strong> — Filter, EQ, Envelope: where its tone and contour are carved.</li>
-      <li><strong style="color:#7b68ee">Mod</strong> — LFO: slow movement patched into another module's parameter.</li>
+      <li><strong style="color:#7b68ee">Mod</strong> — LFO: slow movement driving another module's parameter. Sits outside the audio path; pick its target from the <code>Drives</code> menu.</li>
       <li><strong style="color:#6aad73">Mix</strong> — Gain, Pan, Compressor, Limiter: levels and stereo placement.</li>
       <li><strong style="color:#ffa050">Space FX</strong> — Delay, Reverb, Chorus: depth and width.</li>
       <li><strong style="color:#f0e8d8">Out</strong> — Output: the final stage, with a live VU meter showing how hot the signal is running.</li>
@@ -806,7 +841,7 @@
       <dt>Build a mix</dt>
       <dd>Add one <code>Audio File</code> module per stem, route each through its own <code>Pan</code>/<code>EQ</code> into a shared <code>Gain</code> or <code>Compressor</code>, then into one <code>Output</code>. Add a <code>Limiter</code> just before <code>Output</code> to keep the combined level in check.</dd>
       <dt>+ Channel Strip</dt>
-      <dd>One click drops a pre-cabled <code>Pan → EQ → Compressor → Limiter → Output</code> chain — the standard mixing order — so you can patch a source straight into a finished signal chain instead of wiring five modules by hand.</dd>
+      <dd>One click adds <code>Pan → EQ → Compressor → Limiter</code> in mixing order, spliced into whatever you already have, just before the Output. It joins your rack rather than standing up a second one beside it.</dd>
       <dt>VU Meter</dt>
       <dd>Every <code>Output</code> module shows a live level bar under its Master slider — green while there's headroom, amber as it gets hot, red near clipping. Pull the Master fader or add a Limiter upstream if it's pinned red.</dd>
     </dl>
@@ -839,12 +874,14 @@
       <dd>The <code>MIDI Out</code> dropdown sends every note this page plays — piano keys, MIDI controller passthrough, and the step sequencer — to an external MIDI port in real time, so Logic Pro X can record or play them through one of its own instruments. Requires three things: <strong>(1) Chrome or Edge</strong> — Web MIDI isn't supported in Safari or Firefox. <strong>(2) A virtual MIDI port</strong> — on macOS, open <em>Audio MIDI Setup → Window → Show MIDI Studio</em>, double-click <em>IAC Driver</em>, check <em>Device is online</em>, and make sure it has at least one port (the default "Bus 1" is fine). <strong>(3) A Logic Pro track listening on that port</strong> — create or select a Software Instrument track, open the track's input in the inspector, and set it to receive from the IAC bus you just enabled (or "All Inputs"). Once that's done, pick the IAC bus from the <code>MIDI Out</code> dropdown here — notes play through your local patch <em>and</em> get sent to Logic at the same time.</dd>
     </dl>
 
-    <h3>Patching Tips</h3>
+    <h3>Building a Sound</h3>
+    <p>Click these in order and the routing takes care of itself:</p>
     <ul>
-      <li><strong>Basic synth:</strong> Oscillator → Filter → Gain → Output</li>
-      <li><strong>Add movement:</strong> LFO → Filter cutoff</li>
-      <li><strong>Add space:</strong> Output → Delay → Reverb</li>
-      <li><strong>Thick sound:</strong> Two oscillators slightly detuned</li>
+      <li><strong>Basic synth:</strong> <code>Osc</code>, <code>Filter</code>, <code>Gain</code> — three clicks, no cables.</li>
+      <li><strong>Add movement:</strong> <code>LFO</code>, then set its <code>Drives</code> to <em>Filter · Cutoff</em>.</li>
+      <li><strong>Add space:</strong> <code>Delay</code>, <code>Reverb</code> — they land at the end, where space FX belong.</li>
+      <li><strong>Thick sound:</strong> a second <code>Osc</code>, detuned a few cents. Sources stack in parallel automatically.</li>
+      <li><strong>Then rearrange:</strong> move the <code>Filter</code> after the <code>Delay</code> with <code>▸</code> and hear how different the same modules sound.</li>
     </ul>
 
     <h3>Sound Design Recipes</h3>
@@ -894,6 +931,307 @@
       modules[fromId].audio.node.connect(target);
       modConnections.push({ from: fromId, to: toId, param });
     } catch (e) {}
+  }
+
+  // Tear down whatever a modulator is currently driving.
+  function modDisconnect(fromId) {
+    modConnections.forEach(mc => {
+      if (mc.from !== fromId) return;
+      try {
+        const target = modules[mc.to] && modules[mc.to].audio.node[mc.param];
+        if (target) modules[fromId].audio.node.disconnect(target);
+      } catch (e) {}
+    });
+    modConnections = modConnections.filter(mc => mc.from !== fromId);
+  }
+
+  // ═══════════════════════════════════════════════
+  // SIGNAL CHAIN — routing you don't have to draw
+  // ═══════════════════════════════════════════════
+  // A rack is a chain, not a puzzle. Adding a module wires it into the signal
+  // path for you: sources fan into the head, everything else lands just before
+  // the Output, and deleting something closes the gap behind it. Cables are
+  // still real and still hand-drawable — they're just no longer the price of
+  // hearing anything.
+  let userMovedModules = false;   // drag a module once and auto-layout stops moving your rack
+  let chainHealing = true;        // suppressed during clearAll, where healing would be meaningless
+
+  const isSource = m => !!m && m.def.category === 'source';
+  const isOut    = m => !!m && m.def.category === 'out';
+  const isMod    = m => !!m && m.def.category === 'mod';
+  const isChainable = m => !!m && !isSource(m) && !isMod(m) && !isOut(m);
+
+  function outputModule() { return Object.values(modules).find(isOut) || null; }
+  function cableBetween(fromId, toId) {
+    return cables.find(c => c.from.moduleId === fromId && c.to.moduleId === toId
+                         && c.from.portName === 'out' && c.to.portName === 'in');
+  }
+  // Connect out→in, skipping links that already exist so an auto-route can
+  // never double up on a cable the user drew by hand.
+  function linkAuto(fromId, toId) {
+    const f = modules[fromId], t = modules[toId];
+    if (!f || !t || fromId === toId) return false;
+    if (!f.def.outputs.includes('out') || !t.def.inputs.includes('in')) return false;
+    if (cableBetween(fromId, toId)) return false;
+    autoConnect(fromId, 'out', toId, 'in', true);
+    return true;
+  }
+  function unlink(fromId, toId) {
+    const c = cableBetween(fromId, toId);
+    if (c) removeCableByRef(c);
+  }
+  function feedersOf(id) {
+    return cables.filter(c => c.to.moduleId === id && c.to.portName === 'in').map(c => c.from.moduleId);
+  }
+
+  // The signal path as it actually is, read backwards from the Output through
+  // single connections. It stops where more than one thing feeds in — that's
+  // the point where the sources fan together — so it describes the real chain
+  // rather than an assumed one, and works on hand-patched racks too.
+  function actualChain() {
+    const out = outputModule();
+    if (!out) return [];
+    const list = [out];
+    let cur = out;
+    for (let guard = 0; guard < 64; guard++) {
+      const inc = feedersOf(cur.id);
+      if (inc.length !== 1) break;
+      const up = modules[inc[0]];
+      if (!up || isSource(up) || isMod(up) || list.includes(up)) break;
+      list.unshift(up);
+      cur = up;
+    }
+    return list;
+  }
+
+  // Guarantee there's something connected to the speakers, so one click on
+  // "Osc" makes a sound instead of silence.
+  function ensureOutput() {
+    const existing = outputModule();
+    if (existing) return existing;
+    const id = addModule('output', undefined, undefined, { auto: true, noPatch: true });
+    return modules[id] || null;
+  }
+
+  // Wire a freshly added module into the chain.
+  function autoPatch(id) {
+    const m = modules[id];
+    if (!m || isMod(m)) return;
+
+    if (isOut(m)) {
+      // A new Output becomes the terminal: feed it whatever currently ends the rack.
+      const tail = Object.values(modules).filter(isChainable).pop();
+      if (tail) linkAuto(tail.id, id);
+      else Object.values(modules).filter(isSource).forEach(s => linkAuto(s.id, id));
+      return;
+    }
+
+    const out = ensureOutput();
+    if (!out) return;
+
+    if (isSource(m)) {
+      // Sources stack in parallel into the head of the chain — that's how you
+      // layer two detuned oscillators, not a thing you should have to wire.
+      const head = actualChain()[0] || out;
+      linkAuto(id, head.id);
+      return;
+    }
+
+    // Everything else splices in immediately before the Output. When several
+    // things feed the Output, only the router's own cables get moved — a
+    // parallel path you drew by hand is a deliberate choice, not a loose end.
+    const feeders = feedersOf(out.id);
+    const targets = feeders.length <= 1
+      ? feeders
+      : feeders.filter(fid => { const c = cableBetween(fid, out.id); return c && c.auto; });
+    if (targets.length) {
+      targets.forEach(fid => { unlink(fid, out.id); linkAuto(fid, id); });
+    } else {
+      Object.values(modules).filter(isSource).forEach(s => linkAuto(s.id, id));
+    }
+    linkAuto(id, out.id);
+  }
+
+  // Rebuild a span of the chain in a new order, carrying the sources with it.
+  function relinkChain(oldChain, newChain) {
+    for (let k = 0; k < oldChain.length - 1; k++) unlink(oldChain[k].id, oldChain[k + 1].id);
+    const oldHead = oldChain[0], newHead = newChain[0];
+    const feeders = oldHead ? feedersOf(oldHead.id) : [];
+    if (newHead !== oldHead) feeders.forEach(f => unlink(f, oldHead.id));
+    for (let k = 0; k < newChain.length - 1; k++) linkAuto(newChain[k].id, newChain[k + 1].id);
+    if (newHead !== oldHead) feeders.forEach(f => linkAuto(f, newHead.id));
+  }
+
+  // Move a module one step earlier or later in the signal path. This is the
+  // whole point of the chain model: the order is a choice you can change at
+  // any time, not a consequence of which port you happened to drag from.
+  function moveInChain(id, dir) {
+    const chain = actualChain();
+    const i = chain.findIndex(m => m.id === id);
+    if (i < 0) { synthToast('This module isn\'t in the main chain — patch it by hand, or ✕ and re-add it'); return; }
+    const j = i + dir;
+    if (j < 0 || j >= chain.length) return;
+    if (isOut(chain[i]) || isOut(chain[j])) { synthToast('Output always stays last'); return; }
+    const next = chain.slice();
+    next[i] = chain[j]; next[j] = chain[i];
+    relinkChain(chain, next);
+    if (userMovedModules) updateCablePositions(); else tidyLayout();
+    rerouteHeldNotes();
+    synthToast('⇄ ' + next.filter(m => !isOut(m)).map(m => m.def.title).join(' → ') + ' → Output');
+  }
+
+  // ─── AUTO-LAYOUT ───
+  // Lay the rack out in reading order — sources, then the chain in signal
+  // order, then modulators — wrapping to a new row when the canvas runs out
+  // of width, so the picture on screen matches the path through the audio.
+  // Measured rather than assumed, because module cards are narrower on phones —
+  // a fixed desktop step would stack everything into a single column there.
+  function chainMetrics() {
+    const list = Object.values(modules);
+    const w = list.length ? Math.max(...list.map(m => m.el.offsetWidth || 0)) : 0;
+    const h = list.length ? Math.max(...list.map(m => m.el.offsetHeight || 0)) : 0;
+    const margin = synthCanvas.clientWidth < 600 ? 16 : 40;
+    const stepX = (w || 220) + 30;
+    const stepY = Math.max(160, h || 0) + 26;
+    return { margin, stepX, stepY, perRow: Math.max(1, Math.floor((synthCanvas.clientWidth - margin) / stepX)) };
+  }
+  function autoSlot(index, mx) {
+    const m = mx || chainMetrics();
+    return { x: m.margin + (index % m.perRow) * m.stepX, y: 20 + Math.floor(index / m.perRow) * m.stepY };
+  }
+  function tidyLayout() {
+    const sources = Object.values(modules).filter(isSource);
+    const chain = actualChain();
+    const placed = new Set([...sources, ...chain].map(m => m.id));
+    const rest = Object.values(modules).filter(m => !placed.has(m.id) && !isMod(m));
+    const mods = Object.values(modules).filter(isMod);
+    const mx = chainMetrics();
+    [...sources, ...chain, ...rest, ...mods].forEach((m, i) => {
+      const p = autoSlot(i, mx);
+      m.el.style.left = p.x + 'px';
+      m.el.style.top = p.y + 'px';
+    });
+    updateCablePositions();
+  }
+
+  // ─── MODULATION TARGETS ───
+  // Every AudioParam a modulator can be pointed at, with a depth range that
+  // suits it. Pick "Filter · Cutoff" and the LFO's range snaps to something
+  // you can actually hear, instead of the ±100 that means nothing to a cutoff.
+  const MOD_TARGETS = {
+    oscillator: [ { param: 'frequency', label: 'Pitch',  range: [110, 880] },
+                  { param: 'detune',    label: 'Detune', range: [-50, 50] } ],
+    filter:     [ { param: 'frequency', label: 'Cutoff', range: [200, 4000] },
+                  { param: 'Q',         label: 'Res',    range: [1, 20] } ],
+    gain:       [ { param: 'gain',      label: 'Vol',    range: [0, 1] } ],
+    pan:        [ { param: 'pan',       label: 'Pan',    range: [-1, 1] } ],
+    delay:      [ { param: 'delayTime', label: 'Time',   range: [0.05, 0.6] },
+                  { param: 'feedback',  label: 'Fback',  range: [0.1, 0.8] },
+                  { param: 'wet',       label: 'Wet',    range: [0, 1] } ],
+    reverb:     [ { param: 'wet',       label: 'Wet',    range: [0, 1] } ],
+    chorus:     [ { param: 'frequency', label: 'Rate',   range: [0.2, 6] },
+                  { param: 'wet',       label: 'Wet',    range: [0, 1] } ],
+    eq3:        [ { param: 'low',       label: 'Low',    range: [-12, 12] },
+                  { param: 'mid',       label: 'Mid',    range: [-12, 12] },
+                  { param: 'high',      label: 'High',   range: [-12, 12] } ],
+    compressor: [ { param: 'threshold', label: 'Thresh', range: [-40, -6] } ],
+    limiter:    [ { param: 'threshold', label: 'Thresh', range: [-20, -1] } ],
+    output:     [ { param: 'gain',      label: 'Master', range: [0, 0.8] } ],
+  };
+
+  function moduleLabel(m) {
+    return m.def.title + (m.num > 1 ? ' ' + m.num : '');
+  }
+
+  // Rebuild every modulator's target list, keeping each one's selection.
+  function refreshModTargets() {
+    document.querySelectorAll('.mod-target-select').forEach(sel => {
+      const fromId = sel.dataset.modfrom;
+      const current = modConnections.find(mc => mc.from === fromId);
+      const want = current ? current.to + '|' + current.param : '';
+      let html = '<option value="">— not routed —</option>';
+      // Listed in signal order, so the list reads the way the rack does.
+      const chain = actualChain();
+      const ordered = [...Object.values(modules).filter(isSource), ...chain];
+      Object.values(modules).forEach(m => { if (!ordered.includes(m)) ordered.push(m); });
+      ordered.forEach(m => {
+        if (m.id === fromId) return;
+        (MOD_TARGETS[m.type] || []).forEach(t => {
+          html += `<option value="${m.id}|${t.param}">${moduleLabel(m)} · ${t.label}</option>`;
+        });
+      });
+      sel.innerHTML = html;
+      sel.value = want;
+      if (sel.value !== want) sel.value = '';
+    });
+  }
+
+  // Point a modulator at a parameter — the thing that used to be impossible
+  // without loading a preset, because no cable you could draw would do it.
+  function setModTarget(fromId, value) {
+    modDisconnect(fromId);
+    if (!value) { syncModCables(); synthToast('◎ Modulation off'); return; }
+    const [toId, param] = value.split('|');
+    const target = modules[toId];
+    if (!target) { syncModCables(); return; }
+    modConnect(fromId, toId, param);
+    const spec = (MOD_TARGETS[target.type] || []).find(t => t.param === param);
+    if (spec && modules[fromId].type === 'lfo') {
+      setParam(fromId, 'min', spec.range[0]);
+      setParam(fromId, 'max', spec.range[1]);
+    }
+    syncModCables();
+    synthToast(`◎ ${moduleLabel(modules[fromId])} → ${moduleLabel(target)} · ${spec ? spec.label : param}`);
+    if (window.Analytics) Analytics.trackDebounced('synth_mod_routed', { param }, 2000);
+  }
+
+  // Modulation is invisible by nature — it isn't audio, so it has no cable of
+  // its own. Draw it as a dashed line anyway, so the movement in a patch is
+  // something you can see rather than something you have to remember.
+  let modCables = [];
+  function syncModCables() {
+    modCables.forEach(mc => mc.el.remove());
+    modCables = modConnections.map(c => {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      el.setAttribute('stroke', '#7b68ee');
+      el.setAttribute('stroke-dasharray', '4 5');
+      el.setAttribute('opacity', '0.7');
+      el.classList.add('patch-cable', 'mod-cable');
+      patchSvg.appendChild(el);
+      return { from: c.from, to: c.to, param: c.param, el };
+    });
+    positionModCables();
+  }
+  function positionModCables() {
+    if (!modCables.length) return;
+    const canvasRect = synthCanvas.getBoundingClientRect();
+    modCables.forEach(mc => {
+      const a = document.getElementById(`port_${mc.from}_out`);
+      const target = modules[mc.to];
+      if (!a || !target) { mc.el.setAttribute('d', 'M 0 0'); return; }
+      const ar = a.getBoundingClientRect(), br = target.el.getBoundingClientRect();
+      const x1 = ar.left + ar.width / 2 - canvasRect.left, y1 = ar.top + ar.height / 2 - canvasRect.top;
+      const x2 = br.left + 10 - canvasRect.left, y2 = br.top + 14 - canvasRect.top;
+      const cp = Math.max(40, Math.abs(x2 - x1) * 0.35);
+      mc.el.setAttribute('d', `M ${x1} ${y1} C ${x1} ${y1 + cp}, ${x2} ${y2 + cp}, ${x2} ${y2}`);
+    });
+  }
+
+  // Each note builds its own voice nodes and wires them through the cables that
+  // existed the moment it started, so a structural change would strand anything
+  // still held — the note keeps sounding into a module that no longer exists.
+  // Re-articulate held notes through the new routing instead.
+  function rerouteHeldNotes() {
+    if (!activeNotes || !activeNotes.size) return;
+    const held = Array.from(activeNotes.keys());
+    held.forEach(n => noteOff(n));
+    held.forEach(n => noteOn(n, keyboardVelocity, 'reroute'));
+  }
+
+  // One call after anything that changes the shape of the rack.
+  function chainChanged() {
+    refreshModTargets();
+    syncModCables();
   }
 
   // ─── AUDIO START ───
@@ -1241,7 +1579,10 @@
   };
 
   // ─── ADD MODULE ───
-  function addModule(type, x, y) {
+  // opts.auto  — added from the toolbar: place it and wire it into the chain
+  // opts.noPatch — create it, but leave the routing to the caller
+  function addModule(type, x, y, opts) {
+    opts = opts || {};
     const def = MODULE_DEFS[type];
     if (!def) return;
     // Auto-start audio context on first interaction (mobile fix)
@@ -1255,8 +1596,16 @@
       });
     }
     const id = 'mod_' + (moduleIdCounter++);
+    // How many of this type already exist — used to name them apart ("Filter 2")
+    // in the modulation target list.
+    const num = Object.values(modules).filter(m => m.type === type).length + 1;
 
-    // Default position
+    // Default position: auto-added modules land in the next layout slot so the
+    // rack reads left-to-right in signal order instead of scattering.
+    if (x === undefined && opts.auto && !userMovedModules) {
+      const slot = autoSlot(Object.keys(modules).length);
+      x = slot.x; y = slot.y;
+    }
     if (x === undefined) x = 60 + Math.random() * (synthCanvas.clientWidth - 300);
     if (y === undefined) y = 20 + Math.random() * 200;
 
@@ -1275,9 +1624,17 @@
     el.style.top = y + 'px';
     el.style.borderLeftColor = CATEGORY_COLORS[def.category] || CATEGORY_COLORS.source;
 
+    // Modules that sit in the signal path get arrows to move themselves along
+    // it. Sources feed the head and Output terminates it, so neither reorders.
+    const reorderable = def.category !== 'source' && def.category !== 'mod' && def.category !== 'out';
+    const moveBtns = reorderable
+      ? `<button class="module-move" title="Move earlier in the signal chain" onclick="moveInChain('${id}',-1)">◂</button>
+         <button class="module-move" title="Move later in the signal chain" onclick="moveInChain('${id}',1)">▸</button>`
+      : '';
+
     let html = `<div class="module-header" data-drag="${id}">
-      <span class="module-title">${def.glyph} ${def.title}</span>
-      <button class="module-close" onclick="removeModule('${id}')">&times;</button>
+      <span class="module-title">${def.glyph} ${def.title}${num > 1 ? ' ' + num : ''}</span>
+      <span class="module-actions">${moveBtns}<button class="module-close" onclick="removeModule('${id}')">&times;</button></span>
     </div><div class="module-body">`;
 
     if (type === 'output') {
@@ -1316,6 +1673,18 @@
       html += `<canvas class="synth-adsr" id="adsr_${id}" title="Drag the handles to shape the envelope"></canvas>`;
     }
 
+    // Modulators pick what they drive from a list. No cable can express
+    // "LFO into filter cutoff" — it isn't audio — so a dropdown is the only
+    // honest way to expose it, and it beats a cable anyway.
+    if (def.category === 'mod') {
+      html += `<div class="module-control mod-route">
+        <label>Drives</label>
+        <select class="mod-target-select" data-modfrom="${id}" onchange="setModTarget('${id}', this.value)">
+          <option value="">— not routed —</option>
+        </select>
+      </div>`;
+    }
+
     // Ports
     html += `<div class="module-ports">`;
     html += `<div class="port-group inputs">`;
@@ -1338,7 +1707,7 @@
     el.innerHTML = html;
     synthCanvas.appendChild(el);
 
-    modules[id] = { id, type, def, params, audio, el };
+    modules[id] = { id, type, def, params, audio, el, num };
     setupDrag(el, id);
     if (def.viz === 'adsr') setupADSR(id);
 
@@ -1371,6 +1740,15 @@
         if (f) loadAudioFile(id, c.id, f);
       });
     });
+
+    // Route it for the user. Presets and shared patches pass noPatch and lay
+    // out their own topology; a toolbar click gets wired up on the spot.
+    if (opts.auto && !opts.noPatch) {
+      autoPatch(id);
+      if (!userMovedModules) tidyLayout();
+    }
+    chainChanged();
+    if (opts.auto && !opts.noPatch) rerouteHeldNotes();   // anything held plays through it too
 
     if (window.Analytics) Analytics.Synth.moduleAdded(type);
     return id;
@@ -1507,6 +1885,14 @@
   function removeModule(id) {
     const mod = modules[id];
     if (!mod) return;
+    // Note what fed this module and what it fed, so the chain can close over
+    // the gap instead of going silent because one link was pulled out.
+    const ups = feedersOf(id);
+    const downs = cables.filter(c => c.from.moduleId === id && c.from.portName === 'out')
+                        .map(c => c.to.moduleId);
+    // Drop any modulation routed from or into it
+    modDisconnect(id);
+    modConnections = modConnections.filter(mc => mc.to !== id);
     // Remove cables connected to this module
     cables = cables.filter(c => {
       if (c.from.moduleId === id || c.to.moduleId === id) {
@@ -1531,16 +1917,27 @@
     mod.el.remove();
     if (window.Analytics) Analytics.Synth.moduleRemoved(mod.type);
     delete modules[id];
+
+    if (chainHealing) {
+      ups.forEach(u => downs.forEach(d => linkAuto(u, d)));
+      if (!userMovedModules) tidyLayout();
+      chainChanged();
+      rerouteHeldNotes();
+    }
   }
 
   // ─── CLEAR ALL ───
   function clearAll() {
+    chainHealing = false;                       // nothing to heal when everything goes
     Object.keys(modules).forEach(id => removeModule(id));
+    chainHealing = true;
     modules = {};
     cables = [];
     modConnections = [];
     pendingPort = null;
     moduleIdCounter = 0;
+    userMovedModules = false;
+    chainChanged();
     if (window.Analytics) Analytics.Synth.clearAll();
   }
 
@@ -1590,6 +1987,8 @@
     });
     (patch.c || []).forEach(c => { const a = newIds[c[0]], b = newIds[c[2]]; if (a && b) autoConnect(a, c[1], b, c[3]); });
     (patch.x || []).forEach(c => { const a = newIds[c[0]], b = newIds[c[1]]; if (a && b) modConnect(a, b, c[2]); });
+    userMovedModules = true;   // a shared patch carries its own layout — don't re-tidy it
+    chainChanged();
     return true;
   }
 
@@ -1764,7 +2163,9 @@
   initPatching();
 
   // ─── CREATE CABLE ───
-  function createCable(from, to) {
+  // `auto` marks a cable the router drew. Auto cables can be re-routed when the
+  // chain changes; cables you drew by hand never are.
+  function createCable(from, to, auto) {
     const fromMod = modules[from.moduleId];
     const toMod = modules[to.moduleId];
     if (!fromMod || !toMod) return;
@@ -1786,7 +2187,7 @@
     line.setAttribute('opacity', '0.7');
     patchSvg.appendChild(line);
 
-    const cable = { from, to, el: line, color };
+    const cable = { from, to, el: line, color, auto: !!auto };
     line.addEventListener('click', () => removeCableByRef(cable));
 
     cables.push(cable);
@@ -1840,6 +2241,7 @@
       const d = `M ${x1} ${y1} C ${x1} ${y1 + cp}, ${x2} ${y2 + cp}, ${x2} ${y2}`;
       cable.el.setAttribute('d', d);
     });
+    positionModCables();
   }
 
   // ─── DRAG ───
@@ -1848,7 +2250,7 @@
     let dragging = false, startX, startY, origX, origY;
 
     function onStart(e) {
-      if (e.target.closest('.module-close')) return;
+      if (e.target.closest('.module-actions')) return;
       e.preventDefault();
       dragging = true;
       el.classList.add('dragging');
@@ -1872,6 +2274,7 @@
     }
 
     function onEnd() {
+      if (dragging) userMovedModules = true;   // your positions are yours from here on
       dragging = false;
       el.classList.remove('dragging');
       document.removeEventListener('mousemove', onMove);
@@ -2279,6 +2682,8 @@
       autoConnect(o1, 'out', mix, 'in'); autoConnect(o2, 'out', mix, 'in');
       autoConnect(mix, 'out', flt, 'in'); autoConnect(flt, 'out', env, 'in'); autoConnect(env, 'out', out, 'in');
     }
+    userMovedModules = true;   // presets place their own modules — leave the layout alone
+    chainChanged();
   }
 
   function setParam(moduleId, paramId, value) {
@@ -2300,31 +2705,27 @@
     if (mod.redrawADSR) mod.redrawADSR();   // keep the visual envelope in sync
   }
 
-  function autoConnect(fromId, fromPort, toId, toPort) {
+  function autoConnect(fromId, fromPort, toId, toPort, auto) {
     const fromCircle = document.getElementById(`port_${fromId}_${fromPort}`);
     const toCircle = document.getElementById(`port_${toId}_${toPort}`);
     if (!fromCircle || !toCircle) return;
 
     const from = { moduleId: fromId, portName: fromPort, dir: 'output', el: fromCircle };
     const to = { moduleId: toId, portName: toPort, dir: 'input', el: toCircle };
-    createCable(from, to);
+    createCable(from, to, auto);
   }
 
   // ─── CHANNEL STRIP MACRO ───
   // Drops a pre-cabled Pan -> EQ -> Compressor -> Limiter -> Output chain in one click,
   // the standard mixing chain, so the rack reads as one mixing engine instead of loose parts.
   function addChannelStrip() {
-    const baseX = 60 + Math.random() * Math.max(100, synthCanvas.clientWidth - 1100);
-    const baseY = 20 + Math.random() * 150;
-    const pan = addModule('pan', baseX, baseY);
-    const eq = addModule('eq3', baseX + 260, baseY);
-    const comp = addModule('compressor', baseX + 520, baseY);
-    const lim = addModule('limiter', baseX + 780, baseY);
-    const out = addModule('output', baseX + 1040, baseY);
-    autoConnect(pan, 'out', eq, 'in');
-    autoConnect(eq, 'out', comp, 'in');
-    autoConnect(comp, 'out', lim, 'in');
-    autoConnect(lim, 'out', out, 'in');
+    // Each add splices in just before the Output, so adding them in mixing
+    // order lays the strip down in mixing order — and it joins whatever rack
+    // is already there instead of standing up a second, disconnected one.
+    const pan = addModule('pan', undefined, undefined, { auto: true });
+    addModule('eq3', undefined, undefined, { auto: true });
+    addModule('compressor', undefined, undefined, { auto: true });
+    addModule('limiter', undefined, undefined, { auto: true });
     if (window.Analytics) Analytics.Synth.moduleAdded('channelstrip');
     return pan;
   }
@@ -3317,9 +3718,17 @@
   // Start Audio
   tapHandler(document.getElementById('startAudioBtn'), startAudio);
 
-  // Add module buttons
+  // Add module buttons — each one wires itself into the signal chain
   document.querySelectorAll('[data-add]').forEach(btn => {
-    tapHandler(btn, () => addModule(btn.dataset.add));
+    tapHandler(btn, () => addModule(btn.dataset.add, undefined, undefined, { auto: true }));
+  });
+
+  // Re-tidy: lay the rack back out in signal order
+  tapHandler(document.getElementById('tidyBtn'), () => {
+    if (!Object.keys(modules).length) { synthToast('Nothing to tidy yet — add a module'); return; }
+    userMovedModules = false;
+    tidyLayout();
+    synthToast('⌗ Laid out in signal order');
   });
 
   // Preset buttons

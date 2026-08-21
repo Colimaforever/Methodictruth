@@ -108,6 +108,19 @@
     <div class="divider" id="2026-08-21"><span class="leaf">🌿</span> <span>August 21, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
+      <p><strong>The <a href="synth.html">Synth</a> now wires itself.</strong> Click <strong>Osc</strong> and you have a working instrument — an Output appears and the cable is drawn for you. Everything you add after that joins the signal path on its own: sources stack in parallel at the front, effects land at the end where they belong. Delete a module and the chain closes over the gap instead of going silent. A modular synth is a wonderful thing to <em>understand</em> and a miserable thing to be handed cold, and dragging four cables before you hear a note was the wrong first five minutes.</p>
+    </article>
+    <article class="entry">
+      <p>Because the order is now the interesting decision rather than the tedious one, every module in the chain got <strong><code>◂</code> <code>▸</code> arrows to move itself along the signal path</strong>. Filter before delay is a different instrument than delay before filter, and that comparison is now two clicks instead of a re-patch. <strong>⌗ Tidy</strong> lays the rack out left-to-right in signal order so the picture matches the sound. Drag a module anywhere you like and the auto-layout backs off for good.</p>
+    </article>
+    <article class="entry">
+      <p>The <strong>LFO can finally be pointed at things</strong>. Modulation isn't audio, so no cable could ever carry it — which meant until now the only way to get an LFO onto a filter cutoff was to load a preset that already had one. It now has a <strong>Drives</strong> menu listing every parameter in the rack, in signal order, and picking one sets a depth range that actually suits it: choose <em>Filter · Cutoff</em> and the sweep becomes 200–4000&nbsp;Hz instead of the ±100 that would have done nothing. A dashed violet line shows what's driving what. Vibrato, wah, tremolo and auto-pan are each one menu pick.</p>
+    </article>
+    <article class="entry">
+      <p>Cables are still real and still yours — tap or drag to build parallel paths and feedback loops the automatic routing won't invent — and <strong>a cable you drew by hand is never re-routed</strong> by the automatic wiring. Two more fixes along the way: a note held while you delete or reorder a module now re-articulates through the new path instead of dropping to near-silence, and <strong>+ Channel Strip</strong> splices into the rack you already have rather than standing up a second, disconnected one beside it.</p>
+    </article>
+
+    <article class="entry">
       <p>The <a href="synth.html">Synth</a>'s computer keyboard no longer traps you in one octave. Press <strong>Z</strong> and <strong>X</strong> — or the new <strong>−</strong>/<strong>+</strong> buttons beside the octave readout — to move the whole keyboard across the full MIDI range, and <strong>C</strong>/<strong>V</strong> to ride velocity. The default layout also grew from an octave to a <strong>tenth</strong> (<code>A W S E D F T G Y H U J K O L P ;</code>), so full chords and wide voicings fit under your hands.</p>
     </article>
     <article class="entry">
