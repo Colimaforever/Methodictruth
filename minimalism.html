@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Space &amp; Restraint — Why Less Is More in Music</title>
+  <meta name="keywords" content="minimalism in music, less is more, space in a mix, sparse arrangement, restraint, silence in music, subtraction, mute test, arrangement density, auditory masking, dub, King Tubby, ambient music, Brian Eno, Steve Reich, modal jazz, neo soul space, four track exercise, creative constraints, reverb and space, pre-delay, depth in a mix">
+  <meta name="description" content="Why less is more in music, as a method rather than a slogan: the perceptual reasons sparse arrangements hit harder, silence as something you play, traditions of restraint from dub to ambient, eight techniques for taking things out, when minimalism fails, and exercises that build the habit.">
+  <link rel="canonical" href="https://methodictruth.com/minimalism.html">
+  <meta property="og:title" content="Space &amp; Restraint — Why Less Is More">
+  <meta property="og:description" content="Less is more is advice about a feeling. This is the method: why sparse arrangements hit harder, how to take things out, when minimalism fails, and what a sparse track demands in return.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/minimalism.html">
+  <meta property="og:image" content="https://methodictruth.com/og/minimalism.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Space & Restraint \u2014 Why Less Is More in Music",
+  "description": "Why less is more in music, as a method rather than a slogan: the perceptual reasons sparse arrangements hit harder, silence as something you play, traditions of restraint from dub to ambient, eight techniques for taking things out, when minimalism fails, and exercises that build the habit.",
+  "url": "https://methodictruth.com/minimalism.html",
+  "image": "https://methodictruth.com/og/minimalism.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "minimalism",
+    "arrangement",
+    "music production",
+    "mixing"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "Space & Restraint", "item": "https://methodictruth.com/minimalism.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+
+    /* ─── DENSITY DIAGRAM ─── */
+    .sp-dia { display: block; margin: 1rem auto 0.3rem; width: 100%; max-width: 640px; height: auto; }
+    .sp-row-lbl { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; fill: var(--stone-dark); }
+    .sp-panel-lbl { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.06em; }
+    .sp-lane { fill: rgba(138, 126, 107, 0.06); }
+    .sp-bar { rx: 2; }
+    .sp-bar-t { font-family: 'JetBrains Mono', monospace; font-size: 7px; fill: rgba(10,14,26,0.92); }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html" class="active">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Space &amp; Restraint</h1>
+        <div class="subtitle">Why less is more — and how to actually do less</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Everyone repeats <em>less is more</em> and almost nobody can act on it, because it's advice about a feeling
+        rather than a method. This page is the method. <strong>Why</strong> sparse music hits harder — there's a real
+        perceptual reason, not just taste — where the idea comes from, the specific techniques for taking things out,
+        the cases where minimalism fails badly, and what a sparse arrangement demands in return. Restraint is not
+        laziness or the absence of ideas. It is the most expensive thing in music, because everything left standing has
+        to be worth hearing.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#why">Why Less Works</a>
+        <a href="#silence">Silence Is a Note</a>
+        <a href="#tradition">Where It Comes From</a>
+        <a href="#dub">Dub</a>
+        <a href="#how">How to Do Less</a>
+        <a href="#fails">When It Fails</a>
+        <a href="#mix">Space in the Mix</a>
+        <a href="#exercises">Exercises</a>
+      </nav>
+
+      <!-- ═══ 1. WHY ═══ -->
+      <section class="ar-section" id="why">
+        <div class="ar-section-label">① The Actual Reason</div>
+        <h2 class="ar-section-title">Why Less Works</h2>
+        <p class="ar-lead">
+          Minimalism isn't a style preference. It follows from three facts about how hearing works, and knowing them
+          turns "less is more" from a slogan into something you can apply on purpose.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Attention is a small number</h4>
+            <p>People can consciously track roughly <span class="ar-term">three or four</span> simultaneous streams of
+            sound. Past that, additional parts don't get heard as parts — they merge into texture. A tenth layer isn't
+            adding a tenth thing; it's slightly changing the colour of a blur.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Masking is physical</h4>
+            <p>Two sounds in the same frequency range at the same time literally reduce each other's audibility inside
+            your ear. This is not a mixing failure you can EQ around — it's
+            <span class="ar-term">how cochlear filtering works</span>. Sharing a register means both parts get quieter.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Contrast needs a baseline</h4>
+            <p>Loud only exists relative to quiet, and full only relative to empty. If every section is maximal, nothing
+            is — you've spent your dynamic range and the chorus has
+            <span class="ar-term">nowhere to arrive from</span>. Emptiness earlier is what buys impact later.</p>
+          </div>
+          <div class="ar-card">
+            <h4>The ear finishes the sentence</h4>
+            <p>Leave a gap where something is expected and the listener supplies it. That act of completion is
+            <span class="ar-term">engagement</span> — it's why a drop that removes everything for two beats is more
+            exciting than one that adds another layer.</p>
+          </div>
+        </div>
+        <svg class="sp-dia" viewBox="0 0 640 192" role="img" aria-label="Two arrangements of the same eight bars. On the left, nine parts stacked so that two or three share every register. On the right, six parts, each with a register to itself, and the pad and piano trading places at the halfway point instead of playing together.">
+          <text class="sp-panel-lbl" x="172" y="18" text-anchor="middle" fill="#e8a87c">Crowded</text>
+          <rect class="sp-lane" x="52" y="34" width="240" height="22"/>
+          <text class="sp-row-lbl" x="47" y="49" text-anchor="end">Air</text>
+          <rect class="sp-lane" x="52" y="61" width="240" height="22"/>
+          <text class="sp-row-lbl" x="47" y="76" text-anchor="end">High-mid</text>
+          <rect class="sp-lane" x="52" y="88" width="240" height="22"/>
+          <text class="sp-row-lbl" x="47" y="103" text-anchor="end">Mid</text>
+          <rect class="sp-lane" x="52" y="115" width="240" height="22"/>
+          <text class="sp-row-lbl" x="47" y="130" text-anchor="end">Low</text>
+          <rect class="sp-lane" x="52" y="142" width="240" height="22"/>
+          <text class="sp-row-lbl" x="47" y="157" text-anchor="end">Sub</text>
+          <rect class="sp-bar" x="53.0" y="35" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="42">hats</text>
+          <rect class="sp-bar" x="53.0" y="62" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="69">vocal</text>
+          <rect class="sp-bar" x="53.0" y="73" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="80">lead synth</text>
+          <rect class="sp-bar" x="53.0" y="89" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="96">rhythm gtr</text>
+          <rect class="sp-bar" x="53.0" y="100" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="107">pad</text>
+          <rect class="sp-bar" x="53.0" y="116" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="123">bass</text>
+          <rect class="sp-bar" x="53.0" y="127" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="134">piano LH</text>
+          <rect class="sp-bar" x="53.0" y="143" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="150">kick</text>
+          <rect class="sp-bar" x="53.0" y="154" width="238.0" height="9" fill="#e8a87c" opacity="0.85"/>
+          <text class="sp-bar-t" x="56.0" y="161">808</text>
+          <text class="sp-row-lbl" x="172" y="182" text-anchor="middle" opacity="0.8">nine parts · two per register</text>
+          <text class="sp-panel-lbl" x="510" y="18" text-anchor="middle" fill="#00e5ff">Spacious</text>
+          <rect class="sp-lane" x="390" y="34" width="240" height="22"/>
+          <rect class="sp-lane" x="390" y="61" width="240" height="22"/>
+          <rect class="sp-lane" x="390" y="88" width="240" height="22"/>
+          <rect class="sp-lane" x="390" y="115" width="240" height="22"/>
+          <rect class="sp-lane" x="390" y="142" width="240" height="22"/>
+          <rect class="sp-bar" x="391.0" y="40" width="238.0" height="9" fill="#00e5ff" opacity="0.85"/>
+          <text class="sp-bar-t" x="394.0" y="47">hats</text>
+          <rect class="sp-bar" x="391.0" y="67" width="238.0" height="9" fill="#00e5ff" opacity="0.85"/>
+          <text class="sp-bar-t" x="394.0" y="74">vocal</text>
+          <rect class="sp-bar" x="391.0" y="94" width="118.0" height="9" fill="#00e5ff" opacity="0.85"/>
+          <text class="sp-bar-t" x="394.0" y="101">pad</text>
+          <rect class="sp-bar" x="511.0" y="94" width="118.0" height="9" fill="#00e5ff" opacity="0.85"/>
+          <text class="sp-bar-t" x="514.0" y="101">piano</text>
+          <rect class="sp-bar" x="391.0" y="121" width="238.0" height="9" fill="#00e5ff" opacity="0.85"/>
+          <text class="sp-bar-t" x="394.0" y="128">bass</text>
+          <rect class="sp-bar" x="391.0" y="148" width="238.0" height="9" fill="#00e5ff" opacity="0.85"/>
+          <text class="sp-bar-t" x="394.0" y="155">kick</text>
+          <text class="sp-row-lbl" x="510" y="182" text-anchor="middle" opacity="0.8">six parts · one per register</text>
+        </svg>
+        <p class="ar-figcap">The same eight bars. On the left every register holds two parts, so nothing is clearly
+        audible and every fader move is a compromise. On the right each part has a register to itself, and the pad and
+        the piano trade places halfway rather than playing at once — three fewer elements, and every one of them
+        audible.</p>
+        <p class="ar-note">
+          The practical consequence: a part you can't clearly hear is not making the track bigger, it's making
+          everything else smaller. That's the test to apply to any layer you're unsure about — not "does this add
+          something" but "can I hear it, and what did it cost."
+        </p>
+      </section>
+
+      <!-- ═══ 2. SILENCE ═══ -->
+      <section class="ar-section" id="silence">
+        <div class="ar-section-label">② The Overlooked Instrument</div>
+        <h2 class="ar-section-title">Silence Is a Note You Play</h2>
+        <p class="ar-lead">
+          Beginners treat silence as the default state that music fills. Experienced musicians treat it as an event they
+          place deliberately, with the same care as any other. The gap before a chorus, the bar where the drums stop,
+          the beat that isn't there — these are <em>played</em>, and they're often the most memorable moments in a
+          record.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>The move</th><th>What it does</th><th>Heard as</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">The full stop</td><td>Everything cuts for a beat or two before a section lands</td><td>The most reliable way to make a chorus feel enormous, and it costs nothing</td></tr>
+              <tr><td class="ar-hi">The drop-out</td><td>One element leaves for a bar and returns</td><td>You notice it far more on its return than you ever did while it played</td></tr>
+              <tr><td class="ar-hi">The missing downbeat</td><td>Nothing on beat 1 — reggae's <a href="rhythm.html" style="color:var(--glow)">one drop</a></td><td>A whole genre's identity built on an absence</td></tr>
+              <tr><td class="ar-hi">The unresolved end</td><td>A phrase stops early and the bar plays out empty</td><td>Tension. The ear waits, and waiting is attention</td></tr>
+              <tr><td class="ar-hi">Breath and room</td><td>The performer's intake, the tail of the room, fret noise</td><td>Presence. Strip it all out and the take sounds synthetic</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Miles Davis put it as well as anyone: <em>"Don't play what's there — play what's not there."</em> The remark is
+          usually taken as mysticism and it isn't. He's describing a working method: listen to what the rest of the band
+          is already covering, and go where they aren't. Applied to production, it's a rule for every part you add —
+          find the register and the beat nobody is using, and put your part there, or don't play at all.
+        </p>
+      </section>
+
+      <!-- ═══ 3. TRADITION ═══ -->
+      <section class="ar-section" id="tradition">
+        <div class="ar-section-label">③ Where the Idea Comes From</div>
+        <h2 class="ar-section-title">Traditions of Restraint</h2>
+        <p class="ar-lead">
+          It helps to know that "less" isn't one aesthetic — it's several, arrived at independently, for different
+          reasons. Each of these is worth an afternoon of listening, and each teaches something different about
+          subtraction.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Minimalism proper</h4>
+            <p>Reich, Riley, Glass. Very little material, repeated, transformed slowly. The lesson isn't sparseness so
+            much as <span class="ar-term">patience</span> — that a small idea rewards attention if you let it develop
+            long enough for the listener to hear it change.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Ambient</h4>
+            <p>Eno's formulation was music that rewards attention without demanding it. Practically, it means
+            <span class="ar-term">removing the events</span> — no hooks, no arrivals — and letting timbre and slow
+            change carry the whole thing.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Modal jazz</h4>
+            <p><em>Kind of Blue</em> replaced fast chord movement with a few scales held for a long time, which gave the
+            soloist space and made <span class="ar-term">note choice</span> matter more than note count. Fewer changes,
+            more room inside them.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Dub</h4>
+            <p>Composition by deletion — see below. The most extreme and most instructive of the lot, because it
+            treats <span class="ar-term">removal itself as the performance</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Techno &amp; house</h4>
+            <p>Long stretches where one element changes at a time. The genre's core skill is
+            <span class="ar-term">making a single addition feel like an event</span>, which is only possible because
+            everything around it is bare.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Neo-soul &amp; modern R&amp;B</h4>
+            <p>D'Angelo, Sade, and the Dilla lineage. Very few elements, all of them expensive-sounding, with
+            <span class="ar-term">enormous space around the vocal</span>. Proof that sparse doesn't mean cold.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          A useful listening exercise for any of these: count the elements. Put on a record you think of as
+          <em>full</em> and count how many things are actually playing at any one moment. It's almost always fewer than
+          you assumed — often four — and the sense of scale comes from the quality and the arrangement of those four,
+          not from their number.
+        </p>
+      </section>
+
+      <!-- ═══ 4. DUB ═══ -->
+      <section class="ar-section" id="dub">
+        <div class="ar-section-label">④ The Case Study</div>
+        <h2 class="ar-section-title">Dub — Composition by Deletion</h2>
+        <p class="ar-lead">
+          In late-1960s Jamaica, engineers began making versions of existing songs by <strong>taking things away
+          live</strong> at the mixing desk. King Tubby, Lee "Scratch" Perry and others turned the mixer itself into an
+          instrument: muting the vocal for eight bars, dropping the whole band except the drums, throwing a single word
+          into a long echo and letting it repeat into nothing.
+        </p>
+        <p class="ar-lead">
+          Dub is worth studying by anyone making any kind of music, because it's the clearest demonstration that
+          <strong>arrangement and mixing are the same act</strong>, and that a mute is a creative decision rather than a
+          corrective one. Almost every technique modern producers use for tension and release was formalised there.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Dub technique</th><th>What it is</th><th>Where it went</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">The drop</td><td>Everything but drums and bass mutes, then returns</td><td>The breakdown in every dance genre since</td></tr>
+              <tr><td class="ar-hi">Echo as a part</td><td>One word or hit sent to a long delay, becoming the melody</td><td>Delay throws in dance, hip-hop and pop production</td></tr>
+              <tr><td class="ar-hi">The filter sweep</td><td>High-pass opening across a build</td><td>The most used transition in electronic music</td></tr>
+              <tr><td class="ar-hi">Spring reverb crash</td><td>Kicking the reverb tank for a crash of noise</td><td>Impacts, risers, reverse sweeps</td></tr>
+              <tr><td class="ar-hi">Version</td><td>Many different mixes of one recording</td><td>The remix, the instrumental, the extended edit</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The transferable habit is simple and slightly uncomfortable: <strong>perform your mutes.</strong> Instead of
+          deciding an arrangement in the abstract, play the song through and mute things in real time with your hands,
+          recording the result. You'll make choices you'd never make while staring at a grid, and you'll find out
+          immediately which parts nobody misses.
+        </p>
+      </section>
+
+      <!-- ═══ 5. HOW ═══ -->
+      <section class="ar-section" id="how">
+        <div class="ar-section-label">⑤ The Method</div>
+        <h2 class="ar-section-title">How to Actually Do Less</h2>
+        <p class="ar-lead">
+          Knowing you should subtract doesn't make it happen — every element in your project got there because at some
+          point you liked it, and deleting your own work is hard. These are the mechanisms that make it easier, roughly
+          in order of how much they'll change your records.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>The mute test</h4>
+            <p>Go through every track. Mute it for eight bars. <span class="ar-term">If nothing gets worse, delete
+            it</span> — not mute, delete. This single pass removes an astonishing amount from most projects and takes
+            ten minutes.</p>
+          </div>
+          <div class="ar-card">
+            <h4>One idea at a time</h4>
+            <p>At any moment, one element should be the interesting one. If the vocal is doing something, the synth
+            should not also be doing something. <span class="ar-term">Take turns</span> — that's what call and response
+            is, and it's why the piano and pad in the diagram above trade places instead of overlapping.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Cap the track count</h4>
+            <p>Decide up front: this song gets <span class="ar-term">eight tracks</span>. When you want a ninth, you
+            have to remove one. Arbitrary limits work because the constraint does the deciding for you, and deciding is
+            the part that's hard.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Limit the palette</h4>
+            <p>One synth. One drum kit. One guitar tone. A restricted palette forces you to make interest from
+            <span class="ar-term">writing and arrangement</span> rather than from adding another colour — and it makes
+            the record sound coherent almost by accident.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Subtract per section</h4>
+            <p>Rather than building the chorus up, <span class="ar-term">strip the verse down</span>. Same contrast,
+            half the work, and it usually sounds better because the chorus was already right.</p>
+          </div>
+          <div class="ar-card">
+            <h4>One per register</h4>
+            <p>Assign each part a frequency range and don't allow two in the same one. If something has to join a
+            crowded range, something else <span class="ar-term">leaves or moves an octave</span>. See
+            <a href="arrangement.html" style="color:var(--glow)">register</a>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>The reverse build</h4>
+            <p>Start with everything, then remove one element per pass until it breaks. <span class="ar-term">The last
+            version before it broke</span> is your arrangement. Much easier than adding, because you can hear what's
+            lost.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Solo the pair</h4>
+            <p>Suspect two parts are fighting? Solo just those two. If they sound bad alone together, no processing
+            fixes them in context — <span class="ar-term">one of them has to change or go</span>.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          The hardest and most valuable version: <strong>delete the part you're proudest of</strong> and listen to the
+          track without it. Frequently the song is better, because that part was the thing everything else had to work
+          around. If it really was carrying the song, you'll know within four bars and you can undo.
+        </p>
+      </section>
+
+      <!-- ═══ 6. FAILS ═══ -->
+      <section class="ar-section" id="fails">
+        <div class="ar-section-label">⑥ The Honest Counterweight</div>
+        <h2 class="ar-section-title">When Minimalism Fails</h2>
+        <p class="ar-lead">
+          Sparse is not automatically good, and "less is more" has done real damage as a slogan, because it lets a thin,
+          undercooked track pass as a deliberate one. <strong>Empty and spacious are different things</strong>, and the
+          difference is entirely in what remains.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Failure</th><th>What it sounds like</th><th>What it actually needs</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Thin, not sparse</td><td>Few elements, none of them good enough to carry the weight</td><td>Better <a href="sound-selection.html" style="color:var(--glow)">sound selection</a>. Sparse music has nowhere to hide a mediocre sound</td></tr>
+              <tr><td class="ar-hi">Static, not hypnotic</td><td>Nothing changes for two minutes and it's boring, not trance-like</td><td>Slow movement — filter drift, a part entering, one variation per eight bars</td></tr>
+              <tr><td class="ar-hi">Boring parts</td><td>Each element is dull on its own and there's nothing to distract from it</td><td>Parts that are interesting <em>individually</em>. Density can hide weak writing; space cannot</td></tr>
+              <tr><td class="ar-hi">No dynamics</td><td>Uniformly sparse the whole way through, so there's no arc</td><td>Contrast. Minimalism is only powerful next to something denser</td></tr>
+              <tr><td class="ar-hi">Wrong for the genre</td><td>An anthem that needed to be huge and isn't</td><td>Honesty. Some music <em>should</em> be maximal — a wall of sound is a real and legitimate aesthetic</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The rule that keeps this straight: <strong>the fewer elements you have, the better each one must be.</strong>
+          A dense arrangement can carry a mediocre snare because nine other things are competing for attention. A track
+          with four elements gives the listener nothing else to look at, so all four have to survive scrutiny — the
+          sound itself, the performance, the part written. That's why restraint is expensive rather than easy, and why
+          it usually comes late in someone's development rather than early.
+        </p>
+      </section>
+
+      <!-- ═══ 7. MIX ═══ -->
+      <section class="ar-section" id="mix">
+        <div class="ar-section-label">⑦ The Literal Kind</div>
+        <h2 class="ar-section-title">Space in the Mix</h2>
+        <p class="ar-lead">
+          There's a second meaning of space — the acoustic one. Reverb, delay and distance place sounds in a room, and
+          this is where the arrangement argument comes back around: <strong>reverb needs an empty arrangement to be
+          audible at all.</strong> A big lush reverb in a dense mix does nothing except raise the noise floor and blur
+          the mids. The records that sound vast are sparse first and reverberant second.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Depth is three things</h4>
+            <p><span class="ar-term">Level</span> (quieter reads as further), <span class="ar-term">high-frequency
+            loss</span> (air absorbs treble over distance) and <span class="ar-term">wet/dry ratio</span> (more room
+            relative to source reads as further back). Use all three together and the front-to-back illusion becomes
+            convincing.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Pre-delay keeps things forward</h4>
+            <p>A gap of <span class="ar-term">20–40 ms</span> before the reverb starts keeps the dry sound clear and
+            close while still placing it in a big room. It's the difference between a vocal that's <em>in</em> a hall
+            and one that's drowning in it.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Not everything goes in the same room</h4>
+            <p>One reverb on everything flattens the depth you're trying to create. Keep the kick and bass
+            <span class="ar-term">dry and forward</span>, put the mid-range in a modest room, and save the long tails
+            for one or two elements that are supposed to feel distant.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Space in time, too</h4>
+            <p>Delay creates room without the wash — and the repeats only survive if there's a
+            <span class="ar-term">gap for them to land in</span>. This is exactly what dub understood: play less, and
+            the echo becomes an instrument rather than a smear.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          The full treatment of reverb and delay lives in the
+          <a href="effects.html" style="color:var(--glow-warm)">Effects guide</a>, and the balance and panning side in
+          <a href="mixing.html" style="color:var(--glow-warm)">Mixing</a>. The point here is only the dependency: those
+          tools do very little for you until the arrangement has made room for them.
+        </p>
+      </section>
+
+      <!-- ═══ 8. EXERCISES ═══ -->
+      <section class="ar-section" id="exercises">
+        <div class="ar-section-label">⑧ Building the Instinct</div>
+        <h2 class="ar-section-title">Exercises in Restraint</h2>
+        <p class="ar-lead">
+          Restraint is a habit rather than a piece of knowledge, so it's built by repeatedly making things with less
+          than you want. Each of these is deliberately uncomfortable, which is the point.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Exercise</th><th>The constraint</th><th>What it teaches</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Four tracks</td><td>Finish a whole song using no more than four</td><td>Every choice has to earn its slot. The single most effective exercise here</td></tr>
+              <tr><td class="ar-hi">The halving</td><td>Take a finished track and delete half the elements</td><td>How little you actually lose — and occasionally, how much better it gets</td></tr>
+              <tr><td class="ar-hi">One synth</td><td>Every sound from a single instrument, no samples</td><td>Making variety from writing rather than from browsing</td></tr>
+              <tr><td class="ar-hi">The dub pass</td><td>Play the song through muting parts live with your hands, and record it</td><td>Arrangement as performance. You'll find moves you'd never draw in</td></tr>
+              <tr><td class="ar-hi">Strip the verse</td><td>Don't build the chorus up — take the verse down instead</td><td>That contrast is cheaper to create by subtraction than by addition</td></tr>
+              <tr><td class="ar-hi">Count the record</td><td>Pick a track you love and count what's playing at any moment</td><td>How few elements professional records actually use</td></tr>
+              <tr><td class="ar-hi">One-minute edit</td><td>Cut a finished song down to sixty seconds</td><td>What the song is really made of, once everything optional is gone</td></tr>
+              <tr><td class="ar-hi">Leave a bar empty</td><td>Find one place per song where everything stops</td><td>That silence is an event, and usually the best moment in the track</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          If you only do one: <strong>the four-track song.</strong> It forces every other idea on this page at once —
+          sound selection has to be right, each part has to be interesting alone, contrast has to come from arrangement,
+          and silence becomes the only tool you have left for dynamics.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Attention is small, masking is physical, and contrast needs a baseline — so the parts you remove make the rest
+        louder. Mute everything for eight bars and delete what isn't missed, give each part a register of its own, let
+        elements take turns instead of overlapping, and leave one bar in the song completely empty. Then make the few
+        things left worth hearing.
+      </p>
+
+      <nav aria-label="Craft guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="groove.html" style="color:var(--stone);text-decoration:none;">&larr; Groove &amp; Timing</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">&uarr; Craft Guides</a>
+        <a href="finishing.html" style="color:var(--glow-warm);text-decoration:none;">Next: Finishing &rarr;</a>
+      </nav>
+
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+
