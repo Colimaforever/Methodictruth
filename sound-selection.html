@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Choosing Sounds — Why Sound Selection Beats Processing</title>
+  <meta name="keywords" content="sound selection, sample selection, choosing samples, auditioning samples in context, drum sample choice, layering kicks, layering snares, phase cancellation, tuning kicks, sample library organization, sound design vs sample packs">
+  <meta name="description" content="The right sound needs almost no processing and the wrong one cannot be processed into it. How to audition in context, what to actually listen for, how to layer without phase problems, and how to keep a sample library usable.">
+  <link rel="canonical" href="https://methodictruth.com/sound-selection.html">
+  <meta property="og:title" content="Choosing Sounds — Selection Beats Processing">
+  <meta property="og:description" content="A kick that already sits in the track needs no EQ. How to audition sounds in context, judge footprint and transient rather than &quot;good&quot;, and layer without cancelling.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/sound-selection.html">
+  <meta property="og:image" content="https://methodictruth.com/og/sound-selection.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=70">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Choosing Sounds \u2014 Why Sound Selection Beats Processing",
+  "description": "The right sound needs almost no processing and the wrong one cannot be processed into it. How to audition in context, what to actually listen for, how to layer without phase problems, and how to keep a sample library usable.",
+  "url": "https://methodictruth.com/sound-selection.html",
+  "image": "https://methodictruth.com/og/sound-selection.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "sound selection",
+    "sampling",
+    "music production",
+    "sound design"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "Choosing Sounds", "item": "https://methodictruth.com/sound-selection.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <a href="sound-selection.html" class="active">Sound Selection</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="finishing.html">Finishing</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="theory.html">Theory</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Choosing Sounds</h1>
+        <div class="subtitle">The decision that determines how much work everything else will be</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Here is the least glamorous and most valuable idea in music production: <strong>the right sound needs almost no
+        processing, and the wrong sound cannot be processed into the right one.</strong> A kick that already sits in the
+        track needs no EQ. Spend twenty minutes choosing it and you save two hours mixing it — and you get a better
+        result, because every corrective move you avoid is damage you didn't do. Most people skip this step entirely and
+        then wonder why mixing feels like fighting.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#why">Why It Matters Most</a>
+        <a href="#context">Choose in Context</a>
+        <a href="#criteria">What to Listen For</a>
+        <a href="#layering">Layering</a>
+        <a href="#library">Taming the Library</a>
+        <a href="#design">Choose or Design?</a>
+      </nav>
+
+      <!-- ═══ 1. WHY ═══ -->
+      <section class="ar-section" id="why">
+        <div class="ar-section-label">① The Leverage</div>
+        <h2 class="ar-section-title">Why Selection Beats Processing</h2>
+        <p class="ar-lead">
+          Every processor is a compromise. EQ changes phase. Compression changes transients and dynamics. Saturation
+          adds harmonics that weren't there. Used deliberately these are creative tools — used <em>correctively</em>,
+          to drag a sound toward something it isn't, they are damage you're accepting in exchange for getting closer to
+          what you wanted.
+        </p>
+        <p class="ar-lead">
+          So the question is never "how do I make this snare brighter?" It's <strong>"is there a snare that's already
+          bright?"</strong> There almost always is, it takes ninety seconds to find, and it will sound better than the
+          one you spent twenty minutes EQing — because a bright snare was <em>recorded</em> bright, with all the
+          harmonic content and transient shape that comes with it, rather than having its existing content amplified.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>The tell</h4>
+            <p>If you find yourself making a <span class="ar-term">large</span> corrective move — more than about 4 dB
+            of EQ, or heavy compression just to control level — that's not a mixing problem announcing itself. That's
+            the wrong sound announcing itself.</p>
+          </div>
+          <div class="ar-card">
+            <h4>The compounding cost</h4>
+            <p>Bad choices don't stay contained. A boomy kick forces you to carve the bass, which thins the bass, which
+            makes you boost its mids, which crowds the vocal. <span class="ar-term">One wrong sound generates a chain of
+            compensations</span> that all degrade the mix.</p>
+          </div>
+          <div class="ar-card">
+            <h4>What "professional" often is</h4>
+            <p>A great deal of what people hear as expensive production is simply <span class="ar-term">better source
+            material chosen more carefully</span>, not better processing. The processing on many hit records is
+            surprisingly light.</p>
+          </div>
+          <div class="ar-card">
+            <h4>It's the fastest skill to improve</h4>
+            <p>Unlike mixing, the feedback is instant and unambiguous. You audition, you compare, you notice.
+            <span class="ar-term">Ten sessions of deliberate auditioning</span> will measurably change your records.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 2. CONTEXT ═══ -->
+      <section class="ar-section" id="context">
+        <div class="ar-section-label">② The One Rule</div>
+        <h2 class="ar-section-title">Always Choose in Context</h2>
+        <p class="ar-lead">
+          If you take one practical habit from this page, take this: <strong>audition sounds with the rest of the track
+          playing, never in solo.</strong> A sound in isolation tells you almost nothing about whether it belongs, and
+          soloed auditioning is why so many people pick sounds that are individually impressive and collectively
+          unusable.
+        </p>
+        <p class="ar-lead">
+          The reason is masking. What matters is not how a snare sounds — it's <em>what a snare sounds like in the space
+          left over by everything else.</em> A gorgeous, full, complex snare soloed can vanish completely in a busy mix,
+          while a thinner one with a sharp 3 kHz crack cuts straight through. You cannot predict which is which by
+          listening alone, and you don't have to: just loop eight bars of the track and swap sounds underneath it.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Do this</th><th>Instead of</th><th>Because</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Loop the busiest section</td><td>Auditioning against silence</td><td>The hardest place to fit is the only place worth testing</td></tr>
+              <tr><td class="ar-hi">Level-match as you swap</td><td>Comparing at whatever volume each is</td><td>Louder wins every A/B for reasons that aren't quality</td></tr>
+              <tr><td class="ar-hi">Give it 5 seconds, then move on</td><td>Deliberating over each one</td><td>Fit is immediate; if you're arguing yourself into it, it's not the one</td></tr>
+              <tr><td class="ar-hi">Shortlist 3, then decide</td><td>Committing to the first acceptable one</td><td>You need a comparison to know what "good" means today</td></tr>
+              <tr><td class="ar-hi">Check it in mono</td><td>Judging on width</td><td>Wide sounds flatter in solo and collapse in context</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          A corollary worth internalising: <strong>a sound that needs the whole mix muted to be appreciated is the wrong
+          sound.</strong> Nobody will ever hear it that way.
+        </p>
+      </section>
+
+      <!-- ═══ 3. CRITERIA ═══ -->
+      <section class="ar-section" id="criteria">
+        <div class="ar-section-label">③ What You're Actually Judging</div>
+        <h2 class="ar-section-title">What to Listen For</h2>
+        <p class="ar-lead">
+          "Does it sound good" is too vague to act on. These are the specific properties that determine whether a sound
+          will work, and they're worth naming because once you can name them you can hear them.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Frequency footprint</h4>
+            <p>Where does it live? A sound's usefulness is mostly about which region it occupies and whether that region
+            is already taken. Two great sounds in the same range are worse than one great and one adequate in
+            <span class="ar-term">different</span> ranges.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Transient</h4>
+            <p>How sharp is the attack? This is what determines whether something cuts through or sits behind, and it's
+            far harder to add convincingly than to remove. When in doubt, choose the
+            <span class="ar-term">sharper</span> one — you can always soften it.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Length and tail</h4>
+            <p>A long decay eats space and blurs the groove; a short one leaves room. In dense arrangements, shorter is
+            almost always the right answer, which is why so many hit records use kicks that seem
+            <span class="ar-term">too short</span> in solo.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Character vs. neutrality</h4>
+            <p>Distinctive sounds are memorable and inflexible. Neutral sounds are forgettable and cooperative. A track
+            can carry <span class="ar-term">one or two</span> genuinely characterful elements — make them the ones that
+            matter and let the rest be useful.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Tuning</h4>
+            <p>Kicks, 808s, toms and many percussion samples have a definite pitch. If it clashes with the key of the
+            song it will sound subtly wrong forever and you will never work out why.
+            <span class="ar-term">Check the pitch</span> and tune it to the root or the fifth.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Stereo width</h4>
+            <p>Wide sounds are exciting in solo and dangerous in a mix — they collapse in mono and crowd the field. For
+            anything foundational, <span class="ar-term">choose the mono one</span>. Save width for texture.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          Not sure what key a sample is in? Drop it into the
+          <a href="song-analyzer.html" style="color:var(--glow-warm)">Song Analyzer</a>, or play it against the
+          <a href="tuner.html" style="color:var(--glow-warm)">Tuner</a>. Most tonal one-shots are easier to pitch than
+          people assume, and tuning your kick to the track is one of those small moves with a disproportionate payoff.
+        </p>
+      </section>
+
+      <!-- ═══ 4. LAYERING ═══ -->
+      <section class="ar-section" id="layering">
+        <div class="ar-section-label">④ When One Isn't Enough</div>
+        <h2 class="ar-section-title">Layering — Building the Sound You Can't Find</h2>
+        <p class="ar-lead">
+          Sometimes no single sample does the job, and the answer isn't to process one into submission — it's to
+          <strong>take the part you need from each of two sounds</strong>. This is how most modern drum production
+          works, and the principle is simple: each layer contributes one thing, and everything else it contributes gets
+          removed.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Element</th><th>Layer 1 provides</th><th>Layer 2 provides</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Kick</td><td>The sub — weight below 100 Hz</td><td>The click — 2–5 kHz attack that survives on small speakers</td></tr>
+              <tr><td class="ar-hi">Snare</td><td>The body — the 200 Hz "thump" you feel</td><td>The crack or noise tail — the 3–8 kHz that cuts</td></tr>
+              <tr><td class="ar-hi">Bass</td><td>Clean sine sub, mono, no character</td><td>A distorted or mid-heavy layer that makes it audible on a phone</td></tr>
+              <tr><td class="ar-hi">Lead</td><td>The core tone</td><td>A detuned or octave-up doubling for size</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Two failure modes to avoid. <strong>First: filter each layer to its job.</strong> If both kick layers carry
+          full-range low end, you get the same summing mess the low-end rules warn about — high-pass the click layer
+          hard and low-pass the sub layer, so they genuinely occupy different territory. <strong>Second: watch phase.</strong>
+          Two kicks whose waveforms start in opposite polarity will partially cancel and the layered result will be
+          <em>thinner</em> than either alone. If layering makes something smaller, flip the polarity on one of them and
+          listen again — this counter-intuitive fix solves it surprisingly often.
+        </p>
+        <div class="ar-logic" data-l="LAYERING IN LOGIC PRO">
+          Use the <strong>Gain</strong> plugin's <strong>Phase Invert</strong> button to flip polarity and A/B the
+          result. Nudge one layer by a few samples to align transients — zoom right in on the waveform and match the
+          initial peaks. For synth layers, <strong>Track Stacks</strong>
+          (<span class="ar-kbd">⌘</span>-<span class="ar-kbd">⇧</span>-<span class="ar-kbd">D</span>) group them under
+          one fader so the balance you set stays locked when you mix.
+        </div>
+      </section>
+
+      <!-- ═══ 5. LIBRARY ═══ -->
+      <section class="ar-section" id="library">
+        <div class="ar-section-label">⑤ The Practical Problem</div>
+        <h2 class="ar-section-title">Taming a Sample Library</h2>
+        <p class="ar-lead">
+          The reason most people don't choose sounds carefully isn't laziness — it's that auditioning 4,000 kicks is
+          genuinely miserable, so they use the first one that isn't bad. The fix is to make the library smaller, not to
+          develop more patience.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Build a favourites folder</h4>
+            <p>Every time a sound works, copy it into a small curated folder. Within a few months you'll have
+            <span class="ar-term">thirty kicks you trust</span> instead of four thousand you don't. Start every session
+            there and only go hunting if nothing fits.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Learn one library properly</h4>
+            <p>Knowing a modest collection deeply beats owning an enormous one you browse randomly. Familiarity is what
+            lets you think <em>"I know the sound I want"</em> and go straight to it.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Set a time limit</h4>
+            <p>Give sound selection <span class="ar-term">ten minutes</span> and a decision at the end of it. Endless
+            browsing isn't careful selection — it's procrastination that feels productive, and it's where sessions go
+            to die.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Place a rough sound and move on</h4>
+            <p>If nothing fits immediately, put in something adequate, keep writing, and come back. The
+            <span class="ar-term">arrangement</span> often tells you what the sound needs to be — a decision that was
+            impossible at bar one is obvious once the chorus exists.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 6. DESIGN ═══ -->
+      <section class="ar-section" id="design">
+        <div class="ar-section-label">⑥ The Other Path</div>
+        <h2 class="ar-section-title">Choose It, or Design It?</h2>
+        <p class="ar-lead">
+          Selecting from a library is one route. <strong>Building the sound yourself</strong> is the other, and the
+          trade-off is real: designing takes longer, but you get exactly what you want, nobody else has it, and — most
+          usefully — you understand <em>why</em> it sounds like that, which makes every future choice better informed.
+        </p>
+        <p class="ar-lead">
+          The honest guidance is to do both, on different elements. Use library sounds for the parts that need to be
+          reliable and idiomatic — drums, most bass, anything that has to sound like the genre. Design the one or two
+          elements that are supposed to be the identity of the track. A record needs a small number of things nobody
+          else has, not a full set.
+        </p>
+        <p class="ar-note">
+          The <a href="synth.html" style="color:var(--glow-warm)">Synth</a> is built for exactly this: it wires itself
+          up so you can start shaping in seconds, its eighteen presets are teardown material rather than finished
+          answers, and any sound you build can be shared as a link. Pull a preset apart, change one module, and you'll
+          learn more about why a sound works than any amount of reading — including this page.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Audition in context, never in solo. Judge footprint, transient and length rather than "good." Layer for a
+        specific missing ingredient, not for size. And when a corrective move starts getting large, stop mixing and go
+        change the sound — that's the fix.
+      </p>
+
+      <nav aria-label="Craft guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="production.html" style="color:var(--stone);text-decoration:none;">← Learn Production</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">↑ Craft Guides</a>
+        <a href="groove.html" style="color:var(--glow-warm);text-decoration:none;">Next: Groove &amp; Timing →</a>
+      </nav>
+
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Mixing Guide — Balance, Gain Staging, Panning and the Low End in Logic Pro X</title>
+  <meta name="keywords" content="mixing guide, how to mix music, gain staging, headroom, static mix, faders first, panning, stereo field, LCR panning, mono compatibility, low end mixing, kick and bass, sidechain ducking, subtractive mixing, mix automation, reference track, level matching, critical listening, room acoustics, Logic Pro X mixing">
+  <meta name="description" content="How to mix: get the balance right with faders and panning before any plugin, stage your gain, decide who owns the low end, subtract instead of EQing, automate the last ten percent — and how to listen so you can trust the decisions.">
+  <link rel="canonical" href="https://methodictruth.com/mixing.html">
+  <meta property="og:title" content="Mixing Guide — Balance First, Plugins Last">
+  <meta property="og:description" content="Most mixing problems are fader problems. A practical guide to gain staging, the static mix, panning, the low end, subtraction, automation and critical listening — anchored in Logic Pro X.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/mixing.html">
+  <meta property="og:image" content="https://methodictruth.com/og/mixing.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=70">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Mixing Guide \u2014 Balance, Gain Staging, Panning and the Low End in Logic Pro X",
+  "description": "How to mix: get the balance right with faders and panning before any plugin, stage your gain, decide who owns the low end, subtract instead of EQing, automate the last ten percent \u2014 and how to listen so you can trust the decisions.",
+  "url": "https://methodictruth.com/mixing.html",
+  "image": "https://methodictruth.com/og/mixing.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "mixing",
+    "audio engineering",
+    "Logic Pro",
+    "music production"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "The Mixing Guide", "item": "https://methodictruth.com/mixing.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html" class="active">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="finishing.html">Finishing</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="theory.html">Theory</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>The Mixing Guide</h1>
+        <div class="subtitle">Balance first — everything else is decoration</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        You know what the <a href="effects.html" style="color:var(--glow-warm)">effects</a> do. Mixing is not the same
+        skill. Mixing is deciding <em>how loud everything is, where it sits, and what gets out of the way</em> — and the
+        overwhelming majority of that is done with two controls that aren't plugins at all: <strong>the fader and the
+        pan pot</strong>. Reach for a compressor because a vocal feels buried, and you'll spend an hour fixing a problem
+        that was three decibels of fader. This guide starts where a mix actually starts, and only picks up a plugin once
+        it has run out of simpler answers.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#what">What Mixing Is</a>
+        <a href="#gain">Gain Staging</a>
+        <a href="#static">The Static Mix</a>
+        <a href="#pan">Panning</a>
+        <a href="#lowend">The Low End</a>
+        <a href="#subtract">Subtraction</a>
+        <a href="#automation">Automation</a>
+        <a href="#listening">How to Listen</a>
+      </nav>
+
+      <!-- ═══ 1. WHAT MIXING IS ═══ -->
+      <section class="ar-section" id="what">
+        <div class="ar-section-label">① The Job</div>
+        <h2 class="ar-section-title">What Mixing Actually Is</h2>
+        <p class="ar-lead">
+          A mix is a <strong>hierarchy of attention</strong>. At every moment in a song, something is the most important
+          thing — the vocal, the riff, the drop — and everything else exists to support it without competing. Mixing is
+          the craft of making that hierarchy audible. It is not the craft of putting a plugin on every channel.
+        </p>
+        <p class="ar-lead">
+          This is why the order of operations matters so much. Almost every problem a beginner tries to solve with
+          processing is really one of three simpler problems, and they should be checked in this order:
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>1. Is it too loud or too quiet?</h4>
+            <p>Then it's a <span class="ar-term">fader</span> problem. Fix it with the fader. This is most problems.</p>
+          </div>
+          <div class="ar-card">
+            <h4>2. Is it in the same place as something else?</h4>
+            <p>Then it's a <span class="ar-term">panning</span> problem, or a register problem. Move one of them.</p>
+          </div>
+          <div class="ar-card">
+            <h4>3. Are two things fighting for the same frequencies?</h4>
+            <p>Then it's an <span class="ar-term">arrangement</span> problem first, and an EQ problem only if the
+            arrangement can't change.</p>
+          </div>
+          <div class="ar-card">
+            <h4>4. Only now: processing.</h4>
+            <p>EQ, compression, saturation. Powerful, and completely unable to rescue a mix whose balance is wrong.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          Mixing and mastering are different jobs. Mixing is about the relationship <em>between</em> the tracks and
+          happens with all of them in front of you. <a href="mastering.html" style="color:var(--glow-warm)">Mastering</a>
+          treats the finished stereo file as one object. If you're solving a balance problem on the master bus, you're
+          mixing — go back and do it on the channel.
+        </p>
+      </section>
+
+      <!-- ═══ 2. GAIN STAGING ═══ -->
+      <section class="ar-section" id="gain">
+        <div class="ar-section-label">② Before You Touch Anything</div>
+        <h2 class="ar-section-title">Gain Staging &amp; Headroom</h2>
+        <p class="ar-lead">
+          <strong>Gain staging</strong> is making sure every stage of your signal path receives a sensible level.
+          Get it wrong and everything downstream gets harder for no reason: plugins behave unpredictably, the master
+          bus clips before you've made a single creative decision, and you spend the whole mix pulling faders down.
+        </p>
+        <p class="ar-lead">
+          The target is simple. Aim for each channel to peak somewhere around <strong>−12 to −6 dBFS</strong>, and your
+          master to peak no higher than <strong>−6 dBFS</strong> with everything playing. That empty space at the top is
+          <em>headroom</em>, and it is not wasted — it's the room the mastering stage needs to work in, and the room your
+          mix bus needs so that adding one more element doesn't push the whole thing into the ceiling.
+        </p>
+        <p class="ar-lead">
+          Two reasons this matters more than it sounds like it should. First, <strong>analog-modelled plugins have a
+          sweet spot.</strong> A tape emulation or a modelled compressor is calibrated to expect a particular input
+          level; feed it something 15 dB hotter and you get distortion you didn't ask for. Second, <strong>loud sounds
+          better.</strong> Your ear reads any louder version of the same thing as an improvement, so if a channel is
+          simply running hotter than the others, you will mistake it for the better-sounding one and build a whole mix
+          around a lie.
+        </p>
+        <div class="ar-logic" data-l="GAIN STAGING IN LOGIC PRO">
+          Use the <strong>Gain</strong> plugin as the first slot on a channel, not the fader, to bring a hot recording
+          down before it hits anything else — the fader is at the <em>end</em> of the chain and does nothing to fix what
+          your plugins are receiving. For an already-recorded region, <span class="ar-kbd">Ctrl</span>-click a region →
+          <strong>Normalize Region Gain</strong>, or set the region's <strong>Gain</strong> parameter in the Region
+          inspector. Keep an eye on the channel strip meters, and hold the peak: click the numeric peak readout under
+          any meter to reset it after a pass.
+        </div>
+        <p class="ar-note">
+          One thing you don't have to worry about: modern DAWs mix internally in 32-bit float, so a channel going a
+          little over zero won't actually destroy the audio the way it would have on tape or on a 16-bit console. But
+          your plugins still care, your master bus still clips on output, and your judgement still gets fooled by
+          loudness. Stage the gain anyway.
+        </p>
+      </section>
+
+      <!-- ═══ 3. THE STATIC MIX ═══ -->
+      <section class="ar-section" id="static">
+        <div class="ar-section-label">③ Where a Mix Actually Starts</div>
+        <h2 class="ar-section-title">The Static Mix — Faders First</h2>
+        <p class="ar-lead">
+          Here is the single most valuable habit in mixing, and the one most beginners never learn: <strong>before you
+          insert a single plugin, get the song sounding as good as you can using nothing but the faders.</strong> No EQ,
+          no compression, no reverb. Just relative volume. This is called the <em>static mix</em> or the rough balance,
+          and a good one is startling — most of the way to a finished record.
+        </p>
+        <p class="ar-lead">
+          Do it like this. Pull every fader to the bottom. Bring up whatever the song is built on — usually the drums,
+          or the main instrument if it's a song that lives on one. Then bring up the <strong>most important element</strong>,
+          which in most popular music is the lead vocal, and set it where it feels right against that foundation. Then
+          add everything else, one at a time, always asking one question: <em>does this need to be louder than that, or
+          quieter?</em> Anything you can't find a level for is a candidate for deletion.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead>
+              <tr><th>Move</th><th>Why it works</th><th>Watch for</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="ar-hi">Start at silence</td><td>Building up beats pulling down — you decide what earns its place</td><td>Faders creeping upward all session; if everything's up, nothing is loud</td></tr>
+              <tr><td class="ar-hi">Foundation first</td><td>Everything else is judged relative to the rhythm section</td><td>Mixing the vocal against nothing, then rebuilding around it</td></tr>
+              <tr><td class="ar-hi">Lead element second</td><td>It's the thing people came for; it sets the ceiling for everything else</td><td>Burying it, then compressing to "bring it out"</td></tr>
+              <tr><td class="ar-hi">Mix at low volume</td><td>Quiet playback flatters nothing — the balance has to work on its own</td><td>Loud playback making a bad balance feel exciting</td></tr>
+              <tr><td class="ar-hi">Mix in mono, at first</td><td>Removes stereo width as a crutch and exposes masking immediately</td><td>Parts that only "work" when spread apart</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          That last one is worth its own sentence. <strong>Building the static mix in mono is the fastest way to find
+          out which parts are actually fighting.</strong> Stereo hides collisions: two sounds occupying identical
+          frequencies can seem fine simply because one is left and one is right. Collapse to mono and the conflict is
+          undeniable — and since a great many listeners hear music on a phone speaker, a single laptop speaker, or in a
+          club with mono bass, that conflict was going to reach them anyway.
+        </p>
+        <div class="ar-logic" data-l="MONO CHECK IN LOGIC PRO">
+          Put a <strong>Gain</strong> plugin on your stereo output and engage its <strong>Mono</strong> button — leave it
+          there and toggle it constantly while you work. Logic's built-in <strong>Correlation Meter</strong> (in the
+          Multimeter, or as the small meter above the output fader) tells you the same story numerically: readings near
+          <span class="ar-chip">+1</span> are mono-safe, near <span class="ar-chip">0</span> are wide, and anything
+          sitting at <span class="ar-chip">−1</span> will cancel and disappear the moment someone plays it in mono.
+        </div>
+      </section>
+
+      <!-- ═══ 4. PANNING ═══ -->
+      <section class="ar-section" id="pan">
+        <div class="ar-section-label">④ The Other Free Control</div>
+        <h2 class="ar-section-title">Panning &amp; the Stereo Field</h2>
+        <p class="ar-lead">
+          If the fader decides how <em>loud</em> something is, panning decides <em>where it is</em> — and two sounds in
+          different places can both be heard clearly at volumes where, stacked in the centre, they'd be mud. Panning is
+          free separation. It costs nothing, damages nothing, and most beginners barely use it.
+        </p>
+        <p class="ar-lead">
+          The centre is expensive real estate. Only a few things can occupy it before it congests, and they're the
+          things that carry the song's weight:
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Centre</h4>
+            <p><span class="ar-term">Kick, bass, snare, lead vocal.</span> The spine of the record. These are the loudest
+            elements and the ones the ear expects to come from in front of you. Everything below ~120 Hz belongs here
+            regardless.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Wide (hard left / hard right)</h4>
+            <p><span class="ar-term">Doubled guitars, pads, stereo keys, room mics.</span> Big, sustained, textural
+            things. Hard panning is bolder than it sounds and almost always better than the timid 20% that leaves
+            something neither centred nor separated.</p>
+          </div>
+          <div class="ar-card">
+            <h4>In between</h4>
+            <p><span class="ar-term">Toms, percussion, backing vocals, counter-melodies.</span> Placed to fill the space
+            between the spine and the edges — and to keep two similar parts from landing on top of each other.</p>
+          </div>
+          <div class="ar-card">
+            <h4>The mirror trick</h4>
+            <p>Two parts of similar character? Pan them to <span class="ar-term">opposite sides at equal amounts</span>.
+            The mix stays balanced, and both become individually audible. This is why doubled guitars are tracked twice
+            and panned hard rather than copied and pasted.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Some producers work strictly <strong>LCR</strong> — every element is either dead centre, hard left, or hard
+          right, with nothing in between. It sounds like a harsh restriction and it produces remarkably clear mixes,
+          because it forces a decision instead of allowing everything to hover vaguely near the middle. Try it once as
+          an exercise even if you don't keep it.
+        </p>
+        <div class="ar-logic" data-l="PANNING IN LOGIC PRO">
+          On a mono channel the pan knob does what you expect. On a <strong>stereo</strong> channel, that same knob is a
+          <em>balance</em> control — it turns one side down rather than moving the sound — which is usually not what you
+          want. <span class="ar-kbd">Ctrl</span>-click the pan knob and choose <strong>Stereo Pan</strong> to get a real
+          stereo panner with independent left/right placement and a width control. The <strong>Direction Mixer</strong>
+          plugin does the same job with a <em>Spread</em> parameter, and doubles as your mid/side width tool.
+        </div>
+      </section>
+
+      <!-- ═══ 5. THE LOW END ═══ -->
+      <section class="ar-section" id="lowend">
+        <div class="ar-section-label">⑤ Where Mixes Die</div>
+        <h2 class="ar-section-title">The Low End</h2>
+        <p class="ar-lead">
+          More amateur mixes are undone below 200 Hz than everywhere else combined. The low end holds most of a mix's
+          <em>energy</em> — a small level change down there moves the whole track's loudness — and it's simultaneously
+          the region you can least trust in an untreated room or on small speakers. It rewards rules over ears.
+        </p>
+        <p class="ar-lead"><strong>Rule one: decide who owns the sub.</strong> The kick and the bass both want the region
+          below about 100 Hz, and if you let them both have it they'll sum into a formless boom that eats your headroom
+          and pumps unpredictably. Pick one.</p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Approach</th><th>How</th><th>Suits</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Kick owns the sub</td><td>Bass gets a gentle high-pass around 50–70 Hz; kick keeps everything below</td><td>Hip-hop, electronic, metal — anything where the kick is the punch</td></tr>
+              <tr><td class="ar-hi">Bass owns the sub</td><td>Kick is high-passed and lives on its 80–150 Hz thump and 2–4 kHz click</td><td>Rock, funk, soul — anything where the bassline is the hook</td></tr>
+              <tr><td class="ar-hi">They trade</td><td>Sidechain the bass to duck a few dB each time the kick hits</td><td>Dance and modern pop, where both must feel huge</td></tr>
+              <tr><td class="ar-hi">Carve</td><td>Cut on one exactly where you boost on the other (e.g. kick +3 @ 60, bass −3 @ 60)</td><td>When the arrangement can't change and both must stay full</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          <strong>Rule two: keep the bottom mono.</strong> Below roughly 100–120 Hz, stereo information does you no
+          favours — your ears can barely localise it, vinyl cutting hates it, and club systems sum it to mono anyway.
+          Worse, wide low frequencies are exactly what cancels when a mix is folded down. Collapse everything under that
+          point to the centre and the low end gets tighter and louder for free.
+        </p>
+        <p class="ar-lead">
+          <strong>Rule three: high-pass what doesn't need it — but not reflexively.</strong> A vocal, a hi-hat, a
+          shaker and an acoustic guitar all carry rumble and proximity build-up they contribute nothing with. Rolling it
+          off cleans up enormous amounts of room. But high-passing <em>everything</em> at 100 Hz by habit is how mixes
+          end up thin: many instruments carry real body between 80 and 200 Hz. Sweep the filter up until you hear the
+          sound get smaller, then back off.
+        </p>
+        <div class="ar-logic" data-l="LOW END IN LOGIC PRO">
+          <strong>Channel EQ</strong>'s low-cut is band 1; enable it and drag the frequency while soloing to find the
+          point where the sound thins. For mono bass, use the <strong>Direction Mixer</strong> or Channel EQ's per-band
+          <em>stereo mode</em>. For ducking, put a <strong>Compressor</strong> on the bass, set its
+          <strong>Side Chain</strong> input (top right) to the kick channel, and use a fast attack with a release timed
+          to the tempo — you want the bass back before the next note, not pumping through it.
+        </div>
+      </section>
+
+      <!-- ═══ 6. SUBTRACTION ═══ -->
+      <section class="ar-section" id="subtract">
+        <div class="ar-section-label">⑥ The Uncomfortable Truth</div>
+        <h2 class="ar-section-title">Subtraction — The Arrangement Is the Mix</h2>
+        <p class="ar-lead">
+          When a mix sounds cluttered, the instinct is to EQ. Usually the real diagnosis is simpler and less flattering:
+          <strong>too many things are playing at once, in the same register.</strong> No amount of EQ separates two parts
+          that are genuinely occupying the same frequencies at the same time — it only makes both of them worse. The fix
+          isn't a plugin. It's <a href="arrangement.html" style="color:var(--glow-warm)">arrangement</a>.
+        </p>
+        <p class="ar-lead">Three ways to solve it upstream, all better than EQ:</p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Mute it</h4>
+            <p>The pad and the rhythm guitar are both playing sustained mid-range chords. You do not need both. Delete
+            one and the mix opens up instantly — and the song usually gets better, not worse.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Move it</h4>
+            <p>Same part, different octave, or a different voicing. Two instruments an octave apart stop competing
+            entirely. This is what <a href="chord-voicings.html" style="color:var(--glow)">voicing</a> is for.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Stagger it</h4>
+            <p>Have them play in the gaps rather than simultaneously. Call and response instead of two parts shouting
+            over each other. Costs nothing, sounds arranged rather than mixed.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          There's a useful discipline here: <strong>when a section feels crowded, try removing something before adding
+          anything.</strong> Records that sound big are usually records where few things happen at once — the space is
+          what makes the loud parts land. If your chorus doesn't feel like an arrival, the problem may be that your
+          verse is already too full for the chorus to be bigger than.
+        </p>
+        <p class="ar-note">
+          Practical version of this rule for a stuck mix: solo the two elements you think are fighting and listen to
+          just those two. If they sound bad together on their own, no processing will fix it in context — change what
+          one of them plays.
+        </p>
+      </section>
+
+      <!-- ═══ 7. AUTOMATION ═══ -->
+      <section class="ar-section" id="automation">
+        <div class="ar-section-label">⑦ The Last Ten Percent</div>
+        <h2 class="ar-section-title">Automation — A Mix That Moves</h2>
+        <p class="ar-lead">
+          A static mix is a compromise: one fader position that has to work for the whole song. But the verse and the
+          chorus are different pieces of music with different densities, and the level that suits one won't suit the
+          other. <strong>Automation is how a mix stops being an average and starts being right at every moment.</strong>
+        </p>
+        <p class="ar-lead">
+          This is also the honest alternative to over-compression. If a vocal disappears in the loud sections and jumps
+          out in the quiet ones, you can flatten it with 8 dB of gain reduction and lose all its life — or you can draw
+          the fader up where it's buried and down where it's too much, and keep the dynamics. Engineers call this
+          <em>riding</em> the fader, and it's what compression is a crude automatic imitation of.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Automate</th><th>To do what</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Volume</td><td>Ride the lead so every word sits; lift a part for one bar where it matters; drop the pad under the vocal</td></tr>
+              <tr><td class="ar-hi">Send level</td><td>More reverb on the last word of a phrase, on a breakdown, or on the section you want to feel vast</td></tr>
+              <tr><td class="ar-hi">Filter cutoff</td><td>Open a filter across a build; strip the low end from a verse so the chorus's arrival feels enormous</td></tr>
+              <tr><td class="ar-hi">Pan</td><td>Move a delay or a texture across the field for a moment of motion — sparingly, it draws attention</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ar-logic" data-l="AUTOMATION IN LOGIC PRO">
+          <span class="ar-kbd">A</span> shows automation on all tracks. Choose the parameter from the track header's
+          dropdown, then draw with the Pencil or grab points with the Pointer. <strong>Latch</strong> mode records fader
+          moves as you perform them and keeps the last value; <strong>Touch</strong> snaps back when you let go — Touch
+          is what you want for riding a vocal against an existing curve. <span class="ar-kbd">Ctrl</span>-click a region
+          → <strong>Convert to Track Automation</strong> if you drew a region-based curve and want it on the track.
+        </div>
+      </section>
+
+      <!-- ═══ 8. HOW TO LISTEN ═══ -->
+      <section class="ar-section" id="listening">
+        <div class="ar-section-label">⑧ The Skill Under Every Other Skill</div>
+        <h2 class="ar-section-title">How to Listen</h2>
+        <p class="ar-lead">
+          You can know every technique on this page and still make bad mixes, because <strong>every decision you make is
+          only as good as what you're hearing.</strong> Your room, your speakers, your volume and your fatigue level are
+          all part of the signal chain, and unlike your plugins they're lying to you constantly.
+        </p>
+
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>The room is the biggest variable</h4>
+            <p>Untreated rooms have standing waves that make some bass notes disappear and others boom, at specific
+            frequencies, depending on where your head is. You will mix <span class="ar-term">against</span> those errors
+            and bake the opposite problem into the file. Even a little absorption at the first reflection points and
+            behind the speakers changes more than any monitor upgrade.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Headphones aren't a workaround, but they help</h4>
+            <p>Headphones skip the room entirely, which is why they're excellent for detail, edits, noise and reverb
+            tails — and misleading for stereo width and low end, because nothing is crossfeeding between your ears.
+            Use both. If you only have headphones, make your <span class="ar-term">width and bass</span> decisions
+            conservatively and check them somewhere else.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Pick one level and keep it</h4>
+            <p>Loudness changes the frequency response of your <em>ears</em> — bass and treble seem to vanish as you turn
+            down. Mix at a consistent, moderate level (conversation volume) and your judgements become comparable across
+            days. Turn it up briefly to check excitement; turn it <span class="ar-term">down</span> to check balance.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Fatigue is real and fast</h4>
+            <p>Your ears adapt within minutes and your judgement degrades within an hour. The three-hour mix is almost
+            always worse than the forty-five-minute one. Take breaks, and treat the first ten seconds after returning as
+            the most honest listening you'll get all day.</p>
+          </div>
+        </div>
+
+        <h3 style="font-family:'Cinzel',serif;color:var(--glow-warm);font-size:1rem;letter-spacing:0.06em;margin:1.6rem 0 0.5rem;">Reference tracks — the only real calibration</h3>
+        <p class="ar-lead">
+          A <strong>reference track</strong> is a finished, professionally mixed record in a similar style, loaded into
+          your session so you can A/B against it. It's the single most effective way to escape your room's lies, because
+          it was made in a good room and it tells you what "correct" sounds like <em>here, right now, on these speakers</em>.
+        </p>
+        <p class="ar-lead">
+          There is one rule that makes the difference between a reference track helping and actively harming:
+          <strong>level-match it.</strong> A mastered record is far louder than your unmastered mix, and louder always
+          sounds better — so if you A/B without matching, your mix will lose every time for reasons that have nothing to
+          do with your mixing. Pull the reference down until it's subjectively the same loudness as your mix, then
+          compare. Suddenly you're hearing balance and tone instead of volume.
+        </p>
+        <p class="ar-note">
+          The same rule applies to your own plugins. Before you decide a compressor "improved" a channel, match the
+          bypassed and engaged levels and switch again. A great deal of what people believe processing does for them is
+          just the 2 dB it added.
+        </p>
+        <div class="ar-logic" data-l="REFERENCING IN LOGIC PRO">
+          Import the reference as an audio track, set its output to <strong>Stereo Out</strong> but route it
+          <em>past</em> your mix bus processing, and mute/unmute it against your mix. Logic's <strong>Level Meter</strong>
+          and <strong>Loudness Meter</strong> (Metering plugins) let you match by numbers instead of guesswork — line up
+          the short-term LUFS readings before you start trusting your ears. Keep the reference muted and only in the last
+          slot of your listening, so you're not mixing <em>toward</em> a different song's arrangement.
+        </div>
+
+        <h3 style="font-family:'Cinzel',serif;color:var(--glow-warm);font-size:1rem;letter-spacing:0.06em;margin:1.6rem 0 0.5rem;">Check it everywhere</h3>
+        <p class="ar-lead">
+          Before you call a mix done, play it on a phone speaker, in a car, on cheap earbuds, and in another room while
+          you're not looking at the screen. Each one exposes something the others hide — the phone tells you whether the
+          vocal and the snare survive without any bass at all, the car tells you about the low end, and the other room
+          tells you about the balance, because distance and walls strip away everything except what's actually loud.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Get the balance right with faders, place things with the pan pot, decide who owns the low end, and take something
+        away before you add anything. Do that on a mix you can trust what you're hearing on, and the processing you have
+        left to do will be small. Then — and only then — it's ready to
+        <a href="mastering.html" style="color:var(--glow-warm)">master</a>.
+      </p>
+
+      <nav aria-label="Production series" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="effects.html" style="color:var(--stone);text-decoration:none;">← Effects</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">↑ Part 4 of 5</a>
+        <a href="mastering.html" style="color:var(--glow-warm);text-decoration:none;">Next: Mastering →</a>
+      </nav>
+
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+

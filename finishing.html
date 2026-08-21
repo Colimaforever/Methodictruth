@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Finishing — How to Actually Complete a Track</title>
+  <meta name="keywords" content="finishing songs, unfinished tracks, loop purgatory, producer block, how to finish a song, when is a track done, music feedback, creative constraints, production workflow, beat block">
+  <meta name="description" content="Why tracks stall and how to get them to the end: escaping the eight-bar loop, unsticking a stalled arrangement, deciding what &quot;done&quot; means, asking for feedback that helps, and building the habit of finishing.">
+  <link rel="canonical" href="https://methodictruth.com/finishing.html">
+  <meta property="og:title" content="Finishing — The Skill Nobody Teaches">
+  <meta property="og:description" content="Everyone has a folder of unfinished loops. Finishing is a separate skill from making, and it is learnable: scope, procedure, deadlines and a definition of done.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/finishing.html">
+  <meta property="og:image" content="https://methodictruth.com/og/finishing.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=70">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Finishing \u2014 How to Actually Complete a Track",
+  "description": "Why tracks stall and how to get them to the end: escaping the eight-bar loop, unsticking a stalled arrangement, deciding what \"done\" means, asking for feedback that helps, and building the habit of finishing.",
+  "url": "https://methodictruth.com/finishing.html",
+  "image": "https://methodictruth.com/og/finishing.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "music production",
+    "creative process",
+    "songwriting",
+    "workflow"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "Finishing", "item": "https://methodictruth.com/finishing.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="finishing.html" class="active">Finishing</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="theory.html">Theory</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Finishing</h1>
+        <div class="subtitle">The skill that separates people who make music from people who start music</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Almost everyone reading this has a folder of unfinished eight-bar loops. Not because they lack talent or
+        knowledge — every other page on this site is about knowledge — but because <strong>finishing is a separate
+        skill from making, and nobody teaches it.</strong> You get better at production by completing tracks, and each
+        abandoned loop teaches you almost nothing, because everything hard about music happens after the part that's
+        fun. This page is about getting to the end.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#why">Why Tracks Stall</a>
+        <a href="#loop">Escaping Loop Purgatory</a>
+        <a href="#stuck">When You're Stuck</a>
+        <a href="#done">Deciding It's Done</a>
+        <a href="#feedback">Getting Feedback</a>
+        <a href="#habit">Building the Habit</a>
+      </nav>
+
+      <!-- ═══ 1. WHY ═══ -->
+      <section class="ar-section" id="why">
+        <div class="ar-section-label">① The Diagnosis</div>
+        <h2 class="ar-section-title">Why Tracks Stall</h2>
+        <p class="ar-lead">
+          Tracks rarely die because the idea was bad. They die for a small number of predictable reasons, and naming
+          yours is most of the fix — because the remedies are completely different and applying the wrong one keeps you
+          stuck.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>It stalled because…</th><th>What it feels like</th><th>What actually helps</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">The fun part ended</td><td>The loop is great; building a song around it feels like homework</td><td>Accept that this is normal and universal. Structure it anyway — the reward is on the other side</td></tr>
+              <tr><td class="ar-hi">No destination</td><td>Endless tweaking, no sense of what "done" would even mean</td><td>Decide the length, the sections and the deadline <em>before</em> you continue</td></tr>
+              <tr><td class="ar-hi">Perfectionism on the wrong layer</td><td>Two hours on a hi-hat sound; no second section exists</td><td>Ban mixing until the arrangement is complete end to end</td></tr>
+              <tr><td class="ar-hi">Fatigue disguised as doubt</td><td>"This is bad" — after four hours on it</td><td>Stop. Judge tomorrow. Nothing sounds good at hour four</td></tr>
+              <tr><td class="ar-hi">Comparison</td><td>It doesn't sound like the reference, so why bother</td><td>Compare your track to your <em>last</em> track, never to a mastered record</td></tr>
+              <tr><td class="ar-hi">It genuinely isn't working</td><td>Calm, considered, still true after a break</td><td>Harvest the good part, archive the rest, start again. This is legitimate — just make sure it's this and not fatigue</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          The most common of these by far is the first, and it's worth stating plainly: <strong>the loop being fun and
+          the song being work is not a sign you're doing it wrong.</strong> It's the actual shape of the job. Producers
+          who finish things aren't enjoying the boring part more than you — they've just stopped expecting it to be
+          enjoyable.
+        </p>
+      </section>
+
+      <!-- ═══ 2. LOOP PURGATORY ═══ -->
+      <section class="ar-section" id="loop">
+        <div class="ar-section-label">② The Specific Trap</div>
+        <h2 class="ar-section-title">Escaping Loop Purgatory</h2>
+        <p class="ar-lead">
+          The eight-bar loop is where the overwhelming majority of unfinished music lives. It's seductive because a
+          loop can be endlessly improved and never has to be judged as a song. The escape is mechanical, not
+          inspirational — you don't wait to feel like arranging, you follow a procedure.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Duplicate to full length first</h4>
+            <p>Before anything else, copy your loop across <span class="ar-term">three minutes</span> of timeline. It
+            will sound terrible and repetitive. Good — now the problem is visible and specific: "make bar 48 different
+            from bar 16" is a task you can do. "Write a song" is not.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Mark the sections empty</h4>
+            <p>Drop markers for intro, verse, chorus, bridge, outro before you've written them. An empty labelled
+            container is a much stronger prompt than a blank timeline — you're now
+            <span class="ar-term">filling gaps</span> rather than inventing structure.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Subtract to make sections</h4>
+            <p>The fastest way to get a second section is to <span class="ar-term">delete things</span> from the one you
+            have. Mute the drums for eight bars and you have a breakdown. Strip to the bass and vocal and you have a
+            verse. New sections don't require new material.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Write the ending early</h4>
+            <p>An outro takes ten minutes and makes the track feel <span class="ar-term">finishable</span> rather than
+            open-ended. Having a real end on the timeline changes how the middle feels to work on.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          There's a broader principle here: <strong>work in passes, not in perfection.</strong> Get a bad version of the
+          whole song before you get a good version of any part of it. A complete, rough, three-minute track can be
+          improved anywhere; a flawless sixteen bars can only be extended, which is the hard direction. The
+          <a href="arrangement.html" style="color:var(--glow-warm)">Arrangement guide</a> and the
+          <a href="songwriter.html" style="color:var(--glow-warm)">Songwriter workbench</a> are both built for blocking
+          out that rough whole quickly.
+        </p>
+      </section>
+
+      <!-- ═══ 3. STUCK ═══ -->
+      <section class="ar-section" id="stuck">
+        <div class="ar-section-label">③ Unsticking</div>
+        <h2 class="ar-section-title">When You're Stuck in the Middle</h2>
+        <p class="ar-lead">
+          Being stuck is usually an excess of options rather than a lack of them. Constraint is the reliable cure —
+          every one of these works by removing choices, not by summoning inspiration.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Move</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Change one constraint</td><td>Change the tempo by 10 BPM, transpose the whole thing up a third, or swap the drum kit. Radical, cheap, reversible, and frequently the thing that unlocks it</td></tr>
+              <tr><td class="ar-hi">Delete your favourite part</td><td>Often the element you're protecting is the one preventing the song from becoming anything else</td></tr>
+              <tr><td class="ar-hi">Set a timer</td><td>Twenty minutes to finish the second verse, badly. Deadline pressure defeats perfectionism more reliably than willpower</td></tr>
+              <tr><td class="ar-hi">Work on a different layer</td><td>Stuck on melody? Do the drum fills. Stuck on drums? Write the lyric. Progress anywhere restores momentum everywhere</td></tr>
+              <tr><td class="ar-hi">Steal a structure</td><td>Take a song you love, map its section lengths with the <a href="song-analyzer.html" style="color:var(--glow)">Song Analyzer</a>, and pour your material into that shape. Nobody will recognise the skeleton</td></tr>
+              <tr><td class="ar-hi">Bounce it and go for a walk</td><td>Listening away from the screen, with no ability to fix anything, tells you what's actually missing in about ninety seconds</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          Notice that none of these are "wait for inspiration." Inspiration is what starts tracks; it has essentially
+          nothing to do with finishing them, and treating it as a prerequisite is how people end up with a hundred
+          beginnings.
+        </p>
+      </section>
+
+      <!-- ═══ 4. DONE ═══ -->
+      <section class="ar-section" id="done">
+        <div class="ar-section-label">④ The Hardest Call</div>
+        <h2 class="ar-section-title">Deciding It's Done</h2>
+        <p class="ar-lead">
+          A track is never finished in the sense of being unimprovable. There will always be another edit. So "done"
+          can't be a quality you detect — it has to be <strong>a decision you make</strong>, and having criteria for
+          that decision in advance is what stops a track from being polished into the ground.
+        </p>
+        <p class="ar-lead">A workable definition: it's done when</p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>It plays start to finish</h4>
+            <p>No placeholders, no gaps, no "I'll fix that later" markers. A real intro and a real ending.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Nothing is obviously wrong</h4>
+            <p>Not "everything is perfect" — just no clicks, no clipping, nothing out of tune, nothing badly out of
+            balance. The <span class="ar-term">absence of errors</span>, not the presence of excellence.</p>
+          </div>
+          <div class="ar-card">
+            <h4>It survives elsewhere</h4>
+            <p>You've heard it on a phone, in a car, and on headphones, and it holds up. This catches almost everything
+            that matters and almost nothing that doesn't.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Your changes stopped mattering</h4>
+            <p>When you can't tell whether the last three edits improved it, you finished a while ago and have been
+            <span class="ar-term">rearranging deck chairs</span> since.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Two practices make this decision much easier. <strong>Bounce a version and date it</strong> whenever the track
+          reaches a coherent state — it removes the fear of losing the good version, which is a surprising amount of
+          what keeps people tweaking. And <strong>let it sit for a week</strong> before the final call. Distance does
+          something no amount of listening can: it tells you whether the track is actually good, or whether you'd just
+          heard it two hundred times.
+        </p>
+        <p class="ar-note">
+          It also helps to remember what "done" is for. A finished track that's 70% as good as you wanted teaches you
+          more than an unfinished one that was heading for 95%, because everything you'd learn is in the last stretch.
+          <strong>Finish it, learn the lesson, apply it to the next one.</strong> That loop is the entire mechanism by
+          which anyone gets good at this.
+        </p>
+      </section>
+
+      <!-- ═══ 5. FEEDBACK ═══ -->
+      <section class="ar-section" id="feedback">
+        <div class="ar-section-label">⑤ Outside Ears</div>
+        <h2 class="ar-section-title">Getting Feedback That Helps</h2>
+        <p class="ar-lead">
+          "What do you think?" reliably produces "yeah, it's cool," which is worth nothing. Useful feedback has to be
+          asked for specifically, and the person giving it usually needs to be told what kind of information you're
+          after.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Ask this</th><th>You learn</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">"Where did you get bored?"</td><td>Arrangement problems, with a timestamp. The single most useful question you can ask</td></tr>
+              <tr><td class="ar-hi">"What's the first thing you noticed?"</td><td>Whether your intended focus is actually the focus</td></tr>
+              <tr><td class="ar-hi">"Could you hear all the words?"</td><td>A vocal balance answer you can't get yourself, because you already know the lyrics</td></tr>
+              <tr><td class="ar-hi">"Does anything sound wrong or annoying?"</td><td>Harshness and resonances your ears have adapted to over hours</td></tr>
+              <tr><td class="ar-hi">"Would you play this twice?"</td><td>The only quality question that means anything</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          And a rule for receiving it: <strong>when someone tells you something is wrong, they're almost always right;
+          when they tell you how to fix it, they're often wrong.</strong> Listeners are excellent detectors and poor
+          diagnosticians. "The chorus doesn't hit" is real data. "You should add more reverb" is a guess — but the
+          feeling that produced it isn't, and that feeling is what you go and solve.
+        </p>
+      </section>
+
+      <!-- ═══ 6. HABIT ═══ -->
+      <section class="ar-section" id="habit">
+        <div class="ar-section-label">⑥ The Long Game</div>
+        <h2 class="ar-section-title">Building the Habit</h2>
+        <p class="ar-lead">
+          The producers who get good are not the ones with the best ideas. They're the ones with the most finished
+          tracks, because the number of complete songs you've made is the closest thing to a measure of experience there
+          is. Everything else is a proxy for it.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Deliberately finish bad ones</h4>
+            <p>Take a mediocre idea all the way to a bounce on purpose. It costs a day and it teaches the entire second
+            half of the process — the half you keep skipping. <span class="ar-term">Nobody has to hear it.</span></p>
+          </div>
+          <div class="ar-card">
+            <h4>Constrain the scope</h4>
+            <p>One-day tracks. Five-instrument tracks. Two-minute tracks. Constraint makes finishing achievable, and
+            <span class="ar-term">a finished small thing beats an abandoned ambitious one</span> every single time.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Separate the modes</h4>
+            <p>Writing, arranging and mixing are different jobs using different parts of your brain. Doing them at once
+            is why sessions stall. <span class="ar-term">One mode per session</span>, and don't let mixing start until
+            arranging is done.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Keep a graveyard, and raid it</h4>
+            <p>Don't delete abandoned ideas — file them. A loop that went nowhere on its own is often exactly the
+            <span class="ar-term">bridge</span> a different track needs six months later.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          One last reframe. Every finished track you make is <em>a data point about what you actually sound like</em> —
+          and you can't develop a voice from fragments, because a voice is largely made of the decisions you only face
+          at the end: how you end things, what you leave out, how long you let a moment sit. Those choices are the ones
+          that make a producer recognisable, and you never get to make any of them in an eight-bar loop.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Copy the loop across three minutes. Mark the sections before you write them. Make sections by taking things
+        away. Set a deadline, ban mixing until the arrangement exists, and bounce it even if it's a 70%. The next one
+        starts better because this one ended.
+      </p>
+
+      <nav aria-label="Craft guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="groove.html" style="color:var(--stone);text-decoration:none;">← Groove &amp; Timing</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">↑ Learn Production</a>
+        <a href="mastering.html" style="color:var(--glow-warm);text-decoration:none;">Next: Mastering →</a>
+      </nav>
+
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+

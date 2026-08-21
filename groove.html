@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Groove &amp; Timing — Velocity, Swing and the Pocket in Logic Pro X</title>
+  <meta name="keywords" content="groove, timing, quantize, quantize strength, velocity, ghost notes, humanize, swing, shuffle, push and pull, ahead of the beat, behind the beat, note length, gate, the pocket, kick snare bass, drum programming, Logic Pro X groove templates, flex time">
+  <meta name="description" content="Why perfectly quantized music sounds dead, and what to do about it: velocity accents and ghost notes, pushing and pulling against the grid, note length as a rhythm control, swing amounts, and how kick, snare and bass lock into a pocket.">
+  <link rel="canonical" href="https://methodictruth.com/groove.html">
+  <meta property="og:title" content="Groove &amp; Timing — Why Quantized Music Sounds Dead">
+  <meta property="og:description" content="Groove is not a mystical quality. It is velocity, note placement and note length — three concrete controls sitting in your piano roll. A practical guide with Logic Pro X specifics.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/groove.html">
+  <meta property="og:image" content="https://methodictruth.com/og/groove.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=70">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Groove & Timing \u2014 Velocity, Swing and the Pocket in Logic Pro X",
+  "description": "Why perfectly quantized music sounds dead, and what to do about it: velocity accents and ghost notes, pushing and pulling against the grid, note length as a rhythm control, swing amounts, and how kick, snare and bass lock into a pocket.",
+  "url": "https://methodictruth.com/groove.html",
+  "image": "https://methodictruth.com/og/groove.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "groove",
+    "rhythm",
+    "music production",
+    "Logic Pro"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "Groove & Timing", "item": "https://methodictruth.com/groove.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="groove.html" class="active">Groove &amp; Timing</a>
+          <a href="finishing.html">Finishing</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="theory.html">Theory</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Groove &amp; Timing</h1>
+        <div class="subtitle">Why perfectly correct music can sound completely dead</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        You can write the right chords, choose the right sounds, and mix them beautifully, and the track can still feel
+        like nothing. That missing thing is <strong>groove</strong> — the microscopic timing and loudness relationships
+        that make music feel like it's being <em>played</em> rather than executed. It is not a mystical quality. It's a
+        small number of concrete, learnable decisions about <em>where notes land, how loud each one is, and how long it
+        rings</em>, and every one of them is available to you in a DAW.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#dead">Why Quantized Sounds Dead</a>
+        <a href="#velocity">Velocity</a>
+        <a href="#push">Push &amp; Pull</a>
+        <a href="#length">Note Length</a>
+        <a href="#swing">Swing</a>
+        <a href="#pocket">The Pocket</a>
+        <a href="#practice">How to Practise</a>
+      </nav>
+
+      <!-- ═══ 1. WHY DEAD ═══ -->
+      <section class="ar-section" id="dead">
+        <div class="ar-section-label">① The Diagnosis</div>
+        <h2 class="ar-section-title">Why 100% Quantized Music Sounds Dead</h2>
+        <p class="ar-lead">
+          Quantize snaps every note to the nearest grid line. It fixes sloppy playing, and at full strength it also
+          removes the only information that told you a human was involved. Real players are never exactly on the grid —
+          a drummer's hi-hat lands a handful of milliseconds around the beat, never <em>on</em> it, and those deviations
+          are not errors. <strong>They're the groove.</strong>
+        </p>
+        <p class="ar-lead">
+          There's a second, less obvious reason perfect timing sounds worse: when several instruments hit at the
+          <em>exact</em> same sample, their transients stack into one hard click and their low frequencies sum
+          coherently, which is both harsh and strangely small. Spread those same hits over a few milliseconds and the
+          attack becomes wider, rounder, and — counter-intuitively — bigger. Part of what you hear as "human feel" is
+          literally a phase and transient phenomenon.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Symptom</th><th>Usual cause</th><th>Fix</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Sounds like a machine</td><td>100% quantize strength, uniform velocity</td><td>Reduce strength to 70–90%; vary velocity first</td></tr>
+              <tr><td class="ar-hi">Sounds stiff but not robotic</td><td>Everything dead-centre on the grid, correct but static</td><td>Push or pull one element a few ms</td></tr>
+              <tr><td class="ar-hi">Sounds busy and tiring</td><td>Every note the same loudness — no accents, no shape</td><td>Velocity accents on the strong beats</td></tr>
+              <tr><td class="ar-hi">Sounds thin on the attack</td><td>Layered hits landing on the same sample</td><td>Offset layers by 3–10 ms</td></tr>
+              <tr><td class="ar-hi">Sounds like it's dragging</td><td>Notes too long, no space between them</td><td>Shorten note lengths; add gaps</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          Quantize is still the right tool much of the time — a sloppy performance is not automatically a groovy one, and
+          "leaving it human" is not an excuse for a part that's genuinely out of time. The skill is knowing that
+          quantize has a <em>strength</em> parameter, and that it's almost never supposed to be at 100%.
+        </p>
+      </section>
+
+      <!-- ═══ 2. VELOCITY ═══ -->
+      <section class="ar-section" id="velocity">
+        <div class="ar-section-label">② The Most Underused Control in Music</div>
+        <h2 class="ar-section-title">Velocity Is the Groove</h2>
+        <p class="ar-lead">
+          If you change one thing after reading this page, change your velocities. <strong>Timing gets all the
+          attention, but loudness variation is what actually makes a part sound played.</strong> A run of sixteenth
+          hi-hats at identical velocity is unlistenable; the same pattern with accents on the downbeats and ghost notes
+          in between is a groove — and the notes haven't moved at all.
+        </p>
+        <p class="ar-lead">
+          Velocity usually does more than change volume. On a well-made drum sample it switches to an entirely different
+          recording — a soft snare hit is a different sound, not a quieter one. On a synth it typically opens the filter
+          and shortens the attack. That means velocity variation adds <em>timbral</em> movement too, which is why it
+          reads as expression rather than as level automation.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Accent the pattern</h4>
+            <p>Decide which notes are strong. In 4/4 with straight eighths, the beats are strong and the off-beats are
+            weak — put maybe <span class="ar-term">20–30 points</span> of velocity between them and the pattern
+            immediately has a pulse.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Ghost notes</h4>
+            <p>Very quiet hits (velocity <span class="ar-term">20–45</span>) between the loud ones. On a snare this is
+            the entire difference between a beginner beat and a funk drummer. They shouldn't be consciously audible —
+            you should notice their absence, not their presence.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Never repeat exactly</h4>
+            <p>Even accents should vary a few points hit to hit. Two identical bars of a copied loop announce themselves
+            immediately; the same bar with <span class="ar-term">±5</span> of drift does not.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Shape across the bar</h4>
+            <p>Let a phrase build slightly toward its landing note and ease off after it. This is what a player does
+            without thinking, and what a grid does not do at all.</p>
+          </div>
+        </div>
+        <div class="ar-logic" data-l="VELOCITY IN LOGIC PRO">
+          In the Piano Roll, <span class="ar-kbd">Ctrl</span>-<span class="ar-kbd">⌘</span>-drag vertically on a note to
+          change velocity, or use the <strong>Velocity tool</strong>. Select several notes and drag to scale them all
+          relatively. For fast humanizing, open <strong>Functions → MIDI Transform → Humanize</strong> and apply a small
+          random velocity range — but do the deliberate accents by hand first, because random variation on top of a flat
+          part still sounds flat, just noisier.
+        </div>
+      </section>
+
+      <!-- ═══ 3. PUSH & PULL ═══ -->
+      <section class="ar-section" id="push">
+        <div class="ar-section-label">③ Where the Feel Lives</div>
+        <h2 class="ar-section-title">Ahead of the Beat, Behind the Beat</h2>
+        <p class="ar-lead">
+          Musicians talk about playing <em>on top of</em>, <em>in the middle of</em>, or <em>behind</em> the beat, and
+          they mean it literally: a few milliseconds early, dead on, or a few milliseconds late. The tempo doesn't
+          change — the relationship to the click does. This is the single most powerful groove control you have, and in
+          a DAW it's just dragging notes.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Placement</th><th>Feels</th><th>Heard in</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Ahead (−5 to −20 ms)</td><td>Urgent, driving, anxious, energetic</td><td>Punk, drum &amp; bass, aggressive rock — often the snare or hats</td></tr>
+              <tr><td class="ar-hi">On the grid</td><td>Tight, modern, machine-precise</td><td>Most electronic dance music, the kick almost always</td></tr>
+              <tr><td class="ar-hi">Behind (+10 to +30 ms)</td><td>Relaxed, heavy, dragging in a good way, soulful</td><td>Hip-hop, neo-soul, reggae, J Dilla-influenced production</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The important part is that <strong>different instruments can sit differently at the same time</strong>, and
+          that tension between them is the groove. The classic soul feel is a kick locked to the grid with a snare
+          dragging noticeably behind it — the kick keeps the tempo honest while the snare makes it feel heavy and
+          unhurried. Push the bass slightly ahead of a laid-back drummer and the track gains urgency without speeding
+          up. Move the whole kit and you've just changed the timing; move one element against the others and you've
+          created a feel.
+        </p>
+        <p class="ar-note">
+          Scale matters. At 90 BPM a sixteenth note is about 167 ms, so a 20 ms shift is a subtle lean. At 170 BPM the
+          same 20 ms is a much bigger proportion of the beat and will read as sloppy. Judge these by ear against the
+          tempo, not by the number.
+        </p>
+        <div class="ar-logic" data-l="NUDGING IN LOGIC PRO">
+          Set the <strong>Nudge value</strong> in the Toolbar (or <strong>Functions → Nudge → Nudge Value</strong>) to
+          <span class="ar-chip">1 ms</span> or <span class="ar-chip">10 ms</span>, then move selected notes with
+          <span class="ar-kbd">Option</span>-<span class="ar-kbd">←</span>/<span class="ar-kbd">→</span>. For a whole
+          part, use the track's <strong>Delay</strong> parameter in the Track inspector — a negative value pulls the
+          entire track ahead of the beat, positive pushes it behind, without touching a single note.
+        </div>
+      </section>
+
+      <!-- ═══ 4. NOTE LENGTH ═══ -->
+      <section class="ar-section" id="length">
+        <div class="ar-section-label">④ The Forgotten Parameter</div>
+        <h2 class="ar-section-title">Note Length &amp; Space</h2>
+        <p class="ar-lead">
+          Where a note starts gets all the attention. Where it <em>stops</em> is at least as responsible for how a part
+          feels. The same bassline played with notes ringing into each other is a wash; played staccato with clear gaps,
+          it's a groove you can dance to. Nothing about the pitches or the timing changed.
+        </p>
+        <p class="ar-lead">
+          Short notes create <strong>space</strong>, and space is what lets a rhythm section breathe — it's the reason
+          funk bass is played with the side of the palm muting the strings, and the reason a great many electronic
+          basslines are gated hard. Long notes create sustain and weight but consume the mix. If a part feels like it's
+          dragging or crowding, try halving every note length before you try anything else.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Gate length as a rhythm control</h4>
+            <p>On a repeated sixteenth pattern, note length <em>is</em> the sound. Long gates blur into a drone; short
+            gates turn the same notes into a percussion part. This is what the synth sequencer's
+            <span class="ar-term">gate</span> control does.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Overlap creates legato</h4>
+            <p>On a monophonic synth, letting one note overlap the next triggers a glide rather than a new attack. Tiny
+            overlaps are how you get a played line instead of a stuttering one.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Release time is note length too</h4>
+            <p>A short MIDI note through a long release still rings. If shortening notes doesn't tighten the part, the
+            <span class="ar-term">envelope</span> is what's holding it open — go there instead.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Vary it like velocity</h4>
+            <p>Identical lengths are as robotic as identical volumes. Let some notes ring a little past their neighbours
+            and clip others short.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          Try this on the <a href="synth.html" style="color:var(--glow-warm)">synth's sequencer</a>: program a
+          sixteenth-note line, then sweep the <strong>Gate</strong> control from 100% down to 20% while it plays. That
+          single knob takes the same notes from a pad to a pluck to a percussion pattern.
+        </p>
+      </section>
+
+      <!-- ═══ 5. SWING ═══ -->
+      <section class="ar-section" id="swing">
+        <div class="ar-section-label">⑤ The Grid, Bent</div>
+        <h2 class="ar-section-title">Swing &amp; Shuffle</h2>
+        <p class="ar-lead">
+          <strong>Swing</strong> delays every other subdivision. Instead of two evenly spaced eighth notes per beat, the
+          first is held longer and the second arrives late — the long-short "ta-tum, ta-tum" that underlies jazz, blues,
+          shuffle, house and most hip-hop. It's usually expressed as a percentage, where <span class="ar-chip">50%</span>
+          is perfectly straight and <span class="ar-chip">66%</span> is a full triplet feel.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Amount</th><th>Feel</th><th>Typical of</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">50% (straight)</td><td>Even, mechanical, driving</td><td>Techno, rock, most pop</td></tr>
+              <tr><td class="ar-hi">54–58%</td><td>Barely there — you feel it more than hear it</td><td>Modern pop and R&amp;B production, subtle house</td></tr>
+              <tr><td class="ar-hi">58–62%</td><td>Clearly swung but still tight</td><td>Hip-hop, garage, funk</td></tr>
+              <tr><td class="ar-hi">66% (triplet)</td><td>Full shuffle, unmistakable</td><td>Blues, jazz, shuffle rock</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Two things beginners get wrong. First, <strong>swing usually shouldn't be applied to everything.</strong>
+          Swinging the hats while the kick stays straight is a real and very common groove; swinging every single part
+          by the same amount often just sounds like the tempo is wrong. Second, <strong>small amounts do the most
+          work.</strong> The 54–58% range is where a huge amount of modern production lives, and it's subtle enough that
+          most listeners couldn't tell you it's there — they'd only notice that the straight version feels stiff.
+        </p>
+        <div class="ar-logic" data-l="SWING IN LOGIC PRO">
+          Logic's quantize grid includes swung values directly — <strong>16B</strong> through <strong>16F</strong> apply
+          increasing swing to sixteenths (and <strong>8B–8F</strong> to eighths). The Region inspector's
+          <strong>Swing</strong> slider adjusts it continuously, and <strong>Q-Strength</strong> lets you apply the swing
+          only partially. For a specific feel, use <strong>Groove Templates</strong>: drag a region onto the quantize
+          menu to make its timing a template you can apply to other parts.
+        </div>
+      </section>
+
+      <!-- ═══ 6. THE POCKET ═══ -->
+      <section class="ar-section" id="pocket">
+        <div class="ar-section-label">⑥ Putting It Together</div>
+        <h2 class="ar-section-title">The Pocket — Kick, Snare, Bass</h2>
+        <p class="ar-lead">
+          "The pocket" is the relationship between the kick, the snare and the bass. When those three lock, everything
+          else in the arrangement can be imperfect and the track still feels good. When they don't, no amount of
+          production saves it. Almost all groove work comes down to these three parts.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Kick and bass: lock or interlock</h4>
+            <p>Either the bass hits <span class="ar-term">exactly with</span> the kick — one huge combined event, the
+            default in most electronic music — or it deliberately plays in the <span class="ar-term">gaps</span> between
+            kicks, which is what makes funk and reggae move. What kills a groove is being vaguely near it: a bass note
+            30 ms off the kick reads as a mistake rather than a choice.</p>
+          </div>
+          <div class="ar-card">
+            <h4>The snare is the backbeat</h4>
+            <p>Beats 2 and 4 are where the listener's body keeps time. This is the element most worth experimenting with
+            — dragging the snare a few milliseconds late is the classic way to make a track feel heavier without
+            changing anything else.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Hats carry the subdivision</h4>
+            <p>They tell you whether the track is in eighths or sixteenths and whether it swings. This is where velocity
+            accents matter most, because the hats are playing more notes than anything else.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Everything else follows</h4>
+            <p>Once those lock, guitars, keys and vocals can sit loosely around them. A rhythm section in the pocket
+            gives everything above it permission to breathe.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          A practical starting recipe for a track that feels stiff: keep the kick exactly on the grid, drag the snare
+          <strong>+10 ms late</strong>, apply <strong>56% swing</strong> to the hats only, add velocity accents on the
+          beats with ghost notes between, and pull the bass <strong>−5 ms</strong> ahead. Then undo each change one at
+          a time and listen to what it was doing. That teardown teaches more than the recipe does.
+        </p>
+      </section>
+
+      <!-- ═══ 7. PRACTICE ═══ -->
+      <section class="ar-section" id="practice">
+        <div class="ar-section-label">⑦ Getting Better at This</div>
+        <h2 class="ar-section-title">How to Practise Timing</h2>
+        <p class="ar-lead">
+          Groove is an ear skill before it's a technique, and the good news is that it trains quickly because the
+          feedback is immediate — you either feel it or you don't.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Exercise</th><th>What it builds</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Steal a groove</td><td>Load a record you love into the <a href="song-analyzer.html" style="color:var(--glow)">Song Analyzer</a>, get its tempo, then program a beat to that tempo and try to match the feel by ear. You'll discover what you were missing far faster than by reading about it.</td></tr>
+              <tr><td class="ar-hi">Metronome on 2 and 4</td><td>Play along with the click on the backbeat instead of every beat. Brutal at first, and the fastest way to internalise where the pulse actually is.</td></tr>
+              <tr><td class="ar-hi">One-parameter passes</td><td>Take a flat programmed loop. Do a velocity-only pass. Then a timing-only pass. Then a length-only pass. Isolating them shows you how much each one is worth.</td></tr>
+              <tr><td class="ar-hi">Play it in badly</td><td>Record a part live with quantize off, however clumsy. Then quantize at 80% strength. You'll keep your feel and lose your mistakes.</td></tr>
+              <tr><td class="ar-hi">Tap along</td><td>Use <a href="tapbpm.html" style="color:var(--glow)">Tap BPM</a> against records and notice how your taps drift. That drift is your timing, and noticing it is the whole skill.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          The deepest version of this exercise: take a loop that already sounds good and make it worse on purpose —
+          quantize it to 100%, flatten every velocity to the same value, make every note the same length. Listen to what
+          you destroyed. That's the clearest possible demonstration of what groove is made of.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Groove isn't a feel you're born with — it's velocity, placement and note length, and all three are sitting in
+        front of you in the piano roll. Vary the loudness, move one element against the others, control where notes stop,
+        and stop quantizing to 100%. Then go build one on the
+        <a href="synth.html" style="color:var(--glow-warm)">synth's sequencer</a>.
+      </p>
+
+      <nav aria-label="Craft guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="sound-selection.html" style="color:var(--stone);text-decoration:none;">← Sound Selection</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">↑ Learn Production</a>
+        <a href="finishing.html" style="color:var(--glow-warm);text-decoration:none;">Next: Finishing →</a>
+      </nav>
+
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+
