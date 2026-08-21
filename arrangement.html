@@ -157,7 +157,11 @@
           <a href="recording.html">Recording</a>
           <a href="arrangement.html" class="active">Arrangement</a>
           <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
           <a href="mastering.html">Mastering</a>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="finishing.html">Finishing</a>
           <a href="logic.html">Logic Pro</a>
           <a href="theory.html">Theory</a>
           <a href="jam-guide.html">Jam Guide</a>
@@ -202,6 +206,7 @@
         <a href="#energy">Energy</a>
         <a href="#transitions">Transitions</a>
         <a href="#workflow">Workflow</a>
+        <a href="#register">Register</a>
       </nav>
 
       <!-- ═══ 1. ANATOMY ═══ -->
@@ -512,15 +517,80 @@
         </div>
       </section>
 
+      <!-- ═══ 7. REGISTER ═══ -->
+      <section class="ar-section" id="register">
+        <div class="ar-section-label">⑦ Arranging in the Vertical</div>
+        <h2 class="ar-section-title">Register — Why Your Mix Is Muddy</h2>
+        <p class="ar-lead">
+          Everything above arranges the song <em>horizontally</em> — what happens when. There's a second dimension that
+          decides just as much and gets a fraction of the attention: <strong>the vertical one. What frequency range each
+          part occupies, and whether two of them are in the same place at the same time.</strong>
+        </p>
+        <p class="ar-lead">
+          This matters because it's the real cause of most muddy mixes. When a track sounds cluttered, the instinct is
+          to reach for EQ — but no EQ can separate two parts that are genuinely playing the same notes in the same
+          octave. Carving one to make room for the other just makes both sound worse. <strong>Masking is an arrangement
+          problem, and it's far cheaper to solve here than in the mix.</strong>
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Range</th><th>Who lives there</th><th>The usual collision</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Sub · 20–80 Hz</td><td>Kick, bass, 808</td><td>Kick and bass both holding the bottom — formless, eats all the headroom</td></tr>
+              <tr><td class="ar-hi">Low · 80–250 Hz</td><td>Bass body, kick thump, low piano, guitar body</td><td>Piano left hand doubling the bassline — the classic mud</td></tr>
+              <tr><td class="ar-hi">Mid · 250 Hz–2 kHz</td><td>Vocals, guitars, keys, snare body — almost everything</td><td>Pad and rhythm guitar both sustaining chords behind the vocal</td></tr>
+              <tr><td class="ar-hi">High-mid · 2–6 kHz</td><td>Vocal intelligibility, snare crack, guitar bite</td><td>A bright synth line sitting exactly where the vocal's consonants are</td></tr>
+              <tr><td class="ar-hi">Air · 6 kHz+</td><td>Cymbals, breath, sparkle</td><td>Rarely crowded — but harsh when several bright sources stack</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The useful habit is to picture your arrangement as a stack rather than a timeline and ask <em>which parts are
+          on the same shelf right now.</em> Two on a shelf is a conversation; four is a mess. And notice from the table
+          how crowded the midrange is — nearly every instrument you own wants to be there, which is why it's the range
+          where arrangements most often collapse.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Spread them out</h4>
+            <p>If two parts share a shelf, move one an octave. A pad an octave above a rhythm guitar stops competing
+            entirely and the arrangement sounds <span class="ar-term">bigger</span>, not thinner — you've covered more
+            of the spectrum with the same material.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Change the voicing, not the part</h4>
+            <p>Same chords, different <a href="chord-voicings.html" style="color:var(--glow)">voicing</a>. Move a piano
+            part off its low root and it stops fighting the bass without a note changing.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Let sections have different shelves</h4>
+            <p>One reason a chorus lands is that it suddenly fills ranges the verse left empty. If your verse already
+            covers everything, the chorus has <span class="ar-term">nowhere to grow into</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Leave a shelf empty on purpose</h4>
+            <p>Space is a texture. Records that sound huge usually have a range that's deliberately unoccupied — most
+            often the low mids — which is what makes the parts that <em>are</em> there feel enormous.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          Curious where a part actually lives? Run a reference track through the
+          <a href="song-analyzer.html" style="color:var(--glow-warm)">Song Analyzer</a> and look at its brightness
+          reading, or solo pairs of your own parts and listen for which ones stop being distinguishable. The
+          <a href="mixing.html" style="color:var(--glow-warm)">Mixing guide</a> picks this up from the other end.
+        </p>
+      </section>
+
       <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
         Arrangement is the song's architecture — the invisible plan that decides whether it drags or soars. Block the
-        shape out first, move it around freely until the energy breathes, and Logic's Arrangement track keeps the whole
-        structure in your hands. Then it's ready to <a href="effects.html" style="color:var(--glow-warm)">mix</a>.
+        shape out first, move it around freely until the energy breathes, keep an eye on which parts share a register,
+        and Logic's Arrangement track keeps the whole structure in your hands. Then it's ready to
+        <a href="mixing.html" style="color:var(--glow-warm)">mix</a>.
       </p>
 
       <nav aria-label="Production series" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
         <a href="recording.html" style="color:var(--stone);text-decoration:none;">← Recording</a>
-        <a href="production.html" style="color:var(--glow);text-decoration:none;">↑ Part 2 of 4</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">↑ Part 2 of 5</a>
         <a href="effects.html" style="color:var(--glow-warm);text-decoration:none;">Next: Effects →</a>
       </nav>
 
