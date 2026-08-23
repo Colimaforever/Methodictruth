@@ -438,6 +438,7 @@
           <a href="finishing.html">Finishing</a>
           <div class="nav-drop-label">Reference</div>
           <a href="theory.html">Theory</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
           <a href="logic.html">Logic Pro</a>
           <a href="jam-guide.html">Jam Guide</a>
           <div class="nav-drop-label">Trainers</div>
@@ -519,6 +520,7 @@
   <!-- Info panel -->
   <div class="info-panel" id="infoPanel">
     <h3>How to use</h3>
+    <p style="margin-bottom:0.6rem;"><strong>New:</strong> <a href="fretboard.html" style="color:var(--glow-warm)">Seeing the Fretboard</a> — how good players actually read the neck: octave shapes, why the B string is the only irregularity, triads on string sets, and what tunings really change.</p>
     <p><strong>Notes mode:</strong> See every note on the fretboard. Change tunings to see how notes shift.<br>
     <strong>Intervals mode:</strong> Tap any note to set it as root — the fretboard lights up with interval distances. Learn the shapes.</p>
   </div>
@@ -741,7 +743,8 @@ function updateInfo() {
   } else {
     panel.innerHTML = `
       <h3>How to use</h3>
-      <p><strong>Notes mode:</strong> See every note on the fretboard. Change tunings to see how notes shift.<br>
+      <p style="margin-bottom:0.6rem;"><strong>New:</strong> <a href="fretboard.html" style="color:var(--glow-warm)">Seeing the Fretboard</a> — how good players actually read the neck: octave shapes, why the B string is the only irregularity, triads on string sets, and what tunings really change.</p>
+    <p><strong>Notes mode:</strong> See every note on the fretboard. Change tunings to see how notes shift.<br>
       <strong>Intervals mode:</strong> Tap any note to set it as root — the fretboard lights up with interval distances. Learn the shapes.</p>
     `;
   }

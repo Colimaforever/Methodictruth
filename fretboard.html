@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Seeing the Fretboard — How Good Guitarists Look at the Neck</title>
+  <meta name="keywords" content="guitar fretboard, learn the fretboard, fretboard theory, octave shapes, guitar intervals, B string offset, CAGED system, guitar triads, string sets, chord tones, guitar inversions, pentatonic box, horizontal guitar playing, alternate tunings, all fourths tuning, DADGAD, drop D, how to memorize the fretboard, guitar practice">
+  <meta name="description" content="How good guitarists see the fretboard: intervals instead of note names, octave shapes as a navigation system, why the B string is the only irregularity, position as a tone choice, horizontal vs box playing, triads on string sets, targeting chord tones, and what alternate tunings really change.">
+  <link rel="canonical" href="https://methodictruth.com/fretboard.html">
+  <meta property="og:title" content="Seeing the Fretboard — How Good Guitarists Look at the Neck">
+  <meta property="og:description" content="Most guitarists learn shapes without learning what the shapes are. The fretboard is a map of relationships, not a set of positions — and the map is small enough to learn in an afternoon.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/fretboard.html">
+  <meta property="og:image" content="https://methodictruth.com/og/fretboard.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Seeing the Fretboard \u2014 How Good Guitarists Look at the Neck",
+  "description": "How good guitarists see the fretboard: intervals instead of note names, octave shapes as a navigation system, why the B string is the only irregularity, position as a tone choice, horizontal vs box playing, triads on string sets, targeting chord tones, and what alternate tunings really change.",
+  "url": "https://methodictruth.com/fretboard.html",
+  "image": "https://methodictruth.com/og/fretboard.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "guitar",
+    "fretboard",
+    "music theory",
+    "guitar technique"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "Seeing the Fretboard", "item": "https://methodictruth.com/fretboard.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+
+    /* ─── FRETBOARD DIAGRAMS ─── */
+    .fb-dia { display: block; margin: 1rem auto 0.3rem; width: 100%; max-width: 560px; height: auto; }
+    .fb-wood { fill: rgba(10, 14, 26, 0.5); stroke: rgba(138,126,107,0.25); stroke-width: 1; }
+    .fb-string { stroke: rgba(138, 126, 107, 0.45); stroke-width: 1; }
+    .fb-fret { stroke: rgba(138, 126, 107, 0.3); stroke-width: 1; }
+    .fb-nut { stroke: var(--parchment); stroke-width: 3; opacity: 0.7; }
+    .fb-inlay { fill: rgba(138, 126, 107, 0.22); }
+    .fb-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .fb-dot { stroke-width: 1.2; }
+    .fb-dot-r { fill: var(--glow-warm); stroke: var(--glow-warm); }
+    .fb-dot-t { fill: rgba(0,229,255,0.75); stroke: var(--glow); }
+    .fb-dot-g { fill: rgba(10,14,26,0.6); stroke: rgba(138,126,107,0.5); }
+    .fb-dot-x { fill: rgba(232,92,92,0.55); stroke: rgba(232,92,92,0.8); }
+    .fb-dtxt { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; text-anchor: middle; fill: rgba(10,14,26,0.95); font-weight: 600; }
+    .fb-dtxt-g { fill: var(--stone-dark); }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="fretboard.html" class="active">Seeing the Fretboard</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Seeing the Fretboard</h1>
+        <div class="subtitle">How good players look at a guitar — and why it isn't how it's taught</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Most guitarists learn shapes without ever learning what the shapes <em>are</em>, and then hit a wall they can't
+        name: they can play the songs they've memorised and nothing else. The wall isn't talent or practice hours. It's
+        that the fretboard was taught as <strong>a set of positions to remember</strong> when it is really
+        <strong>a map of relationships</strong> — and the second one is smaller, portable, and explains itself. This is
+        the shift, in the order it actually helps. Play along on the
+        <a href="guitar.html" style="color:var(--glow-warm)">Fretboard Explorer</a> as you go.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#hard">Why It's Hard</a>
+        <a href="#intervals">Intervals, Not Notes</a>
+        <a href="#octaves">Octave Shapes</a>
+        <a href="#bstring">The B String</a>
+        <a href="#tone">Five Places, One Note</a>
+        <a href="#lines">Boxes and Lines</a>
+        <a href="#triads">String Sets</a>
+        <a href="#chordtones">Chord Tones</a>
+        <a href="#tunings">Tunings</a>
+        <a href="#practice">Practice</a>
+      </nav>
+
+      <!-- ═══ 1 ═══ -->
+      <section class="ar-section" id="hard">
+        <div class="ar-section-label">① The Real Difficulty</div>
+        <h2 class="ar-section-title">Why the Fretboard Is Hard (It Isn't Your Memory)</h2>
+        <p class="ar-lead">
+          On a piano, every note exists in exactly one place. Middle C is a specific key; you press it or you don't. On
+          a guitar, <strong>the same note exists in four or five different places at once</strong>, and the instrument
+          is laid out as a two-dimensional grid where moving right and moving down can produce identical pitches.
+        </p>
+        <p class="ar-lead">
+          That is the entire source of the confusion, and it's rarely said out loud. Beginners assume they're failing to
+          memorise something; they're actually being handed a system with enormous redundancy and no explanation of it.
+          A 22-fret guitar has 138 note positions for 44 distinct pitches. Memorising positions means memorising the
+          same information three times over.
+        </p>
+        <p class="ar-note">
+          The good news hiding inside that: the redundancy is <em>regular</em>. The relationships repeat identically
+          across the whole neck, with exactly one exception. Learn the relationships and the 138 positions collapse into
+          about a dozen shapes.
+        </p>
+      </section>
+
+      <!-- ═══ 2 ═══ -->
+      <section class="ar-section" id="intervals">
+        <div class="ar-section-label">② The Central Shift</div>
+        <h2 class="ar-section-title">Intervals, Not Note Names</h2>
+        <p class="ar-lead">
+          Ask an average guitarist what note they're on and they'll often have to count up from the open string. Ask a
+          good one and they'll tell you it's <em>the flat seventh</em>. Those are different mental models, and only one
+          of them travels.
+        </p>
+        <p class="ar-lead">
+          Because the guitar is a <strong>fretted, equal-tempered instrument with no open-string dependency</strong>,
+          any shape you learn is transposable by sliding it. A minor-third shape is the same two-dimensional gesture
+          whether you're in F# or in C. This is the guitar's great advantage over the piano, where every key looks and
+          feels different — and most players never claim it, because they learned <em>positions</em> rather than
+          <em>distances</em>.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Thinking in</th><th>What you have to know</th><th>What happens in a new key</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Note names</td><td>138 positions, each memorised separately</td><td>Start again — nothing transfers</td></tr>
+              <tr><td class="ar-hi">Shapes</td><td>A handful of chord and scale patterns</td><td>Slide it. But you don't know <em>why</em> it works, so you can't alter it</td></tr>
+              <tr><td class="ar-hi">Intervals</td><td>About a dozen relationships</td><td>Nothing changes. The map is the same everywhere</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The practical version: <strong>stop asking "what note is this" and start asking "what is this, relative to
+          where I am".</strong> The Fretboard Explorer's <em>Intervals</em> mode does exactly this — tap any note to
+          make it the root and the whole neck relabels as distances from it. Spend time there and the shapes stop being
+          arbitrary.
+        </p>
+      </section>
+
+      <!-- ═══ 3 ═══ -->
+      <section class="ar-section" id="octaves">
+        <div class="ar-section-label">③ The Navigation System</div>
+        <h2 class="ar-section-title">Octave Shapes</h2>
+        <p class="ar-lead">
+          If you learn one thing from this page, learn this. <strong>Octave shapes are how you find any note anywhere
+          without counting.</strong> They're the guitarist's equivalent of knowing where you are on a map, and most
+          players are never taught them at all.
+        </p>
+        <svg class="fb-dia" viewBox="0 0 548 138" role="img" aria-label="A guitar fretboard showing the note A in five positions: string six fret five, string four fret seven, string three fret two, string two fret ten, and string one fret five.">
+        <rect class="fb-wood" x="30" y="10" width="506" height="112"/>
+        <circle class="fb-inlay" cx="145.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="237.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="329.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="421.0" cy="66.0" r="3.5"/>
+        <line class="fb-string" x1="30" y1="16" x2="536" y2="16"/>
+        <text class="fb-lbl" x="22" y="19" text-anchor="end">E</text>
+        <line class="fb-string" x1="30" y1="36" x2="536" y2="36"/>
+        <text class="fb-lbl" x="22" y="39" text-anchor="end">B</text>
+        <line class="fb-string" x1="30" y1="56" x2="536" y2="56"/>
+        <text class="fb-lbl" x="22" y="59" text-anchor="end">G</text>
+        <line class="fb-string" x1="30" y1="76" x2="536" y2="76"/>
+        <text class="fb-lbl" x="22" y="79" text-anchor="end">D</text>
+        <line class="fb-string" x1="30" y1="96" x2="536" y2="96"/>
+        <text class="fb-lbl" x="22" y="99" text-anchor="end">A</text>
+        <line class="fb-string" x1="30" y1="116" x2="536" y2="116"/>
+        <text class="fb-lbl" x="22" y="119" text-anchor="end">E</text>
+        <line class="fb-nut" x1="30" y1="10" x2="30" y2="122"/>
+        <line class="fb-fret" x1="76" y1="10" x2="76" y2="122"/>
+        <line class="fb-fret" x1="122" y1="10" x2="122" y2="122"/>
+        <line class="fb-fret" x1="168" y1="10" x2="168" y2="122"/>
+        <line class="fb-fret" x1="214" y1="10" x2="214" y2="122"/>
+        <line class="fb-fret" x1="260" y1="10" x2="260" y2="122"/>
+        <line class="fb-fret" x1="306" y1="10" x2="306" y2="122"/>
+        <line class="fb-fret" x1="352" y1="10" x2="352" y2="122"/>
+        <line class="fb-fret" x1="398" y1="10" x2="398" y2="122"/>
+        <line class="fb-fret" x1="444" y1="10" x2="444" y2="122"/>
+        <line class="fb-fret" x1="490" y1="10" x2="490" y2="122"/>
+        <line class="fb-fret" x1="536" y1="10" x2="536" y2="122"/>
+        <text class="fb-lbl" x="53.0" y="134" text-anchor="middle">1</text>
+        <text class="fb-lbl" x="99.0" y="134" text-anchor="middle">2</text>
+        <text class="fb-lbl" x="145.0" y="134" text-anchor="middle">3</text>
+        <text class="fb-lbl" x="191.0" y="134" text-anchor="middle">4</text>
+        <text class="fb-lbl" x="237.0" y="134" text-anchor="middle">5</text>
+        <text class="fb-lbl" x="283.0" y="134" text-anchor="middle">6</text>
+        <text class="fb-lbl" x="329.0" y="134" text-anchor="middle">7</text>
+        <text class="fb-lbl" x="375.0" y="134" text-anchor="middle">8</text>
+        <text class="fb-lbl" x="421.0" y="134" text-anchor="middle">9</text>
+        <text class="fb-lbl" x="467.0" y="134" text-anchor="middle">10</text>
+        <text class="fb-lbl" x="513.0" y="134" text-anchor="middle">11</text>
+        <circle class="fb-dot fb-dot-r" cx="237.0" cy="116" r="8"/>
+        <text class="fb-dtxt" x="237.0" y="118.7">A</text>
+        <circle class="fb-dot fb-dot-t" cx="329.0" cy="76" r="8"/>
+        <text class="fb-dtxt" x="329.0" y="78.7">A</text>
+        <circle class="fb-dot fb-dot-t" cx="99.0" cy="56" r="8"/>
+        <text class="fb-dtxt" x="99.0" y="58.7">A</text>
+        <circle class="fb-dot fb-dot-t" cx="467.0" cy="36" r="8"/>
+        <text class="fb-dtxt" x="467.0" y="38.7">A</text>
+        <circle class="fb-dot fb-dot-t" cx="237.0" cy="16" r="8"/>
+        <text class="fb-dtxt" x="237.0" y="18.7">A</text>
+        </svg>
+        <p class="ar-figcap">One note — A — in five places, all within reach. Amber is the reference; every cyan dot is the same letter. Learn the <em>shapes</em> between them and you can find any note from any other note, in any key.</p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>From string</th><th>To string</th><th>Move</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">6 (low E)</td><td>4 (D)</td><td>up 2 strings, <strong>across 2 frets</strong></td></tr>
+              <tr><td class="ar-hi">5 (A)</td><td>3 (G)</td><td>up 2 strings, <strong>across 2 frets</strong></td></tr>
+              <tr><td class="ar-hi">4 (D)</td><td>2 (B)</td><td>up 2 strings, <strong>across 3 frets</strong></td></tr>
+              <tr><td class="ar-hi">3 (G)</td><td>1 (high E)</td><td>up 2 strings, <strong>across 3 frets</strong></td></tr>
+              <tr><td class="ar-hi">6 (low E)</td><td>3 (G)</td><td>up 3 strings, <strong>back 3 frets</strong></td></tr>
+              <tr><td class="ar-hi">5 (A)</td><td>2 (B)</td><td>up 3 strings, <strong>back 2 frets</strong></td></tr>
+              <tr><td class="ar-hi">4 (D)</td><td>1 (high E)</td><td>up 3 strings, <strong>back 2 frets</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Why this is so powerful: <strong>you only have to memorise the notes on two strings.</strong> Learn the low E
+          and A strings — which most players half-know already from barre chords — and the octave shapes give you every
+          other note on the instrument for free. That's the actual shortcut, and it takes an afternoon rather than a
+          year.
+        </p>
+      </section>
+
+      <!-- ═══ 4 ═══ -->
+      <section class="ar-section" id="bstring">
+        <div class="ar-section-label">④ The One Exception</div>
+        <h2 class="ar-section-title">The B String Explains Everything Weird</h2>
+        <p class="ar-lead">
+          Standard tuning is a stack of <strong>perfect fourths</strong> — E to A, A to D, D to G — and then, between G
+          and B, a <strong>major third</strong>, before returning to a fourth from B to E. That single irregularity is
+          the source of nearly every "why doesn't this shape work up here" question ever asked.
+        </p>
+        <svg class="fb-dia" viewBox="0 0 732 138" role="img" aria-label="Fretboard showing octave shapes: two frets across on the lower string pairs, three frets across once the B string is crossed.">
+        <rect class="fb-wood" x="30" y="10" width="690" height="112"/>
+        <circle class="fb-inlay" cx="145.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="237.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="329.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="421.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="559.0" cy="46.0" r="3.5"/>
+        <circle class="fb-inlay" cx="559.0" cy="86.0" r="3.5"/>
+        <circle class="fb-inlay" cx="697.0" cy="66.0" r="3.5"/>
+        <line class="fb-string" x1="30" y1="16" x2="720" y2="16"/>
+        <text class="fb-lbl" x="22" y="19" text-anchor="end">E</text>
+        <line class="fb-string" x1="30" y1="36" x2="720" y2="36"/>
+        <text class="fb-lbl" x="22" y="39" text-anchor="end">B</text>
+        <line class="fb-string" x1="30" y1="56" x2="720" y2="56"/>
+        <text class="fb-lbl" x="22" y="59" text-anchor="end">G</text>
+        <line class="fb-string" x1="30" y1="76" x2="720" y2="76"/>
+        <text class="fb-lbl" x="22" y="79" text-anchor="end">D</text>
+        <line class="fb-string" x1="30" y1="96" x2="720" y2="96"/>
+        <text class="fb-lbl" x="22" y="99" text-anchor="end">A</text>
+        <line class="fb-string" x1="30" y1="116" x2="720" y2="116"/>
+        <text class="fb-lbl" x="22" y="119" text-anchor="end">E</text>
+        <line class="fb-nut" x1="30" y1="10" x2="30" y2="122"/>
+        <line class="fb-fret" x1="76" y1="10" x2="76" y2="122"/>
+        <line class="fb-fret" x1="122" y1="10" x2="122" y2="122"/>
+        <line class="fb-fret" x1="168" y1="10" x2="168" y2="122"/>
+        <line class="fb-fret" x1="214" y1="10" x2="214" y2="122"/>
+        <line class="fb-fret" x1="260" y1="10" x2="260" y2="122"/>
+        <line class="fb-fret" x1="306" y1="10" x2="306" y2="122"/>
+        <line class="fb-fret" x1="352" y1="10" x2="352" y2="122"/>
+        <line class="fb-fret" x1="398" y1="10" x2="398" y2="122"/>
+        <line class="fb-fret" x1="444" y1="10" x2="444" y2="122"/>
+        <line class="fb-fret" x1="490" y1="10" x2="490" y2="122"/>
+        <line class="fb-fret" x1="536" y1="10" x2="536" y2="122"/>
+        <line class="fb-fret" x1="582" y1="10" x2="582" y2="122"/>
+        <line class="fb-fret" x1="628" y1="10" x2="628" y2="122"/>
+        <line class="fb-fret" x1="674" y1="10" x2="674" y2="122"/>
+        <line class="fb-fret" x1="720" y1="10" x2="720" y2="122"/>
+        <text class="fb-lbl" x="53.0" y="134" text-anchor="middle">1</text>
+        <text class="fb-lbl" x="99.0" y="134" text-anchor="middle">2</text>
+        <text class="fb-lbl" x="145.0" y="134" text-anchor="middle">3</text>
+        <text class="fb-lbl" x="191.0" y="134" text-anchor="middle">4</text>
+        <text class="fb-lbl" x="237.0" y="134" text-anchor="middle">5</text>
+        <text class="fb-lbl" x="283.0" y="134" text-anchor="middle">6</text>
+        <text class="fb-lbl" x="329.0" y="134" text-anchor="middle">7</text>
+        <text class="fb-lbl" x="375.0" y="134" text-anchor="middle">8</text>
+        <text class="fb-lbl" x="421.0" y="134" text-anchor="middle">9</text>
+        <text class="fb-lbl" x="467.0" y="134" text-anchor="middle">10</text>
+        <text class="fb-lbl" x="513.0" y="134" text-anchor="middle">11</text>
+        <text class="fb-lbl" x="559.0" y="134" text-anchor="middle">12</text>
+        <text class="fb-lbl" x="605.0" y="134" text-anchor="middle">13</text>
+        <text class="fb-lbl" x="651.0" y="134" text-anchor="middle">14</text>
+        <text class="fb-lbl" x="697.0" y="134" text-anchor="middle">15</text>
+        <circle class="fb-dot fb-dot-r" cx="237.0" cy="116" r="8"/>
+        <text class="fb-dtxt" x="237.0" y="118.7">R</text>
+        <circle class="fb-dot fb-dot-t" cx="329.0" cy="76" r="8"/>
+        <text class="fb-dtxt" x="329.0" y="78.7">8</text>
+        <circle class="fb-dot fb-dot-r" cx="329.0" cy="96" r="8"/>
+        <text class="fb-dtxt" x="329.0" y="98.7">R</text>
+        <circle class="fb-dot fb-dot-t" cx="421.0" cy="56" r="8"/>
+        <text class="fb-dtxt" x="421.0" y="58.7">8</text>
+        <circle class="fb-dot fb-dot-r" cx="421.0" cy="76" r="8"/>
+        <text class="fb-dtxt" x="421.0" y="78.7">R</text>
+        <circle class="fb-dot fb-dot-t" cx="559.0" cy="36" r="8"/>
+        <text class="fb-dtxt" x="559.0" y="38.7">8</text>
+        <circle class="fb-dot fb-dot-r" cx="513.0" cy="56" r="8"/>
+        <text class="fb-dtxt" x="513.0" y="58.7">R</text>
+        <circle class="fb-dot fb-dot-t" cx="651.0" cy="16" r="8"/>
+        <text class="fb-dtxt" x="651.0" y="18.7">8</text>
+        </svg>
+        <p class="ar-figcap">The same move — up two strings to the octave — takes <strong>two frets</strong> on the lower pairs and <strong>three</strong> once the B string is involved. That single kink is why shapes "stop working" higher up, and it is the only irregularity on the whole instrument.</p>
+        <p class="ar-lead">
+          Any shape that crosses the B string shifts <strong>one fret higher</strong> than the same shape below it. Not
+          sometimes — always, and only there. Once you know that, you stop treating it as a mystery and start treating
+          it as a rule you apply, and every pattern you already know suddenly extends across the whole neck.
+        </p>
+        <p class="ar-note">
+          Why put a kink in an otherwise perfect system? Because it makes open chords and common shapes playable with
+          four fingers. Tuning in straight fourths (E A D G C F) removes the exception entirely and every shape becomes
+          truly universal — at the cost of every chord grip you know. That trade is the subject of the
+          <a href="#tunings" style="color:var(--glow-warm)">tunings</a> section below.
+        </p>
+      </section>
+
+      <!-- ═══ 5 ═══ -->
+      <section class="ar-section" id="tone">
+        <div class="ar-section-label">⑤ A Choice, Not a Location</div>
+        <h2 class="ar-section-title">Five Places, One Note</h2>
+        <p class="ar-lead">
+          Beginners look for <em>the</em> place to play a note. There isn't one. The same pitch on the low E string at
+          the 12th fret and on the high E string open are the same frequency and completely different
+          <strong>sounds</strong> — thicker, darker and more resistant on the wound string; thinner, brighter and
+          quicker to decay on the plain one.
+        </p>
+        <p class="ar-lead">
+          Which means position is an <strong>expressive decision</strong>, and one of the main things separating a
+          player who sounds like themselves from one who sounds like a pattern. Guitarists you admire are picking
+          positions for tone constantly:
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>High on a low string</h4>
+            <p>Thick, vocal, singing. The classic lead sound — a melody played across the neck on the
+            <span class="ar-term">D and G strings</span> rather than up at the top, which is why so many great solos sit
+            in the middle of the fretboard.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Low on a high string</h4>
+            <p>Thin, glassy, delicate. Excellent for chord work and arpeggios where you need clarity rather than weight,
+            and where you want the notes to <span class="ar-term">stay out of the vocal's way</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Open strings</h4>
+            <p>Louder, brighter, and they ring on while you move. Mixing open strings into a line lets notes
+            <span class="ar-term">overlap</span> in a way fretted playing can't — that's the whole sound of a lot of
+            folk and country guitar.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Same note, two strings</h4>
+            <p>Playing a pitch and its unison on an adjacent string gives a natural chorus, since the two are never
+            perfectly in tune. <span class="ar-term">Deliberate imperfection</span> — and unavailable on a piano.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 6 ═══ -->
+      <section class="ar-section" id="lines">
+        <div class="ar-section-label">⑥ Escaping the Box</div>
+        <h2 class="ar-section-title">Boxes and Lines</h2>
+        <p class="ar-lead">
+          Almost everyone learns the pentatonic box first, and almost everyone gets stuck in it. The box is a
+          <strong>vertical</strong> way of seeing the neck: stay in one position, move across the strings. It's easy,
+          it's efficient, and it produces solos that sound like they're pacing a small room — because they are.
+        </p>
+        <p class="ar-lead">
+          The other axis is <strong>horizontal</strong>: pick one string and move <em>along</em> it. This is how you
+          cover two octaves in a phrase, how you get the long slides and wide leaps that sound vocal, and how you stop
+          sounding like a scale pattern. Players with a recognisable voice almost all move horizontally more than
+          average.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Axis</th><th>Gives you</th><th>Costs you</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Vertical (boxes)</td><td>Speed, economy of motion, safety</td><td>Register — you stay in one octave; every phrase has the same range</td></tr>
+              <tr><td class="ar-hi">Horizontal (one string)</td><td>Range, slides, singing lines, a personal sound</td><td>Requires actually knowing the neck rather than a shape</td></tr>
+              <tr><td class="ar-hi">Diagonal</td><td>The realistic answer — climb through positions as you ascend</td><td>Nothing. This is what fluent players do</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          A single exercise that fixes this permanently: <strong>play a scale on one string only</strong>, from the
+          open string to the twelfth fret and back. It's awkward, it sounds unlike anything you normally play, and it
+          teaches the neck horizontally in a way no box ever will.
+        </p>
+      </section>
+
+      <!-- ═══ 7 ═══ -->
+      <section class="ar-section" id="triads">
+        <div class="ar-section-label">⑦ How Professionals Actually Comp</div>
+        <h2 class="ar-section-title">String Sets and Triads</h2>
+        <p class="ar-lead">
+          Ask a beginner to play C major and you get six strings ringing. Ask a session player and you'll usually get
+          <strong>three notes</strong> somewhere in the middle of the neck. That's not laziness — it's the difference
+          between playing a chord and playing a <em>part</em>.
+        </p>
+        <svg class="fb-dia" viewBox="0 0 456 138" role="img" aria-label="Fretboard showing C major triad voicings on three adjacent string sets between frets five and nine.">
+        <rect class="fb-wood" x="30" y="10" width="414" height="112"/>
+        <circle class="fb-inlay" cx="99.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="191.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="283.0" cy="66.0" r="3.5"/>
+        <circle class="fb-inlay" cx="421.0" cy="46.0" r="3.5"/>
+        <circle class="fb-inlay" cx="421.0" cy="86.0" r="3.5"/>
+        <line class="fb-string" x1="30" y1="16" x2="444" y2="16"/>
+        <text class="fb-lbl" x="22" y="19" text-anchor="end">E</text>
+        <line class="fb-string" x1="30" y1="36" x2="444" y2="36"/>
+        <text class="fb-lbl" x="22" y="39" text-anchor="end">B</text>
+        <line class="fb-string" x1="30" y1="56" x2="444" y2="56"/>
+        <text class="fb-lbl" x="22" y="59" text-anchor="end">G</text>
+        <line class="fb-string" x1="30" y1="76" x2="444" y2="76"/>
+        <text class="fb-lbl" x="22" y="79" text-anchor="end">D</text>
+        <line class="fb-string" x1="30" y1="96" x2="444" y2="96"/>
+        <text class="fb-lbl" x="22" y="99" text-anchor="end">A</text>
+        <line class="fb-string" x1="30" y1="116" x2="444" y2="116"/>
+        <text class="fb-lbl" x="22" y="119" text-anchor="end">E</text>
+        <line class="fb-fret" x1="30" y1="10" x2="30" y2="122"/>
+        <line class="fb-fret" x1="76" y1="10" x2="76" y2="122"/>
+        <line class="fb-fret" x1="122" y1="10" x2="122" y2="122"/>
+        <line class="fb-fret" x1="168" y1="10" x2="168" y2="122"/>
+        <line class="fb-fret" x1="214" y1="10" x2="214" y2="122"/>
+        <line class="fb-fret" x1="260" y1="10" x2="260" y2="122"/>
+        <line class="fb-fret" x1="306" y1="10" x2="306" y2="122"/>
+        <line class="fb-fret" x1="352" y1="10" x2="352" y2="122"/>
+        <line class="fb-fret" x1="398" y1="10" x2="398" y2="122"/>
+        <line class="fb-fret" x1="444" y1="10" x2="444" y2="122"/>
+        <text class="fb-lbl" x="53.0" y="134" text-anchor="middle">4</text>
+        <text class="fb-lbl" x="99.0" y="134" text-anchor="middle">5</text>
+        <text class="fb-lbl" x="145.0" y="134" text-anchor="middle">6</text>
+        <text class="fb-lbl" x="191.0" y="134" text-anchor="middle">7</text>
+        <text class="fb-lbl" x="237.0" y="134" text-anchor="middle">8</text>
+        <text class="fb-lbl" x="283.0" y="134" text-anchor="middle">9</text>
+        <text class="fb-lbl" x="329.0" y="134" text-anchor="middle">10</text>
+        <text class="fb-lbl" x="375.0" y="134" text-anchor="middle">11</text>
+        <text class="fb-lbl" x="421.0" y="134" text-anchor="middle">12</text>
+        <circle class="fb-dot fb-dot-t" cx="191.0" cy="96" r="8"/>
+        <text class="fb-dtxt" x="191.0" y="98.7">E</text>
+        <circle class="fb-dot fb-dot-t" cx="99.0" cy="76" r="8"/>
+        <text class="fb-dtxt" x="99.0" y="78.7">G</text>
+        <circle class="fb-dot fb-dot-r" cx="99.0" cy="56" r="8"/>
+        <text class="fb-dtxt" x="99.0" y="58.7">C</text>
+        <circle class="fb-dot fb-dot-t" cx="99.0" cy="36" r="8"/>
+        <text class="fb-dtxt" x="99.0" y="38.7">E</text>
+        <circle class="fb-dot fb-dot-r" cx="237.0" cy="16" r="8"/>
+        <text class="fb-dtxt" x="237.0" y="18.7">C</text>
+        <circle class="fb-dot fb-dot-t" cx="283.0" cy="56" r="8"/>
+        <text class="fb-dtxt" x="283.0" y="58.7">E</text>
+        <circle class="fb-dot fb-dot-t" cx="237.0" cy="36" r="8"/>
+        <text class="fb-dtxt" x="237.0" y="38.7">G</text>
+        </svg>
+        <p class="ar-figcap">One chord — C major — as three-note shapes across the neck. Amber is the root. Strings 4-3-2 all land on the fifth fret; strings 5-4-3 and 3-2-1 hold the same three notes in different orders. Nobody needs six strings to play a chord, and three notes leave room for everyone else in the band.</p>
+        <p class="ar-lead">
+          Thinking in <strong>string sets</strong> — strings 6-5-4, 5-4-3, 4-3-2, 3-2-1 — gives you every chord in every
+          register as small, movable shapes. Three notes are enough to state any triad, and leaving out the rest means
+          you aren't doubling the bass player, aren't muddying the low mids, and can sit in a specific
+          <a href="arrangement.html" style="color:var(--glow-warm)">register</a> instead of covering all of them.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Inversions come free</h4>
+            <p>The same three notes in a different vertical order is an inversion. Move just the lowest note up an
+            octave and you get a new voicing without learning anything new — that's how you get
+            <span class="ar-term">smooth movement</span> between chords instead of jumping around.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Top-note melodies</h4>
+            <p>Choose voicings so the <span class="ar-term">highest note</span> traces a melody through a progression.
+            This is the single most professional-sounding rhythm-guitar trick there is, and it requires triads to be
+            possible at all.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Two notes is often enough</h4>
+            <p>The <span class="ar-term">third and the seventh</span> define a chord's quality; the root is usually
+            covered by the bass. Jazz comping is largely two-note shapes for exactly this reason.</p>
+          </div>
+          <div class="ar-card">
+            <h4>CAGED, honestly</h4>
+            <p>The five CAGED shapes aren't five things to memorise — they're <span class="ar-term">five views of one
+            map</span>, showing where the root sits relative to a shape. Useful as a bridge, discardable once intervals
+            do the same job better.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 8 ═══ -->
+      <section class="ar-section" id="chordtones">
+        <div class="ar-section-label">⑧ What to Aim At</div>
+        <h2 class="ar-section-title">Chord Tones, Not Scales</h2>
+        <p class="ar-lead">
+          The standard path is: learn a scale, play the scale over the chords, wonder why it sounds like an exercise.
+          The missing idea is that <strong>a scale is the connective tissue, not the destination</strong>. What makes a
+          line sound like music is where it <em>lands</em>.
+        </p>
+        <p class="ar-lead">
+          Good players are targeting <strong>chord tones</strong> — the 1, 3, 5 and 7 of whatever chord is sounding
+          right now — and using the rest of the scale to travel between them. The scale notes are all available; only
+          some of them resolve. And of the chord tones, the <strong>third and the seventh</strong> do the most work,
+          because they're what distinguish major from minor and dominant from everything else. The root and fifth are
+          comparatively neutral.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Land on</th><th>Sounds</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Root</td><td>Settled, final, safe. Good for ending a phrase, dull in the middle of one</td></tr>
+              <tr><td class="ar-hi">3rd</td><td>The chord's identity — major or minor. The most informative note you can play</td></tr>
+              <tr><td class="ar-hi">5th</td><td>Stable but anonymous. Works anywhere, says little</td></tr>
+              <tr><td class="ar-hi">7th</td><td>Tension and motion, and it points at where the progression is going</td></tr>
+              <tr><td class="ar-hi">Anything else</td><td>Passing colour. Fine in motion, exposed if you stop on it</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          The exercise that teaches this fastest: over a progression, <strong>play nothing but the third of each
+          chord</strong>, changing as the chords change. It's four notes in a whole chorus and it will already sound
+          more like music than a scale run does. Then add the seventh. The
+          <a href="chord-trainer.html" style="color:var(--glow-warm)">Chord-Tone Trainer</a> drills exactly this.
+        </p>
+      </section>
+
+      <!-- ═══ 9 ═══ -->
+      <section class="ar-section" id="tunings">
+        <div class="ar-section-label">⑨ Changing the Map</div>
+        <h2 class="ar-section-title">What a Tuning Actually Changes</h2>
+        <p class="ar-lead">
+          A tuning isn't a set of notes so much as a <strong>geometry</strong>. Change it and every shape you know
+          moves, because what you've really changed is the interval between adjacent strings — and that's what all your
+          shapes were built on.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Tuning</th><th>Geometry</th><th>What you gain / lose</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Standard (EADGBE)</td><td>Fourths, with a major third G→B</td><td>Playable open chords and four-finger grips; one permanent irregularity</td></tr>
+              <tr><td class="ar-hi">All fourths (EADGCF)</td><td>Perfectly regular</td><td>Every shape works on every string set, forever. You lose all your open chords</td></tr>
+              <tr><td class="ar-hi">Drop D</td><td>Standard with string 6 down a tone</td><td>One-finger power chords and a deeper root; string 6 shapes all shift</td></tr>
+              <tr><td class="ar-hi">Open G / Open D</td><td>Strings form a chord</td><td>A whole chord from one barre, huge resonance; melodic geometry is redrawn</td></tr>
+              <tr><td class="ar-hi">DADGAD</td><td>Suspended, neither major nor minor</td><td>Drones and ambiguity, ringing open strings against fretted notes</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The interval way of seeing pays off most here. If you think in shapes, a new tuning means starting over. If
+          you think in intervals, you just recompute the distances between strings once and every relationship you know
+          still holds. Switch tunings in the
+          <a href="guitar.html" style="color:var(--glow-warm)">Fretboard Explorer</a> and watch which parts of the map
+          move and which don't.
+        </p>
+      </section>
+
+      <!-- ═══ 10 ═══ -->
+      <section class="ar-section" id="practice">
+        <div class="ar-section-label">⑩ Getting There</div>
+        <h2 class="ar-section-title">How to Practise This</h2>
+        <p class="ar-lead">
+          None of this is difficult; it's just rarely sequenced properly. In roughly this order, a few minutes a day:
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Exercise</th><th>Do this</th><th>Builds</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Two strings only</td><td>Learn every natural note on strings 6 and 5. Just those two</td><td>The anchors. Everything else comes from here via octaves</td></tr>
+              <tr><td class="ar-hi">Octave chains</td><td>Pick a note, find all five of its octaves, out loud, in under ten seconds</td><td>Navigation. This is the skill that makes the neck feel small</td></tr>
+              <tr><td class="ar-hi">One note, all positions</td><td>Play the same pitch in every place it exists and listen to how different they are</td><td>Position as a tone choice rather than a lookup</td></tr>
+              <tr><td class="ar-hi">One string, whole scale</td><td>A major scale up one string, open to fret 12 and back</td><td>Horizontal vision. Breaks the box permanently</td></tr>
+              <tr><td class="ar-hi">Triads on three strings</td><td>One chord, all inversions, on each string set in turn</td><td>Comping like a professional instead of strumming</td></tr>
+              <tr><td class="ar-hi">Thirds only</td><td>Over a progression, play only the third of each chord</td><td>Hearing harmony rather than running scales</td></tr>
+              <tr><td class="ar-hi">Name it, then play it</td><td>Say the interval out loud before you play the note</td><td>The whole mental shift, made explicit</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          The honest timeline: octave shapes take an afternoon and change everything. Two strings of note names take a
+          week. Triads on string sets take a month and are the thing most amateur players never do. None of it takes a
+          year, which is why the "it just takes time" advice is so unhelpful — it's not time, it's sequence.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Learn two strings, not six. Navigate by octave shapes. Remember the B string is the only exception. Choose
+        positions for tone. Play along a string, not just across. Comp with three notes. Land on thirds and sevenths.
+        The neck is smaller than it looks. Open the
+        <a href="guitar.html" style="color:var(--glow-warm)">Fretboard Explorer</a> and start.
+      </p>
+
+      <nav aria-label="Craft guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="guitar.html" style="color:var(--stone);text-decoration:none;">&larr; Fretboard Explorer</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">&uarr; Learn Production</a>
+        <a href="theory.html" style="color:var(--glow-warm);text-decoration:none;">Next: Theory &rarr;</a>
+      </nav>
+
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+
