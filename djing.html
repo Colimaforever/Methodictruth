@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>DJing on the Denon Prime GO+ — Engine DJ, Stems, Mixing and Playing Out</title>
+  <meta name="keywords" content="Denon Prime GO+, Denon DJ Prime GO plus, Engine DJ, Engine OS, standalone DJ controller, stem separation DJ, DJ without laptop, beatgrids, hot cues, DJ phrasing, EQ mixing, harmonic mixing, Camelot wheel, DJ effects, reading the room, DJ set structure, recording a DJ mix, Mixcloud, SoundCloud, DJ library preparation, portable DJ controller, battery powered DJ">
+  <meta name="description" content="A complete guide to DJing on the Denon DJ Prime GO+: preparing a library in Engine DJ, fixing beatgrids, cue and loop systems, phrasing and EQ mixing, using stems without sounding amateurish, effects restraint, reading a room, harmonic mixing, a gig checklist, and recording and releasing your sets.">
+  <link rel="canonical" href="https://methodictruth.com/djing.html">
+  <meta property="og:title" content="DJing on the Denon Prime GO+">
+  <meta property="og:description" content="Getting everything out of a standalone deck — library prep, beatgrids, phrasing, stems without the artefacts, effects restraint, reading a room, and recording your sets. Most of it transfers to any gear.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/djing.html">
+  <meta property="og:image" content="https://methodictruth.com/og/djing.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "DJing on the Denon Prime GO+",
+  "description": "A complete guide to DJing on the Denon DJ Prime GO+: preparing a library in Engine DJ, fixing beatgrids, cue and loop systems, phrasing and EQ mixing, using stems without sounding amateurish, effects restraint, reading a room, harmonic mixing, a gig checklist, and recording and releasing your sets.",
+  "url": "https://methodictruth.com/djing.html",
+  "image": "https://methodictruth.com/og/djing.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "DJing",
+    "Denon DJ Prime GO+",
+    "Engine DJ",
+    "stem separation",
+    "harmonic mixing"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "DJing on the Prime GO+", "item": "https://methodictruth.com/djing.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">DJing</div>
+          <a href="djing.html" class="active">Denon Prime GO+</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>DJing on the Prime GO+</h1>
+        <div class="subtitle">Getting everything out of a standalone deck — and learning to actually DJ</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        The <strong>Denon DJ Prime GO+</strong> is an unusual machine: a full two-deck standalone system with a 7-inch
+        touchscreen, stem separation and a six-hour battery, that fits in a backpack and needs no laptop at all. That
+        combination removes most of the excuses — but a deck that does everything for you still won't tell you
+        <em>when</em> to do it. This is both halves: the workflow that makes the hardware disappear, and the craft that
+        survives whatever you play on.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#machine">The Machine</a>
+        <a href="#prep">Preparation</a>
+        <a href="#library">The Library</a>
+        <a href="#mixing">The Mix</a>
+        <a href="#pads">Pads &amp; FX</a>
+        <a href="#stems">Stems</a>
+        <a href="#energy">Reading a Room</a>
+        <a href="#keys">Harmonic Mixing</a>
+        <a href="#gig">Playing Out</a>
+        <a href="#record">Recording</a>
+      </nav>
+
+      <!-- ═══ 1 ═══ -->
+      <section class="ar-section" id="machine">
+        <div class="ar-section-label">① What You're Holding</div>
+        <h2 class="ar-section-title">The Machine, Briefly</h2>
+        <p class="ar-lead">
+          Worth knowing what you've actually got, because a lot of DJ advice online assumes a laptop and a controller,
+          and that isn't this. The Prime GO+ runs <strong>Engine DJ</strong> on board — the analysis, the library, the
+          effects and the recording all happen inside the unit.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Feature</th><th>Detail</th><th>Why it matters</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Decks</td><td>2, with touch-capacitive jog wheels</td><td>Two decks is a discipline, not a limitation — see below</td></tr>
+              <tr><td class="ar-hi">Screen</td><td>7&Prime; multi-gesture HD touchscreen, Day Mode</td><td>Day Mode is not cosmetic. Outdoors, the default is unreadable</td></tr>
+              <tr><td class="ar-hi">Battery</td><td>~6 hours (up from 4 on the original GO)</td><td>A full set with no mains. Plan for less — see the gig checklist</td></tr>
+              <tr><td class="ar-hi">Stems</td><td>Vocals / melody / drums / bass, one-time licence</td><td>The GO+'s headline feature. Section 6</td></tr>
+              <tr><td class="ar-hi">Pads</td><td>4 dual-layer per deck — Hot Cue, Loop, Saved Loop, Roll, Sampler</td><td>Four pads is few. It forces you to choose your cues well</td></tr>
+              <tr><td class="ar-hi">FX</td><td>26 Main FX, 2 Sweep FX knobs, Echo Fader, 10 Touch FX</td><td>You will use about five of them. That's normal</td></tr>
+              <tr><td class="ar-hi">Media</td><td>USB and SD/SDHC/SDXC, plus onboard recording to either</td><td>Record every set. Section 10</td></tr>
+              <tr><td class="ar-hi">Streaming</td><td>TIDAL, Beatport, Beatsource, Apple Music, Amazon Music, SoundCloud GO+, Dropbox</td><td>Enormous reach, real risks. Section 3</td></tr>
+              <tr><td class="ar-hi">I/O</td><td>2&times; XLR/&frac14;&Prime; combo mic in, RCA aux in, XLR + RCA master out, &frac14;&Prime; booth out</td><td>Balanced XLR out means you can plug into a real PA properly</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          Two decks rather than four is worth reframing as a feature. Four-deck DJing is mostly a studio-style exercise;
+          almost all the greatest club sets ever played were two turntables. Two decks means every transition is a real
+          decision, and it's much harder to hide behind layering.
+        </p>
+      </section>
+
+      <!-- ═══ 2 ═══ -->
+      <section class="ar-section" id="prep">
+        <div class="ar-section-label">② Where Sets Are Actually Won</div>
+        <h2 class="ar-section-title">Preparation</h2>
+        <p class="ar-lead">
+          The gap between DJs is mostly preparation, and almost none of it happens while you're playing. Engine DJ
+          Desktop is where you do it: analyse, fix, cue, tag, and render stems, then sync it all to a drive. Do this
+          properly once and the unit becomes an instrument rather than a browser.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Analyse everything, then check it</h4>
+            <p>Analysis gets BPM and key automatically, and it is <span class="ar-term">right most of the time</span> —
+            which is exactly the problem. Half-time and double-time errors are common on anything with a sparse or
+            syncopated intro. Scan the BPM column for outliers before a gig.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Beatgrids are the foundation</h4>
+            <p>A wrong grid means the track drifts out mid-mix and there is nothing you can do live. Anything
+            <span class="ar-term">not made to a click</span> — old funk, disco, live recordings — needs its grid checked
+            and anchored by hand. This is the single highest-value prep task.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Cue points with a system</h4>
+            <p>Four pads means four choices, so make them the same four every time: <span class="ar-term">first
+            downbeat, the drop, the breakdown, the outro</span>. Consistency means your hands know where things are
+            without reading the screen.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Render stems in advance</h4>
+            <p>Stem separation renders on the desktop app by drag-and-drop, for a track, a playlist, or a whole crate.
+            Do it <span class="ar-term">before the gig</span>, not during — and do it for the tracks you'd actually want
+            an acapella or a drums-only version of, not everything.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Loop points where you'll need them</h4>
+            <p>Save a loop on the intro and the outro of anything with a short mixable section. That turns an awkward
+            eight-bar window into <span class="ar-term">as much time as you want</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Two drives, always</h4>
+            <p>Sync your library to <span class="ar-term">a USB stick and an SD card</span> with identical contents.
+            Drives fail, and they fail at the worst moment. The SD slot means your backup lives inside the unit.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          A useful discipline borrowed from studio work: prepare in a different session from playing. Preparing while you
+          practise turns into browsing, and browsing is not practice.
+        </p>
+      </section>
+
+      <!-- ═══ 3 ═══ -->
+      <section class="ar-section" id="library">
+        <div class="ar-section-label">③ The Real Skill</div>
+        <h2 class="ar-section-title">The Library Is the Instrument</h2>
+        <p class="ar-lead">
+          Streaming puts a hundred million tracks on a 7-inch screen, which sounds like an advantage and is mostly a
+          trap. <strong>You cannot select from a hundred million tracks in eight bars.</strong> Good DJs play from a
+          small, deeply known collection and use the vast one for research.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Habit</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Playlists by function, not genre</td><td>"Openers", "peak", "after the peak", "rescue" beats "House" — you never think <em>I need a house track</em>, you think <em>I need to lift this</em></td></tr>
+              <tr><td class="ar-hi">Know 100 tracks properly</td><td>Where every breakdown is, how every intro behaves. That's worth more than owning 10,000</td></tr>
+              <tr><td class="ar-hi">Prepare a gig-specific list</td><td>60–100 tracks for the night, in a playlist. You'll play 25 of them and never be lost</td></tr>
+              <tr><td class="ar-hi">Cache streaming for the set</td><td>Anything you might play should be local. See the warning below</td></tr>
+              <tr><td class="ar-hi">Tag by energy, 1–5</td><td>The only metadata that helps in the moment. Key and BPM are already on screen; "how hard does this hit" isn't</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          <strong>The streaming warning, plainly:</strong> a venue's Wi-Fi will fail, and licences and catalogues change
+          without notice. Streaming is superb for discovery and for the unplanned request; it is not a foundation to
+          build a paid gig on. Anything you <em>need</em> should be on the drive, downloaded and analysed. The GO+ has
+          two media slots for exactly this reason.
+        </p>
+      </section>
+
+      <!-- ═══ 4 ═══ -->
+      <section class="ar-section" id="mixing">
+        <div class="ar-section-label">④ The Craft</div>
+        <h2 class="ar-section-title">Beatmatching, Phrasing and the Mix</h2>
+        <p class="ar-lead">
+          Sync will beatmatch for you and there is no shame in using it. But sync solves the <em>easy</em> problem.
+          The hard one, the one that separates a set that flows from one that lurches, is <strong>phrasing</strong> —
+          and no machine does it for you.
+        </p>
+        <p class="ar-lead">
+          Dance music is built in <strong>fours</strong>: four beats to a bar, four bars to a phrase, eight or sixteen
+          bars to a section, and sections almost always change on a multiple of eight. A mix that starts on the wrong
+          bar will feel wrong even if the beats line up perfectly, because the two tracks' phrases are fighting. Count
+          bars, start your incoming track on a <strong>downbeat at the top of a phrase</strong>, and half of mixing is
+          already solved.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>EQ, not just the fader</h4>
+            <p>Two kicks at once is mud. The basic move: as you bring the new track in, <span class="ar-term">pull the
+            outgoing bass down</span>. Only one track should own the low end at any moment — the same rule the
+            <a href="mixing.html" style="color:var(--glow)">Mixing guide</a> gives for a kick and a bassline.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Learn to beatmatch by ear anyway</h4>
+            <p>Not for purity — because it teaches you to <span class="ar-term">hear drift</span>, which is what tells
+            you a beatgrid is wrong before the mix falls apart. Practise with sync off for ten minutes a session.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Long blends aren't automatically better</h4>
+            <p>A 64-bar blend is a skill; so is a hard cut on the one. Beginners default to the long blend because it
+            feels safe, and a set of nothing but blends <span class="ar-term">has no punctuation</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Use the loops</h4>
+            <p>If the outgoing track's outro is too short, loop its last eight bars and take the time you need. This is
+            the most under-used button on the unit and it turns <span class="ar-term">panic into composure</span>.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          Bar-counting is a rhythm skill, not a DJ skill, and it trains faster away from the decks. The
+          <a href="rhythm.html" style="color:var(--glow-warm)">Rhythm &amp; Beats</a> guide's counting exercises are
+          directly applicable — if you can hear where bar one is in anything, phrasing stops being work.
+        </p>
+      </section>
+
+      <!-- ═══ 5 ═══ -->
+      <section class="ar-section" id="pads">
+        <div class="ar-section-label">⑤ Restraint</div>
+        <h2 class="ar-section-title">Pads and Effects</h2>
+        <p class="ar-lead">
+          The Prime GO+ has 26 main effects, two sweep knobs, echo on the fader and ten touch effects. You will use
+          about five of them regularly, and that is not a failure — it's what good DJs do. Effects are punctuation.
+          A set with an effect on every transition reads like a paragraph made entirely of exclamation marks.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Tool</th><th>Use it for</th><th>Overused when</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Echo / delay</td><td>Covering a cut, ending a phrase, throwing a vocal tail</td><td>Every transition. It stops meaning anything by the third one</td></tr>
+              <tr><td class="ar-hi">Filter (sweep)</td><td>The workhorse. Bringing a track in from nothing, building tension</td><td>Rarely — but a filter is not a substitute for EQ</td></tr>
+              <tr><td class="ar-hi">Reverb</td><td>Big moments, drop-outs, letting something dissolve</td><td>On anything with a busy low end. It turns to fog</td></tr>
+              <tr><td class="ar-hi">Roll</td><td>Building into a drop, a stutter on the last beat</td><td>Constantly. It's the most obviously "look at me" pad on the unit</td></tr>
+              <tr><td class="ar-hi">Hot cues</td><td>Jumping to the useful part; re-firing a phrase for emphasis</td><td>Never overused — this is the pad mode to live in</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The general rule, and it's the same one the <a href="minimalism.html" style="color:var(--glow-warm)">Space
+          &amp; Restraint</a> guide makes about arrangement: <strong>an effect only lands if the last few minutes were
+          plain.</strong> Contrast requires a baseline. If everything is processed, nothing is a moment.
+        </p>
+      </section>
+
+      <!-- ═══ 6 ═══ -->
+      <section class="ar-section" id="stems">
+        <div class="ar-section-label">⑥ The GO+'s Superpower</div>
+        <h2 class="ar-section-title">Stems, and How They Go Wrong</h2>
+        <p class="ar-lead">
+          Real-time stem separation — pulling vocals, melody, drums and bass apart from a finished stereo track — is the
+          feature that most distinguishes the GO+ from the original Prime GO. It's genuinely powerful, and it is the
+          fastest way to make a set sound amateurish if used carelessly.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>What it's brilliant at</h4>
+            <p>Killing the incoming track's drums so you can blend over the outgoing beat. Dropping an acapella over a
+            different instrumental. <span class="ar-term">Removing a clashing bassline</span> so two tracks can coexist.
+            All of these solve real problems.</p>
+          </div>
+          <div class="ar-card">
+            <h4>What it isn't</h4>
+            <p>Separation is an <span class="ar-term">estimate</span>, not a surgical extraction. Isolated stems have
+            artefacts — smeared cymbals, watery vocals, bass that lost its attack. In a mix, under other music, you
+            won't hear it. Exposed and solo'd on a big system, you will.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Render ahead, not live</h4>
+            <p>Do the rendering in Engine DJ Desktop before the gig — drag a track, a playlist or a crate. Prepared
+            stems load <span class="ar-term">instantly</span>; that's the whole workflow.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Use it to subtract</h4>
+            <p>The best stem move is almost always <span class="ar-term">removing something</span> so two tracks fit,
+            not building a live mashup. Subtraction sounds intentional; addition usually sounds cluttered.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          A test worth applying: if a stem trick would still be impressive to someone who didn't know it was a stem
+          trick, it's a good one. If its only value is that you did it live, the crowd cannot tell and it isn't earning
+          its place.
+        </p>
+      </section>
+
+      <!-- ═══ 7 ═══ -->
+      <section class="ar-section" id="energy">
+        <div class="ar-section-label">⑦ The Part Nobody Can Teach You Quickly</div>
+        <h2 class="ar-section-title">Reading a Room</h2>
+        <p class="ar-lead">
+          Technique gets you a clean mix. What makes someone book you again is <strong>where you take the room</strong>,
+          and that's an arc — the same shape a song has, stretched over an hour or three. The commonest mistake by a
+          distance is <em>starting too high</em>.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Phase</th><th>Job</th><th>Mistake</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Opening</td><td>Set a tone and let people arrive. Slower, deeper, patient</td><td>Playing your best tracks to eleven people. You have nowhere to go for two hours</td></tr>
+              <tr><td class="ar-hi">Building</td><td>Raise energy gradually, in small steps, with occasional pull-backs</td><td>A straight line up. Constant climb reads as flat</td></tr>
+              <tr><td class="ar-hi">Peak</td><td>The tracks people came for. Take the risks here</td><td>Arriving too early and having to hold it for 90 minutes</td></tr>
+              <tr><td class="ar-hi">After</td><td>Come down deliberately, don't just stop</td><td>Ending on the biggest track and leaving a cliff</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Two things that actually help. <strong>Watch the floor, not the screen</strong> — you should know within eight
+          bars of a drop whether it landed, and that information only exists if you're looking up. And
+          <strong>respect the slot you were given</strong>: if you're on before the headliner, your job is to hand over
+          a warm room, not to peak. DJs who understand that get rebooked by promoters more than DJs who play better
+          tracks.
+        </p>
+      </section>
+
+      <!-- ═══ 8 ═══ -->
+      <section class="ar-section" id="keys">
+        <div class="ar-section-label">⑧ Useful, Not Sacred</div>
+        <h2 class="ar-section-title">Harmonic Mixing</h2>
+        <p class="ar-lead">
+          Engine DJ detects the key of every track, and mixing in compatible keys stops two tracks from clashing
+          harmonically during a long blend. It's a genuinely useful tool and it is routinely over-weighted.
+        </p>
+        <p class="ar-lead">
+          The safe moves are: <strong>the same key</strong>, <strong>one step around the wheel</strong> (a fifth away),
+          or <strong>the relative major or minor</strong>. That's it — that covers nearly everything anyone means by
+          harmonic mixing. The <a href="jam-guide.html" style="color:var(--glow-warm)">circle of fifths</a> is the same
+          idea musicians have used for centuries; the DJ wheel is a relabelling of it.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>It matters most in long blends</h4>
+            <p>Two tracks overlapping for 32 bars with both melodies audible is where a key clash is obvious. On a
+            <span class="ar-term">quick cut</span>, nobody notices or cares.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Percussive tracks are key-free</h4>
+            <p>Drum-led tracks with no strong tonal content mix with anything. A great deal of techno and much
+            drum-focused house is <span class="ar-term">effectively keyless</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Detection gets it wrong</h4>
+            <p>Especially on tracks that change key, or that are ambiguous between relative major and minor. Trust your
+            ears over the label — a clash is <span class="ar-term">immediately audible</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Energy beats key</h4>
+            <p>A perfectly key-matched track that kills the mood is a worse choice than a clashing one that lifts the
+            room. <span class="ar-term">Never let the wheel pick your set.</span></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 9 ═══ -->
+      <section class="ar-section" id="gig">
+        <div class="ar-section-label">⑨ The Unglamorous Part</div>
+        <h2 class="ar-section-title">Playing Out</h2>
+        <p class="ar-lead">
+          Standalone and battery-powered means you can play anywhere, which also means you'll end up in places with no
+          sound engineer and questionable power. A short checklist prevents almost every disaster.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Before you leave</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Charge fully, bring the PSU</td><td>Six hours is the rating, not a promise — screen brightness and volume eat it. Plug in whenever mains exists and treat the battery as the backup</td></tr>
+              <tr><td class="ar-hi">Two drives, identical</td><td>USB and SD. If one fails you swap slots and keep playing</td></tr>
+              <tr><td class="ar-hi">Update Engine OS at home</td><td>Never on the night, and never over venue Wi-Fi</td></tr>
+              <tr><td class="ar-hi">Carry your own cables</td><td>XLR pair, RCA pair, and a 3.5&nbsp;mm adaptor. Venues lose cables</td></tr>
+              <tr><td class="ar-hi">Know your outputs</td><td>XLR master to the PA, booth for your own monitoring. Booth level is independent — that's the point of it</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          <strong>Gain staging matters as much here as in a mix.</strong> Set channel trims so the meters sit around
+          the top of the green with occasional amber, keep the master out of the red, and let the venue's system make
+          it loud. Running the master hot to compete with the last DJ is how you arrive distorted — the
+          <a href="mixing.html" style="color:var(--glow-warm)">headroom argument</a> is the same one.
+        </p>
+        <p class="ar-note">
+          If there's a mic input in use, remember it's live. Two combo inputs on this unit means someone <em>will</em>
+          hand you a microphone at some point during the night.
+        </p>
+      </section>
+
+      <!-- ═══ 10 ═══ -->
+      <section class="ar-section" id="record">
+        <div class="ar-section-label">⑩ Getting It Heard</div>
+        <h2 class="ar-section-title">Recording and Releasing Mixes</h2>
+        <p class="ar-lead">
+          The GO+ records straight to the USB or SD card, with no computer involved. <strong>Record every set,
+          including the practice ones.</strong> It costs nothing and it's the single fastest way to improve, because
+          the mistakes you don't notice while playing are extremely obvious on the sofa the next day.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Listen back critically</h4>
+            <p>Note the timestamp of every moment that sags. Almost always it's a <span class="ar-term">phrasing
+            error</span>, a transition held too long, or two tracks that were too similar back to back.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Record with headroom</h4>
+            <p>The recording takes your master output, so a hot master means a clipped file you cannot fix. Leave the
+            same <span class="ar-term">few dB of headroom</span> you'd leave on a mix and raise it afterwards.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Top and tail, lightly</h4>
+            <p>Trim the silence, fade the start and end, and — if it needs it — a gentle limiter to even out level
+            differences between tracks. <span class="ar-term">Don't remaster it.</span> The tracks are already mastered.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Loudness for platforms</h4>
+            <p>SoundCloud and Mixcloud normalise anyway, so crushing your mix buys you nothing and costs you dynamics.
+            Around <span class="ar-term">−14 LUFS integrated</span> is a sane target — see
+            <a href="mastering.html" style="color:var(--glow)">Mastering</a>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Write a tracklist</h4>
+            <p>It helps platforms identify the music, it credits the artists, and it's the main thing listeners ask for.
+            Engine's history export gives you the running order.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Expect takedowns</h4>
+            <p>Mixcloud licenses mixes and is the safer home; SoundCloud is more likely to flag a copyrighted set. Post
+            to <span class="ar-term">both</span>, and don't be surprised by either outcome.</p>
+          </div>
+        </div>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Fix the beatgrids, cue four points the same way every time, keep everything you need on two drives, count bars
+        before you touch the fader, pull the outgoing bass, use fewer effects than you want to, start lower than feels
+        comfortable, and record every set. The Prime GO+ handles the rest.
+      </p>
+
+      <nav aria-label="Guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="rhythm.html" style="color:var(--stone);text-decoration:none;">&larr; Rhythm &amp; Beats</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">&uarr; Learn Production</a>
+        <a href="mixing.html" style="color:var(--glow-warm);text-decoration:none;">Next: Mixing &rarr;</a>
+      </nav>
+
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+
