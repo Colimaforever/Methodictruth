@@ -554,6 +554,73 @@
       animation: remap-pulse 1.2s ease-in-out infinite;
     }
     @keyframes remap-pulse { 50% { box-shadow: 0 0 10px rgba(232, 168, 124, 0.5); } }
+    /* ─── TOUCH PADS ─── */
+    /* Musical typing needs a computer keyboard and a phone hasn't got one,
+       which left the piano strip — whose keys are narrower than a fingertip.
+       These are the phone instrument: big multi-touch targets locked to a
+       scale, so every pad is a right note. */
+    /* The piano container is a centred flex column, so children size to their
+       content — without this the grid's width would depend on how long the
+       hint text happens to be. */
+    .touch-pads { padding: 0.3rem 0.4rem 0.45rem; width: 100%; align-self: stretch; }
+    .touch-pads[hidden] { display: none; }
+    .tp-bar {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0 0.1rem 0.35rem; flex-wrap: wrap;
+    }
+    .tp-select {
+      background: rgba(10, 14, 26, 0.8); color: var(--glow);
+      border: 1px solid rgba(0, 229, 255, 0.28); border-radius: 2px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      padding: 0.22rem 0.3rem; letter-spacing: 0.04em;
+    }
+    .tp-hint {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.52rem;
+      color: var(--stone-dark); letter-spacing: 0.06em; opacity: 0.75;
+      margin-left: auto; white-space: nowrap;
+    }
+    .tp-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--tp-cols, 5), 1fr);
+      gap: 4px;
+      touch-action: none;            /* pads must not scroll the page while you play */
+      -webkit-user-select: none; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tp-pad {
+      position: relative; min-height: 52px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, rgba(0, 229, 255, 0.09), rgba(10, 14, 26, 0.6));
+      border: 1px solid rgba(0, 229, 255, 0.22); border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+      color: rgba(0, 229, 255, 0.75); letter-spacing: 0.04em;
+      transition: background 0.06s linear, box-shadow 0.06s linear;
+    }
+    /* Roots are landmarks — without them a scale grid is a wall of identical squares. */
+    .tp-pad.root {
+      background: linear-gradient(160deg, rgba(232, 168, 124, 0.16), rgba(10, 14, 26, 0.6));
+      border-color: rgba(232, 168, 124, 0.45); color: var(--glow-warm);
+    }
+    .tp-pad.on {
+      background: rgba(0, 229, 255, 0.55); color: rgba(10, 14, 26, 0.95);
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.4); border-color: var(--glow);
+    }
+    .tp-pad.root.on {
+      background: rgba(232, 168, 124, 0.75); box-shadow: 0 0 14px rgba(232, 168, 124, 0.45);
+      border-color: var(--glow-warm);
+    }
+    /* The guide button and the status pill are both fixed to the bottom of the
+       viewport, which is exactly where the pads now live. Lift them clear by
+       the pad panel's measured height rather than a guessed offset. */
+    body.pads-open .kb-toggle,
+    body.pads-open .audio-status { bottom: calc(var(--pads-h, 0px) + 0.6rem); }
+    /* Remapping binds computer keys — meaningless on the device that hasn't got any. */
+    body.pads-open #remapBtn { display: none; }
+    @media (max-width: 560px) {
+      .tp-pad { min-height: 46px; font-size: 0.58rem; }
+      .tp-hint { display: none; }
+    }
+
     .piano-key.remap-target {
       outline: 2px solid var(--glow-warm);
       outline-offset: -2px;
@@ -741,9 +808,20 @@
       <button class="piano-oct-btn" id="octUpBtn" title="Octave up (or press X)">+</button>
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
       <button class="piano-oct-btn" id="remapBtn" title="Bind your own keyboard keys to the piano">⌨ Remap</button>
+      <button class="piano-oct-btn" id="padsBtn" title="Touch pads — play with your fingers, locked to a scale" hidden>◇ Pads</button>
       <span class="piano-info-hint" id="pianoHint">Z/X octave · C/V velocity</span>
     </div>
     <div class="piano-keys" id="pianoKeys"></div>
+
+    <!-- Touch pads: the phone instrument. Hidden until a coarse pointer is detected. -->
+    <div class="touch-pads" id="touchPads" hidden>
+      <div class="tp-bar">
+        <select class="tp-select" id="tpRoot" aria-label="Root note"></select>
+        <select class="tp-select" id="tpScale" aria-label="Scale"></select>
+        <span class="tp-hint">Slide for runs · stack fingers for chords</span>
+      </div>
+      <div class="tp-grid" id="tpGrid" aria-label="Touch pads"></div>
+    </div>
   </div>
 
   <!-- Step Sequencer -->
@@ -864,6 +942,18 @@
       <dd>The sequencer has no envelope of its own — it plays through whatever's patched on the canvas. Add an <code>ADSR</code> module before <code>Output</code> and set a short <code>Dec</code> (decay) with low <code>Sus</code> (sustain) for plucky, percussive steps, or a longer Decay/higher Sustain for pads that bleed into the next step. It retriggers on every step automatically.</dd>
       <dt>Drum Machine</dt>
       <dd>Below the melodic grid, four drum rows — <code>Kick</code>, <code>Snare</code>, <code>Hat</code>, <code>Clap</code> — on the same clock and step count. Click cells to program a beat; each hit auditions as you click so you can build it by ear while stopped. <strong>Beat</strong> drops in a four-on-the-floor starting point (kick on every beat, snare on 2 and 4, hats on eighths) to edit from. The drums are synthesized and routed straight to the output, so they work <em>without</em> a patch on the canvas — you can program a beat before you've built a sound. <code>Clear</code> only wipes the melody; <code>Clear Drums</code> only wipes the beat.</dd>
+    </dl>
+
+    <h3>Touch Pads (phones &amp; tablets)</h3>
+    <dl>
+      <dt>Why they exist</dt>
+      <dd>Musical typing needs a computer keyboard, and a phone hasn't got one — which left the piano strip, whose keys are narrower than a fingertip. On a touch device the synth opens with <strong>pads</strong> instead: large multi-touch targets you can actually hit with a thumb. Switch between them any time with <code>◇ Pads</code>.</dd>
+      <dt>Every pad is a right note</dt>
+      <dd>The grid is locked to a <strong>scale</strong>, so there is no wrong pad — pick a root and a scale from the two menus and play freely. It defaults to <em>C Minor Pentatonic</em>, which is the most forgiving scale there is. The amber pads are the root, so you always know where you are.</dd>
+      <dt>Chords and runs</dt>
+      <dd>Each row starts two scale steps above the row below it, so <strong>three pads stacked vertically are a chord</strong> — put three fingers down in a column. Sliding a finger across the grid retriggers each pad it crosses, which is how you play a run with one thumb. Hitting the top of a pad plays harder than the bottom.</dd>
+      <dt>Range</dt>
+      <dd>The <code>−</code>/<code>+</code> buttons move the whole grid by an octave, same as they do for the piano. Your root and scale are remembered between visits.</dd>
     </dl>
 
     <h3>Musical Typing</h3>
@@ -3052,6 +3142,7 @@
   function setOctave(oct) {
     keyboardOctave = Math.max(0, Math.min(8, oct));
     document.getElementById('pianoOctave').textContent = 'Oct: ' + keyboardOctave;
+    if (typeof padsMode !== 'undefined' && padsMode) tpRelabel();
   }
   function setVelocity(vel) {
     keyboardVelocity = Math.max(1, Math.min(127, vel));
@@ -3207,6 +3298,208 @@
     }
   }
 
+  // ═══════════════════════════════════════════════
+  // TOUCH PADS — the phone instrument
+  // ═══════════════════════════════════════════════
+  // Every pad is a note in the chosen scale, so there is no wrong pad. That
+  // matters more on a phone than anywhere else: you cannot aim precisely with
+  // a thumb, so the instrument has to be forgiving of where you land.
+  const SCALES = {
+    'Minor Pentatonic': [0, 3, 5, 7, 10],
+    'Major Pentatonic': [0, 2, 4, 7, 9],
+    'Major':            [0, 2, 4, 5, 7, 9, 11],
+    'Natural Minor':    [0, 2, 3, 5, 7, 8, 10],
+    'Dorian':           [0, 2, 3, 5, 7, 9, 10],
+    'Mixolydian':       [0, 2, 4, 5, 7, 9, 10],
+    'Blues':            [0, 3, 5, 6, 7, 10],
+    'Harmonic Minor':   [0, 2, 3, 5, 7, 8, 11],
+    'Chromatic':        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+  };
+  // Each row starts two scale steps above the one below it, so three pads
+  // stacked vertically are a chord — the whole reason for a grid over a row.
+  const TP_ROW_OFFSET = 2;
+  const TP_ROWS = 4;
+  const TP_STORE = 'synthPads';
+
+  const touchPadsEl = document.getElementById('touchPads');
+  const tpGridEl = document.getElementById('tpGrid');
+  const tpRootSel = document.getElementById('tpRoot');
+  const tpScaleSel = document.getElementById('tpScale');
+  const padsBtn = document.getElementById('padsBtn');
+
+  let tpRoot = 0, tpScaleName = 'Minor Pentatonic', padsMode = false;
+  const tpPointers = new Map();          // pointerId → { note, padEl }
+  const tpRefs = new Map();              // midi note → how many fingers are holding it
+
+  function tpLoadPrefs() {
+    try {
+      const s = JSON.parse(localStorage.getItem(TP_STORE) || '{}');
+      if (Number.isInteger(s.root) && s.root >= 0 && s.root < 12) tpRoot = s.root;
+      if (SCALES[s.scale]) tpScaleName = s.scale;
+    } catch (e) {}
+  }
+  function tpSavePrefs() {
+    try { localStorage.setItem(TP_STORE, JSON.stringify({ root: tpRoot, scale: tpScaleName })); } catch (e) {}
+  }
+
+  // Scale degree → semitones above the root, wrapping into octaves.
+  function tpDegreeToSemi(degree) {
+    const sc = SCALES[tpScaleName];
+    const n = sc.length;
+    const oct = Math.floor(degree / n);
+    return sc[((degree % n) + n) % n] + oct * 12;
+  }
+
+  // Reference-counted so the same pitch held by two fingers (isomorphic grids
+  // repeat notes) doesn't get cut off when only one of them lifts.
+  function tpNoteOn(note, vel) {
+    const n = tpRefs.get(note) || 0;
+    if (n === 0) noteOn(note, vel, 'pads');
+    tpRefs.set(note, n + 1);
+  }
+  function tpNoteOff(note) {
+    const n = tpRefs.get(note) || 0;
+    if (n <= 1) { tpRefs.delete(note); noteOff(note); }
+    else tpRefs.set(note, n - 1);
+  }
+
+  function buildTouchPads() {
+    if (!tpGridEl) return;
+    const w = tpGridEl.clientWidth || touchPadsEl.clientWidth || 360;
+    const cols = Math.max(4, Math.min(8, Math.floor(w / 64)));
+    tpGridEl.style.setProperty('--tp-cols', cols);
+    tpGridEl.innerHTML = '';
+    // Top row is the highest, so pitch rises the way it does on a stave.
+    for (let r = 0; r < TP_ROWS; r++) {
+      const logicalRow = TP_ROWS - 1 - r;
+      for (let c = 0; c < cols; c++) {
+        const degree = c + logicalRow * TP_ROW_OFFSET;
+        const pad = document.createElement('div');
+        pad.className = 'tp-pad';
+        pad.dataset.degree = degree;
+        tpGridEl.appendChild(pad);
+      }
+    }
+    tpRelabel();
+  }
+
+  // Pad → MIDI note, recomputed whenever root, scale or octave changes.
+  function tpNoteOfPad(pad) {
+    const degree = parseInt(pad.dataset.degree, 10);
+    return (keyboardOctave + 1) * 12 + tpRoot + tpDegreeToSemi(degree);
+  }
+  function tpRelabel() {
+    tpGridEl.querySelectorAll('.tp-pad').forEach(pad => {
+      const note = tpNoteOfPad(pad);
+      pad.textContent = NOTE_NAMES[((note % 12) + 12) % 12] + (Math.floor(note / 12) - 1);
+      pad.classList.toggle('root', ((note - tpRoot) % 12 + 12) % 12 === 0);
+    });
+  }
+
+  function tpPadFromPoint(x, y) {
+    const el = document.elementFromPoint(x, y);
+    return el && el.classList && el.classList.contains('tp-pad') ? el : null;
+  }
+  // Hitting the top of a pad plays harder than the bottom — a little dynamics
+  // on a surface that has no other way to express them.
+  function tpVelocityAt(pad, y) {
+    const r = pad.getBoundingClientRect();
+    const t = r.height ? Math.max(0, Math.min(1, (y - r.top) / r.height)) : 0.5;
+    return Math.round(118 - t * 48);
+  }
+  function tpPress(pointerId, pad, y) {
+    const note = tpNoteOfPad(pad);
+    tpNoteOn(note, tpVelocityAt(pad, y));
+    pad.classList.add('on');
+    tpPointers.set(pointerId, { note, padEl: pad });
+  }
+  function tpRelease(pointerId) {
+    const cur = tpPointers.get(pointerId);
+    if (!cur) return;
+    tpNoteOff(cur.note);
+    tpPointers.delete(pointerId);
+    // Only unlight the pad once no other finger is still on it.
+    if (![...tpPointers.values()].some(p => p.padEl === cur.padEl)) cur.padEl.classList.remove('on');
+  }
+
+  if (tpGridEl) {
+    tpGridEl.addEventListener('pointerdown', (e) => {
+      const pad = e.target.closest('.tp-pad');
+      if (!pad) return;
+      e.preventDefault();
+      if (Tone.context.state !== 'running') Tone.start().catch(() => {});
+      tpPress(e.pointerId, pad, e.clientY);
+    });
+    // Sliding onto a new pad retriggers — that's how you play a run with one thumb.
+    tpGridEl.addEventListener('pointermove', (e) => {
+      const cur = tpPointers.get(e.pointerId);
+      if (!cur) return;
+      e.preventDefault();
+      const pad = tpPadFromPoint(e.clientX, e.clientY);
+      if (!pad || pad === cur.padEl) return;
+      tpRelease(e.pointerId);
+      tpPress(e.pointerId, pad, e.clientY);
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev =>
+      tpGridEl.addEventListener(ev, (e) => tpRelease(e.pointerId)));
+    // A pointer released outside the grid still has to stop its note.
+    window.addEventListener('pointerup', (e) => tpRelease(e.pointerId));
+  }
+
+  function setPadsMode(on) {
+    padsMode = !!on;
+    // Stop anything held before the layout changes under it.
+    [...tpPointers.keys()].forEach(tpRelease);
+    touchPadsEl.hidden = !padsMode;
+    pianoKeysEl.style.display = padsMode ? 'none' : '';
+    padsBtn.classList.toggle('active', padsMode);
+    padsBtn.textContent = padsMode ? '◈ Pads' : '◇ Pads';
+    // The Z/X hint describes computer keys; blank it in pads mode but leave the
+    // element in place, since noteOn still writes its "add an oscillator" warning there.
+    const hintEl = document.getElementById('pianoHint');
+    if (hintEl) hintEl.textContent = padsMode ? '' : 'Z/X octave · C/V velocity';
+    if (padsMode) buildTouchPads();
+    tpUpdateChrome();
+    if (typeof seqUpdateDock === 'function') seqUpdateDock();
+  }
+
+  // Publish the pad panel's real height so the fixed-position guide button and
+  // status pill can sit above it at any pad count or screen size.
+  function tpUpdateChrome() {
+    document.body.classList.toggle('pads-open', padsMode);
+    const h = padsMode ? pianoContainer.getBoundingClientRect().height : 0;
+    document.documentElement.style.setProperty('--pads-h', Math.round(h) + 'px');
+  }
+
+  function initTouchPads() {
+    tpLoadPrefs();
+    NOTE_NAMES.forEach((n, i) => {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = n;
+      if (i === tpRoot) o.selected = true;
+      tpRootSel.appendChild(o);
+    });
+    Object.keys(SCALES).forEach(name => {
+      const o = document.createElement('option');
+      o.value = name; o.textContent = name;
+      if (name === tpScaleName) o.selected = true;
+      tpScaleSel.appendChild(o);
+    });
+    tpRootSel.addEventListener('change', () => { tpRoot = parseInt(tpRootSel.value, 10); tpRelabel(); tpSavePrefs(); });
+    tpScaleSel.addEventListener('change', () => { tpScaleName = tpScaleSel.value; tpRelabel(); tpSavePrefs(); });
+    tapHandler(padsBtn, () => setPadsMode(!padsMode));
+
+    // Offer the pads wherever the pointer is coarse — and start there on a
+    // phone or tablet, where the piano strip is genuinely unplayable and
+    // musical typing isn't available at all.
+    const coarse = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || navigator.maxTouchPoints > 0;
+    if (coarse) {
+      padsBtn.hidden = false;
+      if (window.innerWidth <= 1024) setPadsMode(true);
+    }
+    window.addEventListener('resize', () => { if (padsMode) { buildTouchPads(); tpUpdateChrome(); } });
+  }
+
   function highlightPianoKey(noteNum, on) {
     const semitone = noteNum - (keyboardOctave + 1) * 12;
     const keyEl = pianoKeysEl.querySelector(`[data-semitone="${semitone}"]`);
@@ -3217,6 +3510,7 @@
 
   // Init
   buildPiano();
+  initTouchPads();
   initMIDI();
 
   // Octave buttons — the on-screen, discoverable version of Z/X
