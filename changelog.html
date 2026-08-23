@@ -121,6 +121,15 @@
     <div class="divider" id="2026-08-21"><span class="leaf">🌿</span> <span>August 21, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
+      <p><strong>The <a href="synth.html">Synth</a> now opens on a sound you can play.</strong> An empty rack meant the first thing a visitor did was press a key and hear nothing. It now starts on a <strong>Prophet-style patch</strong> — two sawtooth oscillators detuned seven cents against each other into a resonant lowpass, shaped by an envelope and widened with a slow chorus. That detuning is where most of the warmth in a classic analogue poly comes from, and it's why that instrument sounds the way it does. Presets are still one click away, and a shared patch link still overrides it.</p>
+    </article>
+    <article class="entry">
+      <p><strong>Fixed: module cards were cut off on phones.</strong> Slider value readouts were being pushed clean off the right edge of the card, so you couldn't see what any control was set to. The cause was a flexbox trap — a range input has an intrinsic width of about 129px, and <code>flex: 1</code> won't shrink a flex item below its automatic minimum width, so the slider held the row open at 220px inside a 132px card. Everything now fits, with the sliders keeping usable travel.</p>
+    </article>
+    <article class="entry">
+      <p>Also refreshed the site's <strong>page titles and descriptions</strong> to match what's actually here now — the production hub still described itself as a "three-part guide" when it's grown to ten, and the synth's description predated the touch pads, the drum machine and the auto-routing. They're now written around the problems people actually search for rather than as feature lists.</p>
+    </article>
+    <article class="entry">
       <p><strong>New: <a href="djing.html">DJing on the Prime GO+</a>.</strong> First DJ guide on the site, written around the <strong>Denon DJ Prime GO+</strong> — a two-deck standalone system with stem separation and a six-hour battery that needs no laptop at all. Half of it is getting the hardware out of your way: preparing a library in Engine DJ, why <strong>beatgrids are the single highest-value prep task</strong> (a wrong grid drifts mid-mix and there's nothing you can do live), cueing the same four points on every track so your hands stop reading the screen, and rendering stems ahead of time rather than during a set.</p>
     </article>
     <article class="entry">
