@@ -5,12 +5,12 @@
   <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0e1a">
-  <title>Browser Synth — Modular Synthesizer, Mixer & Effects Chain with MIDI Support</title>
+  <title>Free Browser Synth — Modular Synthesizer with Drum Machine, Sequencer and MIDI</title>
   <meta name="keywords" content="online synthesizer, browser synth, web audio synth, MIDI synthesizer, free synth, modular synth, tone.js, virtual instrument, audio mixer, effects chain, EQ, compressor, limiter">
-  <meta name="description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, MIDI controller input, and MIDI output to Logic Pro X or any other DAW. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
+  <meta name="description" content="A modular synthesizer that runs in your browser and wires itself — it opens on a playable analog-style sound, so you can press a key and hear something immediately. Scale-locked touch pads for phones and tablets, a four-voice drum machine, step sequencer, remappable computer keyboard, 18 presets, filters and effects, MIDI in and out to Logic Pro X, shareable patch links and jam recording. No download, no signup, no plugins.">
   <link rel="canonical" href="https://methodictruth.com/synth.html">
-  <meta property="og:title" content="Browser Synth — Modular Synthesizer, Mixer & Effects Chain with MIDI Support">
-  <meta property="og:description" content="A browser-based modular synthesizer, multi-track mixer, and effects chain in one patchable canvas — oscillators, filters, EQ, compressor, chorus, limiter, file playback, reverb, delay, MIDI controller input, and MIDI output to Logic Pro X or any other DAW. No download required — runs entirely in your browser using Tone.js and Web Audio API.">
+  <meta property="og:title" content="Free Browser Synth — Plays the Moment You Open It">
+  <meta property="og:description" content="A modular synthesizer that runs in your browser and wires itself — it opens on a playable analog-style sound, so you can press a key and hear something immediately. Scale-locked touch pads for phones and tablets, a four-voice drum machine, step sequencer, remappable computer keyboard, 18 presets, filters and effects, MIDI in and out to Logic Pro X, shareable patch links and jam recording. No download, no signup, no plugins.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/synth.html">
   <meta property="og:image" content="https://methodictruth.com/og/synth.png">
@@ -285,7 +285,11 @@
     /* Styled slider/knob */
     .synth-slider {
       -webkit-appearance: none; appearance: none;
-      flex: 1; height: 3px; background: rgba(138, 126, 107, 0.2);
+      /* A range input has an intrinsic width of ~129px, and flex:1 will not
+         shrink a flex item below its min-width:auto. Without this the slider
+         holds the row open and pushes the value readout off the card. */
+      flex: 1; min-width: 0;
+      height: 3px; background: rgba(138, 126, 107, 0.2);
       outline: none; cursor: pointer; border-radius: 2px;
       touch-action: none;
     }
@@ -348,8 +352,13 @@
       .synth-toolbar-label { display: none; }
       .synth-btn { font-size: 0.4rem; padding: 0.15rem 0.3rem; }
       .synth-canvas { min-height: calc(100vh - 200px); min-height: calc(100dvh - 200px); margin-top: 40px; }
-      .synth-module { width: 155px; }
+      .synth-module { width: 168px; }
       .module-title { font-size: 0.55rem; }
+      .module-control { gap: 0.35rem; }
+      .module-control label { min-width: 30px; font-size: 0.5rem; letter-spacing: 0.02em; }
+      .slider-value { min-width: 28px; font-size: 0.5rem; }
+      .module-control select { font-size: 0.6rem; padding: 0.28rem 0.3rem; max-width: 100%; }
+      .module-body { padding: 0.45rem 0.5rem; }
       /* Reorder arrows need a real tap target on a phone, not a 15px glyph.
          30px square each still leaves room for the title in a 155px card. */
       .module-header { padding: 0.3rem 0.3rem 0.3rem 0.5rem; }
@@ -4054,6 +4063,43 @@
 
   // If this page was opened with a shared patch in the URL, rebuild it
   restorePatchFromURL();
+
+  // ─── DEFAULT PATCH ───
+  // An empty rack means the first thing a visitor does is press a key and hear
+  // nothing. Start them on a playable sound instead: two saws detuned against
+  // each other into a resonant lowpass, shaped by an envelope and widened with
+  // a slow chorus — the Prophet-5 recipe, and the reason that instrument sounds
+  // the way it does. Presets remain one click away.
+  function loadDefaultPatch() {
+    const osc1 = addModule('oscillator', undefined, undefined, { auto: true });
+    setParam(osc1, 'type', 'sawtooth');
+    setParam(osc1, 'detune', -7);                 // the beating between the two
+    const osc2 = addModule('oscillator', undefined, undefined, { auto: true });
+    setParam(osc2, 'type', 'sawtooth');
+    setParam(osc2, 'detune', 7);                  // is most of the warmth
+    const flt = addModule('filter', undefined, undefined, { auto: true });
+    setParam(flt, 'type', 'lowpass');
+    setParam(flt, 'frequency', 1800);
+    setParam(flt, 'Q', 1.8);
+    setParam(flt, 'rolloff', '-24');
+    setParam(flt, 'drive', 0.12);                 // a little grit, not distortion
+    const env = addModule('envelope', undefined, undefined, { auto: true });
+    setParam(env, 'attack', 0.015);
+    setParam(env, 'decay', 0.35);
+    setParam(env, 'sustain', 0.7);
+    setParam(env, 'release', 0.6);                // long enough to bloom, short enough to play
+    const cho = addModule('chorus', undefined, undefined, { auto: true });
+    setParam(cho, 'frequency', 0.6);
+    setParam(cho, 'depth', 0.35);
+    setParam(cho, 'wet', 0.28);                   // width, not seasickness
+    const out = outputModule();
+    if (out) setParam(out.id, 'gain', 0.45);      // two oscillators, so leave headroom
+  }
+
+  // Only when the visitor hasn't arrived with a patch of their own.
+  if (!location.hash.match(/[#&]p=/) && Object.keys(modules).length === 0) {
+    try { loadDefaultPatch(); } catch (e) { console.warn('default patch failed', e); }
+  }
 
   // Channel strip macro
   tapHandler(document.getElementById('channelStripBtn'), addChannelStrip);
