@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Writing Harmony — Voice Leading, Borrowed Chords and the Classical Sound</title>
+  <meta name="keywords" content="voice leading, classical chord progressions, borrowed chords, flat VI, flat VII, natural minor progressions, suspensions, sus2, sus4, add9, minor add9, minor major 7, descending bass, lament bass, chromatic inner voice, Neapolitan chord, pedal point, drone, Pieter Nooten, Clan of Xymox, darkwave harmony, 4AD, songwriting harmony">
+  <meta name="description" content="Why some chord progressions sound classical or cinematic: it is voice leading rather than chord choice. Suspensions and added ninths, the borrowed chords of natural minor, the descending lament bass, chromatic inner lines, pedal points, and what Pieter Nooten actually does in Clan of Xymox.">
+  <link rel="canonical" href="https://methodictruth.com/harmony-guide.html">
+  <meta property="og:title" content="Writing Harmony — Why Some Progressions Sound Classical">
+  <meta property="og:description" content="Why some chord progressions sound classical or cinematic: it is voice leading rather than chord choice. Suspensions and added ninths, the borrowed chords of natural minor, the descending lament bass, chromatic inner lines, pedal points, and what Pieter Nooten actually does in Clan of Xymox.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/harmony-guide.html">
+  <meta property="og:image" content="https://methodictruth.com/og/harmony-guide.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Writing Harmony \u2014 Voice Leading, Borrowed Chords and the Classical Sound",
+  "description": "Why some chord progressions sound classical or cinematic: it is voice leading rather than chord choice. Suspensions and added ninths, the borrowed chords of natural minor, the descending lament bass, chromatic inner lines, pedal points, and what Pieter Nooten actually does in Clan of Xymox.",
+  "url": "https://methodictruth.com/harmony-guide.html",
+  "image": "https://methodictruth.com/og/harmony-guide.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "harmony",
+    "voice leading",
+    "songwriting",
+    "music theory"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "Writing Harmony", "item": "https://methodictruth.com/harmony-guide.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="harmony.html">Harmony</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Harmony &amp; Sound</div>
+          <a href="harmony-guide.html" class="active">Writing Harmony</a>
+          <a href="4ad.html">The 4AD Sound</a>
+          <div class="nav-drop-label">DJing</div>
+          <a href="djing.html">Denon Prime GO+</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>Writing Harmony</h1>
+        <div class="subtitle">Why some progressions sound classical, and how to write them on purpose</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        There's a particular sound — Pieter Nooten's writing in Clan of Xymox, the chords under a Cocteau Twins record,
+        the harmony in a lot of what came out on 4AD — that people describe as <em>classical</em> or <em>cinematic</em>
+        without being able to say why. It isn't mystical and it isn't advanced. It comes down to a handful of specific
+        habits, most of which are about <strong>the lines between the chords rather than the chords themselves</strong>.
+        Build these in the <a href="harmony.html" style="color:var(--glow-warm)">Harmony Workbench</a> as you read.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#voices">It's the Voices</a>
+        <a href="#suspend">Suspensions</a>
+        <a href="#borrowed">Borrowed Chords</a>
+        <a href="#bass">The Descending Bass</a>
+        <a href="#pedal">Pedals &amp; Drones</a>
+        <a href="#nooten">Nooten Specifically</a>
+        <a href="#practice">Applying It</a>
+      </nav>
+
+      <section class="ar-section" id="voices">
+        <div class="ar-section-label">① The Central Point</div>
+        <h2 class="ar-section-title">It's the Voices, Not the Chords</h2>
+        <p class="ar-lead">
+          Two songwriters can use the identical four chords and one sounds like a campfire and the other sounds like a
+          requiem. The chords are not what differ. What differs is <strong>how the individual notes move between
+          them</strong> — and specifically, how many of them hold still.
+        </p>
+        <p class="ar-lead">
+          Strum A minor then F major on a guitar and you've played two shapes. Voice them so that A and C stay exactly
+          where they are and only one note moves down to F, and you've written a <em>line</em>. The ear follows lines.
+          It hears a chord change as an event when everything jumps, and as a <strong>transformation</strong> when most
+          things stay and one thing slides. Transformation is what sounds inevitable, and inevitability is most of what
+          people mean by "classical."
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Hold what you can</h4>
+            <p>Any note shared between two chords should <span class="ar-term">stay in the same voice</span>. Am and
+            Fmaj7 share three notes. Voiced properly, that change is one note moving.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Move by step</h4>
+            <p>When a voice must move, a semitone or tone beats a leap. Whole progressions built from held notes and
+            steps feel like <span class="ar-term">one continuous fabric</span> rather than a series of grabs.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Let the bass do the leaping</h4>
+            <p>The bass is allowed to jump — it's a separate voice with a different job. The
+            <span class="ar-term">inner voices</span> are where smoothness matters, and they're the ones nobody thinks
+            about.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Contrary motion</h4>
+            <p>When the bass descends and an upper voice rises, the harmony <span class="ar-term">opens</span>. It's the
+            single most reliable way to make a change feel bigger without adding anything.</p>
+          </div>
+        </div>
+        <p class="ar-note">
+          This is why the Workbench draws the four voices rather than printing chord symbols. Load the descending lament
+          preset and look at it: every voice moves by one step, in parallel, and that is the entire reason it sounds the
+          way it does.
+        </p>
+      </section>
+
+      <section class="ar-section" id="suspend">
+        <div class="ar-section-label">② Delay and Ambiguity</div>
+        <h2 class="ar-section-title">Suspensions and Added Notes</h2>
+        <p class="ar-lead">
+          A <strong>suspension</strong> replaces the third of a chord with the note above or below it — sus4 or sus2 —
+          which removes the one note that tells you whether the chord is major or minor. Traditionally it resolves down
+          to the third a beat later. The move that defines a great deal of atmospheric music is simply
+          <strong>not resolving it</strong>.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Colour</th><th>What it is</th><th>Effect</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">sus4</td><td>The 4th in place of the 3rd</td><td>Tension leaning forward. Wants to fall to the third — so don't let it</td></tr>
+              <tr><td class="ar-hi">sus2</td><td>The 2nd in place of the 3rd</td><td>Open, weightless, neither happy nor sad. The sound of a lot of 80s guitar</td></tr>
+              <tr><td class="ar-hi">add9</td><td>The 9th <em>alongside</em> the third</td><td>Keeps the chord's identity but adds shimmer. The most useful of the three</td></tr>
+              <tr><td class="ar-hi">m(add9)</td><td>A minor chord with the 9th added</td><td>Melancholy with a glassy edge. Very Nooten, very Cocteaus</td></tr>
+              <tr><td class="ar-hi">m(maj7)</td><td>Minor triad with a major 7th</td><td>Unstable, filmic, unmistakably classical. Use sparingly and it's devastating</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The reason added ninths sound "classical" rather than "jazzy" is placement. A jazz voicing stacks the ninth
+          near the top as an extension. If you instead put the ninth <strong>in an inner voice, a step away from a note
+          that just moved</strong>, it reads as a passing line rather than a colour — and that's a nineteenth-century
+          habit, not a twentieth-century one.
+        </p>
+      </section>
+
+      <section class="ar-section" id="borrowed">
+        <div class="ar-section-label">③ The Minor Key's Own Colours</div>
+        <h2 class="ar-section-title">♭VI, ♭VII and the Borrowed Chords</h2>
+        <p class="ar-lead">
+          Natural minor contains three major chords that pop and rock rarely use as anything but passing colour:
+          <strong>♭III, ♭VI and ♭VII</strong>. In A minor those are C, F and G. Lean on them and the music stops
+          sounding like a minor-key pop song and starts sounding modal and old.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>♭VI — the ache</h4>
+            <p>F under an A minor tonality. It shares <span class="ar-term">two notes with the tonic</span>, so it
+            arrives almost without moving, and it's the warmest chord available in a minor key. As ♭VImaj7 it shares
+            three.</p>
+          </div>
+          <div class="ar-card">
+            <h4>♭VII — the lift without resolution</h4>
+            <p>G in A minor. It behaves like a dominant but <span class="ar-term">has no leading tone</span>, so it
+            lifts without promising a resolution. That refusal is the modal sound.</p>
+          </div>
+          <div class="ar-card">
+            <h4>♭III — the relative major</h4>
+            <p>Somewhere to go that feels like light without being a modulation. Reach it and the piece
+            <span class="ar-term">opens up</span>; leave immediately and it reads as a shaft of light rather than a key
+            change.</p>
+          </div>
+          <div class="ar-card">
+            <h4>V (major) — the classical exception</h4>
+            <p>Raising the seventh to get a real dominant is what harmonic minor is <em>for</em>. Amid all that modal
+            softness a proper V lands like a door closing — which is why it works best
+            <span class="ar-term">once</span>, at the end.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          Two other borrowings worth knowing. <strong>iv in a major key</strong> — the minor subdominant — is the single
+          most emotionally reliable chord in popular music; it's the chord that makes a bright song suddenly ache.
+          And the <strong>Neapolitan (♭II)</strong>, a major chord built on the flattened second, is pure nineteenth
+          century: unexpected, dramatic, and it resolves beautifully to V.
+        </p>
+      </section>
+
+      <section class="ar-section" id="bass">
+        <div class="ar-section-label">④ The Oldest Trick</div>
+        <h2 class="ar-section-title">The Descending Bass</h2>
+        <p class="ar-lead">
+          A bass line that walks steadily downward carries a piece all by itself. It's been doing so since the
+          seventeenth century, where it was literally called the <strong>lament bass</strong> — the descending
+          tetrachord from the tonic to the dominant, i&nbsp;♭VII&nbsp;♭VI&nbsp;V, used for exactly the emotion the name
+          suggests.
+        </p>
+        <p class="ar-lead">
+          It works because it gives the ear an <strong>independent line to follow</strong> underneath the harmony. The
+          chords above can do more or less anything; as long as the bass keeps stepping down, the passage feels
+          purposeful and inevitable. Pachelbel's canon, "Hit the Road Jack", flamenco's Andalusian cadence, half of
+          darkwave — all the same descending idea.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Descent</th><th>In A minor</th><th>Character</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Diatonic lament</td><td>Am – G – F – E</td><td>The classic. Grave, formal, resolves hard on the major V</td></tr>
+              <tr><td class="ar-hi">Chromatic inner line</td><td>Am – Am(maj7) – Am7 – F</td><td>The bass holds while an <em>inner</em> voice descends A–G♯–G–F♯. Hitchcock, Bond, Nooten</td></tr>
+              <tr><td class="ar-hi">Slow modal fall</td><td>Am – G – F – G</td><td>Never reaches the dominant, so it can loop forever. The ambient option</td></tr>
+              <tr><td class="ar-hi">Bass under a held chord</td><td>Am – Am/G – F – E</td><td>Inversions instead of new chords — maximum motion, minimum change</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          That second one deserves attention. Holding a chord while a single inner voice creeps down chromatically is
+          possibly the most effective four-bar move in this entire vocabulary — nothing changes and everything changes.
+          It's in the Workbench as <em>Chromatic inner</em>.
+        </p>
+      </section>
+
+      <section class="ar-section" id="pedal">
+        <div class="ar-section-label">⑤ Standing Still</div>
+        <h2 class="ar-section-title">Pedal Points and Drones</h2>
+        <p class="ar-lead">
+          The inverse move: hold a <strong>bass note</strong> still and change the harmony above it. Every chord that
+          passes over a held tonic is coloured by it, so ordinary progressions acquire tension and ambiguity for free.
+          A pedal is why so much film music can stay on one note for a minute and still feel like it's building.
+        </p>
+        <p class="ar-lead">
+          Drones do the same at the level of an entire piece, and they are the oldest device in Western music —
+          organum, bagpipes, tanpuras, Dead Can Dance. Once a drone is established, <strong>any chord you play against
+          it is judged by its relationship to that one note</strong>, which means very small changes read as very large
+          events. It's the harmonic equivalent of the restraint argument: emptiness makes the next thing enormous.
+        </p>
+      </section>
+
+      <section class="ar-section" id="nooten">
+        <div class="ar-section-label">⑥ The Specific Case</div>
+        <h2 class="ar-section-title">What Pieter Nooten Actually Does</h2>
+        <p class="ar-lead">
+          Nooten's writing in Clan of Xymox — and on <em>Sleeps with the Fishes</em>, his 4AD record with Michael Brook —
+          is a good study because it uses a small vocabulary very consistently. Listening to it with the above in mind,
+          the recurring habits are:
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Natural minor, not harmonic</h4>
+            <p>The leading tone is mostly <span class="ar-term">absent</span>, so cadences don't slam shut. Progressions
+            circle rather than resolve, which is why the music feels suspended even when it's moving.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Added ninths everywhere</h4>
+            <p>m(add9) as a default rather than an ornament. It's what gives those synth pads their
+            <span class="ar-term">glassy, bell-like top</span> without brightening the harmony.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Inner voices carry the tune</h4>
+            <p>The interest is frequently <span class="ar-term">not in the top line</span>. A held pad with one middle
+            voice moving is a Nooten signature, and it's a nineteenth-century keyboard habit far more than a rock one.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Long, slow, few chords</h4>
+            <p>Two or three chords held for bars at a time. The harmony isn't dense — it's
+            <span class="ar-term">given time</span>, which is what lets small colour changes register at all.</p>
+          </div>
+        </div>
+        <p class="ar-lead" style="margin-top:1rem;">
+          The general lesson transfers past the reference: <strong>a classical sound comes from restraint plus voice
+          leading</strong>, not from complexity. Four chords, moved smoothly, held long enough to be heard, with one
+          inner voice doing something — that's the whole recipe, and none of it requires knowing any theory beyond what's
+          on this page. The rest of that world's sound is production, which is
+          <a href="4ad.html" style="color:var(--glow-warm)">the 4AD story</a>.
+        </p>
+      </section>
+
+      <section class="ar-section" id="practice">
+        <div class="ar-section-label">⑦ Doing It</div>
+        <h2 class="ar-section-title">Applying It</h2>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Exercise</th><th>What it teaches</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Revoice a progression you already have</td><td>Same chords, minimum motion between them. The fastest possible improvement to anything you've written</td></tr>
+              <tr><td class="ar-hi">Write the bass first</td><td>Four descending notes, then find chords over them. Backwards from how most people write, and much better</td></tr>
+              <tr><td class="ar-hi">One chord, moving inner voice</td><td>Hold a minor triad for four bars and walk one middle note down chromatically. Hear how much happens</td></tr>
+              <tr><td class="ar-hi">Ban the third</td><td>Write using only sus2, sus4 and power chords. Ambiguity as a discipline</td></tr>
+              <tr><td class="ar-hi">Three chords, eight bars each</td><td>Force yourself to hold. Most amateur harmony changes far too often to be felt</td></tr>
+              <tr><td class="ar-hi">Steal a bass line</td><td>Take the bass from something you love, write new chords over it. Nobody will recognise it</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          Everything here is playable in the <a href="harmony.html" style="color:var(--glow-warm)">Harmony
+          Workbench</a> — the presets are named after the moves on this page, and the voice display will show you
+          exactly which notes hold and which step. Then take the result to the
+          <a href="synth.html" style="color:var(--glow-warm)">Synth</a> and give it a pad worth holding.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        Hold every note you can. Move the rest by step. Use ♭VI and ♭VII and stay out of harmonic minor. Put the ninth
+        in an inner voice. Walk the bass down. Then hold each chord twice as long as feels comfortable.
+      </p>
+
+      <nav aria-label="Guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="harmony.html" style="color:var(--stone);text-decoration:none;">&larr; Harmony Workbench</a>
+        <a href="theory.html" style="color:var(--glow);text-decoration:none;">&uarr; Theory</a>
+        <a href="4ad.html" style="color:var(--glow-warm);text-decoration:none;">Next: The 4AD Sound &rarr;</a>
+      </nav>
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+
