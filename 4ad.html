@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>The 4AD Sound — Production Techniques, Blackwing and the Label as a Genre</title>
+  <meta name="keywords" content="4AD, Ivo Watts-Russell, Blackwing Studios, John Fryer, This Mortal Coil, Cocteau Twins, Robin Guthrie, Elizabeth Fraser, Dead Can Dance, Clan of Xymox, Vaughan Oliver, 23 Envelope, gated reverb, reverb as arrangement, dream pop production, darkwave production, ethereal wave, shoegaze guitar texture">
+  <meta name="description" content="How 4AD became an adjective: Ivo Watts-Russell’s curation, Blackwing Studios and John Fryer, reverb printed as an instrument rather than added as polish, guitar as texture, the voice mixed as one colour among many, Vaughan Oliver’s sleeves, and how to get that sound today.">
+  <link rel="canonical" href="https://methodictruth.com/4ad.html">
+  <meta property="og:title" content="The 4AD Sound — How Those Records Were Made">
+  <meta property="og:description" content="How 4AD became an adjective: Ivo Watts-Russell’s curation, Blackwing Studios and John Fryer, reverb printed as an instrument rather than added as polish, guitar as texture, the voice mixed as one colour among many, Vaughan Oliver’s sleeves, and how to get that sound today.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://methodictruth.com/4ad.html">
+  <meta property="og:image" content="https://methodictruth.com/og/4ad.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "The 4AD Sound \u2014 Production Techniques, Blackwing and the Label as a Genre",
+  "description": "How 4AD became an adjective: Ivo Watts-Russell\u2019s curation, Blackwing Studios and John Fryer, reverb printed as an instrument rather than added as polish, guitar as texture, the voice mixed as one colour among many, Vaughan Oliver\u2019s sleeves, and how to get that sound today.",
+  "url": "https://methodictruth.com/4ad.html",
+  "image": "https://methodictruth.com/og/4ad.png",
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  },
+  "about": [
+    "4AD",
+    "record production",
+    "dream pop",
+    "music history"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://methodictruth.com/"}, {"@type": "ListItem", "position": 2, "name": "Learn Production", "item": "https://methodictruth.com/production.html"}, {"@type": "ListItem", "position": 3, "name": "The 4AD Sound", "item": "https://methodictruth.com/4ad.html"}]}
+  </script>
+  <style>
+    /* ─── ARRANGEMENT GUIDE PAGE ─── */
+    .ar-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .ar-main { max-width: 960px; margin: 0 auto; padding: 0 1.2rem; }
+
+    .ar-section {
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.85), rgba(15, 20, 15, 0.75));
+      border: 1px solid rgba(232, 168, 124, 0.14);
+      padding: 1.5rem; margin-bottom: 1.5rem; position: relative;
+    }
+    .ar-section-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow-warm); letter-spacing: 0.2em; text-transform: uppercase;
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .ar-section-title {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      color: var(--parchment); letter-spacing: 0.06em; margin-bottom: 0.6rem;
+    }
+    .ar-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.65; margin-bottom: 1rem; max-width: 72ch;
+    }
+    .ar-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ar-lead em { color: var(--glow); font-style: italic; }
+    .ar-note {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.92rem; font-style: italic;
+      color: var(--stone-dark); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(232, 168, 124, 0.25); padding-left: 0.8rem;
+    }
+    .ar-logic {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.93rem;
+      color: var(--stone); line-height: 1.55; margin-top: 0.9rem;
+      border-left: 2px solid rgba(0, 229, 255, 0.4); padding: 0.5rem 0 0.5rem 0.9rem;
+      background: rgba(0, 229, 255, 0.03);
+    }
+    .ar-logic strong { color: var(--glow); font-weight: 600; letter-spacing: 0.03em; }
+    .ar-logic::before {
+      content: attr(data-l); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; color: var(--glow); display: block; margin-bottom: 0.25rem; opacity: 0.85;
+    }
+
+    /* tables */
+    .ar-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.4rem; padding: 0 0.4rem; }
+    table.ar-table { width: 100%; border-collapse: collapse; min-width: 480px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; }
+    .ar-table th { text-align: left; padding: 0.5rem 0.6rem; color: var(--glow-warm); font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap; }
+    .ar-table td { padding: 0.5rem 0.6rem; color: var(--parchment); border-bottom: 1px solid rgba(138, 126, 107, 0.12); vertical-align: top; }
+    .ar-table tr:hover td { background: rgba(232, 168, 124, 0.04); }
+    .ar-table td.ar-hi { color: var(--glow); white-space: nowrap; }
+
+    /* chips + keys */
+    .ar-chip { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow); background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.05rem 0.4rem; border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap; }
+    .ar-kbd { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--parchment); background: rgba(10,14,26,0.7); border: 1px solid rgba(138,126,107,0.35); border-bottom-width: 2px; padding: 0.05rem 0.4rem; border-radius: 3px; }
+
+    /* cards */
+    .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 0.6rem; }
+    .ar-card { background: rgba(10, 14, 26, 0.4); border: 1px solid rgba(138, 126, 107, 0.14); padding: 0.9rem 1rem; }
+    .ar-card h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--glow); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .ar-card p { font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem; color: var(--stone); line-height: 1.5; margin: 0; }
+    .ar-card p + p { margin-top: 0.5rem; }
+    .ar-card .ar-term { color: var(--glow-warm); font-style: italic; }
+
+    /* diagrams */
+    .ar-wide-dia { display: block; margin: 0.9rem auto 0.4rem; width: 100%; max-width: 620px; height: auto; }
+    .ar-figcap { font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 0.86rem; color: var(--stone-dark); text-align: center; margin-top: 0.2rem; }
+
+    /* svg helpers */
+    .ar-grid-line { stroke: rgba(138, 126, 107, 0.22); stroke-width: 1; fill: none; }
+    .ar-axis { stroke: rgba(138, 126, 107, 0.4); stroke-width: 0.8; }
+    .ar-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
+    .ar-lbl-f { fill: var(--glow); }
+    .ar-lbl-w { fill: var(--glow-warm); }
+    .ar-blk-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+    .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
+    .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
+    .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* toc */
+    .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
+    .ar-toc a { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem; border: 1px solid rgba(232, 168, 124, 0.18); transition: all 0.2s; text-transform: uppercase; }
+    .ar-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 560px) {
+      .ar-section { padding: 1.1rem 0.9rem; }
+      .ar-toc a { font-size: 0.58rem; padding: 0.3rem 0.55rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="harmony.html">Harmony</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Harmony &amp; Sound</div>
+          <a href="harmony-guide.html">Writing Harmony</a>
+          <a href="4ad.html" class="active">The 4AD Sound</a>
+          <div class="nav-drop-label">DJing</div>
+          <a href="djing.html">Denon Prime GO+</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="ar-page">
+    <main class="ar-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+        <h1>The 4AD Sound</h1>
+        <div class="subtitle">How a record label became a genre — and how the records were actually made</div>
+      </div>
+
+      <p class="ar-lead" style="text-align:center; margin-left:auto; margin-right:auto;">
+        Very few labels have a <em>sound</em>. 4AD, founded in London in 1980 by Ivo Watts-Russell and Peter Kent, had
+        one so distinct that people still use "4AD" as an adjective — reverberant, gothic, textural, more atmosphere
+        than riff. It wasn't an accident of taste. It came from a specific studio, a specific engineer, a specific set
+        of production habits and a specific designer, and all four are learnable.
+      </p>
+
+      <nav class="ar-toc" aria-label="Sections">
+        <a href="#label">The Label</a>
+        <a href="#blackwing">Blackwing</a>
+        <a href="#technique">The Techniques</a>
+        <a href="#guitar">Guitar as Texture</a>
+        <a href="#voice">The Voice as Instrument</a>
+        <a href="#design">The Sleeves</a>
+        <a href="#today">Getting It Today</a>
+      </nav>
+
+      <section class="ar-section" id="label">
+        <div class="ar-section-label">① Context</div>
+        <h2 class="ar-section-title">A Label With a Point of View</h2>
+        <p class="ar-lead">
+          4AD began as an offshoot of Beggars Banquet and quickly became something unusual: a label signed almost
+          entirely to <strong>one person's taste</strong>. Ivo Watts-Russell wasn't chasing scenes. The roster —
+          Cocteau Twins, Dead Can Dance, Clan of Xymox, Modern English, Colourbox, later the Pixies, Throwing Muses,
+          Lush and Red House Painters — has no obvious genre in common, and yet the records are recognisably related.
+        </p>
+        <p class="ar-lead">
+          The clearest statement of that taste was <strong>This Mortal Coil</strong>, Ivo's own project: not a band but
+          a rotating collective of label artists recording mostly covers, chosen for mood rather than fame. It's the
+          purest distillation of the aesthetic — and it makes the point that <em>curation was the creative act</em>.
+        </p>
+        <p class="ar-note">
+          Worth noting for anyone arriving via <a href="harmony-guide.html" style="color:var(--glow-warm)">the harmony
+          guide</a>: Clan of Xymox released their first two albums on 4AD in 1985 and 1986, and Pieter Nooten's
+          <em>Sleeps with the Fishes</em> with Michael Brook followed in 1987. That harmonic language and this
+          production world are the same story.
+        </p>
+      </section>
+
+      <section class="ar-section" id="blackwing">
+        <div class="ar-section-label">② The Room</div>
+        <h2 class="ar-section-title">Blackwing, and John Fryer</h2>
+        <p class="ar-lead">
+          A great deal of the early catalogue was recorded at <strong>Blackwing Studios</strong> — a deconsecrated
+          church in south London — with <strong>John Fryer</strong> engineering. That combination matters more than any
+          individual piece of gear. A large stone room with a long natural decay makes certain decisions obvious and
+          others impossible, and an engineer who works there daily builds a house style around it.
+        </p>
+        <p class="ar-lead">
+          The lesson generalises past the specifics: <strong>a consistent sound usually comes from a consistent
+          room and a consistent pair of hands</strong>, not from a technique you can copy. If your records sound
+          different from each other, the cause is often that you keep changing the variables.
+        </p>
+      </section>
+
+      <section class="ar-section" id="technique">
+        <div class="ar-section-label">③ What They Actually Did</div>
+        <h2 class="ar-section-title">Reverb as Arrangement</h2>
+        <p class="ar-lead">
+          The defining production idea, and the one most often misunderstood: on these records
+          <strong>reverb is not a finishing touch, it's an instrument</strong>. It's printed, committed, and arranged —
+          chosen for how it fills a specific register, timed so its tail lands on the next beat, and frequently louder
+          than the source that fed it.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>Commit it</h4>
+            <p>Record the effect rather than adding it later. When reverb is <span class="ar-term">part of the take</span>
+            you play differently — you leave gaps for it, and the gaps become the arrangement.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Gated reverb</h4>
+            <p>A huge reverb cut off abruptly, so you get the size without the wash. Defined 80s drum sound and it's
+            still the fastest way to make a small kit sound <span class="ar-term">enormous but tight</span>.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Pre-delay and rhythm</h4>
+            <p>Set the pre-delay and decay so the tail resolves <span class="ar-term">in time</span> with the track.
+            Reverb that agrees with the tempo sounds intentional; reverb that doesn't sounds like a mistake.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Sparse arrangements make it audible</h4>
+            <p>None of this works in a busy track. These records are <span class="ar-term">mostly empty</span>, which is
+            precisely what leaves room for the space to be heard — see
+            <a href="minimalism.html" style="color:var(--glow)">Space &amp; Restraint</a>.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ar-section" id="guitar">
+        <div class="ar-section-label">④ Not Riffs</div>
+        <h2 class="ar-section-title">Guitar as Texture</h2>
+        <p class="ar-lead">
+          Robin Guthrie's guitar on the Cocteau Twins records is the reference point, and the important thing about it
+          is that it is <strong>almost never playing a part you could transcribe as a riff</strong>. It's chorus,
+          delay and reverb stacked deep enough that the instrument stops sounding like a guitar and becomes a bed of
+          harmonic colour — closer to a synth pad than to rock guitar.
+        </p>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Move</th><th>Why it works</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Chorus, heavily</td><td>Detuned copies blur the pitch, so the instrument loses its attack identity and becomes a wash</td></tr>
+              <tr><td class="ar-hi">Long modulated delay</td><td>Repeats that drift out of tune fill space and hide the picking, which is the point</td></tr>
+              <tr><td class="ar-hi">Open strings and ringing shapes</td><td>Let notes overlap. Fretted chords stop; open strings sustain into each other</td></tr>
+              <tr><td class="ar-hi">High voicings</td><td>Play chords <em>above</em> the vocal rather than under it, so the guitar is colour and never competes</td></tr>
+              <tr><td class="ar-hi">Volume swells</td><td>Remove the attack entirely and the guitar becomes a string section</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          The <a href="fretboard.html" style="color:var(--glow-warm)">fretboard guide's</a> point about open strings
+          applies directly here: mixing open strings into fretted shapes lets notes overlap in a way that's impossible
+          otherwise, and overlap is exactly what this sound is made of.
+        </p>
+      </section>
+
+      <section class="ar-section" id="voice">
+        <div class="ar-section-label">⑤ The Radical Part</div>
+        <h2 class="ar-section-title">The Voice as an Instrument</h2>
+        <p class="ar-lead">
+          Elizabeth Fraser's vocals are frequently <strong>not in any language</strong>, and even where they are, they're
+          mixed as texture rather than as a message — sitting inside the reverb with everything else rather than in
+          front of it. That's the opposite of every mixing convention, and it's deliberate.
+        </p>
+        <p class="ar-lead">
+          The transferable idea isn't "bury your vocal." It's that <strong>the decision of how far forward a voice sits
+          is a creative one</strong>, not a default. A vocal placed inside the track asks the listener to hear it as one
+          colour among several; a vocal placed in front asks them to follow the words. Both are legitimate, and most
+          people never realise they're choosing.
+        </p>
+      </section>
+
+      <section class="ar-section" id="design">
+        <div class="ar-section-label">⑥ The Other Half</div>
+        <h2 class="ar-section-title">Vaughan Oliver and the Sleeves</h2>
+        <p class="ar-lead">
+          You cannot separate 4AD's sound from its look. <strong>Vaughan Oliver</strong>, working with photographer
+          Nigel Grierson as <em>23 Envelope</em>, gave the label a visual identity — obscured imagery, unreadable
+          typography, textures photographed close enough to become abstract — that told you what a record would sound
+          like before you played it.
+        </p>
+        <p class="ar-lead">
+          That's a real lesson for anyone releasing music now: the artwork isn't packaging, it's part of the
+          <strong>same statement</strong>, and a consistent visual language does as much to make a body of work feel
+          coherent as the music does. Oliver's sleeves are why "4AD" is a describable aesthetic rather than just a
+          catalogue.
+        </p>
+      </section>
+
+      <section class="ar-section" id="today">
+        <div class="ar-section-label">⑦ Practically</div>
+        <h2 class="ar-section-title">Getting It Today</h2>
+        <div class="ar-table-wrap">
+          <table class="ar-table">
+            <thead><tr><th>Do this</th><th>Rather than</th></tr></thead>
+            <tbody>
+              <tr><td class="ar-hi">Print the reverb to the track</td><td>Adding it on a send at mixdown, where it's an afterthought you can undo</td></tr>
+              <tr><td class="ar-hi">Arrange for space</td><td>Filling every bar and then wondering why the reverb is inaudible</td></tr>
+              <tr><td class="ar-hi">Time the decay to the tempo</td><td>Leaving reverb at a preset length that fights the track</td></tr>
+              <tr><td class="ar-hi">Hold chords for bars</td><td>Changing every two beats. This harmony needs time to be felt</td></tr>
+              <tr><td class="ar-hi">Use natural minor and added ninths</td><td>Functional major-key progressions with a leading tone</td></tr>
+              <tr><td class="ar-hi">Let the guitar be a pad</td><td>Writing a riff. If it transcribes neatly, it's probably too foreground</td></tr>
+              <tr><td class="ar-hi">Commit to one room and one chain</td><td>Chasing a different sound each session and wondering why nothing coheres</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="ar-note">
+          Two starting points on this site: build the harmony in the
+          <a href="harmony.html" style="color:var(--glow-warm)">Harmony Workbench</a> using the <em>Aeolian float</em>
+          or <em>Chromatic inner</em> presets, then give it a slow pad in the
+          <a href="synth.html" style="color:var(--glow-warm)">Synth</a> — long attack, low cutoff, chorus on, and a
+          reverb whose tail is longer than the chord.
+        </p>
+      </section>
+
+      <p class="ar-lead" style="text-align:center; max-width:62ch; margin:0.5rem auto 0; opacity:0.85;">
+        One room, one engineer, one point of view. Reverb printed as an instrument rather than added as a polish,
+        arrangements empty enough for it to be heard, guitars used as colour, voices placed inside the track on purpose,
+        and artwork that says the same thing the music does.
+      </p>
+
+      <nav aria-label="Guides" style="max-width:620px;margin:2.4rem auto 0;border-top:1px solid rgba(232,168,124,0.16);padding-top:1.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.6rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;">
+        <a href="harmony-guide.html" style="color:var(--stone);text-decoration:none;">&larr; Writing Harmony</a>
+        <a href="production.html" style="color:var(--glow);text-decoration:none;">&uarr; Learn Production</a>
+        <a href="minimalism.html" style="color:var(--glow-warm);text-decoration:none;">Next: Space &amp; Restraint &rarr;</a>
+      </nav>
+    </main>
+  </div>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+

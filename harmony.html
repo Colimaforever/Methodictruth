@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Harmony Workbench — Write Chord Progressions with Real Voice Leading</title>
+  <meta name="keywords" content="chord progression generator, voice leading, harmony tool, four part harmony, SATB, borrowed chords, Neapolitan chord, suspensions, add9, descending bass, minor key progressions, darkwave chords, classical harmony, songwriting tool, free chord tool">
+  <meta name="description" content="An interactive harmony workbench: build chord progressions and watch the four voices move between them. Suggestions are ranked on voice leading the tool computes, and the palette is stocked with the borrowed, suspended and Neapolitan colours that make progressions sound classical rather than functional.">
+  <link rel="canonical" href="https://methodictruth.com/harmony.html">
+  <meta property="og:title" content="Harmony Workbench — Progressions with Real Voice Leading">
+  <meta property="og:description" content="Most chord tools hand you symbols. This one shows you the voices — build a progression, watch the four parts move, and see why a chord works.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/harmony.html">
+  <meta property="og:image" content="https://methodictruth.com/og/harmony.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Harmony Workbench",
+  "description": "An interactive harmony workbench: build chord progressions and watch the four voices move between them. Suggestions are ranked on voice leading the tool computes, and the palette is stocked with the borrowed, suspended and Neapolitan colours that make progressions sound classical rather than functional.",
+  "url": "https://methodictruth.com/harmony.html",
+  "applicationCategory": "MusicApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  }
+}
+  </script>
+  <style>
+
+    .hm-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
+    .hm-main { max-width: 980px; margin: 0 auto; padding: 0 1rem; }
+    .hm-panel {
+      background: linear-gradient(135deg, rgba(26,18,10,0.85), rgba(15,20,15,0.75));
+      border: 1px solid rgba(232,168,124,0.14); padding: 1rem 1.1rem; margin-bottom: 1rem;
+    }
+    .hm-label {
+      font-family:'JetBrains Mono',monospace; font-size:0.55rem; color:var(--glow-warm);
+      letter-spacing:0.2em; text-transform:uppercase; margin-bottom:0.6rem; opacity:0.75;
+    }
+    .hm-lead { font-family:'EB Garamond',Georgia,serif; font-size:0.98rem; color:var(--stone); line-height:1.6; max-width:74ch; }
+    .hm-lead strong { color: var(--glow-warm); } .hm-lead em { color: var(--glow); font-style: italic; }
+
+    .hm-controls { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; }
+    .hm-sel, .hm-btn {
+      font-family:'JetBrains Mono',monospace; font-size:0.66rem; letter-spacing:0.06em;
+      background:rgba(10,14,26,0.75); color:var(--glow);
+      border:1px solid rgba(0,229,255,0.25); border-radius:2px;
+      padding:0.4rem 0.6rem; cursor:pointer; -webkit-appearance:none;
+    }
+    .hm-btn:hover, .hm-sel:hover { border-color:var(--glow); background:rgba(0,229,255,0.08); }
+    .hm-btn.primary { border-color:var(--glow-warm); color:var(--glow-warm); }
+    .hm-btn.danger { border-color:rgba(232,92,92,0.4); color:rgba(232,120,120,0.9); }
+    .hm-btn[disabled] { opacity:0.4; cursor:default; }
+
+    /* chord palette */
+    .hm-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:5px; }
+    .hm-chord {
+      font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.03em;
+      background:rgba(10,14,26,0.6); color:var(--parchment);
+      border:1px solid rgba(138,126,107,0.22); border-radius:2px;
+      padding:0.5rem 0.35rem; cursor:pointer; text-align:center;
+      display:flex; flex-direction:column; gap:0.15rem; transition:all 0.15s;
+    }
+    .hm-chord:hover { border-color:var(--glow); background:rgba(0,229,255,0.08); }
+    .hm-chord .hm-rn { color:var(--glow); font-size:0.72rem; }
+    .hm-chord .hm-nm { color:var(--stone-dark); font-size:0.54rem; }
+    .hm-chord.sug { border-color:var(--glow-warm); background:rgba(232,168,124,0.09); }
+    .hm-chord.sug .hm-rn { color:var(--glow-warm); }
+
+    /* progression strip */
+    .hm-prog { display:flex; flex-wrap:wrap; gap:5px; min-height:44px; align-items:center; }
+    .hm-slot {
+      font-family:'JetBrains Mono',monospace; font-size:0.72rem;
+      background:rgba(0,229,255,0.1); color:var(--glow);
+      border:1px solid rgba(0,229,255,0.35); border-radius:2px;
+      padding:0.45rem 0.6rem; cursor:pointer; position:relative;
+    }
+    .hm-slot:hover { border-color:rgba(232,92,92,0.7); color:rgba(232,120,120,0.95); }
+    .hm-slot.playing { background:var(--glow); color:rgba(10,14,26,0.95); }
+    .hm-empty { font-family:'EB Garamond',Georgia,serif; font-style:italic; color:var(--stone-dark); font-size:0.9rem; }
+
+    /* voice leading */
+    .hm-vlwrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .hm-vl { display:block; min-width:340px; }
+    .hm-vl-lane { stroke:rgba(138,126,107,0.16); stroke-width:1; }
+    .hm-vl-lbl { font-family:'JetBrains Mono',monospace; font-size:8px; fill:var(--stone-dark); }
+    .hm-vl-note { font-family:'JetBrains Mono',monospace; font-size:8.5px; fill:var(--parchment); text-anchor:middle; }
+    .hm-vl-line { fill:none; stroke-width:1.6; }
+    .hm-vl-hold { stroke:rgba(106,173,115,0.85); }
+    .hm-vl-step { stroke:rgba(0,229,255,0.8); }
+    .hm-vl-leap { stroke:rgba(232,168,124,0.85); }
+    .hm-vl-dot { fill:rgba(10,14,26,0.9); stroke:rgba(138,126,107,0.5); stroke-width:1; }
+
+    .hm-legend { display:flex; flex-wrap:wrap; gap:0.4rem 1rem; font-family:'JetBrains Mono',monospace;
+      font-size:0.54rem; color:var(--stone-dark); letter-spacing:0.05em; text-transform:uppercase; margin-top:0.5rem; }
+    .hm-legend i { display:inline-block; width:14px; height:2px; margin-right:0.3rem; vertical-align:3px; }
+
+    .hm-why { font-family:'EB Garamond',Georgia,serif; font-size:0.9rem; color:var(--stone-dark);
+      font-style:italic; line-height:1.5; margin-top:0.6rem; border-left:2px solid rgba(232,168,124,0.25); padding-left:0.7rem; }
+    .hm-presets { display:flex; flex-wrap:wrap; gap:5px; }
+    .hm-preset {
+      font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:0.04em;
+      background:rgba(10,14,26,0.6); color:var(--stone); border:1px solid rgba(232,168,124,0.22);
+      border-radius:2px; padding:0.4rem 0.55rem; cursor:pointer; text-align:left;
+    }
+    .hm-preset:hover { border-color:var(--glow-warm); color:var(--glow-warm); background:rgba(232,168,124,0.06); }
+    .hm-preset span { display:block; color:var(--stone-dark); font-size:0.52rem; margin-top:0.15rem; }
+    @media (max-width:560px) {
+      .hm-panel { padding:0.8rem 0.7rem; }
+      .hm-grid { grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="harmony.html" class="active">Harmony</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Harmony &amp; Sound</div>
+          <a href="harmony-guide.html">Writing Harmony</a>
+          <a href="4ad.html">The 4AD Sound</a>
+          <div class="nav-drop-label">DJing</div>
+          <a href="djing.html">Denon Prime GO+</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="hm-page">
+    <main class="hm-main">
+      <div class="page-header" style="padding:5.5rem 1rem 1rem;">
+        <h1>Harmony Workbench</h1>
+        <div class="subtitle">Write progressions the way a composer would — by watching the voices move</div>
+      </div>
+
+      <div class="hm-panel">
+        <p class="hm-lead">
+          Most chord tools hand you symbols. This one shows you <strong>the voices</strong> — because a progression
+          doesn't sound classical or cinematic because of <em>which</em> chords it uses, but because of how the inner
+          lines move between them. Build a progression, watch the four voices, and let the suggestions tell you why a
+          chord works. Every suggestion is ranked partly on voice leading the tool actually computes.
+        </p>
+      </div>
+
+      <div class="hm-panel">
+        <div class="hm-label">Key &amp; Mode</div>
+        <div class="hm-controls">
+          <select class="hm-sel" id="hmRoot" aria-label="Key"></select>
+          <select class="hm-sel" id="hmMode" aria-label="Mode">
+            <option value="minor" selected>Natural Minor</option>
+            <option value="major">Major</option>
+          </select>
+          <button class="hm-btn primary" id="hmPlay">▶ Play</button>
+          <button class="hm-btn" id="hmTempoDown">−</button>
+          <span class="hm-sel" id="hmTempo" style="cursor:default">80 BPM</span>
+          <button class="hm-btn" id="hmTempoUp">+</button>
+          <button class="hm-btn danger" id="hmClear">Clear</button>
+        </div>
+      </div>
+
+      <div class="hm-panel">
+        <div class="hm-label">Your Progression — tap a chord to remove it</div>
+        <div class="hm-prog" id="hmProg"><span class="hm-empty">Empty. Pick a chord below, or load a starting point.</span></div>
+      </div>
+
+      <div class="hm-panel">
+        <div class="hm-label">Voice Leading</div>
+        <div class="hm-vlwrap"><svg class="hm-vl" id="hmVL" role="img" aria-label="Four-part voice leading diagram for the current progression"></svg></div>
+        <div class="hm-legend">
+          <span><i style="background:rgba(106,173,115,0.85)"></i>held — same note</span>
+          <span><i style="background:rgba(0,229,255,0.8)"></i>step — 1 or 2 semitones</span>
+          <span><i style="background:rgba(232,168,124,0.85)"></i>leap — 3 or more</span>
+        </div>
+        <p class="hm-why" id="hmWhy">The smoother the lines, the more the progression sounds like writing rather than
+        chord-changing. Held and stepping voices are what make a change feel inevitable.</p>
+      </div>
+
+      <div class="hm-panel">
+        <div class="hm-label">Chords — amber ones are suggested next</div>
+        <div class="hm-grid" id="hmPalette"></div>
+      </div>
+
+      <div class="hm-panel">
+        <div class="hm-label">Starting Points</div>
+        <div class="hm-presets" id="hmPresets"></div>
+      </div>
+
+      <div class="hm-panel">
+        <p class="hm-lead">
+          Want the reasoning behind these moves — why ♭VI and ♭VII feel the way they do, what a suspension is actually
+          delaying, and how a descending bass carries a whole song? That's in
+          <a href="harmony-guide.html" style="color:var(--glow-warm)">Writing Harmony</a>, which also covers the 4AD
+          and darkwave vocabulary this tool is stocked for.
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+  (function () {
+
+const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLATS = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+// Chord qualities as semitone sets from the chord root.
+const QUAL = {
+  maj:     [0,4,7],      min:   [0,3,7],       dim:  [0,3,6],      aug:  [0,4,8],
+  maj7:    [0,4,7,11],   min7:  [0,3,7,10],    dom7: [0,4,7,10],   m7b5: [0,3,6,10],
+  sus2:    [0,2,7],      sus4:  [0,5,7],
+  add9:    [0,4,7,14],   madd9: [0,3,7,14],
+  minmaj7: [0,3,7,11],
+};
+
+// The palette, per mode. Degree = semitones above the tonic.
+// `tag` drives the explanation shown to the user.
+const MINOR_PALETTE = [
+  { deg:0,  q:'min',    rn:'i',        tag:'tonic' },
+  { deg:0,  q:'madd9',  rn:'i(add9)',  tag:'colour' },
+  { deg:0,  q:'sus2',   rn:'i(sus2)',  tag:'suspension' },
+  { deg:0,  q:'sus4',   rn:'i(sus4)',  tag:'suspension' },
+  { deg:0,  q:'minmaj7',rn:'i(maj7)',  tag:'chromatic' },
+  { deg:0,  q:'min7',   rn:'i7',       tag:'chromatic' },
+  { deg:2,  q:'dim',    rn:'ii°',      tag:'diatonic' },
+  { deg:2,  q:'m7b5',   rn:'iiø7',     tag:'diatonic' },
+  { deg:1,  q:'maj',    rn:'♭II',      tag:'neapolitan' },
+  { deg:3,  q:'maj',    rn:'♭III',     tag:'diatonic' },
+  { deg:3,  q:'maj7',   rn:'♭IIImaj7', tag:'colour' },
+  { deg:5,  q:'min',    rn:'iv',       tag:'diatonic' },
+  { deg:5,  q:'madd9',  rn:'iv(add9)', tag:'colour' },
+  { deg:7,  q:'min',    rn:'v',        tag:'diatonic' },
+  { deg:7,  q:'maj',    rn:'V',        tag:'leading-tone' },
+  { deg:7,  q:'dom7',   rn:'V7',       tag:'leading-tone' },
+  { deg:8,  q:'maj',    rn:'♭VI',      tag:'diatonic' },
+  { deg:8,  q:'maj7',   rn:'♭VImaj7',  tag:'colour' },
+  { deg:10, q:'maj',    rn:'♭VII',     tag:'diatonic' },
+];
+const MAJOR_PALETTE = [
+  { deg:0,  q:'maj',   rn:'I',       tag:'tonic' },
+  { deg:0,  q:'add9',  rn:'I(add9)', tag:'colour' },
+  { deg:0,  q:'sus4',  rn:'I(sus4)', tag:'suspension' },
+  { deg:2,  q:'min',   rn:'ii',      tag:'diatonic' },
+  { deg:2,  q:'min7',  rn:'ii7',     tag:'diatonic' },
+  { deg:4,  q:'min',   rn:'iii',     tag:'diatonic' },
+  { deg:5,  q:'maj',   rn:'IV',      tag:'diatonic' },
+  { deg:5,  q:'min',   rn:'iv',      tag:'borrowed' },
+  { deg:7,  q:'maj',   rn:'V',       tag:'diatonic' },
+  { deg:7,  q:'sus4',  rn:'V(sus4)', tag:'suspension' },
+  { deg:9,  q:'min',   rn:'vi',      tag:'diatonic' },
+  { deg:8,  q:'maj',   rn:'♭VI',     tag:'borrowed' },
+  { deg:10, q:'maj',   rn:'♭VII',    tag:'borrowed' },
+];
+
+function chordPitches(tonic, c) {
+  const root = (tonic + c.deg) % 12;
+  return QUAL[c.q].map(iv => (root + iv) % 12);
+}
+
+// ── Voice leading ────────────────────────────────────────────────────────────
+// Each voice moves to the nearest available chord tone. Then any essential tone
+// that nobody landed on is claimed by whichever voice had to travel furthest —
+// which is what a composer does by ear.
+function voiceLead(prev, tonic, c) {
+  const pcs = chordPitches(tonic, c);
+  const rootPc = (tonic + c.deg) % 12;
+
+  // Bass takes the root in the octave nearest the previous bass.
+  let bass;
+  if (!prev) {
+    bass = 36 + ((rootPc - 36 % 12) + 12) % 12;          // around C2
+    while (bass < 36) bass += 12;
+    while (bass > 48) bass -= 12;
+  } else {
+    let best = null;
+    for (let o = 24; o <= 55; o++) {
+      if (o % 12 !== rootPc) continue;
+      const d = Math.abs(o - prev[0]);
+      if (!best || d < best.d) best = { o, d };
+    }
+    bass = best.o;
+  }
+
+  let upper;
+  if (!prev) {
+    // Open the first chord in a comfortable register.
+    // Close position from around middle C, so the first chord doesn't open
+    // with a gap the voice leading then has to live inside.
+    upper = [];
+    let cursor = 59;
+    const ring = pcs.slice(1).concat([pcs[0]]);
+    for (let i = 0; i < 3; i++) {
+      const pc = ring[i % ring.length];
+      let n = cursor + ((((pc - cursor) % 12) + 12) % 12);
+      if (n === cursor) n += 12;
+      upper.push(n); cursor = n;
+    }
+  } else {
+    upper = prev.slice(1).map(v => {
+      let best = null;
+      for (const pc of pcs) {
+        for (let o = -12; o <= 12; o += 12) {
+          const cand = v + o + (((pc - (v + o)) % 12) + 12) % 12;
+          for (const adj of [cand, cand - 12]) {
+            if (adj < 48 || adj > 84) continue;
+            const d = Math.abs(adj - v);
+            if (!best || d < best.d) best = { n: adj, d };
+          }
+        }
+      }
+      return best ? best.n : v;
+    });
+    // Make sure the essential tones are represented.
+    const essential = [pcs[0], pcs[1], pcs[pcs.length - 1]];
+    const present = new Set(upper.concat([bass]).map(n => n % 12));
+    for (const need of essential) {
+      if (present.has(need)) continue;
+      let worst = 0, worstD = -1;
+      upper.forEach((n, i) => {
+        const d = Math.abs(n - prev[i + 1]);
+        if (d > worstD) { worstD = d; worst = i; }
+      });
+      const v = prev[worst + 1];
+      let cand = v + ((((need - v) % 12) + 12) % 12);
+      if (cand - v > 6) cand -= 12;
+      if (cand >= 48 && cand <= 84) { upper[worst] = cand; present.add(need); }
+    }
+  }
+  return [bass, ...upper.sort((a, b) => a - b)];
+}
+
+function motion(prev, next) {
+  if (!prev) return null;
+  const per = next.map((n, i) => n - prev[i]);
+  return { per, total: per.reduce((s, d) => s + Math.abs(d), 0), held: per.filter(d => d === 0).length };
+}
+
+// ── Suggestions ──────────────────────────────────────────────────────────────
+// Ranked by root motion (the classical strength ordering) and by how smoothly
+// the voices actually move, which we compute rather than assume.
+const ROOT_MOTION_SCORE = { 5:3, 7:3, 2:2, 10:2, 1:2, 11:2, 3:1, 9:1, 4:1, 8:1, 6:0, 0:0 };
+
+function suggest(palette, tonic, prevChord, prevVoicing, limit = 6) {
+  const scored = palette.map(c => {
+    let score = 0;
+    const reasons = [];
+    if (prevChord) {
+      const from = (tonic + prevChord.deg) % 12, to = (tonic + c.deg) % 12;
+      const interval = ((to - from) % 12 + 12) % 12;
+      score += ROOT_MOTION_SCORE[interval] ?? 0;
+      if (interval === 5 || interval === 7) reasons.push('strong root motion');
+      if (interval === 10 || interval === 2 || interval === 1 || interval === 11) reasons.push('bass steps');
+      if (c.deg === prevChord.deg && c.q !== prevChord.q) { score += 0.5; reasons.push('same root, new colour'); }
+    }
+    const v = voiceLead(prevVoicing, tonic, c);
+    const m = motion(prevVoicing, v);
+    if (m) {
+      score += Math.max(0, 4 - m.total / 2);
+      if (m.held >= 2) { score += 2; reasons.push(`${m.held} voices hold`); }
+      else if (m.total <= 4) reasons.push('smooth voice leading');
+    }
+    if (c.tag === 'neapolitan') reasons.push('Neapolitan — a classical borrowing');
+    if (c.tag === 'chromatic') reasons.push('chromatic inner line');
+    if (c.tag === 'borrowed') reasons.push('borrowed from the parallel mode');
+    if (c.tag === 'suspension') reasons.push('suspension — delays the third');
+    if (c.tag === 'leading-tone') reasons.push('raised 7th, the classical cadence');
+    return { c, score, reasons, motionTotal: m ? m.total : 0 };
+  });
+  const pool = scored.filter(x => !prevChord || !(x.c.deg === prevChord.deg && x.c.q === prevChord.q))
+                     .sort((a, b) => b.score - a.score);
+  if (!prevChord) return pool.slice(0, limit);
+  const sameRoot = pool.filter(x => x.c.deg === prevChord.deg);
+  const moves    = pool.filter(x => x.c.deg !== prevChord.deg);
+  // At most one recolouring; the rest must actually go somewhere.
+  return [...moves.slice(0, limit - 1), ...sameRoot.slice(0, 1)]
+           .sort((a, b) => b.score - a.score).slice(0, limit);
+}
+
+  // ─── audio: a soft pad, enough to judge voice leading by ear ───
+  let ac = null;
+  function ctx() { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); return ac; }
+  function playChord(midi, when, dur) {
+    const c = ctx(), out = c.createGain();
+    out.gain.value = 0; out.connect(c.destination);
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 2200; lp.Q.value = 0.6; lp.connect(out);
+    midi.forEach((n, i) => {
+      const f = 440 * Math.pow(2, (n - 69) / 12);
+      [0, 1].forEach(d => {                       // two slightly detuned voices per note
+        const o = c.createOscillator(), g = c.createGain();
+        o.type = i === 0 ? 'triangle' : 'sawtooth';
+        o.frequency.value = f;
+        o.detune.value = d ? 6 : -6;
+        g.gain.value = (i === 0 ? 0.22 : 0.13) / (d + 1.6);
+        o.connect(g); g.connect(lp);
+        o.start(when); o.stop(when + dur + 0.5);
+      });
+    });
+    out.gain.setValueAtTime(0, when);
+    out.gain.linearRampToValueAtTime(0.5, when + 0.05);
+    out.gain.setTargetAtTime(0.34, when + 0.05, 0.25);
+    out.gain.setTargetAtTime(0, when + dur, 0.14);
+  }
+
+  // ─── state ───
+  const SHARP_UI = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  const FLAT_UI  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+  // Spelling carries function: the third of E major is G♯ (a leading tone), not
+  // A♭. Pick the accidental side from the chord's own root.
+  const SHARP_ROOTS = new Set([2, 4, 6, 7, 9, 11]);
+  const spellFor = rootPc => (SHARP_ROOTS.has(rootPc) ? SHARP_UI : FLAT_UI);
+  const NOTE_UI = FLAT_UI;
+  let tonic = 9, mode = 'minor', prog = [], tempo = 80, playing = false, timers = [];
+  const palette = () => (mode === 'minor' ? MINOR_PALETTE : MAJOR_PALETTE);
+  const $ = id => document.getElementById(id);
+
+  function voicings() {
+    let v = null; return prog.map(c => (v = voiceLead(v, tonic, c)));
+  }
+  function chordName(c) {
+    const rootPc = (tonic + c.deg) % 12;
+    const root = spellFor(rootPc)[rootPc];
+    const q = { maj:'', min:'m', dim:'dim', aug:'+', maj7:'maj7', min7:'m7', dom7:'7', m7b5:'ø7',
+                sus2:'sus2', sus4:'sus4', add9:'add9', madd9:'m(add9)', minmaj7:'m(maj7)' }[c.q];
+    return root + q;
+  }
+
+  // ─── render ───
+  function renderPalette() {
+    const last = prog[prog.length - 1] || null;
+    const vs = voicings();
+    const sug = suggest(palette(), tonic, last, vs[vs.length - 1] || null, 5);
+    const sugKey = new Set(sug.map(s => s.c.rn));
+    $('hmPalette').innerHTML = palette().map(c =>
+      `<button class="hm-chord${sugKey.has(c.rn) ? ' sug' : ''}" data-rn="${c.rn}"
+        title="${sugKey.has(c.rn) ? (sug.find(s=>s.c.rn===c.rn).reasons.join(' · ') || 'suggested') : ''}">
+        <span class="hm-rn">${c.rn}</span><span class="hm-nm">${chordName(c)}</span></button>`).join('');
+    $('hmPalette').querySelectorAll('.hm-chord').forEach(b =>
+      b.addEventListener('click', () => { add(palette().find(c => c.rn === b.dataset.rn)); }));
+
+    const why = sug.length && last
+      ? 'Suggested next: ' + sug.slice(0, 3).map(s => `<strong>${s.c.rn}</strong> (${s.reasons[0] || 'works well here'})`).join(', ') + '.'
+      : 'The smoother the lines, the more the progression sounds like writing rather than chord-changing. Held and stepping voices are what make a change feel inevitable.';
+    $('hmWhy').innerHTML = why;
+  }
+
+  function renderProg() {
+    const el = $('hmProg');
+    if (!prog.length) { el.innerHTML = '<span class="hm-empty">Empty. Pick a chord below, or load a starting point.</span>'; return; }
+    el.innerHTML = prog.map((c, i) =>
+      `<button class="hm-slot" data-i="${i}" title="Remove">${c.rn} <span style="opacity:0.55">${chordName(c)}</span></button>`).join('');
+    el.querySelectorAll('.hm-slot').forEach(b =>
+      b.addEventListener('click', () => { prog.splice(+b.dataset.i, 1); renderAll(); }));
+  }
+
+  function renderVL() {
+    const svg = $('hmVL'), vs = voicings();
+    const COLW = 74, LEFT = 26, TOP = 16, LANE = 26, H = TOP + 4 * LANE + 14;
+    const W = Math.max(340, LEFT + Math.max(1, vs.length) * COLW + 10);
+    // Render at natural size and let the wrapper scroll, rather than letting the
+    // SVG stretch to the panel and letterbox its own contents.
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('width', W); svg.setAttribute('height', H);
+    if (!vs.length) { svg.innerHTML = `<text class="hm-vl-lbl" x="${W/2}" y="${H/2}" text-anchor="middle">add chords to see the voices move</text>`; return; }
+    let o = '';
+    ['S','A','T','B'].forEach((nm, i) => {
+      const y = TOP + i * LANE;
+      o += `<line class="hm-vl-lane" x1="${LEFT}" y1="${y}" x2="${W-8}" y2="${y}"/>`;
+      o += `<text class="hm-vl-lbl" x="${LEFT-6}" y="${y+3}" text-anchor="end">${nm}</text>`;
+    });
+    // voice index 0 is the bass, so draw it on the bottom lane
+    const laneOf = vi => TOP + (3 - vi) * LANE;
+    for (let ci = 0; ci < vs.length - 1; ci++) {
+      for (let vi = 0; vi < 4; vi++) {
+        const d = Math.abs(vs[ci + 1][vi] - vs[ci][vi]);
+        const cls = d === 0 ? 'hm-vl-hold' : d <= 2 ? 'hm-vl-step' : 'hm-vl-leap';
+        const x1 = LEFT + ci * COLW + COLW / 2 + 15, x2 = LEFT + (ci + 1) * COLW + COLW / 2 - 15;
+        o += `<line class="hm-vl-line ${cls}" x1="${x1}" y1="${laneOf(vi)}" x2="${x2}" y2="${laneOf(vi)}"/>`;
+      }
+    }
+    vs.forEach((vc, ci) => {
+      const cx = LEFT + ci * COLW + COLW / 2;
+      const sp = spellFor((tonic + prog[ci].deg) % 12);
+      vc.forEach((n, vi) => {
+        o += `<circle class="hm-vl-dot" cx="${cx}" cy="${laneOf(vi)}" r="10.5"/>`;
+        o += `<text class="hm-vl-note" x="${cx}" y="${laneOf(vi) + 3}">${sp[n % 12]}</text>`;
+      });
+      o += `<text class="hm-vl-lbl" x="${cx}" y="${TOP + 4 * LANE + 8}" text-anchor="middle">${prog[ci].rn}</text>`;
+    });
+    svg.innerHTML = o;
+  }
+
+  function renderAll() { renderProg(); renderVL(); renderPalette(); }
+  function add(c) { if (c) { prog.push(c); renderAll(); previewLast(); } }
+
+  function previewLast() {
+    const vs = voicings();
+    if (!vs.length) return;
+    try { const c = ctx(); if (c.state === 'suspended') c.resume(); playChord(vs[vs.length - 1], c.currentTime + 0.01, 0.5); } catch (e) {}
+  }
+
+  function stop() {
+    playing = false; timers.forEach(clearTimeout); timers = [];
+    document.querySelectorAll('.hm-slot.playing').forEach(e => e.classList.remove('playing'));
+    $('hmPlay').textContent = '▶ Play';
+  }
+  function play() {
+    const vs = voicings();
+    if (!vs.length) return;
+    const c = ctx(); if (c.state === 'suspended') c.resume();
+    playing = true; $('hmPlay').textContent = '■ Stop';
+    const beat = 60 / tempo * 2;                       // two beats a chord
+    vs.forEach((vc, i) => {
+      playChord(vc, c.currentTime + 0.05 + i * beat, beat * 0.92);
+      timers.push(setTimeout(() => {
+        document.querySelectorAll('.hm-slot').forEach((e, j) => e.classList.toggle('playing', j === i));
+      }, (0.05 + i * beat) * 1000));
+    });
+    timers.push(setTimeout(stop, (0.05 + vs.length * beat) * 1000));
+  }
+
+  // ─── presets: the darkwave / classically-inflected vocabulary ───
+  const PRESETS = [
+    ['Descending lament', 'i ♭VII ♭VI V', 'minor', ['i','♭VII','♭VI','V']],
+    ['Aeolian float',     'i(add9) ♭VImaj7 ♭III ♭VII', 'minor', ['i(add9)','♭VImaj7','♭III','♭VII']],
+    ['Suspended hang',    'i(sus2) i iv(add9) i', 'minor', ['i(sus2)','i','iv(add9)','i']],
+    ['Chromatic inner',   'i i(maj7) i7 iv', 'minor', ['i','i(maj7)','i7','iv']],
+    ['Neapolitan turn',   'i ♭II V i', 'minor', ['i','♭II','V','i']],
+    ['Andalusian',        'i ♭VII ♭VI V', 'minor', ['i','♭VII','♭VI','V']],
+    ['Minor plagal',      'I vi iv I', 'major', ['I','vi','iv','I']],
+    ['Borrowed lift',     'I ♭VII ♭VI I', 'major', ['I','♭VII','♭VI','I']],
+  ];
+  function renderPresets() {
+    $('hmPresets').innerHTML = PRESETS.map((p, i) =>
+      `<button class="hm-preset" data-i="${i}">${p[0]}<span>${p[1]}</span></button>`).join('');
+    $('hmPresets').querySelectorAll('.hm-preset').forEach(b => b.addEventListener('click', () => {
+      const p = PRESETS[+b.dataset.i];
+      mode = p[2]; $('hmMode').value = mode;
+      prog = p[3].map(rn => palette().find(c => c.rn === rn)).filter(Boolean);
+      renderAll(); play();
+    }));
+  }
+
+  // ─── init ───
+  NOTE_UI.forEach((n, i) => {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = n; if (i === tonic) o.selected = true;
+    $('hmRoot').appendChild(o);
+  });
+  $('hmRoot').addEventListener('change', e => { tonic = +e.target.value; renderAll(); });
+  $('hmMode').addEventListener('change', e => {
+    mode = e.target.value;
+    prog = prog.map(c => palette().find(x => x.deg === c.deg && x.q === c.q) || palette()[0]);
+    renderAll();
+  });
+  $('hmPlay').addEventListener('click', () => (playing ? stop() : play()));
+  $('hmClear').addEventListener('click', () => { stop(); prog = []; renderAll(); });
+  const setTempo = t => { tempo = Math.max(40, Math.min(160, t)); $('hmTempo').textContent = tempo + ' BPM'; };
+  $('hmTempoDown').addEventListener('click', () => setTempo(tempo - 5));
+  $('hmTempoUp').addEventListener('click', () => setTempo(tempo + 5));
+
+  renderPresets();
+  prog = ['i','♭VII','♭VI','V'].map(rn => MINOR_PALETTE.find(c => c.rn === rn));
+  renderAll();
+
+  window.hmState = () => ({ tonic, mode, prog: prog.map(c => c.rn), voicings: voicings() });
+  })();
+  </script>
+
+
+  <script>
+  (function () {
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.textContent = open ? '✕' : '☰';
+      navToggle.setAttribute('aria-expanded', String(open));
+    });
+    navLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        navLinks.classList.remove('open');
+        navToggle.textContent = '☰';
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+    navLinks.querySelectorAll('.nav-drop-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const dropdown = btn.closest('.nav-dropdown');
+        navLinks.querySelectorAll('.nav-dropdown.open').forEach(d => { if (d !== dropdown) d.classList.remove('open'); });
+        dropdown.classList.toggle('open');
+      });
+    });
+  })();
+  </script>
+
+  <script src="stars.js?v=1"></script>
+
+  <!-- Analytics -->
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
+
