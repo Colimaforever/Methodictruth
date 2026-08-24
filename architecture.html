@@ -78,19 +78,29 @@
       background: linear-gradient(135deg, rgba(26, 18, 10, 0.9), rgba(15, 20, 15, 0.8));
       border: 1px solid rgba(0, 229, 255, 0.15);
       border-left: 3px solid var(--glow);
-      padding: 2rem 2.5rem;
+      /* No vertical padding while collapsed. Padding sets a floor that max-height:0
+         cannot go below, which otherwise left a 66px empty bar on the page with
+         nothing selected. */
+      padding: 0 2.5rem;
       -webkit-backdrop-filter: blur(4px);
       backdrop-filter: blur(4px);
-      transition: all 0.4s ease;
+      /* Specific properties rather than `all` — this element has a backdrop-filter,
+         and transitioning everything makes the browser re-blur on each frame. */
+      transition: max-height 0.4s ease, opacity 0.4s ease,
+                  padding 0.4s ease, margin 0.4s ease;
       opacity: 0;
       max-height: 0;
       overflow: hidden;
-      margin-bottom: 2rem;
+      margin-bottom: 0;
     }
     .arch-detail.visible {
       opacity: 1;
-      max-height: 600px;
+      /* Was 600px, which silently clipped five of the ten panels on a phone —
+         up to 243px of text cut off and unreachable, because overflow is hidden. */
+      max-height: 1200px;
       padding: 2rem 2.5rem;
+      margin-bottom: 2rem;
+      overflow-y: auto;    /* safety net: anything longer scrolls instead of vanishing */
     }
     .arch-detail h3 {
       font-family: 'Cinzel', serif;
@@ -189,7 +199,9 @@
         height: auto;
         min-width: unset;
       }
-      .arch-detail { padding: 1.5rem; }
+      /* Collapsed keeps horizontal padding only — vertical padding here is what
+         put the phantom bar back on phones after the desktop fix. */
+      .arch-detail { padding: 0 1.5rem; }
       .arch-detail.visible { padding: 1.5rem; }
       .arch-detail h3 { font-size: 1.1rem; }
     }
@@ -666,6 +678,6 @@
     });
   })();
   </script>
+  <!-- cache-bust 1773255239 -->
 </body>
 </html>
-<!-- cache-bust 1773255239 -->
