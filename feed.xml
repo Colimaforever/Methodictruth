@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: September 5, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-05</link>
+    <guid isPermaLink="false">changelog-2026-09-05</guid>
+    <pubDate>Sat, 05 Sep 2026 00:00:00 GMT</pubDate>
+    <description>No key on the Synth's keyboard is dead any more. The two-manual layout followed the piano strictly, and a piano has no black key between E and F or between B and C, which left a, f, k, apostrophe, 1, 4 and 8 doing nothing — two of them home-row keys. A dead key under resting fingers is a worse cost on a computer keyboard than a tidy metaphor is a benefit, so those slots now play the white note they lean against, which is not a fudge: E sharp is F and B sharp is C. So f plays F and k plays C. The range grew too: the three keys right of P continue the pattern, with bracket keys carrying the white row up to F and G and equals as the F sharp between them, taking the layout from two octaves and a third to two octaves and a fifth across 45 keys, both manuals still exact chromatic runs. A piano key that answers to several letters shows the main two and lists all of them on hover.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 4, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-04</link>
     <guid isPermaLink="false">changelog-2026-09-04</guid>
