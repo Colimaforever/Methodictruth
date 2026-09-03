@@ -2548,6 +2548,36 @@ footer .donate-link:hover {
   font-size: 0.4rem;
 }
 
+/* Where the two manuals overlap, one piano key carries two computer keys
+   ("Q/,"). Tighten the type so the pair still fits a black key. */
+.piano-key-label.multi {
+  font-size: 0.38rem;
+  letter-spacing: 0;
+}
+.piano-key.black .piano-key-label.multi {
+  font-size: 0.34rem;
+}
+
+/* Keyboard layout picker, sitting in the piano's info bar */
+.piano-layout-select {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--stone);
+  background: rgba(10, 14, 26, 0.6);
+  border: 1px solid rgba(138, 126, 107, 0.3);
+  border-radius: 3px;
+  padding: 0.2rem 0.35rem;
+  cursor: pointer;
+  max-width: 8.5rem;
+}
+.piano-layout-select:hover,
+.piano-layout-select:focus {
+  border-color: rgba(0, 229, 255, 0.4);
+  color: var(--glow);
+  outline: none;
+}
+
 /* ─── LIVE ROOM MOBILE: controls wrap, peer count centers ─── */
 @media (max-width: 600px) {
   .live-controls {
