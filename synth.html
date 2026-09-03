@@ -15,7 +15,7 @@
   <meta property="og:url" content="https://methodictruth.com/synth.html">
   <meta property="og:image" content="https://methodictruth.com/og/synth.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=74">
   <style>
     /* ─── SYNTH LAYOUT ─── */
     .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 110px; }
@@ -742,6 +742,17 @@
       outline: 2px solid var(--glow-warm);
       outline-offset: -2px;
     }
+
+    /* Scale/chord guide — colored dots overlaid on keys, never replacing the play highlight */
+    .piano-key.scale-root::after, .piano-key.scale-tone::after {
+      content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .piano-key.white.scale-root::after { width: 9px; height: 9px; background: var(--glow-warm); box-shadow: 0 0 7px var(--glow-warm); }
+    .piano-key.white.scale-tone::after { width: 6px; height: 6px; background: rgba(0,229,255,0.75); box-shadow: 0 0 4px rgba(0,229,255,0.4); }
+    .piano-key.black.scale-root::after { bottom: 3px; width: 6px; height: 6px; background: var(--glow-warm); box-shadow: 0 0 5px var(--glow-warm); }
+    .piano-key.black.scale-tone::after { bottom: 3px; width: 4px; height: 4px; background: rgba(0,229,255,0.7); box-shadow: 0 0 3px rgba(0,229,255,0.35); }
+
     @media (prefers-reduced-motion: reduce) {
       .piano-oct-btn.active { animation: none; }
     }
@@ -939,6 +950,10 @@
         <option value="Two rows">Two rows</option>
         <option value="Custom">Custom</option>
       </select>
+      <select class="piano-layout-select" id="guideRoot" aria-label="Scale guide root" title="Pick a root note to highlight scale or chord tones on the keyboard — Guide off removes the overlay">
+        <option value="">Guide off</option>
+      </select>
+      <select class="piano-layout-select" id="guidePattern" aria-label="Scale or chord to highlight on the keyboard"></select>
       <button class="piano-oct-btn" id="remapBtn" title="Bind your own keyboard keys to the piano">⌨ Remap</button>
       <button class="piano-oct-btn" id="padsBtn" title="Touch pads — play with your fingers, locked to a scale" hidden>◇ Pads</button>
       <span class="piano-info-hint" id="pianoHint">← → octave · ↑ ↓ velocity</span>
@@ -3830,6 +3845,7 @@
     // Anything still sounding — switching layout doesn't stop the notes — gets
     // its highlight back on the freshly built keys.
     activeNotes.forEach((_, noteNum) => highlightPianoKey(noteNum, true));
+    applyScaleGuide();
   }
 
   // ═══════════════════════════════════════════════
@@ -3849,6 +3865,29 @@
     'Harmonic Minor':   [0, 2, 3, 5, 7, 8, 11],
     'Chromatic':        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
   };
+
+  // All patterns available for the scale/chord guide (scales + common chord shapes).
+  const GUIDE_PATTERNS = {
+    'Minor Pentatonic': SCALES['Minor Pentatonic'],
+    'Major Pentatonic': SCALES['Major Pentatonic'],
+    'Major':            SCALES['Major'],
+    'Natural Minor':    SCALES['Natural Minor'],
+    'Dorian':           SCALES['Dorian'],
+    'Mixolydian':       SCALES['Mixolydian'],
+    'Blues':            SCALES['Blues'],
+    'Harmonic Minor':   SCALES['Harmonic Minor'],
+    'Major chord':      [0, 4, 7],
+    'Minor chord':      [0, 3, 7],
+    'Dom 7':            [0, 4, 7, 10],
+    'Maj 7':            [0, 4, 7, 11],
+    'Min 7':            [0, 3, 7, 10],
+    'Sus2':             [0, 2, 7],
+    'Sus4':             [0, 5, 7],
+    'Diminished':       [0, 3, 6],
+    'Augmented':        [0, 4, 8],
+  };
+  const GUIDE_STORAGE = 'synthGuide';
+
   // Each row starts two scale steps above the one below it, so three pads
   // stacked vertically are a chord — the whole reason for a grid over a row.
   const TP_ROW_OFFSET = 2;
@@ -4068,6 +4107,61 @@
     setLayout(e.target.value);
     e.target.blur();   // otherwise the select keeps the keystrokes
   });
+
+  // ─── SCALE / CHORD GUIDE ───
+  // Overlays colored dots on piano keys to show which notes belong to the
+  // chosen scale or chord. Root = amber dot; other tones = cyan dot. The
+  // overlay is purely visual — it doesn't change what the keyboard plays.
+  function applyScaleGuide() {
+    const rootEl = document.getElementById('guideRoot');
+    const patEl  = document.getElementById('guidePattern');
+    if (!rootEl || !patEl) return;
+    pianoKeysEl.querySelectorAll('.scale-root, .scale-tone').forEach(el =>
+      el.classList.remove('scale-root', 'scale-tone'));
+    const rootVal = rootEl.value;
+    if (!rootVal) return;
+    const root = parseInt(rootVal, 10);
+    const intervals = GUIDE_PATTERNS[patEl.value] || GUIDE_PATTERNS['Major'];
+    const pcs = new Set(intervals.map(i => (root + i) % 12));
+    pianoKeysEl.querySelectorAll('[data-semitone]').forEach(el => {
+      const pc = parseInt(el.dataset.semitone, 10) % 12;
+      if (pc === root) el.classList.add('scale-root');
+      else if (pcs.has(pc)) el.classList.add('scale-tone');
+    });
+  }
+
+  function saveGuide() {
+    try {
+      localStorage.setItem(GUIDE_STORAGE, JSON.stringify({
+        root: document.getElementById('guideRoot').value,
+        pattern: document.getElementById('guidePattern').value
+      }));
+    } catch (e) {}
+  }
+
+  (function initGuideControls() {
+    const rootSel = document.getElementById('guideRoot');
+    const patSel  = document.getElementById('guidePattern');
+    NOTE_NAMES.forEach((n, i) => {
+      const o = document.createElement('option'); o.value = i; o.textContent = n;
+      rootSel.appendChild(o);
+    });
+    const scaleKeys = Object.keys(SCALES);
+    const chordKeys = Object.keys(GUIDE_PATTERNS).filter(k => !scaleKeys.includes(k));
+    const sg = document.createElement('optgroup'); sg.label = 'Scales';
+    scaleKeys.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sg.appendChild(o); });
+    const cg = document.createElement('optgroup'); cg.label = 'Chords';
+    chordKeys.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; cg.appendChild(o); });
+    patSel.appendChild(sg); patSel.appendChild(cg);
+    try {
+      const s = JSON.parse(localStorage.getItem(GUIDE_STORAGE) || '{}');
+      if (s.root !== undefined && s.root !== '') rootSel.value = s.root;
+      if (s.pattern && GUIDE_PATTERNS[s.pattern]) patSel.value = s.pattern;
+    } catch (e) {}
+    rootSel.addEventListener('change', () => { applyScaleGuide(); saveGuide(); rootSel.blur(); });
+    patSel.addEventListener('change', () => { applyScaleGuide(); saveGuide(); patSel.blur(); });
+    applyScaleGuide();
+  })();
 
   // Remap: click toggles the mode; right-click resets to the default layout
   tapHandler(document.getElementById('remapBtn'), () => setRemapMode(!remapMode));
