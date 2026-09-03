@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: September 3, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-03</link>
+    <guid isPermaLink="false">changelog-2026-09-03</guid>
+    <pubDate>Thu, 03 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth's computer keyboard now uses the whole keyboard. It followed Logic Pro before — seventeen keys, a tenth of range, two entire rows doing nothing. The default is now the tracker layout: your keyboard read as two pianos stacked an octave apart, one per pair of rows, with the black keys on the staggered row above sitting where they would sit on a real piano. That is 34 keys across two octaves and a third, enough for both hands at once without touching the octave control. Octave and velocity moved to the arrow keys so Z X C V are free to be notes. A layout menu restores the old Logic-style two-row map for anyone who has it in their fingers, and hand-made bindings are kept as Custom, so you can flip between a preset and your own map without losing either.</description>
+  </item>
+
+  <item>
     <title>Changelog: August 21, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-08-21</link>
     <guid isPermaLink="false">changelog-2026-08-21</guid>

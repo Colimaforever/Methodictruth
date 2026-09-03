@@ -15,7 +15,7 @@
   <meta property="og:url" content="https://methodictruth.com/synth.html">
   <meta property="og:image" content="https://methodictruth.com/og/synth.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="stylesheet" href="styles.css?v=72">
   <style>
     /* ─── SYNTH LAYOUT ─── */
     .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 110px; }
@@ -623,11 +623,43 @@
        the pad panel's measured height rather than a guessed offset. */
     body.pads-open .kb-toggle,
     body.pads-open .audio-status { bottom: calc(var(--pads-h, 0px) + 0.6rem); }
-    /* Remapping binds computer keys — meaningless on the device that hasn't got any. */
-    body.pads-open #remapBtn { display: none; }
+    /* Both of these bind computer keys — meaningless on a device without one. */
+    body.pads-open #remapBtn,
+    body.pads-open #kbLayoutSelect { display: none; }
     @media (max-width: 560px) {
       .tp-pad { min-height: 46px; font-size: 0.58rem; }
       .tp-hint { display: none; }
+    }
+
+    /* The two-manual layout drawn as it sits on a real keyboard, so the
+       offset black-key rows read as a piano rather than as a list. */
+    .kb-layout-map {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.15rem 0.6rem;
+      align-items: center;
+      margin: 0.7rem 0;
+      padding: 0.7rem 0.9rem;
+      background: rgba(10, 14, 26, 0.5);
+      border: 1px solid rgba(138, 126, 107, 0.2);
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .kb-layout-map span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      color: rgba(138, 126, 107, 0.6);
+      text-transform: uppercase;
+    }
+    .kb-layout-map code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      white-space: pre;
+      background: none;
+      padding: 0;
+      color: var(--glow);
     }
 
     .piano-key.remap-target {
@@ -823,9 +855,15 @@
       <span class="piano-info-item" id="pianoOctave">Oct: 4</span>
       <button class="piano-oct-btn" id="octUpBtn" title="Octave up (or press X)">+</button>
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
+      <select class="piano-layout-select" id="kbLayoutSelect" aria-label="Keyboard layout"
+              title="How your computer keyboard maps to the piano">
+        <option value="Full keyboard">Full keyboard</option>
+        <option value="Two rows">Two rows</option>
+        <option value="Custom">Custom</option>
+      </select>
       <button class="piano-oct-btn" id="remapBtn" title="Bind your own keyboard keys to the piano">⌨ Remap</button>
       <button class="piano-oct-btn" id="padsBtn" title="Touch pads — play with your fingers, locked to a scale" hidden>◇ Pads</button>
-      <span class="piano-info-hint" id="pianoHint">Z/X octave · C/V velocity</span>
+      <span class="piano-info-hint" id="pianoHint">← → octave · ↑ ↓ velocity</span>
     </div>
     <div class="piano-keys" id="pianoKeys"></div>
 
@@ -974,12 +1012,16 @@
 
     <h3>Musical Typing</h3>
     <dl>
-      <dt>Playing with your computer keyboard</dt>
-      <dd>The default layout follows Logic Pro: <code>A W S E D F T G Y H U J</code> walks up the chromatic scale from C, continuing <code>K O L P ;</code> — a range of a tenth. The on-screen keys always show the letter that plays them.</dd>
-      <dt>Reaching other octaves</dt>
-      <dd>Press <code>Z</code>/<code>X</code> (or the <code>−</code>/<code>+</code> buttons by the octave readout) to shift the whole keyboard down or up an octave, across the full MIDI range. <code>C</code>/<code>V</code> lower and raise velocity. Holding a note while you change octave is safe — the note you started is the note that stops.</dd>
+      <dt>Full keyboard — the default</dt>
+      <dd>Read your keyboard as <strong>two pianos, one above the other, an octave apart</strong>. Each pair of rows is a manual: the letters are the white keys, and the row above holds the black keys, offset so they sit where they'd sit on a real piano.
+        <div class="kb-layout-map"><span>black</span><code>&nbsp;&nbsp;2 3&nbsp;&nbsp;&nbsp;5 6 7&nbsp;&nbsp;&nbsp;9 0</code><span>white</span><code>q w e r t y u i o p</code><span>black</span><code>&nbsp;&nbsp;s d&nbsp;&nbsp;&nbsp;g h j&nbsp;&nbsp;&nbsp;l ;</code><span>white</span><code>z x c v b n m , . /</code></div>
+        That's 34 keys across two octaves and a third — the <code>Z</code> row starts on C, the <code>Q</code> row starts on the C above it. Both hands can play at once without touching the octave control. The on-screen keys always show the letter that plays them.</dd>
+      <dt>Two rows</dt>
+      <dd>Pick <strong>Two rows</strong> from the layout menu for Logic Pro's Musical Typing instead: <code>A W S E D F T G Y H U J</code> up from C, continuing <code>K O L P ;</code> — a tenth in all. Half the range, but it leaves <code>Z</code>/<code>X</code>/<code>C</code>/<code>V</code> free as octave and velocity shortcuts.</dd>
+      <dt>Octave and velocity</dt>
+      <dd><code>←</code>/<code>→</code> shift the whole keyboard down or up an octave across the full MIDI range; <code>↑</code>/<code>↓</code> ride velocity. The <code>−</code>/<code>+</code> buttons beside the octave readout do the same thing with a mouse. On the Two rows layout, <code>Z</code>/<code>X</code> and <code>C</code>/<code>V</code> also work. Holding a note while you change octave is safe — the note you started is the note that stops.</dd>
       <dt>Binding your own keys</dt>
-      <dd>Keyboard layouts differ, so nothing is fixed. Click <code>⌨ Remap</code>, click a piano key, then press whatever key you want to play it — repeat for as many as you like, then <code>Esc</code> to finish. Bindings save automatically and persist between visits. Right-click <code>⌨ Remap</code> to reset to the default layout. A custom binding on <code>Z</code>, <code>X</code>, <code>C</code>, or <code>V</code> takes priority over that key's built-in shortcut.</dd>
+      <dd>Neither layout is fixed. Click <code>⌨ Remap</code>, click a piano key, then press whatever key you want to play it — repeat for as many as you like, then <code>Esc</code> to finish. The layout menu switches to <strong>Custom</strong> and your bindings persist between visits, so you can flip out to a preset and back without losing them. Right-click <code>⌨ Remap</code> to reset. A custom binding on a key takes priority over that key's built-in shortcut.</dd>
     </dl>
 
     <h3>MIDI — Controllers and DAWs</h3>
@@ -2867,42 +2909,95 @@
   // Note names
   const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
-  // Logic Pro X style keyboard mapping: key → semitone offset from C.
-  // This is only the DEFAULT — every binding is user-remappable (⌨ Remap),
-  // because keyboard layouts differ and one hardcoded map can't fit them all.
-  // Extended past Logic's A–L row with P and ; so the default already spans
-  // a 10th (C to E of the next octave).
-  const DEFAULT_KEY_MAP = {
+  // Keyboard mapping: key → semitone offset from C. Two named layouts ship,
+  // and every binding on top of them is user-remappable (⌨ Remap).
+  //
+  // KEY_SPAN is the widest semitone any layout or remap may reach, and it is
+  // also how many keys the on-screen piano draws. Keep them in step.
+  const KEY_SPAN = 29; // C up to E two octaves higher
+
+  // "Full keyboard" — the tracker/FL layout. The keyboard is read as TWO
+  // piano manuals, one per pair of rows, an octave apart:
+  //
+  //     black    2 3   5 6 7   9 0            ← upper manual
+  //     white   q w e r t y u i o p
+  //     black    s d   g h j   l ;            ← lower manual
+  //     white   z x c v b n m , . /
+  //
+  // Each pair of rows is shaped like a keyboard you can see, so the black
+  // keys sit above and between their white ones. 34 keys, 2 octaves and a
+  // third, no octave-shifting needed to play a normal part with both hands.
+  const LAYOUT_FULL = {
+    // lower manual — C below middle up to E above
+    'z':0, 's':1, 'x':2, 'd':3, 'c':4, 'v':5, 'g':6,
+    'b':7, 'h':8, 'n':9, 'j':10, 'm':11,
+    ',':12, 'l':13, '.':14, ';':15, '/':16,
+    // upper manual — one octave above, overlapping the lower manual's tail
+    'q':12, '2':13, 'w':14, '3':15, 'e':16, 'r':17, '5':18,
+    't':19, '6':20, 'y':21, '7':22, 'u':23,
+    'i':24, '9':25, 'o':26, '0':27, 'p':28
+  };
+
+  // "Two rows" — Logic Pro's Musical Typing, for anyone with the muscle
+  // memory. Half the keys, but it leaves Z/X/C/V free as controls.
+  const LAYOUT_TWO_ROW = {
     'a':0, 'w':1, 's':2, 'e':3, 'd':4, 'f':5, 't':6,
     'g':7, 'y':8, 'h':9, 'u':10, 'j':11,
     'k':12, 'o':13, 'l':14, 'p':15, ';':16
   };
+
+  const KEY_LAYOUTS = {
+    'Full keyboard': LAYOUT_FULL,
+    'Two rows': LAYOUT_TWO_ROW
+  };
+  const DEFAULT_LAYOUT = 'Full keyboard';
+  const CUSTOM_LAYOUT = 'Custom';
+  const DEFAULT_KEY_MAP = LAYOUT_FULL;
+
   const KEYMAP_STORAGE = 'synthKeyMap';
+  const LAYOUT_STORAGE = 'synthKeyLayout';
+
+  let keyLayout = loadLayoutName();
   let keyMap = loadKeyMap();
 
-  function loadKeyMap() {
+  function readStoredMap() {
     try {
       const raw = localStorage.getItem(KEYMAP_STORAGE);
-      if (raw) {
-        const data = JSON.parse(raw);
-        // Only accept sane entries: single-char keys → semitone 0-26
-        const clean = {};
-        for (const [k, v] of Object.entries(data)) {
-          if (typeof k === 'string' && k.length >= 1 && k.length <= 1 &&
-              Number.isInteger(v) && v >= 0 && v <= 26) clean[k] = v;
-        }
-        if (Object.keys(clean).length) return clean;
+      if (!raw) return null;
+      // Only accept sane entries: single-char keys → semitone inside the span
+      const clean = {};
+      for (const [k, v] of Object.entries(JSON.parse(raw))) {
+        if (typeof k === 'string' && k.length === 1 &&
+            Number.isInteger(v) && v >= 0 && v < KEY_SPAN) clean[k] = v;
       }
+      return Object.keys(clean).length ? clean : null;
+    } catch (e) { return null; }
+  }
+  function loadLayoutName() {
+    try {
+      const name = localStorage.getItem(LAYOUT_STORAGE);
+      if (name && (KEY_LAYOUTS[name] || name === CUSTOM_LAYOUT)) return name;
     } catch (e) {}
-    return { ...DEFAULT_KEY_MAP };
+    // No layout recorded. Anyone with a saved map remapped it before layouts
+    // existed, so honour that as Custom rather than overwriting their work.
+    return readStoredMap() ? CUSTOM_LAYOUT : DEFAULT_LAYOUT;
+  }
+  function loadKeyMap() {
+    if (KEY_LAYOUTS[keyLayout]) return { ...KEY_LAYOUTS[keyLayout] };
+    return readStoredMap() || { ...DEFAULT_KEY_MAP };
   }
   function saveKeyMap() {
-    try { localStorage.setItem(KEYMAP_STORAGE, JSON.stringify(keyMap)); } catch (e) {}
+    try {
+      localStorage.setItem(KEYMAP_STORAGE, JSON.stringify(keyMap));
+      localStorage.setItem(LAYOUT_STORAGE, keyLayout);
+    } catch (e) {}
   }
 
-  // Control keys (octave/velocity). A custom note binding on one of these
-  // wins over the control — the user asked for that key explicitly.
-  const CTRL_KEYS = new Set(['z','x','c','v']);
+  // Control keys. Arrows always work — they can't be bound as notes, since
+  // remap only accepts single characters. Z/X/C/V stay as the Logic-style
+  // shortcuts, but only while the active layout leaves them free.
+  const CTRL_KEYS = new Set(['z','x','c','v','arrowleft','arrowright','arrowup','arrowdown']);
+  const CTRL_HINT = '← → octave · ↑ ↓ velocity';
   // key → the exact MIDI note that key started, so releasing after an octave
   // shift still stops the RIGHT note (this was a stuck-note bug: keyup used
   // to recompute from the CURRENT octave).
@@ -3179,14 +3274,52 @@
     pianoKeysEl.querySelectorAll('.remap-target').forEach(k => k.classList.remove('remap-target'));
     document.getElementById('pianoHint').textContent = on
       ? 'Click a piano key, then press the keyboard key to bind it · Esc to finish'
-      : 'Z/X octave · C/V velocity';
+      : CTRL_HINT;
+  }
+
+  // ─── KEYBOARD LAYOUT ───
+  // Switching to a named layout replaces the whole map. Switching to Custom
+  // brings back whatever the user last remapped, so flipping out to compare a
+  // preset and back again doesn't cost them their bindings.
+  function setLayout(name, opts) {
+    if (name === CUSTOM_LAYOUT) {
+      const saved = readStoredMap();
+      if (!saved) return;               // nothing to go back to; leave as-is
+      keyLayout = CUSTOM_LAYOUT;
+      keyMap = saved;
+    } else if (KEY_LAYOUTS[name]) {
+      keyLayout = name;
+      keyMap = { ...KEY_LAYOUTS[name] };
+    } else return;
+
+    try { localStorage.setItem(LAYOUT_STORAGE, keyLayout); } catch (e) {}
+    syncLayoutSelect();
+    buildPiano();
+    if (!(opts && opts.quiet)) {
+      document.getElementById('pianoHint').textContent =
+        keyLayout === 'Full keyboard'
+          ? 'Two manuals — Z row and Q row, an octave apart · ' + CTRL_HINT
+          : keyLayout + ' · ' + CTRL_HINT;
+    }
+  }
+  function syncLayoutSelect() {
+    const sel = document.getElementById('kbLayoutSelect');
+    if (sel) sel.value = keyLayout;
+  }
+  // Binding a key by hand is what makes a map Custom — remember it separately
+  // so the presets stay pristine.
+  function markCustomMap() {
+    keyLayout = CUSTOM_LAYOUT;
+    saveKeyMap();
+    syncLayoutSelect();
   }
   function remapPickTarget(semitone, keyEl) {
     pianoKeysEl.querySelectorAll('.remap-target').forEach(k => k.classList.remove('remap-target'));
     remapTarget = semitone;
     keyEl.classList.add('remap-target');
     document.getElementById('pianoHint').textContent =
-      'Press a key for ' + NOTE_NAMES[semitone % 12] + (semitone >= 12 ? ' (upper)' : '') + ' — Esc to cancel';
+      'Press a key for ' + NOTE_NAMES[semitone % 12] +
+      (semitone >= 12 ? ' (+' + Math.floor(semitone / 12) + ' oct)' : '') + ' — Esc to cancel';
   }
 
   document.addEventListener('keydown', (e) => {
@@ -3206,7 +3339,7 @@
       if (remapTarget !== null && key.length === 1) {
         e.preventDefault(); e.stopPropagation();
         keyMap[key] = remapTarget;
-        saveKeyMap();
+        markCustomMap();
         buildPiano();
         remapTarget = null;
         document.getElementById('pianoHint').textContent =
@@ -3222,7 +3355,13 @@
     e.preventDefault();
     e.stopPropagation();
 
-    // A user's explicit note binding on z/x/c/v outranks the built-in control.
+    // Arrows are the controls that always exist. Z/X/C/V only fall through to
+    // the octave/velocity shortcuts when the active layout hasn't claimed them
+    // as notes — a binding on a key outranks the built-in control.
+    if (key === 'arrowleft')  { setOctave(keyboardOctave - 1); return; }
+    if (key === 'arrowright') { setOctave(keyboardOctave + 1); return; }
+    if (key === 'arrowdown')  { setVelocity(keyboardVelocity - 10); return; }
+    if (key === 'arrowup')    { setVelocity(keyboardVelocity + 10); return; }
     if (!isNote) {
       if (key === 'z') { setOctave(keyboardOctave - 1); return; }
       if (key === 'x') { setOctave(keyboardOctave + 1); return; }
@@ -3251,21 +3390,20 @@
   // ─── BUILD PIANO UI ───
   function buildPiano() {
     pianoKeysEl.innerHTML = '';
-    // 2 octaves + 3 extra keys (C to D of next octave) = 27 semitones
-    const totalSemitones = 27; // C0 to D2 (relative)
-    const blackIndices = new Set([1,3,6,8,10,13,15,18,20,22,25]);
+    litKeys.clear();   // every element we were tracking has just been discarded
+    const totalSemitones = KEY_SPAN;
+    const BLACK_PCS = new Set([1,3,6,8,10]);
 
-    // Computer key labels come from the LIVE key map (default or remapped),
-    // so the on-screen keys always show what your keyboard actually plays.
-    const labelFor = (semitone) => {
-      for (const [k, v] of Object.entries(keyMap)) {
-        if (v === semitone) return k.toUpperCase();
-      }
-      return '';
-    };
+    // Computer key labels come from the LIVE key map (layout or remapped), so
+    // the on-screen keys always show what your keyboard actually plays. Two
+    // manuals overlap in the middle, so a key can carry more than one label.
+    const labelFor = (semitone) => Object.entries(keyMap)
+      .filter(([, v]) => v === semitone)
+      .map(([k]) => k.toUpperCase())
+      .join('/');
 
     for (let i = 0; i < totalSemitones; i++) {
-      const isBlack = blackIndices.has(i);
+      const isBlack = BLACK_PCS.has(i % 12);
       const keyEl = document.createElement('div');
       keyEl.className = 'piano-key' + (isBlack ? ' black' : ' white');
       keyEl.dataset.semitone = i;
@@ -3273,7 +3411,7 @@
       const label = labelFor(i);
       if (label) {
         const labelEl = document.createElement('span');
-        labelEl.className = 'piano-key-label';
+        labelEl.className = 'piano-key-label' + (label.length > 1 ? ' multi' : '');
         labelEl.textContent = label;
         keyEl.appendChild(labelEl);
       }
@@ -3312,6 +3450,10 @@
 
       pianoKeysEl.appendChild(keyEl);
     }
+
+    // Anything still sounding — switching layout doesn't stop the notes — gets
+    // its highlight back on the freshly built keys.
+    activeNotes.forEach((_, noteNum) => highlightPianoKey(noteNum, true));
   }
 
   // ═══════════════════════════════════════════════
@@ -3473,7 +3615,7 @@
     // The Z/X hint describes computer keys; blank it in pads mode but leave the
     // element in place, since noteOn still writes its "add an oscillator" warning there.
     const hintEl = document.getElementById('pianoHint');
-    if (hintEl) hintEl.textContent = padsMode ? '' : 'Z/X octave · C/V velocity';
+    if (hintEl) hintEl.textContent = padsMode ? '' : CTRL_HINT;
     if (padsMode) buildTouchPads();
     tpUpdateChrome();
     if (typeof seqUpdateDock === 'function') seqUpdateDock();
@@ -3516,11 +3658,20 @@
     window.addEventListener('resize', () => { if (padsMode) { buildTouchPads(); tpUpdateChrome(); } });
   }
 
+  // noteNum → the key element actually lit for it. Releasing has to clear THAT
+  // element: recomputing the semitone from the current octave lights the wrong
+  // key (and strands the right one) whenever the octave moved mid-hold, which
+  // the arrow keys make easy to do.
+  const litKeys = new Map();
+
   function highlightPianoKey(noteNum, on) {
-    const semitone = noteNum - (keyboardOctave + 1) * 12;
-    const keyEl = pianoKeysEl.querySelector(`[data-semitone="${semitone}"]`);
-    if (keyEl) {
-      keyEl.classList.toggle('active', on);
+    if (on) {
+      const semitone = noteNum - (keyboardOctave + 1) * 12;
+      const keyEl = pianoKeysEl.querySelector(`[data-semitone="${semitone}"]`);
+      if (keyEl) { keyEl.classList.add('active'); litKeys.set(noteNum, keyEl); }
+    } else {
+      const keyEl = litKeys.get(noteNum);
+      if (keyEl) { keyEl.classList.remove('active'); litKeys.delete(noteNum); }
     }
   }
 
@@ -3533,15 +3684,21 @@
   tapHandler(document.getElementById('octDownBtn'), () => setOctave(keyboardOctave - 1));
   tapHandler(document.getElementById('octUpBtn'), () => setOctave(keyboardOctave + 1));
 
-  // Remap: click toggles the mode; right-click resets to the default map
+  // Layout picker — the straightforward version of remapping: pick a shape
+  // for the whole keyboard instead of binding keys one at a time.
+  syncLayoutSelect();
+  document.getElementById('kbLayoutSelect').addEventListener('change', (e) => {
+    setLayout(e.target.value);
+    e.target.blur();   // otherwise the select keeps the keystrokes
+  });
+
+  // Remap: click toggles the mode; right-click resets to the default layout
   tapHandler(document.getElementById('remapBtn'), () => setRemapMode(!remapMode));
   document.getElementById('remapBtn').addEventListener('contextmenu', (e) => {
     e.preventDefault();
-    keyMap = { ...DEFAULT_KEY_MAP };
-    saveKeyMap();
-    buildPiano();
+    setLayout(DEFAULT_LAYOUT, { quiet: true });
     setRemapMode(false);
-    document.getElementById('pianoHint').textContent = 'Key bindings reset to default';
+    document.getElementById('pianoHint').textContent = 'Key bindings reset to ' + DEFAULT_LAYOUT;
   });
 
   // ─── KNOWLEDGE BASE TOGGLE ───
