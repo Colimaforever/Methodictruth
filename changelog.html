@@ -122,6 +122,21 @@
       <p>Everything shipped here, newest first. No version numbers — just the work, in the order it happened. <a href="feed.xml">RSS feed ⟶</a></p>
     </div>
 
+    <div class="divider" id="2026-09-04"><span class="leaf">🌿</span> <span>September 4, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
+      <p><strong>The <a href="synth.html">Synth</a>'s sequencer had a bug worth naming.</strong> On a phone the melodic grid and the drum grid were sized independently — steps at a fixed minimum width, drums stretched to fit — so they were two different scales sitting on top of each other. Measured at 16 steps on a 390px screen, <strong>step 15 of the melody sat 151 pixels away from step 15 of the kick</strong>, and the playhead lit two columns that had nothing to do with each other. They now share one scroller and identical column tracks; drift is zero at every width and every pattern length, and a step never shrinks below a tappable size.</p>
+    </article>
+    <article class="entry">
+      <p><strong>Pitch now moves by scale degree.</strong> Editing a melody meant clicking <code>−</code>/<code>+</code> a semitone at a time — seven clicks from C to G, per step, with most stops outside the key. Set <code>Key</code> and a scale and every edit lands <em>in</em> the key: <strong>drag up or down on a step</strong> and it walks the scale. A note already off-scale snaps onto it rather than staying wrong, <em>Chromatic</em> is still there if you want semitones, and <code>Random</code> now generates in your chosen key instead of always C pentatonic.</p>
+    </article>
+    <article class="entry">
+      <p><strong>And every step has velocity.</strong> Previously every note fired at a fixed 100 and every drum hit was a boolean — which is awkward on a site whose own <a href="groove.html">Groove &amp; Timing</a> guide argues that velocity is one of three controls separating music that breathes from music that doesn't. Melodic steps get a velocity strip you drag; drum cells have no pitch to set, so <strong>dragging up and down on a drum cell sets its velocity</strong>, which is where ghost notes live. The <code>Beat</code> preset now lays hats down with alternating accents rather than flat. Old saved patterns migrate to velocity 100 — exactly what they were already playing at — so nothing you had changes how it sounds.</p>
+    </article>
+    <article class="entry">
+      <p>The grid also became reachable from a keyboard for the first time: 80 cells that were plain <code>&lt;div&gt;</code>s with click handlers now take focus and report their state, with ↑/↓ for pitch and ←/→ for velocity.</p>
+    </article>
+
     <div class="divider" id="2026-09-03"><span class="leaf">🌿</span> <span>September 3, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
