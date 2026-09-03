@@ -15,7 +15,7 @@
   <meta property="og:url" content="https://methodictruth.com/synth.html">
   <meta property="og:image" content="https://methodictruth.com/og/synth.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=72">
+  <link rel="stylesheet" href="styles.css?v=73">
   <style>
     /* ─── SYNTH LAYOUT ─── */
     .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 110px; }
@@ -934,7 +934,8 @@
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
       <select class="piano-layout-select" id="kbLayoutSelect" aria-label="Keyboard layout"
               title="How your computer keyboard maps to the piano">
-        <option value="Full keyboard">Full keyboard</option>
+        <option value="Chromatic rows">Chromatic rows</option>
+        <option value="Full keyboard">Piano shape</option>
         <option value="Two rows">Two rows</option>
         <option value="Custom">Custom</option>
       </select>
@@ -1105,14 +1106,16 @@
 
     <h3>Musical Typing</h3>
     <dl>
-      <dt>Full keyboard — the default</dt>
-      <dd>Read your keyboard as <strong>two pianos, one above the other, an octave apart</strong>. Each pair of rows is a manual: the lower row is the white keys, and the row above holds the black keys, offset so they sit where they'd sit on a real piano.
+      <dt>Chromatic rows — the default</dt>
+      <dd>The simplest rule a keyboard can have: <strong>one long chromatic run, left to right, bottom row upwards.</strong> Every key on the four rows plays, every note appears exactly once, and <strong>neighbouring keys are neighbouring notes</strong> with no exceptions — no skips, no repeats, nothing to remember.
+        <div class="kb-layout-map"><span>high</span><code>1 2 3 4 5 6 7 8 9 0 - =</code><span>&nbsp;</span><code>q w e r t y u i o p [ ]</code><span>&nbsp;</span><code>a s d f g h j k l ; '</code><span>low</span><code>z x c v b n m , . /</code></div>
+        45 keys, 45 semitones — <strong>three octaves and a major third</strong>, more than double what a two-row layout reaches. The rows join up seamlessly too: <code>/</code> to <code>a</code>, <code>'</code> to <code>q</code> and <code>]</code> to <code>1</code> are each one semitone, so the whole keyboard is a single ladder. Because no note is bound twice, every key on screen shows exactly one letter.</dd>
+      <dt>Piano shape — when you want to see chords</dt>
+      <dd>Pick <strong>Piano shape</strong> for the layout that mirrors an actual keyboard: two manuals an octave apart, letters as the white keys, the staggered row above as the black keys.
         <div class="kb-layout-map"><span>black</span><code>1 2 3 4 5 6 7 8 9 0 - =</code><span>white</span><code>&nbsp;q w e r t y u i o p [ ]</code><span>black</span><code>a s d f g h j k l ; '</code><span>white</span><code>&nbsp;z x c v b n m , . /</code></div>
-        <strong>45 keys across two octaves and a fifth</strong> — the <code>Z</code> row starts on C, the <code>Q</code> row starts on the C above it. Both hands play at once without ever touching the octave control. Every on-screen key shows the letter that plays it, and hovering one lists all of them.</dd>
-      <dt>Why <code>F</code> and <code>K</code> aren't dead</dt>
-      <dd>A piano has no black key between E and F, or between B and C. Following that strictly would leave <code>a</code>, <code>f</code>, <code>k</code>, <code>'</code>, <code>1</code>, <code>4</code> and <code>8</code> doing nothing — and a dead key under the home row is a worse cost on a computer keyboard than a tidy metaphor is a benefit. Those slots play the white note they lean against, which isn't a fudge: <strong>E♯ <em>is</em> F and B♯ <em>is</em> C</strong>. So <code>f</code> plays F, <code>k</code> plays C, and nothing your fingers rest on is silent. (<code>a</code> and <code>1</code> sit below the start of their manual where no note exists at all, so they double the C beside them — sliding off the edge of the row still sounds.)</dd>
+        Chord shapes look the way they look on a piano, which is its whole point — but the cost is that <strong>walking along one row skips notes</strong>: <code>5</code> to <code>6</code> jumps F♯ straight to G♯, because the G between them lives on the row below. That is correct as a piano and confusing as a keyboard, which is why it is no longer the default. Its E♯/B♯ slots (<code>a</code>, <code>f</code>, <code>k</code>, <code>'</code>, <code>1</code>, <code>4</code>, <code>8</code>) play the white note they lean against, so nothing here is dead either.</dd>
       <dt>Two rows</dt>
-      <dd>Pick <strong>Two rows</strong> from the layout menu for Logic Pro's Musical Typing instead: <code>A W S E D F T G Y H U J</code> up from C, continuing <code>K O L P ;</code> — a tenth in all. A third of the range, but it leaves <code>Z</code>/<code>X</code>/<code>C</code>/<code>V</code> free as octave and velocity shortcuts.</dd>
+      <dd>Logic Pro's Musical Typing, for anyone with the muscle memory: <code>A W S E D F T G Y H U J</code> up from C, continuing <code>K O L P ;</code> — a tenth in all. Much less range, but it leaves <code>Z</code>/<code>X</code>/<code>C</code>/<code>V</code> free as octave and velocity shortcuts.</dd>
       <dt>Octave and velocity</dt>
       <dd><code>←</code>/<code>→</code> shift the whole keyboard down or up an octave across the full MIDI range; <code>↑</code>/<code>↓</code> ride velocity. The <code>−</code>/<code>+</code> buttons beside the octave readout do the same thing with a mouse. On the Two rows layout, <code>Z</code>/<code>X</code> and <code>C</code>/<code>V</code> also work. Holding a note while you change octave is safe — the note you started is the note that stops.</dd>
       <dt>Binding your own keys</dt>
@@ -3220,7 +3223,7 @@
   //
   // KEY_SPAN is the widest semitone any layout or remap may reach, and it is
   // also how many keys the on-screen piano draws. Keep them in step.
-  const KEY_SPAN = 32; // C up to G two octaves higher
+  const KEY_SPAN = 45; // widest any layout reaches: 3 octaves and a major third
 
   // "Full keyboard" — the tracker/FL layout. The keyboard is read as TWO
   // piano manuals, one per pair of rows, an octave apart:
@@ -3269,13 +3272,37 @@
     'k':12, 'o':13, 'l':14, 'p':15, ';':16
   };
 
+  // "Chromatic rows" — the layout that behaves like a keyboard rather than a
+  // picture of a piano. One long chromatic run, left to right, bottom row
+  // upwards, so NEIGHBOURING KEYS ARE NEIGHBOURING NOTES with no exceptions.
+  //
+  //     1 2 3 4 5 6 7 8 9 0 - =      highest
+  //     q w e r t y u i o p [ ]
+  //     a s d f g h j k l ; '
+  //     z x c v b n m , . /          lowest
+  //
+  // The piano-shaped layout puts the black keys on their own row, which means
+  // walking along one row skips notes — 5 to 6 jumps F# straight to G#, past
+  // the G sitting on another row entirely. That is correct as a piano and
+  // wrong as a keyboard. Here every key plays, every note appears exactly
+  // once, nothing repeats and nothing is skipped: 45 keys, 45 semitones,
+  // three octaves and a major third.
+  const LAYOUT_CHROMATIC = (() => {
+    const rows = ['zxcvbnm,./', "asdfghjkl;'", 'qwertyuiop[]', '1234567890-='];
+    const map = {};
+    let n = 0;
+    rows.forEach(r => { for (const k of r) map[k] = n++; });
+    return map;
+  })();
+
   const KEY_LAYOUTS = {
+    'Chromatic rows': LAYOUT_CHROMATIC,
     'Full keyboard': LAYOUT_FULL,
     'Two rows': LAYOUT_TWO_ROW
   };
-  const DEFAULT_LAYOUT = 'Full keyboard';
+  const DEFAULT_LAYOUT = 'Chromatic rows';
   const CUSTOM_LAYOUT = 'Custom';
-  const DEFAULT_KEY_MAP = LAYOUT_FULL;
+  const DEFAULT_KEY_MAP = LAYOUT_CHROMATIC;
 
   const KEYMAP_STORAGE = 'synthKeyMap';
   const LAYOUT_STORAGE = 'synthKeyLayout';
