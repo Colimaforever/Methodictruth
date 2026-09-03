@@ -16,6 +16,14 @@
   </item>
 
   <item>
+    <title>Changelog: September 6, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-06</link>
+    <guid isPermaLink="false">changelog-2026-09-06</guid>
+    <pubDate>Sun, 06 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Seeing the Fretboard's triad section is now diagrams instead of prose. It argued for three-note chord shapes and then drew all three on one twelve-fret neck, so you had to untangle them before playing any. They are now nine chord boxes — the vertical diagram every guitarist already reads — one shape per box on every string set, position marked, each dot labelled by its interval rather than its note name. It also says why the shapes work: a triad is three notes and order is the only variable, so every box is the same C, E and G; the inversion picks your melody note, consistently, with root position putting the fifth on top, first inversion the root and second inversion the third; and because the third is the only note carrying the chord's quality, moving it down one fret turns any of the nine shapes minor. Closing with a pair of boxes that settle the B string by demonstration rather than explanation: the identical three pitches, G then C then E, as a staircase on strings 5-4-3 and a flat barre on 4-3-2, differing only in whether the shape crosses the G-to-B major third. Every voicing was generated from the tuning and then read back out of the rendered diagram to confirm the notes match the text.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 5, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-05</link>
     <guid isPermaLink="false">changelog-2026-09-05</guid>
