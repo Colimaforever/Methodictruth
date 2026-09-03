@@ -331,7 +331,14 @@
 
     /* ─── AUDIO STATUS ─── */
     .audio-status {
-      position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+      /* Sits above whatever is docked at the bottom (piano, pads, sequencer)
+         rather than on top of it — see updateDockHeight(). */
+      position: fixed; bottom: calc(var(--dock-h, 0px) + 0.6rem);
+      left: 50%; transform: translateX(-50%);
+      transition: bottom 0.25s ease;
+      /* A readout, never clicked — so it must not swallow a click meant for
+         the module card it happens to be floating over. */
+      pointer-events: none;
       z-index: 500;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.6rem; color: var(--stone-dark);
@@ -662,8 +669,7 @@
     /* The guide button and the status pill are both fixed to the bottom of the
        viewport, which is exactly where the pads now live. Lift them clear by
        the pad panel's measured height rather than a guessed offset. */
-    body.pads-open .kb-toggle,
-    body.pads-open .audio-status { bottom: calc(var(--pads-h, 0px) + 0.6rem); }
+    body.pads-open .kb-toggle { bottom: calc(var(--pads-h, 0px) + 0.6rem); }
     /* Both of these bind computer keys — meaningless on a device without one. */
     body.pads-open #remapBtn,
     body.pads-open #kbLayoutSelect { display: none; }
@@ -3951,6 +3957,7 @@
     document.body.classList.toggle('pads-open', padsMode);
     const h = padsMode ? pianoContainer.getBoundingClientRect().height : 0;
     document.documentElement.style.setProperty('--pads-h', Math.round(h) + 'px');
+    updateDockHeight();
   }
 
   function initTouchPads() {
@@ -4600,7 +4607,29 @@
       const h = pianoContainer.getBoundingClientRect().height;
       document.documentElement.style.setProperty('--piano-h', h + 'px');
     }
+    updateDockHeight();
   }
+
+  // How much of the bottom of the screen is already spoken for. The audio
+  // status pill floats above it — it used to sit dead centre at bottom:1rem,
+  // which put it straight over piano keys 12-20, the middle-C region where
+  // the two manuals overlap and the part you actually play. Nudging it
+  // sideways doesn't fix that: the piano is 780px wide on a desktop and
+  // 595px on a tablet, so any fixed horizontal offset lands on keys at some
+  // width. Going above everything works at every width.
+  // Measured from layout height, not from getBoundingClientRect: both panels
+  // slide in on a transform, so their rect still reports the off-screen
+  // position for the length of the animation and the pill would jump.
+  function updateDockHeight() {
+    const seq = document.getElementById('seqPanel');
+    const pianoOpen = pianoContainer && !pianoContainer.classList.contains('minimized');
+    // The piano container holds the pads too, so its height covers both.
+    let h = pianoOpen ? pianoContainer.offsetHeight : 0;
+    // The sequencer docks on top of the piano when the piano is showing.
+    if (seq && seq.classList.contains('open')) h += seq.offsetHeight;
+    document.documentElement.style.setProperty('--dock-h', Math.round(h) + 'px');
+  }
+  window.addEventListener('resize', updateDockHeight);
 
   // ─── Sequencer wiring ───
   (function initSequencer() {
@@ -4684,6 +4713,7 @@
       const open = seqPanelEl.classList.toggle('open');
       document.getElementById('seqToggleBtn').classList.toggle('active', open);
       if (open) { seqUpdateDock(); seqSyncWidths(); }
+      updateDockHeight();
     });
   })();
 
