@@ -131,6 +131,10 @@
       <p>The range grew too. The three keys to the right of <code>P</code> continue the pattern properly — <code>[</code> and <code>]</code> carry the white row up to F and G, <code>=</code> is the F♯ between them — taking the layout from two octaves and a third to <strong>two octaves and a fifth across 45 keys</strong>, with both manuals still exact chromatic runs. Where a piano key now answers to several letters, it shows the main two and lists all of them when you hover it.</p>
     </article>
 
+    <article class="entry">
+      <p>Small fix on the <a href="synth.html">Synth</a>: the <code>audio suspended</code> readout sat dead centre at the bottom of the screen, which put it <strong>directly over piano keys 12 to 20</strong> — the middle-C region where the two manuals overlap, so precisely the part you play. Nudging it sideways wouldn't have held: the piano is 780px wide on a desktop and 595px on a tablet, so any fixed horizontal offset lands on keys at some width. It now floats <strong>above</strong> whatever is docked at the bottom, tracking the piano, the touch pads and the sequencer as they open and close. It also stopped intercepting clicks meant for whatever it happens to be floating over — it's a readout, it was never something you click.</p>
+    </article>
+
     <div class="divider" id="2026-09-04"><span class="leaf">🌿</span> <span>September 4, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
