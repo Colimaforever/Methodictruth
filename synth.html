@@ -662,6 +662,35 @@
       color: var(--glow);
     }
 
+    /* Audio In: device picker and a status line that has to carry real news
+       (denied, no device, feedback cut) rather than just decoration. */
+    .audioin-device {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--stone);
+      background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.3);
+      border-radius: 2px;
+      padding: 0.15rem 0.25rem;
+      max-width: 100%;
+    }
+    .audioin-device:disabled { opacity: 0.45; }
+    .audioin-btn.active {
+      color: var(--glow);
+      border-color: rgba(0, 229, 255, 0.6);
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.25);
+    }
+    .audioin-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.48rem;
+      line-height: 1.35;
+      letter-spacing: 0.02em;
+      color: rgba(138, 126, 107, 0.75);
+      padding: 0 0.1rem 0.25rem;
+    }
+    .audioin-status.live { color: var(--glow); }
+    .audioin-status.err  { color: #e85c5c; }
+
     .piano-key.remap-target {
       outline: 2px solid var(--glow-warm);
       outline-offset: -2px;
@@ -769,6 +798,7 @@
         <button class="synth-btn" data-cat="source" data-add="oscillator">Osc</button>
         <button class="synth-btn" data-cat="source" data-add="noise">Noise</button>
         <button class="synth-btn" data-cat="source" data-add="player">File</button>
+        <button class="synth-btn" data-cat="source" data-add="audioin" title="Live audio from an interface, mic or hardware instrument">Audio In</button>
       </div>
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label" data-cat="shape">Shape</span>
@@ -955,6 +985,8 @@
       <dd><code>white</code> = all freqs equal (hiss) · <code>pink</code> = bass-heavy (wind) · <code>brown</code> = deep rumble.</dd>
       <dt>Audio File</dt>
       <dd>Drop an audio file onto the module (or click <code>Load</code>) to play and loop it — drop in several to build a multi-track mix. <code>Vol</code> sets its level.</dd>
+      <dt>Audio In</dt>
+      <dd>Live audio from an interface, mic or hardware instrument, processed by everything downstream. Click <code>Enable</code>, allow access, pick your input. Use headphones — see <em>Audio In</em> below.</dd>
       <dt>Pan</dt>
       <dd>Places a sound left/right in the stereo field. <code>−1</code> = full left, <code>1</code> = full right.</dd>
       <dt>EQ</dt>
@@ -970,7 +1002,7 @@
     <h3>Module Categories</h3>
     <p>Every toolbar button and module card is color-coded by its role in the rack, so a glance tells you what a patch is made of:</p>
     <ul>
-      <li><strong style="color:#00e5ff">Source</strong> — Oscillator, Noise, Audio File: where the sound starts.</li>
+      <li><strong style="color:#00e5ff">Source</strong> — Oscillator, Noise, Audio File, Audio In: where the sound starts.</li>
       <li><strong style="color:#e8a87c">Shape</strong> — Filter, EQ, Envelope: where its tone and contour are carved.</li>
       <li><strong style="color:#7b68ee">Mod</strong> — LFO: slow movement driving another module's parameter. Sits outside the audio path; pick its target from the <code>Drives</code> menu.</li>
       <li><strong style="color:#6aad73">Mix</strong> — Gain, Pan, Compressor, Limiter: levels and stereo placement.</li>
@@ -1022,6 +1054,20 @@
       <dd><code>←</code>/<code>→</code> shift the whole keyboard down or up an octave across the full MIDI range; <code>↑</code>/<code>↓</code> ride velocity. The <code>−</code>/<code>+</code> buttons beside the octave readout do the same thing with a mouse. On the Two rows layout, <code>Z</code>/<code>X</code> and <code>C</code>/<code>V</code> also work. Holding a note while you change octave is safe — the note you started is the note that stops.</dd>
       <dt>Binding your own keys</dt>
       <dd>Neither layout is fixed. Click <code>⌨ Remap</code>, click a piano key, then press whatever key you want to play it — repeat for as many as you like, then <code>Esc</code> to finish. The layout menu switches to <strong>Custom</strong> and your bindings persist between visits, so you can flip out to a preset and back without losing them. Right-click <code>⌨ Remap</code> to reset. A custom binding on a key takes priority over that key's built-in shortcut.</dd>
+    </dl>
+
+    <h3>Audio In — external gear through the rack</h3>
+    <dl>
+      <dt>What it does</dt>
+      <dd>The <code>Audio In</code> module takes a <strong>live signal from anything your computer can hear</strong> and drops it into the patch as a source. An audio interface with a guitar, bass or hardware synth on it; a USB mic; a drum machine; a turntable; a phone on the desk. Everything downstream then treats it exactly like an oscillator — so the <code>Filter</code>, <code>Delay</code>, <code>Reverb</code>, <code>Chorus</code>, <code>Distortion</code> and <code>Compressor</code> all process your instrument, and the <code>LFO</code> can sweep the filter while you play it.</dd>
+      <dt>Setting it up</dt>
+      <dd>Add <code>Audio In</code>, click <strong>Enable</strong>, and allow access when the browser asks. The dropdown then lists every input on the machine — pick your interface rather than the built-in mic. <strong>Chrome or Edge, and an <code>https://</code> page</strong> (this one is); browsers refuse microphone access over plain HTTP. Nothing is uploaded or recorded: the signal goes to your speakers and nowhere else.</dd>
+      <dt>Use headphones</dt>
+      <dd>Speakers into a live input is a feedback loop, and it builds to painful in about a second. Headphones remove the problem completely. There's a guard here that cuts the input level if the master output pins for a sustained second, but treat that as a net rather than a plan — it fires <em>after</em> the noise starts.</dd>
+      <dt>"It's live but I hear nothing"</dt>
+      <dd>Almost always an <code>Envelope</code> in the chain. An envelope is a <em>note</em> gate — it sits shut until a key is pressed — so a continuous signal passing through one is silent between keypresses. The module says so when it detects this and offers a one-click fix. (Deliberately routing an input through an envelope is a real technique: it lets you play a drone or a held pad in and out with the keyboard. It's just never what you want by accident.)</dd>
+      <dt>Latency and sound quality</dt>
+      <dd>Browser audio adds a few milliseconds on top of your interface's own buffer — fine for effects and for playing along, marginal for tight tracking. Echo cancellation, noise suppression and automatic gain are all switched <strong>off</strong> deliberately: they're voice-call processing, and on an instrument they gate off reverb tails, eat quiet passages and ride your dynamics away. If your input sounds thin or pumping, it's usually those being re-enabled by the OS rather than by this page — check your interface's own control panel.</dd>
     </dl>
 
     <h3>MIDI — Controllers and DAWs</h3>
@@ -1593,6 +1639,27 @@
         if (key === 'gain') audio.out.gain.value = val;
       }
     },
+    audioin: {
+      title: 'Audio In',
+      glyph: '⊸',
+      category: 'source',
+      inputs: [],
+      outputs: ['out'],
+      controls: [
+        { id: 'device', type: 'device', label: 'Input' },
+        { id: 'gain', type: 'range', min: 0, max: 2, default: 0.8, step: 0.01, label: 'Level', unit: '' },
+      ],
+      create(params) {
+        // Silent until the user grants access and picks a device. getUserMedia
+        // is async and needs a gesture, so the node has to exist first and the
+        // live stream arrives later — see openAudioIn().
+        const g = new Tone.Gain(params.gain);
+        return { node: g, out: g };
+      },
+      update(audio, key, val) {
+        if (key === 'gain') audio.node.gain.value = val;
+      }
+    },
     pan: {
       title: 'Pan',
       glyph: '⇄',
@@ -1808,6 +1875,17 @@
             ${c.options.map(o => `<option value="${o}"${o === c.default ? ' selected' : ''}>${o}</option>`).join('')}
           </select>
         </div>`;
+      } else if (c.type === 'device') {
+        html += `<div class="module-control">
+          <button type="button" class="synth-btn audioin-btn" id="micBtn_${id}"
+                  style="font-size:0.55rem;padding:0.25rem 0.4rem;"
+                  onclick="openAudioIn('${id}')">Enable</button>
+          <select class="audioin-device" id="micDev_${id}" style="flex:1;min-width:0;"
+                  onchange="openAudioIn('${id}', this.value)" disabled>
+            <option value="">no input yet</option>
+          </select>
+        </div>
+        <div class="audioin-status" id="micStatus_${id}">Click Enable, then allow access</div>`;
       } else if (c.type === 'file') {
         html += `<div class="module-control">
           <input type="file" accept="audio/*" id="file_${id}_${c.id}" style="display:none">
@@ -1874,6 +1952,7 @@
       const tick = () => {
         if (!modules[id]) return;
         const db = audio.meter.getValue();
+        checkFeedback(db);
         const pct = Math.max(0, Math.min(100, (db + 60) / 60 * 100));
         fillEl.style.width = pct + '%';
         fillEl.style.background = pct > 90 ? '#e85c5c' : pct > 70 ? '#e8a87c' : 'rgba(106,173,115,0.8)';
@@ -1925,6 +2004,168 @@
     }).catch(err => {
       console.warn('Audio load error:', err);
       if (nameEl) nameEl.textContent = 'load failed';
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  // AUDIO IN — external gear into the rack
+  // ═══════════════════════════════════════════════
+  // Whatever your computer can hear, this module can play: an audio interface
+  // with a guitar or a hardware synth on it, a USB mic, a drum machine, a
+  // turntable. It lands in the patch as a source, so every module downstream —
+  // filter, delay, reverb, chorus, compressor — processes it exactly as it
+  // processes an oscillator.
+
+  function micStatus(id, text, cls) {
+    const el = document.getElementById(`micStatus_${id}`);
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'audioin-status' + (cls ? ' ' + cls : '');
+  }
+
+  // Release a module's stream. Without stopping the TRACKS the browser keeps
+  // showing its recording indicator and holds the device open, which on an
+  // exclusive-mode interface locks everyone else out of it.
+  function closeAudioIn(id) {
+    const mod = modules[id];
+    if (!mod || !mod.mic) return;
+    try { mod.mic.src.disconnect(); } catch (e) {}
+    try { mod.mic.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    mod.mic = null;
+  }
+
+  async function listAudioInputs(id) {
+    const sel = document.getElementById(`micDev_${id}`);
+    if (!sel || !navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+    const devices = (await navigator.mediaDevices.enumerateDevices())
+      .filter(d => d.kind === 'audioinput');
+    const current = modules[id] && modules[id].mic ? modules[id].mic.deviceId : '';
+    // Labels are empty strings until permission is granted — that's the spec,
+    // not a bug, which is why the picker only fills in after Enable.
+    sel.innerHTML = devices.map((d, i) =>
+      `<option value="${d.deviceId}"${d.deviceId === current ? ' selected' : ''}>${
+        (d.label || ('Input ' + (i + 1))).replace(/[<>]/g, '')}</option>`).join('');
+    sel.disabled = devices.length === 0;
+  }
+
+  // Walk every path downstream of a module looking for an Envelope, which
+  // would hold the signal shut between keypresses.
+  function gatedByEnvelope(id) {
+    const seen = new Set([id]);
+    let frontier = [id];
+    for (let depth = 0; depth < 64 && frontier.length; depth++) {
+      const next = [];
+      for (const cur of frontier) {
+        for (const c of cables) {
+          if (c.from.moduleId !== cur) continue;
+          const to = c.to.moduleId;
+          if (seen.has(to)) continue;
+          if (modules[to] && modules[to].type === 'envelope') return true;
+          seen.add(to); next.push(to);
+        }
+      }
+      frontier = next;
+    }
+    return false;
+  }
+
+  // An Envelope is a *note* gate — it sits shut until a key is pressed, so a
+  // continuous signal routed through one is simply silent. The default patch
+  // has one, so this is the first thing a live input hits, and total silence
+  // reads as a broken feature rather than as correct signal flow. Say what is
+  // happening and offer the fix, rather than routing around the envelope: the
+  // way round it also skips the Filter, and running gear through the filter is
+  // most of the reason to plug it in at all.
+  function reportGating(id, label) {
+    const el = document.getElementById(`micStatus_${id}`);
+    if (!el) return;
+    if (!gatedByEnvelope(id)) {
+      micStatus(id, '◈ ' + label + ' · use headphones', 'live');
+      return;
+    }
+    el.className = 'audioin-status err';
+    el.innerHTML = '⚠ An Envelope downstream is gating this — it only sounds while a key is held. ' +
+      `<button type="button" class="synth-btn" style="font-size:0.5rem;padding:0.1rem 0.3rem;margin-top:0.2rem;" ` +
+      `onclick="dropGatingEnvelopes('${id}')">Remove Envelope</button>`;
+  }
+
+  // Pull the envelopes out of this input's path. The chain heals over the gap
+  // on its own; oscillator notes lose their ADSR shaping, which is the honest
+  // trade and why this is a button rather than something done silently.
+  function dropGatingEnvelopes(id) {
+    Object.values(modules)
+      .filter(m => m.type === 'envelope')
+      .forEach(m => removeModule(m.id));
+    const mod = modules[id];
+    const track = mod && mod.mic ? mod.mic.stream.getAudioTracks()[0] : null;
+    reportGating(id, track ? track.label || 'live' : 'live');
+  }
+
+  async function openAudioIn(id, deviceId) {
+    const mod = modules[id];
+    if (!mod) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      micStatus(id, 'This browser has no audio input API', 'err');
+      return;
+    }
+    micStatus(id, 'requesting…');
+    try {
+      if (Tone.context.state !== 'running') await Tone.start();
+
+      // Every one of these three is telephony processing, and every one of them
+      // ruins an instrument: echo cancellation gates the tail off a reverb,
+      // noise suppression eats quiet passages and cymbals, and auto gain
+      // rides your dynamics away. A hardware input exists to avoid them.
+      const audio = {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      };
+      if (deviceId) audio.deviceId = { exact: deviceId };
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio, video: false });
+      closeAudioIn(id);                       // swap devices without stacking streams
+      const ctx = Tone.getContext().rawContext;
+      const src = ctx.createMediaStreamSource(stream);
+      src.connect(mod.audio.node.input || mod.audio.node);
+
+      const track = stream.getAudioTracks()[0];
+      const settings = track && track.getSettings ? track.getSettings() : {};
+      mod.mic = { stream, src, deviceId: settings.deviceId || deviceId || '' };
+
+      const btn = document.getElementById(`micBtn_${id}`);
+      if (btn) { btn.textContent = 'Live'; btn.classList.add('active'); }
+      await listAudioInputs(id);
+      reportGating(id, track ? track.label || 'live' : 'live');
+      if (window.Analytics) Analytics.Synth.paramChanged('audioin', 'device');
+    } catch (err) {
+      const denied = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+      micStatus(id, denied ? 'Access denied — allow it in the address bar'
+                           : 'No input available (' + ((err && err.name) || 'error') + ')', 'err');
+    }
+  }
+
+  // Feedback guard. Speakers into a live input is a howl that builds in about a
+  // second and is loud enough to hurt, so an input that is both live and
+  // pinning the master meter gets muted rather than trusted. Level is left at
+  // 0 deliberately: the fix is headphones, and silence says so.
+  const FEEDBACK_DB = -1.5;      // master output essentially at the ceiling
+  const FEEDBACK_MS = 900;       // …and held there, not one transient peak
+  let feedbackSince = 0;
+
+  function checkFeedback(db) {
+    const live = Object.values(modules).filter(m => m.mic);
+    if (!live.length) { feedbackSince = 0; return; }
+    if (!(db > FEEDBACK_DB)) { feedbackSince = 0; return; }
+    const now = performance.now();
+    if (!feedbackSince) { feedbackSince = now; return; }
+    if (now - feedbackSince < FEEDBACK_MS) return;
+    feedbackSince = 0;
+    live.forEach(m => {
+      updateParam(m.id, 'gain', 0);
+      const slider = m.el.querySelector('[data-param="gain"]');
+      if (slider) { slider.value = 0; if (slider.nextElementSibling) slider.nextElementSibling.textContent = '0.00'; }
+      micStatus(m.id, '⚠ Feedback — level cut. Use headphones, then raise it.', 'err');
     });
   }
 
@@ -2064,6 +2305,7 @@
     // .node — so extra nodes (an oscillator's FM gain, the filter's drive, a
     // player's output gain) don't leak. Each object is disposed at most once.
     if (mod.meterRAF) cancelAnimationFrame(mod.meterRAF);
+    closeAudioIn(id);   // hand the device back; the browser holds it open otherwise
     const disposed = new Set();
     Object.keys(mod.audio).forEach(k => {
       const n = mod.audio[k];
@@ -2111,6 +2353,7 @@
       const params = {};
       m.def.controls.forEach(c => {
         if (c.type === 'file') return;                 // uploaded audio can't ride in a URL
+        if (c.type === 'device') return;               // a device id means nothing on someone else's machine
         if (m.params[c.id] !== undefined) params[c.id] = m.params[c.id];
       });
       return { t: m.type, x: parseInt(m.el.style.left) || 0, y: parseInt(m.el.style.top) || 0, p: params };
