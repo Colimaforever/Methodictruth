@@ -2519,6 +2519,11 @@ footer .donate-link:hover {
   z-index: 2;
 }
 
+/* The chromatic layout ends on G#, a black key, and a black key's negative
+   right margin has nothing after it to pull in — so its box hung 9px past the
+   strip's content width and put a scrollbar under a piano that already fit. */
+.piano-key.black:last-child { margin-right: 0; }
+
 .piano-key.white.active {
   background: rgba(0, 229, 255, 0.25);
   box-shadow: 0 0 15px rgba(0, 229, 255, 0.4), inset 0 0 10px rgba(0, 229, 255, 0.15);

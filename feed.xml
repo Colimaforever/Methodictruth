@@ -8,6 +8,22 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: September 7, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-07</link>
+    <guid isPermaLink="false">changelog-2026-09-07</guid>
+    <pubDate>Mon, 07 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth's keyboard has a new default with a much simpler rule. The piano-shaped layout was faithful to a piano and confusing as a keyboard: because the black keys live on their own row, walking along one row skips notes — pressing 5 then 6 jumps F sharp straight to G sharp, past a G sitting on the row below, and the same for 9 to 0. Not one of the four rows was a chromatic run. The default is now Chromatic rows: one long chromatic run, left to right, bottom row upwards, where neighbouring keys are neighbouring notes with no exceptions. The rows join seamlessly, so the whole keyboard is a single ladder of 45 keys and 45 semitones, three octaves and a major third, and because no note is bound twice every key on screen shows exactly one letter. The piano-shaped layout is still there as Piano shape, for when you want chord shapes to look the way they look on a piano.</description>
+  </item>
+
+  <item>
+    <title>Changelog: September 6, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-06</link>
+    <guid isPermaLink="false">changelog-2026-09-06</guid>
+    <pubDate>Sun, 06 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Seeing the Fretboard's triad section is now diagrams instead of prose. It argued for three-note chord shapes and then drew all three on one twelve-fret neck, so you had to untangle them before playing any. They are now nine chord boxes — the vertical diagram every guitarist already reads — one shape per box on every string set, position marked, each dot labelled by its interval rather than its note name. It also says why the shapes work: a triad is three notes and order is the only variable, so every box is the same C, E and G; the inversion picks your melody note, consistently, with root position putting the fifth on top, first inversion the root and second inversion the third; and because the third is the only note carrying the chord's quality, moving it down one fret turns any of the nine shapes minor. Closing with a pair of boxes that settle the B string by demonstration rather than explanation: the identical three pitches, G then C then E, as a staircase on strings 5-4-3 and a flat barre on 4-3-2, differing only in whether the shape crosses the G-to-B major third. Every voicing was generated from the tuning and then read back out of the rendered diagram to confirm the notes match the text.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 5, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-05</link>
     <guid isPermaLink="false">changelog-2026-09-05</guid>
