@@ -460,13 +460,25 @@
     }
     .seq-readout { font-size: 0.6rem; color: var(--glow-warm); min-width: 2.6rem; text-align: center; }
 
-    .seq-grid {
-      display: grid; gap: 4px; width: 100%;
-      overflow-x: auto; padding-bottom: 0.2rem;
+    /* The melodic grid and the drum grid are two separate grids that have to
+       read as one bar, so they share a single scroller and identical column
+       tracks — same label column, same step width, same COLUMN gap. They used
+       to size independently (steps at min-width vs drums at 1fr), which put
+       step 15 of the melody 151px away from step 15 of the kick on a phone. */
+    .seq-scroll {
+      width: 100%; overflow-x: auto; padding-bottom: 0.2rem;
+      --seq-step-w: 36px; --seq-gap: 4px; --seq-label-w: 42px;
     }
+    .seq-grid, .seq-drum-grid {
+      display: grid;
+      grid-template-columns: var(--seq-label-w) repeat(var(--seq-len, 16), var(--seq-step-w));
+      column-gap: var(--seq-gap);
+      width: max-content; min-width: 100%;
+    }
+    .seq-grid { row-gap: 4px; }
     .seq-step {
       display: flex; flex-direction: column; align-items: stretch;
-      gap: 2px; min-width: 36px;
+      gap: 2px; min-width: 0;
     }
     .seq-cell {
       position: relative;
@@ -490,22 +502,44 @@
     }
     .seq-cell .seq-note {
       font-size: 0.55rem; color: var(--stone-dark);
-      letter-spacing: 0.03em; pointer-events: none;
+      letter-spacing: 0.03em; pointer-events: none; z-index: 1;
     }
     .seq-cell.on .seq-note { color: var(--glow); }
-    .seq-pitch {
-      display: flex; justify-content: space-between; gap: 2px;
+    /* Velocity as a fill rising from the bottom of the cell — the same shape a
+       velocity lane has in a DAW, so a glance down the row reads as accents. */
+    .seq-cell .seq-vel-fill {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: var(--vel, 0%);
+      background: linear-gradient(to top, rgba(0,229,255,0.30), rgba(0,229,255,0.10));
+      pointer-events: none; transition: height 0.08s;
     }
-    .seq-pitch button {
-      flex: 1; font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem; line-height: 1;
-      color: var(--stone-dark); background: rgba(10, 14, 26, 0.6);
-      border: 1px solid rgba(138, 126, 107, 0.2);
-      padding: 0.15rem 0; cursor: pointer; touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent; user-select: none;
-    }
-    .seq-pitch button:hover { border-color: var(--glow); color: var(--glow); }
+    .seq-cell:not(.on) .seq-vel-fill { display: none; }
+    /* Vertical drag sets pitch, so the browser must not claim the gesture. */
+    .seq-cell, .drum-cell { touch-action: none; }
+    .seq-cell.dragging { border-color: var(--glow-warm); }
 
+    /* Velocity strip: drag along it to set how hard the step hits. */
+    .seq-vel {
+      position: relative; height: 10px; cursor: ew-resize;
+      background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.2);
+      touch-action: none; -webkit-tap-highlight-color: transparent; user-select: none;
+    }
+    .seq-vel::after {
+      content: ''; position: absolute; inset: 0;
+      width: var(--vel, 0%);
+      background: rgba(232, 168, 124, 0.55);
+      transition: width 0.08s;
+    }
+    .seq-vel:hover { border-color: var(--glow-warm); }
+    .seq-step:not(.on) .seq-vel::after { background: rgba(138, 126, 107, 0.3); }
+
+    .seq-select {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      color: var(--glow); background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      padding: 0.2rem 0.15rem; outline: none; max-width: 7rem;
+    }
     .seq-input {
       font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
       color: var(--glow); background: rgba(10, 14, 26, 0.6);
@@ -520,7 +554,7 @@
       margin: 0.5rem 0 0.3rem;
       padding-top: 0.4rem; border-top: 1px solid rgba(138, 126, 107, 0.18);
     }
-    .seq-drum-grid { display: grid; gap: 3px; width: 100%; overflow-x: auto; }
+    .seq-drum-grid { row-gap: 3px; }
     .seq-drum-row { display: contents; }
     .seq-drum-label {
       font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
@@ -529,19 +563,26 @@
       white-space: nowrap; user-select: none;
     }
     .drum-cell {
-      height: 26px; min-width: 22px;
+      position: relative; height: 26px; min-width: 0;
       border: 1px solid rgba(138, 126, 107, 0.22);
       background: rgba(26, 18, 10, 0.5);
-      cursor: pointer; touch-action: manipulation;
+      cursor: pointer;
       -webkit-tap-highlight-color: transparent; user-select: none;
       transition: border-color 0.12s, background 0.12s, box-shadow 0.1s;
     }
     .drum-cell.beat { border-left: 1px solid rgba(232, 168, 124, 0.35); }
     .drum-cell.on {
       border-color: var(--glow-warm);
-      background: rgba(232, 168, 124, 0.28);
       box-shadow: inset 0 0 6px rgba(232, 168, 124, 0.25);
     }
+    /* A drum hit has no pitch, so the whole cell is its velocity readout. */
+    .drum-cell.on::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+      height: var(--vel, 100%);
+      background: rgba(232, 168, 124, 0.34);
+      transition: height 0.08s;
+    }
+    .drum-cell.dragging { border-color: var(--glow); }
     .drum-cell.playing {
       box-shadow: 0 0 10px rgba(232, 168, 124, 0.65);
       border-color: var(--glow-warm);
@@ -701,11 +742,11 @@
 
     @media (max-width: 768px) {
       .seq-panel { padding: 0.4rem 0.4rem 0.5rem; }
-      .seq-step { min-width: 30px; }
       .seq-cell { height: 40px; }
       .seq-label { display: none; }
+      .seq-scroll { --seq-label-w: 34px; }
       .seq-drum-label { font-size: 0.5rem; }
-      .drum-cell { height: 24px; min-width: 18px; }
+      .drum-cell { height: 24px; }
     }
   </style>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -938,16 +979,26 @@
         <input class="seq-input" id="seqGate" type="number" min="10" max="100" value="80" inputmode="numeric">
         <span class="seq-readout">%</span>
       </div>
+      <div class="seq-group">
+        <span class="seq-label">Key</span>
+        <select class="seq-select" id="seqRoot" aria-label="Key"></select>
+        <select class="seq-select" id="seqScale" aria-label="Scale"></select>
+      </div>
     </div>
-    <div class="seq-grid" id="seqGrid"></div>
 
-    <!-- Drum Machine: its own programmable grid on the same transport -->
-    <div class="seq-drum-header">
-      <span class="seq-label">Drums</span>
-      <button class="synth-btn" id="drumBeatBtn" title="Drop in a basic four-on-the-floor pattern to start from">Beat</button>
-      <button class="synth-btn danger" id="drumClearBtn">Clear Drums</button>
+    <!-- Melodic grid and drum grid share one scroller so their columns stay
+         locked together — they are two halves of the same bar. -->
+    <div class="seq-scroll" id="seqScroll">
+      <div class="seq-grid" id="seqGrid"></div>
+
+      <!-- Drum Machine: its own programmable grid on the same transport -->
+      <div class="seq-drum-header">
+        <span class="seq-label">Drums</span>
+        <button class="synth-btn" id="drumBeatBtn" title="Drop in a basic four-on-the-floor pattern to start from">Beat</button>
+        <button class="synth-btn danger" id="drumClearBtn">Clear Drums</button>
+      </div>
+      <div class="seq-drum-grid" id="seqDrumGrid"></div>
     </div>
-    <div class="seq-drum-grid" id="seqDrumGrid"></div>
   </div>
 
   <div class="audio-status" id="audioStatus">◇ audio suspended</div>
@@ -1023,11 +1074,15 @@
     <h3>Sequencer</h3>
     <dl>
       <dt>Step Sequencer</dt>
-      <dd>Open with <code>🎼 Sequencer</code> in the toolbar. It plays your <em>patched sound</em> — build a basic synth first (Oscillator → … → Output), press Start Audio, then hit Play. Tap a step to turn it on/off; use the <code>−</code>/<code>+</code> under an active step to change its pitch. Set length (8/16/32 steps), BPM, swing, and gate length. The matching piano key lights up as each step fires. Patterns auto-save and reload.</dd>
+      <dd>Open with <code>🎼 Sequencer</code> in the toolbar. It plays your <em>patched sound</em> — build a basic synth first (Oscillator → … → Output), press Start Audio, then hit Play. <strong>Click a step to turn it on or off; drag up or down on it to set its pitch.</strong> Set length (8/16/32 steps), BPM, swing, and gate length. The matching piano key lights up as each step fires. Patterns auto-save and reload.</dd>
+      <dt>Pitch moves by scale degree, not semitone</dt>
+      <dd>Set <code>Key</code> and a scale, and every pitch edit moves <strong>within that key</strong> — drag once and you land on the next note of the scale, not the next fret. Editing chromatically was the thing that made programming a melody here tedious, because most nudges landed outside the key and you fixed them by nudging again. Pick <em>Chromatic</em> from the scale menu if you want semitones back. <code>Random</code> respects your key too, so it gives you a usable starting point rather than a puzzle.</dd>
+      <dt>Velocity — how hard each step hits</dt>
+      <dd>Every step has a <strong>velocity strip</strong> beneath it: drag along it to set how hard that note plays, and the cell fills from the bottom to show it. On the drum rows there's no pitch to set, so <strong>dragging up and down on a drum cell sets its velocity directly</strong> — which is where ghost notes come from. A pattern where every hit is identical is the clearest giveaway of programmed music; see <a href="groove.html">Groove &amp; Timing</a> for what to do with it. Arrow keys work too: ↑/↓ for pitch, ←/→ for velocity, once a step is focused.</dd>
       <dt>Shaping each step (Decay/ADSR)</dt>
       <dd>The sequencer has no envelope of its own — it plays through whatever's patched on the canvas. Add an <code>ADSR</code> module before <code>Output</code> and set a short <code>Dec</code> (decay) with low <code>Sus</code> (sustain) for plucky, percussive steps, or a longer Decay/higher Sustain for pads that bleed into the next step. It retriggers on every step automatically.</dd>
       <dt>Drum Machine</dt>
-      <dd>Below the melodic grid, four drum rows — <code>Kick</code>, <code>Snare</code>, <code>Hat</code>, <code>Clap</code> — on the same clock and step count. Click cells to program a beat; each hit auditions as you click so you can build it by ear while stopped. <strong>Beat</strong> drops in a four-on-the-floor starting point (kick on every beat, snare on 2 and 4, hats on eighths) to edit from. The drums are synthesized and routed straight to the output, so they work <em>without</em> a patch on the canvas — you can program a beat before you've built a sound. <code>Clear</code> only wipes the melody; <code>Clear Drums</code> only wipes the beat.</dd>
+      <dd>Below the melodic grid, four drum rows — <code>Kick</code>, <code>Snare</code>, <code>Hat</code>, <code>Clap</code> — on the same clock and step count. Click cells to program a beat; each hit auditions as you click so you can build it by ear while stopped. <strong>Beat</strong> drops in a four-on-the-floor starting point to edit from — kick on every beat, snare on 2 and 4, and hats on eighths <em>with alternating accents</em>, because a flat hat line is what makes a beat sound typed in rather than played. The drums are synthesized and routed straight to the output, so they work <em>without</em> a patch on the canvas — you can program a beat before you've built a sound. <code>Clear</code> only wipes the melody; <code>Clear Drums</code> only wipes the beat.</dd>
     </dl>
 
     <h3>Touch Pads (phones &amp; tablets)</h3>
@@ -3967,13 +4022,18 @@
     { id: 'clap',  label: 'Clap' }
   ];
 
+  const SEQ_DEFAULT_VEL = 100;   // of 127
+  const SEQ_MIN_STEP_W = 32;     // px — a step narrower than this is untappable
+
   const seqState = {
     length: 16,
     bpm: 120,
     swing: 0,      // 0-60 (%)
     gate: 80,      // 10-100 (% of step length the note is held)
-    steps: [],     // [{on:bool, note:midiNum}]
-    drums: { kick: [], snare: [], hat: [], clap: [] }  // bool per step
+    root: 0,       // 0-11, C..B — the key steps snap to
+    scale: 'Minor Pentatonic',
+    steps: [],     // [{on:bool, note:midiNum, vel:1-127}]
+    drums: { kick: [], snare: [], hat: [], clap: [] }  // velocity per step, 0 = off
   };
   let seqPlaying = false;
   let seqSequence = null;     // Tone.Sequence
@@ -4020,16 +4080,18 @@
     return drumVoices;
   }
 
-  function triggerDrum(id, time) {
+  function triggerDrum(id, time, vel) {
     const v = ensureDrumVoices();
     if (!v || !v[id]) return;
+    // Tone takes velocity as 0-1; our grid stores MIDI 1-127.
+    const amp = Math.max(0.02, Math.min(1, (vel == null ? SEQ_DEFAULT_VEL : vel) / 127));
     try {
-      if (id === 'kick') v.kick.triggerAttackRelease('C1', '8n', time);
-      else v[id].triggerAttackRelease('16n', time);
+      if (id === 'kick') v.kick.triggerAttackRelease('C1', '8n', time, amp);
+      else v[id].triggerAttackRelease('16n', time, amp);
     } catch (e) {}
   }
 
-  function seqDefaultStep() { return { on: false, note: 60 }; } // C4
+  function seqDefaultStep() { return { on: false, note: 60, vel: SEQ_DEFAULT_VEL }; } // C4
 
   function seqEnsureSteps() {
     while (seqState.steps.length < seqState.length) seqState.steps.push(seqDefaultStep());
@@ -4037,9 +4099,43 @@
     // Keep every drum row the same length as the melodic row.
     DRUM_ROWS.forEach(r => {
       const row = seqState.drums[r.id] || (seqState.drums[r.id] = []);
-      while (row.length < seqState.length) row.push(false);
+      while (row.length < seqState.length) row.push(0);
       if (row.length > seqState.length) row.length = seqState.length;
     });
+  }
+
+  // ─── SCALE SNAPPING ───
+  // Chromatic ± is why editing a melody here was tedious: nearly every nudge
+  // landed on a note outside the key, so you fixed it by nudging again. Moving
+  // by scale degree means every edit is usable, and the drag gesture below
+  // inherits it for free.
+  const SEQ_LO = 24, SEQ_HI = 96;   // C1..C7, the sequencer's pitch range
+
+  function seqScaleNotes() {
+    const iv = (typeof SCALES !== 'undefined' && SCALES[seqState.scale]) || null;
+    if (!iv) return null;                       // Chromatic / unknown → semitones
+    const out = [];
+    for (let n = SEQ_LO; n <= SEQ_HI; n++) {
+      if (iv.includes((((n - seqState.root) % 12) + 12) % 12)) out.push(n);
+    }
+    return out.length ? out : null;
+  }
+
+  // Move a note by `delta` scale degrees (or semitones when chromatic). A note
+  // already off-scale snaps onto the scale first rather than staying wrong.
+  function seqStepPitch(note, delta) {
+    const notes = seqScaleNotes();
+    if (!notes) return Math.max(SEQ_LO, Math.min(SEQ_HI, note + delta));
+    let i = notes.indexOf(note);
+    if (i === -1) {
+      let best = 0;
+      notes.forEach((n, k) => { if (Math.abs(n - note) < Math.abs(notes[best] - note)) best = k; });
+      i = best;
+      if (delta === 0) return notes[i];
+      // Snapping already moved the pitch; count that as part of the step.
+      if ((delta > 0 && notes[i] > note) || (delta < 0 && notes[i] < note)) delta -= Math.sign(delta);
+    }
+    return notes[Math.max(0, Math.min(notes.length - 1, i + delta))];
   }
 
   function seqNoteName(midi) {
@@ -4061,75 +4157,180 @@
       if (typeof data.bpm === 'number') seqState.bpm = data.bpm;
       if (typeof data.swing === 'number') seqState.swing = data.swing;
       if (typeof data.gate === 'number') seqState.gate = data.gate;
+      if (typeof data.root === 'number') seqState.root = ((data.root % 12) + 12) % 12;
+      if (typeof data.scale === 'string') seqState.scale = data.scale;
       if (Array.isArray(data.steps)) {
         seqState.steps = data.steps.map(s => ({
           on: !!(s && s.on),
-          note: (s && typeof s.note === 'number') ? s.note : 60
+          note: (s && typeof s.note === 'number') ? s.note : 60,
+          // Patterns saved before velocity existed have no vel — they played at
+          // 100, so that is what they must keep playing at.
+          vel: (s && typeof s.vel === 'number') ? seqClampVel(s.vel) : SEQ_DEFAULT_VEL
         }));
       }
       // Drums are newer than this save format, so tolerate their absence.
+      // They were booleans before velocity: true meant a hit at 100.
       if (data.drums && typeof data.drums === 'object') {
         DRUM_ROWS.forEach(r => {
           const row = data.drums[r.id];
-          seqState.drums[r.id] = Array.isArray(row) ? row.map(v => !!v) : [];
+          seqState.drums[r.id] = Array.isArray(row)
+            ? row.map(v => (typeof v === 'number' ? (v > 0 ? seqClampVel(v) : 0)
+                                                 : (v ? SEQ_DEFAULT_VEL : 0)))
+            : [];
         });
       }
     } catch(e) {}
   }
 
+  function seqClampVel(v) { return Math.max(1, Math.min(127, Math.round(v))); }
+
+  // Both grids are sized from one measurement so their columns line up exactly.
+  // Steps fill the width when there is room and scroll when there isn't, but
+  // never go under a tappable width.
+  function seqSyncWidths() {
+    const scroller = document.getElementById('seqScroll');
+    if (!scroller) return;
+    const cs = getComputedStyle(scroller);
+    const labelW = parseFloat(cs.getPropertyValue('--seq-label-w')) || 42;
+    const gap = parseFloat(cs.getPropertyValue('--seq-gap')) || 4;
+    const n = seqState.length;
+    const avail = scroller.clientWidth - labelW - gap * n;
+    const w = Math.max(SEQ_MIN_STEP_W, Math.floor(avail / n));
+    scroller.style.setProperty('--seq-len', n);
+    scroller.style.setProperty('--seq-step-w', w + 'px');
+  }
+
+  // A pointer gesture that is a click if it doesn't move and a drag if it does.
+  // `onDrag` gets the distance travelled; `onTap` fires only when it stayed put.
+  function seqDragger(el, opts) {
+    const SLOP = 4;
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      e.preventDefault();
+      const x0 = e.clientX, y0 = e.clientY;
+      let moved = false;
+      el.setPointerCapture(e.pointerId);
+      const move = (ev) => {
+        const dx = ev.clientX - x0, dy = ev.clientY - y0;
+        if (!moved && Math.abs(dx) < SLOP && Math.abs(dy) < SLOP) return;
+        if (!moved) { moved = true; el.classList.add('dragging'); }
+        opts.onDrag(dx, dy, ev);
+      };
+      const up = () => {
+        el.removeEventListener('pointermove', move);
+        el.removeEventListener('pointerup', up);
+        el.removeEventListener('pointercancel', up);
+        el.classList.remove('dragging');
+        if (!moved && opts.onTap) opts.onTap();
+        if (opts.onEnd) opts.onEnd(moved);
+      };
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', up);
+      el.addEventListener('pointercancel', up);
+    });
+  }
+
   function seqRenderGrid() {
     seqEnsureSteps();
-    seqGridEl.style.gridTemplateColumns = `repeat(${seqState.length}, 1fr)`;
     seqGridEl.innerHTML = '';
+
+    const rowLabel = document.createElement('div');
+    rowLabel.className = 'seq-drum-label';
+    rowLabel.textContent = 'Note';
+    seqGridEl.appendChild(rowLabel);
+
     for (let i = 0; i < seqState.length; i++) {
       const step = seqState.steps[i];
       const col = document.createElement('div');
-      col.className = 'seq-step';
+      col.className = 'seq-step' + (step.on ? ' on' : '');
 
       const cell = document.createElement('div');
       cell.className = 'seq-cell' + (step.on ? ' on' : '') + (i % 4 === 0 ? ' beat' : '');
       cell.dataset.idx = i;
+      cell.setAttribute('role', 'button');
+      cell.tabIndex = 0;
+
+      const fill = document.createElement('span');
+      fill.className = 'seq-vel-fill';
       const noteSpan = document.createElement('span');
       noteSpan.className = 'seq-note';
-      noteSpan.textContent = seqNoteName(step.note);
+      cell.appendChild(fill);
       cell.appendChild(noteSpan);
 
-      const toggle = () => {
-        step.on = !step.on;
-        cell.classList.toggle('on', step.on);
-        seqSave();
-      };
-      cell.addEventListener('click', toggle);
+      const vel = document.createElement('div');
+      vel.className = 'seq-vel';
+      vel.title = 'Drag to set velocity';
 
-      const pitch = document.createElement('div');
-      pitch.className = 'seq-pitch';
-      const down = document.createElement('button');
-      down.textContent = '−';
-      const up = document.createElement('button');
-      up.textContent = '+';
-      const changePitch = (delta) => {
-        step.note = Math.max(24, Math.min(96, step.note + delta));
+      const paint = () => {
         noteSpan.textContent = seqNoteName(step.note);
-        if (!step.on) { step.on = true; cell.classList.add('on'); }
-        seqSave();
+        cell.classList.toggle('on', step.on);
+        col.classList.toggle('on', step.on);
+        const pct = (step.vel / 127 * 100).toFixed(0) + '%';
+        cell.style.setProperty('--vel', pct);
+        vel.style.setProperty('--vel', pct);
+        cell.setAttribute('aria-pressed', String(step.on));
+        cell.setAttribute('aria-label',
+          `Step ${i + 1}, ${seqNoteName(step.note)}, velocity ${step.vel}, ${step.on ? 'on' : 'off'}`);
       };
-      const wire = (btn, delta) => {
-        btn.addEventListener('click', (e) => { e.stopPropagation(); changePitch(delta); });
-      };
-      wire(down, -1); wire(up, 1);
-      pitch.appendChild(down); pitch.appendChild(up);
 
+      // Vertical drag on the cell sets pitch by scale degree. 14px per degree
+      // is enough travel to be deliberate and little enough to cross an octave
+      // without lifting your finger.
+      const PX_PER_DEGREE = 14;
+      let noteAtStart = step.note;
+      seqDragger(cell, {
+        onTap: () => { step.on = !step.on; paint(); seqSave(); },
+        onDrag: (dx, dy) => {
+          const next = seqStepPitch(noteAtStart, -Math.round(dy / PX_PER_DEGREE));
+          if (next === step.note) return;
+          step.note = next;
+          if (!step.on) step.on = true;
+          paint();
+        },
+        onEnd: (moved) => { if (moved) seqSave(); noteAtStart = step.note; }
+      });
+      cell.addEventListener('pointerdown', () => { noteAtStart = step.note; });
+
+      cell.addEventListener('keydown', (e) => {
+        const k = e.key;
+        if (k === 'Enter' || k === ' ') { e.preventDefault(); step.on = !step.on; paint(); seqSave(); }
+        else if (k === 'ArrowUp' || k === 'ArrowDown') {
+          e.preventDefault();
+          step.note = seqStepPitch(step.note, k === 'ArrowUp' ? 1 : -1);
+          if (!step.on) step.on = true;
+          paint(); seqSave();
+        } else if (k === 'ArrowRight' || k === 'ArrowLeft') {
+          e.preventDefault();
+          step.vel = seqClampVel(step.vel + (k === 'ArrowRight' ? 8 : -8));
+          paint(); seqSave();
+        } else return;
+      });
+
+      const setVelFromX = (clientX) => {
+        const r = vel.getBoundingClientRect();
+        step.vel = seqClampVel(((clientX - r.left) / r.width) * 127);
+        if (!step.on) step.on = true;
+        paint();
+      };
+      seqDragger(vel, {
+        onTap: () => {},
+        onDrag: (dx, dy, ev) => setVelFromX(ev.clientX),
+        onEnd: (moved) => { if (moved) seqSave(); }
+      });
+      vel.addEventListener('pointerdown', (e) => { setVelFromX(e.clientX); seqSave(); });
+
+      paint();
       col.appendChild(cell);
-      col.appendChild(pitch);
+      col.appendChild(vel);
       seqGridEl.appendChild(col);
     }
+    seqSyncWidths();
   }
 
   // Drum grid: one labelled row per voice, sharing the melodic grid's step
   // count so both read as one bar. A label column plus N step columns.
   function seqRenderDrumGrid() {
     seqEnsureSteps();
-    seqDrumGridEl.style.gridTemplateColumns = `auto repeat(${seqState.length}, 1fr)`;
     seqDrumGridEl.innerHTML = '';
     DRUM_ROWS.forEach(r => {
       const label = document.createElement('div');
@@ -4139,20 +4340,60 @@
 
       for (let i = 0; i < seqState.length; i++) {
         const cell = document.createElement('div');
-        cell.className = 'drum-cell' + (seqState.drums[r.id][i] ? ' on' : '') + (i % 4 === 0 ? ' beat' : '');
+        const row = seqState.drums[r.id];
+        cell.className = 'drum-cell' + (row[i] ? ' on' : '') + (i % 4 === 0 ? ' beat' : '');
         cell.dataset.row = r.id;
         cell.dataset.idx = i;
-        cell.addEventListener('click', () => {
-          const nowOn = !seqState.drums[r.id][i];
-          seqState.drums[r.id][i] = nowOn;
-          cell.classList.toggle('on', nowOn);
-          // Audition the hit so programming by ear works while stopped.
-          if (nowOn && !seqPlaying) { Tone.start().catch(()=>{}); triggerDrum(r.id); }
-          seqSave();
+        cell.setAttribute('role', 'button');
+        cell.tabIndex = 0;
+
+        const paint = () => {
+          const v = row[i];
+          cell.classList.toggle('on', v > 0);
+          cell.style.setProperty('--vel', (Math.max(v, 1) / 127 * 100).toFixed(0) + '%');
+          cell.setAttribute('aria-pressed', String(v > 0));
+          cell.setAttribute('aria-label',
+            `${r.label} step ${i + 1}, ${v > 0 ? 'on, velocity ' + v : 'off'}`);
+        };
+        const audition = () => {
+          if (!seqPlaying && row[i] > 0) { Tone.start().catch(()=>{}); triggerDrum(r.id, undefined, row[i]); }
+        };
+
+        // No pitch on a drum, so the vertical drag is free for velocity —
+        // which is the whole difference between a machine pattern and a
+        // played one. Ghost notes live at the bottom of this gesture.
+        const PX_PER_UNIT = 0.6;
+        let velAtStart = 0;
+        seqDragger(cell, {
+          onTap: () => {
+            row[i] = row[i] > 0 ? 0 : SEQ_DEFAULT_VEL;
+            paint(); audition(); seqSave();
+          },
+          onDrag: (dx, dy) => {
+            if (velAtStart === 0) velAtStart = SEQ_DEFAULT_VEL;   // dragging arms an empty step
+            row[i] = seqClampVel(velAtStart - dy / PX_PER_UNIT);
+            paint();
+          },
+          onEnd: (moved) => { if (moved) { audition(); seqSave(); } velAtStart = row[i]; }
         });
+        cell.addEventListener('pointerdown', () => { velAtStart = row[i]; });
+
+        cell.addEventListener('keydown', (e) => {
+          const k = e.key;
+          if (k === 'Enter' || k === ' ') {
+            e.preventDefault(); row[i] = row[i] > 0 ? 0 : SEQ_DEFAULT_VEL; paint(); audition(); seqSave();
+          } else if (k === 'ArrowUp' || k === 'ArrowDown') {
+            e.preventDefault();
+            row[i] = seqClampVel((row[i] || SEQ_DEFAULT_VEL) + (k === 'ArrowUp' ? 8 : -8));
+            paint(); seqSave();
+          } else return;
+        });
+
+        paint();
         seqDrumGridEl.appendChild(cell);
       }
     });
+    seqSyncWidths();
   }
 
   function seqHighlight(idx) {
@@ -4194,7 +4435,8 @@
       // melodic voice below goes through Tone.Draw because noteOn builds
       // per-voice nodes against the live patch and must run on the main thread.)
       DRUM_ROWS.forEach(r => {
-        if (seqState.drums[r.id] && seqState.drums[r.id][idx]) triggerDrum(r.id, time);
+        const v = seqState.drums[r.id] && seqState.drums[r.id][idx];
+        if (v) triggerDrum(r.id, time, v);
       });
 
       // Schedule UI updates on the draw queue (audio-thread safe)
@@ -4208,7 +4450,7 @@
       Tone.Draw.schedule(() => {
         seqStopActiveNote();
         if (step && step.on) {
-          noteOn(step.note, 100, 'sequencer');
+          noteOn(step.note, step.vel || SEQ_DEFAULT_VEL, 'sequencer');
           seqLastNote = step.note;
           // Gate: release before the next step begins
           const stepSec = (60 / seqState.bpm) / 4; // 16th-note duration
@@ -4283,7 +4525,7 @@
   }
 
   function drumClear() {
-    DRUM_ROWS.forEach(r => { seqState.drums[r.id] = new Array(seqState.length).fill(false); });
+    DRUM_ROWS.forEach(r => { seqState.drums[r.id] = new Array(seqState.length).fill(0); });
     seqRenderDrumGrid();
     seqSave();
   }
@@ -4292,11 +4534,14 @@
   // backbeat snare, eighth-note hats. Scales to whatever step count is set.
   function drumBasicBeat() {
     seqEnsureSteps();
-    DRUM_ROWS.forEach(r => { seqState.drums[r.id] = new Array(seqState.length).fill(false); });
+    DRUM_ROWS.forEach(r => { seqState.drums[r.id] = new Array(seqState.length).fill(0); });
     for (let i = 0; i < seqState.length; i++) {
-      if (i % 4 === 0) seqState.drums.kick[i] = true;   // every beat
-      if (i % 8 === 4) seqState.drums.snare[i] = true;  // beats 2 and 4
-      if (i % 2 === 0) seqState.drums.hat[i] = true;    // eighths
+      if (i % 4 === 0) seqState.drums.kick[i] = 110;    // every beat
+      if (i % 8 === 4) seqState.drums.snare[i] = 112;   // beats 2 and 4
+      // Hats alternate hard/soft. A flat hat line is the single clearest
+      // giveaway of a programmed beat, and this is the whole reason velocity
+      // is worth having — see the Groove guide.
+      if (i % 2 === 0) seqState.drums.hat[i] = (i % 4 === 0) ? 100 : 62;
     }
     seqRenderDrumGrid();
     seqSave();
@@ -4304,14 +4549,19 @@
 
   function seqRandomize() {
     // A pentatonic-ish scale rooted at C for pleasant random patterns
-    const scale = [0, 2, 4, 7, 9];
-    const baseOct = 5; // around C4-C5
-    seqState.steps = seqState.steps.map(() => {
-      const on = Math.random() < 0.55;
-      const deg = scale[Math.floor(Math.random() * scale.length)];
-      const oct = baseOct + (Math.random() < 0.25 ? 1 : 0);
-      return { on, note: oct * 12 + deg };
-    });
+    // Random now respects the chosen key and scale rather than assuming C
+    // pentatonic, so it gives you a usable starting point in the key you are
+    // actually working in.
+    const pool = seqScaleNotes() || Array.from({ length: 25 }, (_, k) => 60 + k);
+    const mid = pool.filter(n => n >= 55 && n <= 79);
+    const notes = mid.length ? mid : pool;
+    seqState.steps = seqState.steps.map((_, i) => ({
+      on: Math.random() < 0.55,
+      note: notes[Math.floor(Math.random() * notes.length)],
+      // Downbeats land harder — a flat velocity line is what makes a random
+      // pattern sound generated rather than played.
+      vel: seqClampVel((i % 4 === 0 ? 108 : 78) + Math.random() * 18)
+    }));
     seqRenderGrid();
     seqSave();
   }
@@ -4338,6 +4588,29 @@
     document.getElementById('seqGate').value = seqState.gate;
     document.querySelectorAll('[data-seq-len]').forEach(b => {
       b.classList.toggle('active', Number(b.dataset.seqLen) === seqState.length);
+    });
+
+    // Key + scale. Every pitch edit moves by scale degree, so the sequencer
+    // stops being a chromatic guessing game.
+    const rootSel = document.getElementById('seqRoot');
+    const scaleSel = document.getElementById('seqScale');
+    rootSel.innerHTML = SEQ_NOTE_NAMES
+      .map((n, i) => `<option value="${i}"${i === seqState.root ? ' selected' : ''}>${n}</option>`).join('');
+    scaleSel.innerHTML = Object.keys(SCALES)
+      .map(n => `<option value="${n}"${n === seqState.scale ? ' selected' : ''}>${n}</option>`).join('');
+    rootSel.addEventListener('change', e => {
+      seqState.root = Number(e.target.value); seqSave(); e.target.blur();
+    });
+    scaleSel.addEventListener('change', e => {
+      seqState.scale = e.target.value; seqSave(); e.target.blur();
+    });
+
+    // The grids are sized from a measurement, so a resize has to redo it or
+    // the two halves drift apart again.
+    let seqResizeRAF = 0;
+    window.addEventListener('resize', () => {
+      cancelAnimationFrame(seqResizeRAF);
+      seqResizeRAF = requestAnimationFrame(seqSyncWidths);
     });
 
     tapHandler(document.getElementById('seqPlayBtn'), seqTogglePlay);
@@ -4384,7 +4657,7 @@
     tapHandler(document.getElementById('seqToggleBtn'), () => {
       const open = seqPanelEl.classList.toggle('open');
       document.getElementById('seqToggleBtn').classList.toggle('active', open);
-      if (open) seqUpdateDock();
+      if (open) { seqUpdateDock(); seqSyncWidths(); }
     });
   })();
 

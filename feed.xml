@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: September 4, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-04</link>
+    <guid isPermaLink="false">changelog-2026-09-04</guid>
+    <pubDate>Fri, 04 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth's sequencer gets three fixes. On a phone the melodic grid and the drum grid were sized independently and were therefore two different scales stacked on each other: at 16 steps on a 390px screen, step 15 of the melody sat 151 pixels from step 15 of the kick, and the playhead lit two unrelated columns. They now share one scroller and identical column tracks, with zero drift at every width and length. Pitch now moves by scale degree instead of semitone — set a key and a scale, drag up or down on a step, and every edit lands in the key, with off-scale notes snapping in, Chromatic still available, and Random generating in your chosen key rather than always C pentatonic. And every step has velocity: melodic steps get a strip you drag, drum cells have no pitch so dragging up and down sets their velocity, which is where ghost notes come from, and the Beat preset lays hats with alternating accents rather than flat. Old patterns migrate to velocity 100, exactly what they already played at. The grid is also keyboard-reachable for the first time.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 3, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-03</link>
     <guid isPermaLink="false">changelog-2026-09-03</guid>
