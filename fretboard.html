@@ -146,6 +146,38 @@
     .fb-dot-x { fill: rgba(232,92,92,0.55); stroke: rgba(232,92,92,0.8); }
     .fb-dtxt { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; text-anchor: middle; fill: rgba(10,14,26,0.95); font-weight: 600; }
     .fb-dtxt-g { fill: var(--stone-dark); }
+
+    /* ─── CHORD BOXES ───
+       A whole-neck diagram is the wrong picture for a chord: three voicings
+       drawn on one 12-fret neck have to be mentally pulled apart before you
+       can play any of them. These are the vertical boxes a guitarist already
+       reads — strings across, frets down, one shape per box. */
+    .fb-boxrow {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+      gap: 0.5rem; margin: 0.9rem 0 0.4rem; align-items: end;
+    }
+    .fb-box { display: block; width: 100%; max-width: 150px; margin: 0 auto; height: auto; }
+    .fb-bfret { stroke: rgba(138,126,107,0.32); stroke-width: 1; }
+    .fb-bstr  { stroke: rgba(138,126,107,0.5); stroke-width: 1; }
+    .fb-blbl {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      fill: var(--stone-dark); text-anchor: middle; letter-spacing: 0.04em;
+    }
+    .fb-bpos {
+      font-family: 'JetBrains Mono', monospace; font-size: 8px;
+      fill: var(--glow-warm); text-anchor: end;
+    }
+    .fb-bcap {
+      font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+      fill: var(--stone-dark); text-anchor: middle; letter-spacing: 0.1em;
+    }
+    .fb-setlabel {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      color: var(--glow); letter-spacing: 0.14em; text-transform: uppercase;
+      margin: 1.4rem 0 0.1rem; padding-top: 0.7rem;
+      border-top: 1px solid rgba(138,126,107,0.16);
+    }
+    .fb-setlabel span { color: var(--stone-dark); letter-spacing: 0.06em; text-transform: none; }
   </style>
 </head>
 <body>
@@ -557,66 +589,89 @@
           <strong>three notes</strong> somewhere in the middle of the neck. That's not laziness — it's the difference
           between playing a chord and playing a <em>part</em>.
         </p>
-        <svg class="fb-dia" viewBox="0 0 456 138" role="img" aria-label="Fretboard showing C major triad voicings on three adjacent string sets between frets five and nine.">
-        <rect class="fb-wood" x="30" y="10" width="414" height="112"/>
-        <circle class="fb-inlay" cx="99.0" cy="66.0" r="3.5"/>
-        <circle class="fb-inlay" cx="191.0" cy="66.0" r="3.5"/>
-        <circle class="fb-inlay" cx="283.0" cy="66.0" r="3.5"/>
-        <circle class="fb-inlay" cx="421.0" cy="46.0" r="3.5"/>
-        <circle class="fb-inlay" cx="421.0" cy="86.0" r="3.5"/>
-        <line class="fb-string" x1="30" y1="16" x2="444" y2="16"/>
-        <text class="fb-lbl" x="22" y="19" text-anchor="end">E</text>
-        <line class="fb-string" x1="30" y1="36" x2="444" y2="36"/>
-        <text class="fb-lbl" x="22" y="39" text-anchor="end">B</text>
-        <line class="fb-string" x1="30" y1="56" x2="444" y2="56"/>
-        <text class="fb-lbl" x="22" y="59" text-anchor="end">G</text>
-        <line class="fb-string" x1="30" y1="76" x2="444" y2="76"/>
-        <text class="fb-lbl" x="22" y="79" text-anchor="end">D</text>
-        <line class="fb-string" x1="30" y1="96" x2="444" y2="96"/>
-        <text class="fb-lbl" x="22" y="99" text-anchor="end">A</text>
-        <line class="fb-string" x1="30" y1="116" x2="444" y2="116"/>
-        <text class="fb-lbl" x="22" y="119" text-anchor="end">E</text>
-        <line class="fb-fret" x1="30" y1="10" x2="30" y2="122"/>
-        <line class="fb-fret" x1="76" y1="10" x2="76" y2="122"/>
-        <line class="fb-fret" x1="122" y1="10" x2="122" y2="122"/>
-        <line class="fb-fret" x1="168" y1="10" x2="168" y2="122"/>
-        <line class="fb-fret" x1="214" y1="10" x2="214" y2="122"/>
-        <line class="fb-fret" x1="260" y1="10" x2="260" y2="122"/>
-        <line class="fb-fret" x1="306" y1="10" x2="306" y2="122"/>
-        <line class="fb-fret" x1="352" y1="10" x2="352" y2="122"/>
-        <line class="fb-fret" x1="398" y1="10" x2="398" y2="122"/>
-        <line class="fb-fret" x1="444" y1="10" x2="444" y2="122"/>
-        <text class="fb-lbl" x="53.0" y="134" text-anchor="middle">4</text>
-        <text class="fb-lbl" x="99.0" y="134" text-anchor="middle">5</text>
-        <text class="fb-lbl" x="145.0" y="134" text-anchor="middle">6</text>
-        <text class="fb-lbl" x="191.0" y="134" text-anchor="middle">7</text>
-        <text class="fb-lbl" x="237.0" y="134" text-anchor="middle">8</text>
-        <text class="fb-lbl" x="283.0" y="134" text-anchor="middle">9</text>
-        <text class="fb-lbl" x="329.0" y="134" text-anchor="middle">10</text>
-        <text class="fb-lbl" x="375.0" y="134" text-anchor="middle">11</text>
-        <text class="fb-lbl" x="421.0" y="134" text-anchor="middle">12</text>
-        <circle class="fb-dot fb-dot-t" cx="191.0" cy="96" r="8"/>
-        <text class="fb-dtxt" x="191.0" y="98.7">E</text>
-        <circle class="fb-dot fb-dot-t" cx="99.0" cy="76" r="8"/>
-        <text class="fb-dtxt" x="99.0" y="78.7">G</text>
-        <circle class="fb-dot fb-dot-r" cx="99.0" cy="56" r="8"/>
-        <text class="fb-dtxt" x="99.0" y="58.7">C</text>
-        <circle class="fb-dot fb-dot-t" cx="99.0" cy="36" r="8"/>
-        <text class="fb-dtxt" x="99.0" y="38.7">E</text>
-        <circle class="fb-dot fb-dot-r" cx="237.0" cy="16" r="8"/>
-        <text class="fb-dtxt" x="237.0" y="18.7">C</text>
-        <circle class="fb-dot fb-dot-t" cx="283.0" cy="56" r="8"/>
-        <text class="fb-dtxt" x="283.0" y="58.7">E</text>
-        <circle class="fb-dot fb-dot-t" cx="237.0" cy="36" r="8"/>
-        <text class="fb-dtxt" x="237.0" y="38.7">G</text>
-        </svg>
-        <p class="ar-figcap">One chord — C major — as three-note shapes across the neck. Amber is the root. Strings 4-3-2 all land on the fifth fret; strings 5-4-3 and 3-2-1 hold the same three notes in different orders. Nobody needs six strings to play a chord, and three notes leave room for everyone else in the band.</p>
+        <p class="ar-lead">
+          Here is one chord — <strong>C major</strong> — as every three-note shape on every string set. Nine boxes,
+          three notes each, and not a single new note among them: it is always C, E and G. Read them the way you read
+          any chord box — strings left to right, frets top to bottom, the number on the left telling you where on the
+          neck to put your first finger. <span class="ar-term">Amber is the root</span>; the other dots are labelled
+          with their interval, <code>3</code> for the third and <code>5</code> for the fifth.
+        </p>
+        <div class="fb-setlabel">Strings 5-4-3 <span>· A D G · all fourths — the shapes are even</span></div>
+        <div class="fb-boxrow">
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, 1st inversion, strings 5-4-3, frets 7 5 5"><text class="fb-blbl" x="32" y="20">A</text><text class="fb-blbl" x="58" y="20">D</text><text class="fb-blbl" x="84" y="20">G</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">5fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="85" r="8.5"/><text class="fb-dtxt" x="32" y="87.7">3</text><circle class="fb-dot fb-dot-t" cx="58" cy="41" r="8.5"/><text class="fb-dtxt" x="58" y="43.7">5</text><circle class="fb-dot fb-dot-r" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">R</text><text class="fb-bcap" x="52" y="150">E G C</text></svg>
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, 2nd inversion, strings 5-4-3, frets 10 10 9"><text class="fb-blbl" x="32" y="20">A</text><text class="fb-blbl" x="58" y="20">D</text><text class="fb-blbl" x="84" y="20">G</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">9fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="63" r="8.5"/><text class="fb-dtxt" x="32" y="65.7">5</text><circle class="fb-dot fb-dot-r" cx="58" cy="63" r="8.5"/><text class="fb-dtxt" x="58" y="65.7">R</text><circle class="fb-dot fb-dot-t" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">3</text><text class="fb-bcap" x="52" y="150">G C E</text></svg>
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, root position, strings 5-4-3, frets 15 14 12"><text class="fb-blbl" x="32" y="20">A</text><text class="fb-blbl" x="58" y="20">D</text><text class="fb-blbl" x="84" y="20">G</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">12fr</text><circle class="fb-dot fb-dot-r" cx="32" cy="107" r="8.5"/><text class="fb-dtxt" x="32" y="109.7">R</text><circle class="fb-dot fb-dot-t" cx="58" cy="85" r="8.5"/><text class="fb-dtxt" x="58" y="87.7">3</text><circle class="fb-dot fb-dot-t" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">5</text><text class="fb-bcap" x="52" y="150">C E G</text></svg>
+        </div>
+        <div class="fb-setlabel">Strings 4-3-2 <span>· D G B · crosses the B string</span></div>
+        <div class="fb-boxrow">
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, 2nd inversion, strings 4-3-2, frets 5 5 5"><text class="fb-blbl" x="32" y="20">D</text><text class="fb-blbl" x="58" y="20">G</text><text class="fb-blbl" x="84" y="20">B</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">5fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="41" r="8.5"/><text class="fb-dtxt" x="32" y="43.7">5</text><circle class="fb-dot fb-dot-r" cx="58" cy="41" r="8.5"/><text class="fb-dtxt" x="58" y="43.7">R</text><circle class="fb-dot fb-dot-t" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">3</text><text class="fb-bcap" x="52" y="150">G C E</text></svg>
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, root position, strings 4-3-2, frets 10 9 8"><text class="fb-blbl" x="32" y="20">D</text><text class="fb-blbl" x="58" y="20">G</text><text class="fb-blbl" x="84" y="20">B</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">8fr</text><circle class="fb-dot fb-dot-r" cx="32" cy="85" r="8.5"/><text class="fb-dtxt" x="32" y="87.7">R</text><circle class="fb-dot fb-dot-t" cx="58" cy="63" r="8.5"/><text class="fb-dtxt" x="58" y="65.7">3</text><circle class="fb-dot fb-dot-t" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">5</text><text class="fb-bcap" x="52" y="150">C E G</text></svg>
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, 1st inversion, strings 4-3-2, frets 14 12 13"><text class="fb-blbl" x="32" y="20">D</text><text class="fb-blbl" x="58" y="20">G</text><text class="fb-blbl" x="84" y="20">B</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">12fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="85" r="8.5"/><text class="fb-dtxt" x="32" y="87.7">3</text><circle class="fb-dot fb-dot-t" cx="58" cy="41" r="8.5"/><text class="fb-dtxt" x="58" y="43.7">5</text><circle class="fb-dot fb-dot-r" cx="84" cy="63" r="8.5"/><text class="fb-dtxt" x="84" y="65.7">R</text><text class="fb-bcap" x="52" y="150">E G C</text></svg>
+        </div>
+        <div class="fb-setlabel">Strings 3-2-1 <span>· G B E · crosses the B string</span></div>
+        <div class="fb-boxrow">
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, root position, strings 3-2-1, frets 5 5 3"><text class="fb-blbl" x="32" y="20">G</text><text class="fb-blbl" x="58" y="20">B</text><text class="fb-blbl" x="84" y="20">E</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">3fr</text><circle class="fb-dot fb-dot-r" cx="32" cy="85" r="8.5"/><text class="fb-dtxt" x="32" y="87.7">R</text><circle class="fb-dot fb-dot-t" cx="58" cy="85" r="8.5"/><text class="fb-dtxt" x="58" y="87.7">3</text><circle class="fb-dot fb-dot-t" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">5</text><text class="fb-bcap" x="52" y="150">C E G</text></svg>
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, 1st inversion, strings 3-2-1, frets 9 8 8"><text class="fb-blbl" x="32" y="20">G</text><text class="fb-blbl" x="58" y="20">B</text><text class="fb-blbl" x="84" y="20">E</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">8fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="63" r="8.5"/><text class="fb-dtxt" x="32" y="65.7">3</text><circle class="fb-dot fb-dot-t" cx="58" cy="41" r="8.5"/><text class="fb-dtxt" x="58" y="43.7">5</text><circle class="fb-dot fb-dot-r" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">R</text><text class="fb-bcap" x="52" y="150">E G C</text></svg>
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, 2nd inversion, strings 3-2-1, frets 12 13 12"><text class="fb-blbl" x="32" y="20">G</text><text class="fb-blbl" x="58" y="20">B</text><text class="fb-blbl" x="84" y="20">E</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">12fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="41" r="8.5"/><text class="fb-dtxt" x="32" y="43.7">5</text><circle class="fb-dot fb-dot-r" cx="58" cy="63" r="8.5"/><text class="fb-dtxt" x="58" y="65.7">R</text><circle class="fb-dot fb-dot-t" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">3</text><text class="fb-bcap" x="52" y="150">G C E</text></svg>
+        </div>
+        <p class="ar-figcap">Every shape above is the same three pitches in a different vertical order and a different
+        place on the neck. Learn them as intervals and you have not learned nine things — you have learned one chord,
+        and where it lives.</p>
         <p class="ar-lead">
           Thinking in <strong>string sets</strong> — strings 6-5-4, 5-4-3, 4-3-2, 3-2-1 — gives you every chord in every
           register as small, movable shapes. Three notes are enough to state any triad, and leaving out the rest means
           you aren't doubling the bass player, aren't muddying the low mids, and can sit in a specific
           <a href="arrangement.html" style="color:var(--glow-warm)">register</a> instead of covering all of them.
         </p>
+        <h3 style="font-family:'Cinzel',serif;color:var(--glow-warm);font-size:1rem;letter-spacing:0.06em;margin:1.6rem 0 0.5rem;">Why these shapes work</h3>
+        <p class="ar-lead">
+          None of this is arbitrary, and none of it needs memorising once you see what is generating it.
+        </p>
+        <div class="ar-grid">
+          <div class="ar-card">
+            <h4>A triad is three notes, and order is the only variable</h4>
+            <p>Root, third, fifth. The <span class="ar-term">third</span> is the note that says major or minor; the fifth
+            mostly just fills the chord out. Once you have those three pitches, <strong>any vertical order is still the
+            chord</strong> — that is the whole of what an inversion is. Nine boxes, three notes, one chord.</p>
+          </div>
+          <div class="ar-card">
+            <h4>The inversion chooses your melody note</h4>
+            <p>Listeners follow the <span class="ar-term">highest note</span> as the melody, so picking an inversion is
+            picking what the chord sings. It is completely consistent: across all nine shapes above, root position puts
+            the <strong>fifth</strong> on top, first inversion puts the <strong>root</strong> on top, second inversion
+            puts the <strong>third</strong> on top. Want the root ringing out at the top of a C chord? That is first
+            inversion, every time, on any string set.</p>
+          </div>
+          <div class="ar-card">
+            <h4>One finger turns every one of them minor</h4>
+            <p>The third is the only note carrying the chord's quality, so <strong>move it down one fret and the shape is
+            minor</strong>. That works on all nine boxes without exception. This is the payoff for labelling dots with
+            intervals instead of note names: you can see which dot to move.</p>
+          </div>
+          <div class="ar-card">
+            <h4>Why the shapes look unrelated</h4>
+            <p>Because of the B string. Every pair of strings is a fourth apart except G to B, which is a major third,
+            so <strong>any shape crossing it shifts by a fret</strong> — see below. The 5-4-3 set is all fourths and its
+            shapes are even; the 4-3-2 and 3-2-1 sets both cross the B string and look like different chords entirely.
+            They are not.</p>
+          </div>
+        </div>
+
+        <h3 style="font-family:'Cinzel',serif;color:var(--glow-warm);font-size:1rem;letter-spacing:0.06em;margin:1.6rem 0 0.5rem;">The same chord, twice, proving the point</h3>
+        <p class="ar-lead">
+          These two boxes are not similar voicings — they are the <strong>identical three pitches</strong>, G below middle
+          C, then C, then E. Same notes, same octaves, same sound. One is a staircase, the other is a flat barre, and the
+          only thing that changed is whether the shape has to cross the B string.
+        </p>
+        <div class="fb-boxrow" style="max-width:340px;margin-left:0;">
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="G3 C4 E4 on strings 5-4-3, a stepped shape"><text class="fb-blbl" x="32" y="20">A</text><text class="fb-blbl" x="58" y="20">D</text><text class="fb-blbl" x="84" y="20">G</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">9fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="63" r="8.5"/><text class="fb-dtxt" x="32" y="65.7">5</text><circle class="fb-dot fb-dot-r" cx="58" cy="63" r="8.5"/><text class="fb-dtxt" x="58" y="65.7">R</text><circle class="fb-dot fb-dot-t" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">3</text><text class="fb-bcap" x="52" y="150">G C E</text></svg>
+          <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="G3 C4 E4 on strings 4-3-2, a flat shape"><text class="fb-blbl" x="32" y="20">D</text><text class="fb-blbl" x="58" y="20">G</text><text class="fb-blbl" x="84" y="20">B</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">5fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="41" r="8.5"/><text class="fb-dtxt" x="32" y="43.7">5</text><circle class="fb-dot fb-dot-r" cx="58" cy="41" r="8.5"/><text class="fb-dtxt" x="58" y="43.7">R</text><circle class="fb-dot fb-dot-t" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">3</text><text class="fb-bcap" x="52" y="150">G C E</text></svg>
+        </div>
+        <p class="ar-figcap">Left: strings 5-4-3 at the ninth fret, all fourths, so the shape steps. Right: strings 4-3-2
+        at the fifth fret, where the G-to-B major third pulls the top note up a fret and flattens the shape into a barre.
+        If you have ever felt that a shape "stopped working" when you moved it to different strings, this is the entire
+        reason, and it is one fret every time.</p>
+
         <div class="ar-grid">
           <div class="ar-card">
             <h4>Inversions come free</h4>
