@@ -1116,7 +1116,7 @@
       <dt>Octave and velocity</dt>
       <dd><code>←</code>/<code>→</code> shift the whole keyboard down or up an octave across the full MIDI range; <code>↑</code>/<code>↓</code> ride velocity. The <code>−</code>/<code>+</code> buttons beside the octave readout do the same thing with a mouse. On the Two rows layout, <code>Z</code>/<code>X</code> and <code>C</code>/<code>V</code> also work. Holding a note while you change octave is safe — the note you started is the note that stops.</dd>
       <dt>Binding your own keys</dt>
-      <dd>Neither layout is fixed. Click <code>⌨ Remap</code>, click a piano key, then press whatever key you want to play it — repeat for as many as you like, then <code>Esc</code> to finish. The layout menu switches to <strong>Custom</strong> and your bindings persist between visits, so you can flip out to a preset and back without losing them. Right-click <code>⌨ Remap</code> to reset. A custom binding on a key takes priority over that key's built-in shortcut.</dd>
+      <dd>Neither layout is fixed. Click <code>⌨ Remap</code>, click a piano key, then press whatever key you want to play it — repeat for as many as you like, then <code>Esc</code> to finish. The layout menu switches to <strong>Custom</strong> and your bindings persist between visits, so you can flip out to a preset and back without losing them. Custom is your bindings <em>layered over</em> the current default rather than a frozen copy of it, so a key you never touched keeps following the standard layout and picks up any later improvement to it, while every key you did bind stays exactly as you set it. Right-click <code>⌨ Remap</code> to reset. A custom binding on a key takes priority over that key's built-in shortcut.</dd>
     </dl>
 
     <h3>Audio In — external gear through the rack</h3>
@@ -3307,11 +3307,30 @@
   }
   function loadKeyMap() {
     if (KEY_LAYOUTS[keyLayout]) return { ...KEY_LAYOUTS[keyLayout] };
-    return readStoredMap() || { ...DEFAULT_KEY_MAP };
+    // A Custom map is the default with the user's own bindings laid over it,
+    // not a frozen snapshot. Returning the snapshot alone meant that anyone
+    // who had ever rebound a single key was locked out of every later
+    // improvement to the layout — they kept the map as it stood the day they
+    // touched Remap, with nothing on screen to say why. Their bindings still
+    // win, because they are applied last; keys they never touched follow the
+    // current default. Remap only ever binds a key, never clears one, so
+    // there is no "deliberately silent" binding for this to trample.
+    const stored = readStoredMap();
+    if (!stored) return { ...DEFAULT_KEY_MAP };
+    return { ...DEFAULT_KEY_MAP, ...stored };
+  }
+  // Store only what the user actually changed, never the whole resolved map.
+  // Saving the merged map would bake today's default into their save, and the
+  // next time the default improved it would be masked all over again — the
+  // exact trap this is fixing.
+  function customDelta(map) {
+    const d = {};
+    for (const [k, v] of Object.entries(map)) if (DEFAULT_KEY_MAP[k] !== v) d[k] = v;
+    return d;
   }
   function saveKeyMap() {
     try {
-      localStorage.setItem(KEYMAP_STORAGE, JSON.stringify(keyMap));
+      localStorage.setItem(KEYMAP_STORAGE, JSON.stringify(customDelta(keyMap)));
       localStorage.setItem(LAYOUT_STORAGE, keyLayout);
     } catch (e) {}
   }
@@ -3609,7 +3628,7 @@
       const saved = readStoredMap();
       if (!saved) return;               // nothing to go back to; leave as-is
       keyLayout = CUSTOM_LAYOUT;
-      keyMap = saved;
+      keyMap = { ...DEFAULT_KEY_MAP, ...saved };   // same overlay as on load
     } else if (KEY_LAYOUTS[name]) {
       keyLayout = name;
       keyMap = { ...KEY_LAYOUTS[name] };
