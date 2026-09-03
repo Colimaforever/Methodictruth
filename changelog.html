@@ -125,6 +125,16 @@
     <div class="divider" id="2026-09-03"><span class="leaf">🌿</span> <span>September 3, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
+      <p><strong>The <a href="synth.html">Synth</a> now takes external gear.</strong> A new <code>Audio In</code> module puts a <strong>live signal from anything your computer can hear</strong> into the patch as a source — an interface with a guitar, bass or hardware synth on it, a USB mic, a drum machine, a turntable. Everything downstream then treats it exactly like an oscillator, so the filter, delay, reverb, chorus, distortion and compressor all process your instrument, and the LFO can sweep the filter while you play it. Click <code>Enable</code>, allow access, pick your input from the list. Nothing is uploaded or recorded — the signal goes to your speakers and nowhere else.</p>
+    </article>
+    <article class="entry">
+      <p>Two things this had to get right. <strong>Echo cancellation, noise suppression and auto gain are all switched off</strong> — they're voice-call processing, and on an instrument they gate off reverb tails, eat quiet passages and ride your dynamics away, which is most of why browser audio has a reputation for sounding bad. And <strong>feedback</strong>: speakers into a live input builds to painful in about a second, so an input that pins the master output for a sustained second has its level cut automatically. Use headphones anyway — the guard is a net, not a plan, because it fires after the noise starts.</p>
+    </article>
+    <article class="entry">
+      <p>The interesting failure was <em>silence</em>. An <code>Envelope</code> is a note gate: it sits shut until you press a key, so a continuous signal routed through one makes no sound at all, and the default patch has one. Every path was correct and the meter read nothing — which is exactly what a broken feature looks like. Rather than quietly routing around it (the way round the envelope also skips the filter, and running gear through the filter is most of the point), the module <strong>detects the gate, says so plainly, and offers a one-click fix</strong>. Deliberately putting an input through an envelope is a real technique — it lets you play a drone in and out from the keyboard — it's just never what you wanted by accident.</p>
+    </article>
+
+    <article class="entry">
       <p><strong>The <a href="synth.html">Synth</a>'s computer keyboard now uses the whole keyboard.</strong> It followed Logic Pro before — <code>A W S E D F T G Y H U J</code> and a few more — which is seventeen keys and a tenth of range, leaving two entire rows doing nothing. The default is now the <strong>tracker layout</strong>: your keyboard read as <em>two pianos stacked an octave apart</em>, one per pair of rows. The <code>Z</code> row is white keys with <code>S D G H J</code> as the black keys above them; the <code>Q</code> row is the same shape an octave up with the number row on top. Because the rows are physically staggered, each black key sits where it would sit on a real piano.</p>
     </article>
     <article class="entry">
