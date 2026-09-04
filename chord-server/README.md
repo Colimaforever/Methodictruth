@@ -427,19 +427,42 @@ this in check:
 2. **Fresh cookies.** Authenticated sessions get far more tolerance.
    Re-export `cookies.txt` (see the bot-check section above) when throttling
    gets frequent — cookies age out over weeks.
-3. **PO-token provider (optional, strongest).** yt-dlp can attach "proof of
-   origin" tokens that YouTube's anti-bot wants to see. Install the
-   community provider (needs Node, already present for the JS runtime):
+3. **PO-token provider — the actual fix for throttled downloads.** YouTube
+   now expects a "proof of origin" token with every stream request from its
+   `web`, `mweb` and `ios` players; without one the download is throttled to
+   a crawl or refused with 403 (yt-dlp's PO Token Guide lists only `tv`,
+   `web_embedded` and `android_vr` as exempt, and those are what `app.py`
+   falls back to). The maintained provider is `bgutil-ytdlp-pot-provider`:
+   a yt-dlp plugin in the venv plus a small local Node server that mints the
+   tokens. Needs **Node 20 or newer** (`node --version`; Ubuntu's apt package
+   is 18, so install 22 from NodeSource if that's what you have:
+   `curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs`).
 
    ```bash
-   source venv/bin/activate
-   pip install -U bgutil-ytdlp-pot-provider
-   deactivate
+   # 1. the plugin, into the analyzer's venv
+   cd /home/truth/Methodictruth/chord-server
+   ./venv/bin/pip install -U bgutil-ytdlp-pot-provider
+
+   # 2. the token server, as its own service
+   cd ~
+   git clone --single-branch --branch 1.3.2 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git
+   cd bgutil-ytdlp-pot-provider/server
+   npm ci && npx tsc
+   sudo cp /home/truth/Methodictruth/chord-server/bgutil-pot.service /etc/systemd/system/
+   sudo sed -i "s|REPLACE_WITH_YOUR_USERNAME|$(whoami)|g" /etc/systemd/system/bgutil-pot.service
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now bgutil-pot
+   curl -s http://127.0.0.1:4416/ping      # {"token_ttl_hours":...} means it's up
+
+   # 3. let the analyzer pick the plugin up
    sudo systemctl restart chord-analyzer
+   curl -s https://api.methodictruth.com/health | grep -o '"pot_[a-z_]*": *[a-z]*'
    ```
 
-   The plugin is picked up by yt-dlp automatically; check
-   `yt-dlp -v` output for `[pot]` lines to confirm it loaded.
+   Both `pot_plugin_installed` and `pot_server_up` should read `true`. The
+   plugin finds the server at its default `127.0.0.1:4416` with no extra
+   configuration; tokens are cached for six hours, so the server is idle
+   almost all of the time.
 
 ## Library, cached results, and uploads
 

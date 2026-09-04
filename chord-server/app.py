@@ -514,11 +514,13 @@ def _pp_hook(d):
 
 # The bot check is per-client as much as per-IP: when the default web client
 # gets "Sign in to confirm you're not a bot", another of YouTube's own
-# players (the embedded player, the mobile web player) is often still served.
-# So a bot-check failure is retried once through those before giving up.
-# Client names yt-dlp doesn't know are skipped with a warning, not an error,
-# so this list can't break a download on its own.
-YT_FALLBACK_CLIENTS = ['web_embedded', 'mweb', 'android_vr']
+# players is often still served. So a bot-check failure is retried once
+# through these before giving up. They are the three clients yt-dlp's PO
+# Token guide lists as NOT needing a proof-of-origin token for their streams
+# (web, mweb and ios do, and get throttled or 403'd without one), so the
+# retry never trades a bot check for a throttle. Client names yt-dlp doesn't
+# know are skipped with a warning, not an error.
+YT_FALLBACK_CLIENTS = ['tv', 'web_embedded', 'android_vr']
 
 
 def _is_bot_check(msg):
@@ -970,6 +972,21 @@ def health():
         ytdlp_version = _v.__version__
     except Exception:  # noqa: BLE001
         ytdlp_version = None
+    # The PO-token provider is what stops YouTube throttling web-client
+    # streams; report both halves of it — the yt-dlp plugin in the venv and
+    # the local token server it talks to — so a throttled box is diagnosable
+    # from one curl.
+    try:
+        import importlib.util
+        pot_plugin = importlib.util.find_spec('yt_dlp_plugins.extractor.getpot_bgutil') is not None
+    except Exception:  # noqa: BLE001
+        pot_plugin = False
+    try:
+        import urllib.request
+        with urllib.request.urlopen('http://127.0.0.1:4416/ping', timeout=1.5) as r:
+            pot_server = r.status == 200
+    except Exception:  # noqa: BLE001
+        pot_server = False
     return jsonify(
         ok=True,
         cached_songs=songs,
@@ -988,6 +1005,8 @@ def health():
         js_runtime_deno=bool(shutil.which('deno')),
         js_runtime_node=bool(shutil.which('node')),
         ffmpeg=bool(shutil.which('ffmpeg')),
+        pot_plugin_installed=pot_plugin,
+        pot_server_up=pot_server,
     )
 
 

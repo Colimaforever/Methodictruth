@@ -1,0 +1,17 @@
+[Unit]
+Description=bgutil PO-token server for yt-dlp (stops YouTube throttling the Song Analyzer)
+After=network.target
+
+[Service]
+Type=simple
+User=REPLACE_WITH_YOUR_USERNAME
+WorkingDirectory=/home/REPLACE_WITH_YOUR_USERNAME/bgutil-ytdlp-pot-provider/server
+ExecStart=/usr/bin/node build/main.js
+Restart=on-failure
+RestartSec=5
+# Same reasoning as chord-analyzer.service: a regular file never blocks on write.
+StandardOutput=append:/home/REPLACE_WITH_YOUR_USERNAME/bgutil-ytdlp-pot-provider/server/bgutil.log
+StandardError=append:/home/REPLACE_WITH_YOUR_USERNAME/bgutil-ytdlp-pot-provider/server/bgutil.log
+
+[Install]
+WantedBy=multi-user.target
