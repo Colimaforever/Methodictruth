@@ -498,8 +498,10 @@ COOKIES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies
 def _log(msg):
     # Goes to stderr, which the systemd unit routes to a regular file (not
     # journald), so these never block. Used to time each stage and see where
-    # a slow request actually spends its time.
-    print(f'[timing] {msg}', file=sys.stderr, flush=True)
+    # a slow request actually spends its time. Stamped with wall-clock time
+    # and the worker pid so gaps between lines are readable and interleaved
+    # workers can be told apart.
+    print(f'[timing] {time.strftime("%Y-%m-%d %H:%M:%S")} pid={os.getpid()} {msg}', file=sys.stderr, flush=True)
 
 
 def _pp_hook(d):
