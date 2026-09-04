@@ -84,8 +84,11 @@ YT_PROXY = os.environ.get('YT_PROXY', '').strip()
 
 # Randomized pause before each fetch. Perfectly regular request timing is
 # itself a bot signal; a little jitter costs nothing and looks human.
-YT_SLEEP_MIN = max(0, int(os.environ.get('YT_SLEEP_MIN', '1')))
-YT_SLEEP_MAX = max(YT_SLEEP_MIN, int(os.environ.get('YT_SLEEP_MAX', '5')))
+# At this tool's volume (a dozen downloads an hour at most, already spaced
+# by YT_MIN_GAP) a long pause buys nothing and every second of it is a second
+# the visitor watches a spinner, so the default is short.
+YT_SLEEP_MIN = max(0, int(os.environ.get('YT_SLEEP_MIN', '0')))
+YT_SLEEP_MAX = max(YT_SLEEP_MIN, int(os.environ.get('YT_SLEEP_MAX', '2')))
 
 # Direct file uploads (the no-YouTube path). 30 MB covers a ~30-minute MP3.
 app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
@@ -709,6 +712,11 @@ def download_audio(url, workdir, video_id, progress=None):
     # Pace + budget-check the actual YouTube hit (raises BudgetExceeded when
     # the hourly budget is spent; sleeps to space out bursts otherwise).
     yt_download_gate(progress)
+    # Before any byte arrives, yt-dlp has to fetch the watch page, solve the
+    # player challenge and pick a stream — several seconds that used to sit
+    # under "Downloading audio" at 5% and look like a stall.
+    if progress:
+        progress({'stage': 'extract'})
     try:
         info = _yt_download_with_fallback(url, ydl_opts)
         _yt_status_record(ok=True)
