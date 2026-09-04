@@ -975,6 +975,7 @@ blockquote {
   z-index: 1;
   text-align: center;
   padding: clamp(5rem, 10vw, 8rem) clamp(1rem, 3vw, 2rem) clamp(2rem, 5vw, 4rem);
+  padding-top: max(5.5rem, calc(env(safe-area-inset-top, 0px) + 2rem)) !important;
 }
 
 .page-header h1 {
@@ -2411,7 +2412,7 @@ footer .donate-link:hover {
   border-top: 1px solid rgba(0, 229, 255, 0.12);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  padding: 0.4rem 0.5rem 0.5rem;
+  padding: 0.4rem 0.5rem max(0.5rem, calc(env(safe-area-inset-bottom, 0px) + 0.3rem));
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
