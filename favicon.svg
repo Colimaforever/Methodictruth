@@ -1,4 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#050814"/>
-  <text x="16" y="24" text-anchor="middle" font-size="22">🔮</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Methodic Truth sigil: the triple moon — waxing, full, waning — the
+       oldest emblem of a thing seen in phases. Parchment on deep night,
+       one thin ring, a faint cold glow behind the full moon. -->
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="42%" r="60%">
+      <stop offset="0" stop-color="#161c36"/>
+      <stop offset="1" stop-color="#070a16"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#00e5ff" stop-opacity="0.5"/>
+      <stop offset="0.6" stop-color="#00e5ff" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#00e5ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="32" cy="32" r="32" fill="url(#sky)"/>
+  <circle cx="32" cy="32" r="29.2" fill="none" stroke="#f0e8d8" stroke-opacity="0.5" stroke-width="1.6"/>
+  <circle cx="32" cy="32" r="17" fill="url(#halo)"/>
+  <!-- waxing crescent: outer arc r15 bulging left, inner arc r21 back -->
+  <path d="M21 17 A15 15 0 0 0 21 47 A21 21 0 0 1 21 17 Z" fill="#f0e8d8"/>
+  <!-- full moon -->
+  <circle cx="32" cy="32" r="8" fill="#f0e8d8"/>
+  <!-- waning crescent, mirrored -->
+  <path d="M43 17 A15 15 0 0 1 43 47 A21 21 0 0 0 43 17 Z" fill="#f0e8d8"/>
 </svg>
