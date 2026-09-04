@@ -121,6 +121,9 @@
         .sa-error.visible { display: block; }
 
         .sa-loading { display: none; text-align: center; padding: 3rem 1rem; }
+        /* Inside the input card they sit tight under the drop zone */
+        .sa-section .sa-loading { padding: 1.1rem 0.5rem 0.3rem; }
+        .sa-section .sa-error { margin: 0.8rem 0 0; }
         .sa-loading.visible { display: block; }
         .sa-spinner {
             width: 48px; height: 48px; margin: 0 auto;
@@ -357,6 +360,16 @@
             ⤓ or drop an audio file here (MP3 · M4A · WAV · FLAC) — no YouTube involved, no rate limits
         </div>
         <input type="file" id="fileInput" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" style="display:none">
+
+        <!-- Progress and errors live right under the link box: on a page with
+             a full library they used to sit below it, off screen, so a visitor
+             who pressed Analyze saw nothing happen. -->
+        <div class="sa-error" id="error"></div>
+        <div class="sa-loading" id="loading">
+          <div class="sa-spinner"></div>
+          <div class="sa-loading-text" id="loadingText">Starting…</div>
+          <div class="sa-progress"><div class="sa-progress-bar" id="progressBar"></div></div>
+        </div>
       </div>
 
       <div class="sa-section sa-info">
@@ -376,14 +389,6 @@
       <div class="sa-section" id="librarySection" style="display:none; margin-top:1.2rem;">
         <div class="sa-section-label">Library — already analyzed, plays instantly</div>
         <div class="sa-library" id="libraryList"></div>
-      </div>
-
-      <div class="sa-error" id="error"></div>
-
-      <div class="sa-loading" id="loading">
-        <div class="sa-spinner"></div>
-        <div class="sa-loading-text" id="loadingText">Starting…</div>
-        <div class="sa-progress"><div class="sa-progress-bar" id="progressBar"></div></div>
       </div>
 
       <div class="sa-results" id="results">
@@ -571,6 +576,7 @@
                 const data = await resp.json();
                 if (!data.success) throw new Error(data.error || 'Analysis failed');
                 displayResults(data, data.id);
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 loadLibrary();
             } catch (err) {
                 showError(friendlyError(err, 'Upload failed — please try again.'));
@@ -753,6 +759,7 @@
                 if (data && data.success) {
                     document.getElementById('progressBar').style.width = '100%';
                     displayResults(data, videoId);
+                    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
                     loadLibrary();
                 } else {
                     throw new Error((data && data.error) || 'Unknown error');
