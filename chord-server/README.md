@@ -267,12 +267,18 @@ manual intervention:
 
 ```bash
 cd chord-server
-sed -i "s|REPLACE_WITH_YOUR_USERNAME|$(whoami)|g; s|/REPLACE/WITH/PATH/TO/chord-server|$(pwd)|g" yt-dlp-update.service
 sudo cp yt-dlp-update.service yt-dlp-update.timer /etc/systemd/system/
+# Fill in the placeholders in the installed copy (not the repo's, so git pull stays clean)
+sudo sed -i "s|REPLACE_WITH_YOUR_USERNAME|$(whoami)|g; s|/REPLACE/WITH/PATH/TO/chord-server|$(pwd)|g" /etc/systemd/system/yt-dlp-update.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now yt-dlp-update.timer
-systemctl list-timers yt-dlp-update.timer   # confirm it's scheduled
+sudo systemctl start yt-dlp-update.service   # run the first update now rather than tomorrow
+systemctl list-timers yt-dlp-update.timer    # confirm it's scheduled
 ```
+
+If the service fails with `status=203/EXEC`, systemd couldn't find `runuser`:
+the unit uses `/usr/sbin/runuser` (where Ubuntu puts it); check `which runuser`
+and adjust the path in the installed unit if your distro differs.
 
 ## Boot resilience (WSL2 + Windows host)
 
