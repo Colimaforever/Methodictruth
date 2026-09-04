@@ -673,6 +673,9 @@
     /* Both of these bind computer keys — meaningless on a device without one. */
     body.pads-open #remapBtn,
     body.pads-open #kbLayoutSelect { display: none; }
+    /* The guide draws on the piano keys, which the pads replace. */
+    body.pads-open #guideBtn,
+    body.pads-open .theory-guide { display: none; }
     @media (max-width: 560px) {
       .tp-pad { min-height: 46px; font-size: 0.58rem; }
       .tp-hint { display: none; }
@@ -743,15 +746,132 @@
       outline-offset: -2px;
     }
 
-    /* Scale/chord guide — colored dots overlaid on keys, never replacing the play highlight */
-    .piano-key.scale-root::after, .piano-key.scale-tone::after {
-      content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
-      border-radius: 50%; pointer-events: none;
+    /* ─── THEORY GUIDE ───
+       The theory page knows what the notes are; the synth is where you play
+       them. This panel puts the one onto the other: the keys that belong to a
+       scale or a chord are coloured by their role, everything else is dimmed,
+       and each lit key says which note (or degree) it is. Purely visual — the
+       keyboard still plays every note. */
+    .theory-guide {
+      width: 100%; align-self: stretch; max-width: 1040px; margin: 0 auto 0.35rem;
+      padding: 0.35rem 0.45rem 0.3rem;
+      background: rgba(10, 14, 26, 0.55);
+      border: 1px solid rgba(232, 168, 124, 0.22); border-radius: 4px;
     }
-    .piano-key.white.scale-root::after { width: 9px; height: 9px; background: var(--glow-warm); box-shadow: 0 0 7px var(--glow-warm); }
-    .piano-key.white.scale-tone::after { width: 6px; height: 6px; background: rgba(0,229,255,0.75); box-shadow: 0 0 4px rgba(0,229,255,0.4); }
-    .piano-key.black.scale-root::after { bottom: 3px; width: 6px; height: 6px; background: var(--glow-warm); box-shadow: 0 0 5px var(--glow-warm); }
-    .piano-key.black.scale-tone::after { bottom: 3px; width: 4px; height: 4px; background: rgba(0,229,255,0.7); box-shadow: 0 0 3px rgba(0,229,255,0.35); }
+    .theory-guide[hidden] { display: none; }
+    .tg-bar { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+    .tg-tabs { display: flex; border: 1px solid rgba(138, 126, 107, 0.3); border-radius: 3px; overflow: hidden; }
+    .tg-tab {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; letter-spacing: 0.05em;
+      color: var(--stone-dark); background: rgba(10, 14, 26, 0.6); border: 0;
+      border-right: 1px solid rgba(138, 126, 107, 0.3);
+      padding: 0.22rem 0.5rem; cursor: pointer; white-space: nowrap;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    }
+    .tg-tab:last-child { border-right: 0; }
+    .tg-tab:hover { color: var(--glow); }
+    .tg-tab.active { color: var(--glow-warm); background: rgba(232, 168, 124, 0.14); }
+    .tg-link {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; letter-spacing: 0.05em;
+      color: var(--stone-dark); text-decoration: none; padding: 0.2rem 0.4rem;
+      border: 1px solid rgba(138, 126, 107, 0.25); border-radius: 2px; white-space: nowrap;
+    }
+    .tg-link:hover { color: var(--glow); border-color: rgba(0, 229, 255, 0.4); }
+    .tg-link[hidden] { display: none; }
+    .tg-close { margin-left: auto; }
+    .tg-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+    .tg-chips:empty { display: none; }
+    .tg-chip {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; line-height: 1.2;
+      color: var(--stone); background: rgba(10, 14, 26, 0.6);
+      border: 1px solid rgba(138, 126, 107, 0.3); border-radius: 3px;
+      padding: 0.25rem 0.5rem; cursor: pointer; text-align: center;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none;
+      transition: border-color 0.12s, color 0.12s;
+    }
+    .tg-chip small { display: block; font-size: 0.5rem; color: var(--stone-dark); letter-spacing: 0.06em; margin-top: 0.1rem; }
+    .tg-chip:hover { border-color: rgba(0, 229, 255, 0.45); color: var(--glow); }
+    .tg-chip.active { border-color: var(--glow-warm); color: var(--glow-warm); background: rgba(232, 168, 124, 0.14); box-shadow: 0 0 8px rgba(232, 168, 124, 0.25); }
+    .tg-chip.active small { color: rgba(232, 168, 124, 0.7); }
+    .tg-chip.sev { border-style: dashed; }
+    .tg-chip.sev.active { border-style: solid; }
+    .tg-hint { font-family: 'EB Garamond', serif; font-size: 0.8rem; color: var(--stone-dark); padding: 0.1rem 0.2rem; }
+    .tg-progs { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; width: 100%; margin-top: 0.15rem; padding-top: 0.3rem; border-top: 1px dashed rgba(138, 126, 107, 0.2); }
+    .tg-progs-label { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone-dark); margin-right: 0.2rem; }
+    .tg-chip.prog { color: var(--glow); border-color: rgba(0, 229, 255, 0.28); }
+    .tg-chip.prog:hover { border-color: var(--glow); }
+    .tg-readout {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.7rem;
+      margin-top: 0.35rem; padding: 0 0.1rem;
+    }
+    .tg-title { font-family: 'Cinzel', serif; font-size: 0.78rem; color: var(--glow-warm); letter-spacing: 0.06em; }
+    .tg-notes { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--glow); }
+    .tg-notes b { font-weight: 600; }
+    .tg-mood { font-family: 'EB Garamond', serif; font-size: 0.82rem; color: var(--stone); font-style: italic; }
+    .tg-legend {
+      display: flex; flex-wrap: wrap; gap: 0.25rem 0.8rem; margin-top: 0.25rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.07em;
+      color: var(--stone-dark); text-transform: uppercase;
+    }
+    .tg-legend:empty { display: none; }
+    .tg-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .tg-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+    /* Role colours — the same five across the keys, the Theory page and the
+       guitar voicings, so a purple dot means "third" wherever you see it. */
+    :root {
+      --role-r: #e8a87c;  /* root — amber, like every root on this site */
+      --role-3: #a594f7;  /* third — the note that says major or minor */
+      --role-5: #6aad73;  /* fifth — fills the chord out */
+      --role-7: #ffdc78;  /* seventh (or sixth) — the colour on top */
+      --role-x: #00e5ff;  /* extensions: 9, 11, 13 */
+      --role-t: rgba(0, 229, 255, 0.65);  /* plain scale tone */
+    }
+    .piano-key .piano-key-note {
+      position: absolute; top: 4px; left: 0; right: 0; text-align: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; font-weight: 600;
+      letter-spacing: 0; pointer-events: none; color: var(--role-t);
+    }
+    .piano-key.black .piano-key-note { font-size: 0.42rem; top: 3px; }
+    .piano-key.g-r .piano-key-note { color: var(--role-r); }
+    .piano-key.g-3 .piano-key-note { color: var(--role-3); }
+    .piano-key.g-5 .piano-key-note { color: var(--role-5); }
+    .piano-key.g-7 .piano-key-note { color: var(--role-7); }
+    .piano-key.g-x .piano-key-note { color: var(--role-x); }
+    .piano-key.g-t .piano-key-note { color: var(--role-t); }
+    /* The dot is the thing you see from across the room; the label is for
+       when you lean in. Dots sit just above the computer-key letter. */
+    .piano-key.g-r::after, .piano-key.g-3::after, .piano-key.g-5::after,
+    .piano-key.g-7::after, .piano-key.g-x::after, .piano-key.g-t::after {
+      content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+      bottom: 14px; width: 9px; height: 9px; border-radius: 50%; pointer-events: none;
+    }
+    .piano-key.black::after { bottom: 11px; width: 6px; height: 6px; }
+    .piano-key.g-r::after { background: var(--role-r); box-shadow: 0 0 7px var(--role-r); }
+    .piano-key.g-3::after { background: var(--role-3); box-shadow: 0 0 6px var(--role-3); }
+    .piano-key.g-5::after { background: var(--role-5); box-shadow: 0 0 6px var(--role-5); }
+    .piano-key.g-7::after { background: var(--role-7); box-shadow: 0 0 6px var(--role-7); }
+    .piano-key.g-x::after { background: var(--role-x); box-shadow: 0 0 6px var(--role-x); }
+    .piano-key.g-t::after { background: var(--role-t); box-shadow: 0 0 4px rgba(0, 229, 255, 0.35); width: 6px; height: 6px; }
+    .piano-key.black.g-t::after { width: 4px; height: 4px; }
+    /* A scale tone that is not in the chord being shown: still there, but quiet. */
+    .piano-key.g-t.g-faint::after { opacity: 0.4; box-shadow: none; }
+    .piano-key.g-t.g-faint .piano-key-note { opacity: 0.45; }
+    /* Keys outside the pattern drop back so the pattern is what you see.
+       :not(.active) keeps the blue play highlight at full strength. */
+    .piano-keys.guide-on .piano-key.white.g-out:not(.active) { background: rgba(200, 195, 180, 0.04); }
+    .piano-keys.guide-on .piano-key.black.g-out:not(.active) { background: rgba(10, 14, 26, 0.6); border-color: rgba(138, 126, 107, 0.12); }
+    .piano-keys.guide-on .piano-key.g-out .piano-key-label { opacity: 0.45; }
+    .piano-key.g-r:not(.active) { border-color: rgba(232, 168, 124, 0.45); }
+    .piano-oct-btn.on { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.6); background: rgba(232, 168, 124, 0.1); }
+    @media (max-width: 560px) {
+      .tg-mood { display: none; }
+      .tg-tab { padding: 0.22rem 0.35rem; font-size: 0.52rem; }
+      .theory-guide { padding: 0.3rem 0.3rem 0.25rem; max-height: 38vh; overflow-y: auto; }
+      .tg-chip { padding: 0.18rem 0.35rem; font-size: 0.55rem; }
+      .tg-chip small { display: none; }
+      .tg-chip.prog small { display: none; }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .piano-oct-btn.active { animation: none; }
@@ -950,13 +1070,35 @@
         <option value="Two rows">Two rows</option>
         <option value="Custom">Custom</option>
       </select>
-      <select class="piano-layout-select" id="guideRoot" aria-label="Scale guide root" title="Pick a root note to highlight scale or chord tones on the keyboard — Guide off removes the overlay">
-        <option value="">Guide off</option>
-      </select>
-      <select class="piano-layout-select" id="guidePattern" aria-label="Scale or chord to highlight on the keyboard"></select>
+      <button class="piano-oct-btn" id="guideBtn" title="Theory guide — light up a scale, the chords in a key, or any chord on the keys" aria-pressed="false">♪ Guide</button>
       <button class="piano-oct-btn" id="remapBtn" title="Bind your own keyboard keys to the piano">⌨ Remap</button>
       <button class="piano-oct-btn" id="padsBtn" title="Touch pads — play with your fingers, locked to a scale" hidden>◇ Pads</button>
       <span class="piano-info-hint" id="pianoHint">← → octave · ↑ ↓ velocity</span>
+    </div>
+    <!-- Theory guide: the theory page's scales and chords, drawn onto the keys
+         you are about to play. Hidden until ♪ Guide is pressed. -->
+    <div class="theory-guide" id="theoryGuide" hidden>
+      <div class="tg-bar">
+        <select class="tp-select" id="guideRoot" aria-label="Guide root note" title="Root note"></select>
+        <select class="tp-select" id="guideScale" aria-label="Guide scale or mode" title="Scale or mode"></select>
+        <div class="tg-tabs" role="tablist" aria-label="What to show on the keys">
+          <button class="tg-tab active" data-view="scale" role="tab" aria-selected="true">Scale</button>
+          <button class="tg-tab" data-view="chords" role="tab" aria-selected="false">Chords in key</button>
+          <button class="tg-tab" data-view="chord" role="tab" aria-selected="false">Any chord</button>
+        </div>
+        <button class="piano-oct-btn" id="guidePlay" title="Hear the scale or chord through your patch">▶ Hear it</button>
+        <button class="piano-oct-btn" id="guideLabels" title="Label the keys with note names or scale degrees">Names</button>
+        <a class="tg-link" id="guideTheoryLink" href="theory.html" title="Open this scale on the Theory page">Theory ↗</a>
+        <a class="tg-link" id="guideGuitarLink" href="chord-voicings.html" title="See this chord on a guitar neck" hidden>Guitar ↗</a>
+        <button class="piano-oct-btn tg-close" id="guideClose" title="Hide the guide">✕</button>
+      </div>
+      <div class="tg-chips" id="guideChips"></div>
+      <div class="tg-readout">
+        <span class="tg-title" id="guideTitle"></span>
+        <span class="tg-notes" id="guideNotes"></span>
+        <span class="tg-mood" id="guideMood"></span>
+      </div>
+      <div class="tg-legend" id="guideLegend"></div>
     </div>
     <div class="piano-keys" id="pianoKeys"></div>
 
@@ -1105,6 +1247,18 @@
       <dd>The sequencer has no envelope of its own — it plays through whatever's patched on the canvas. Add an <code>ADSR</code> module before <code>Output</code> and set a short <code>Dec</code> (decay) with low <code>Sus</code> (sustain) for plucky, percussive steps, or a longer Decay/higher Sustain for pads that bleed into the next step. It retriggers on every step automatically.</dd>
       <dt>Drum Machine</dt>
       <dd>Below the melodic grid, four drum rows — <code>Kick</code>, <code>Snare</code>, <code>Hat</code>, <code>Clap</code> — on the same clock and step count. Click cells to program a beat; each hit auditions as you click so you can build it by ear while stopped. <strong>Beat</strong> drops in a four-on-the-floor starting point to edit from — kick on every beat, snare on 2 and 4, and hats on eighths <em>with alternating accents</em>, because a flat hat line is what makes a beat sound typed in rather than played. The drums are synthesized and routed straight to the output, so they work <em>without</em> a patch on the canvas — you can program a beat before you've built a sound. <code>Clear</code> only wipes the melody; <code>Clear Drums</code> only wipes the beat.</dd>
+    </dl>
+
+    <h3>♪ Guide — theory on the keys</h3>
+    <dl>
+      <dt>What it is</dt>
+      <dd>Press <code>♪ Guide</code> in the piano bar and the <a href="theory.html">Theory page</a> lands on the keyboard. Pick a root and a scale or mode, and <strong>every key that belongs lights up</strong> while the rest fall back — so when you don't know what to play, you play the lit ones and nothing is wrong. The amber key is the root: end phrases there and they sound finished. <code>Names</code>/<code>Degrees</code> switches the labels between note names and scale degrees, and <code>▶ Hear it</code> runs the scale up and back through your patch.</dd>
+      <dt>Chords in key</dt>
+      <dd>The chords that live in a key, stacked in thirds off each degree, with their roman numerals — the same seven the Theory page builds. Tap one and its notes are coloured by their <strong>role</strong>: amber root, purple third, green fifth, yellow seventh. Three fingers on the coloured keys is the chord. The purple third is the note that decides major or minor; swap it and you swap the mood. <code>Triads</code>/<code>7ths</code> switches the family. Pentatonic and blues scales borrow the chords of their parent key.</dd>
+      <dt>Any chord</dt>
+      <dd>Any quality on any root — major, minor, 7ths, sixths, add9, ninths, half-diminished. Tap a chip to see and hear it. The same colours mean the same things on the <a href="chord-voicings.html">Chord Voicings</a> page, where <code>Guitar ↗</code> takes the chord you're looking at and draws it on a neck, and <code>Theory ↗</code> opens the scale on the Theory page.</dd>
+      <dt>It's a guide, not a lock</dt>
+      <dd>Dim keys still play. The guide only tells you which notes belong; whether to leave the scale is your call — and the moment you do it on purpose, you've learnt the thing the guide was for.</dd>
     </dl>
 
     <h3>Touch Pads (phones &amp; tablets)</h3>
@@ -3845,7 +3999,9 @@
     // Anything still sounding — switching layout doesn't stop the notes — gets
     // its highlight back on the freshly built keys.
     activeNotes.forEach((_, noteNum) => highlightPianoKey(noteNum, true));
-    applyScaleGuide();
+    // The piano is first built before the guide's tables exist further down;
+    // once the guide has initialised it re-stamps the keys on every rebuild.
+    if (guideReady) guideApply();
   }
 
   // ═══════════════════════════════════════════════
@@ -3865,28 +4021,6 @@
     'Harmonic Minor':   [0, 2, 3, 5, 7, 8, 11],
     'Chromatic':        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
   };
-
-  // All patterns available for the scale/chord guide (scales + common chord shapes).
-  const GUIDE_PATTERNS = {
-    'Minor Pentatonic': SCALES['Minor Pentatonic'],
-    'Major Pentatonic': SCALES['Major Pentatonic'],
-    'Major':            SCALES['Major'],
-    'Natural Minor':    SCALES['Natural Minor'],
-    'Dorian':           SCALES['Dorian'],
-    'Mixolydian':       SCALES['Mixolydian'],
-    'Blues':            SCALES['Blues'],
-    'Harmonic Minor':   SCALES['Harmonic Minor'],
-    'Major chord':      [0, 4, 7],
-    'Minor chord':      [0, 3, 7],
-    'Dom 7':            [0, 4, 7, 10],
-    'Maj 7':            [0, 4, 7, 11],
-    'Min 7':            [0, 3, 7, 10],
-    'Sus2':             [0, 2, 7],
-    'Sus4':             [0, 5, 7],
-    'Diminished':       [0, 3, 6],
-    'Augmented':        [0, 4, 8],
-  };
-  const GUIDE_STORAGE = 'synthGuide';
 
   // Each row starts two scale steps above the one below it, so three pads
   // stacked vertically are a chord — the whole reason for a grid over a row.
@@ -4108,59 +4242,416 @@
     e.target.blur();   // otherwise the select keeps the keystrokes
   });
 
-  // ─── SCALE / CHORD GUIDE ───
-  // Overlays colored dots on piano keys to show which notes belong to the
-  // chosen scale or chord. Root = amber dot; other tones = cyan dot. The
-  // overlay is purely visual — it doesn't change what the keyboard plays.
-  function applyScaleGuide() {
-    const rootEl = document.getElementById('guideRoot');
-    const patEl  = document.getElementById('guidePattern');
-    if (!rootEl || !patEl) return;
-    pianoKeysEl.querySelectorAll('.scale-root, .scale-tone').forEach(el =>
-      el.classList.remove('scale-root', 'scale-tone'));
-    const rootVal = rootEl.value;
-    if (!rootVal) return;
-    const root = parseInt(rootVal, 10);
-    const intervals = GUIDE_PATTERNS[patEl.value] || GUIDE_PATTERNS['Major'];
-    const pcs = new Set(intervals.map(i => (root + i) % 12));
+  // ─── THEORY GUIDE ───
+  // The Theory page can tell you what D Dorian is; this puts it under your
+  // fingers. Three views: the scale itself, the chords that live in that key
+  // (stacked in thirds off each degree, the way the Theory page builds them),
+  // and any chord you name. Every lit key is coloured by its role — root,
+  // third, fifth, seventh, extension — so the same colour means the same thing
+  // here, on the Theory page and on the guitar voicings. Purely visual: the
+  // keyboard still plays every note, the dim ones included.
+  const GUIDE_SCALES = {
+    'Major':            { iv: [0, 2, 4, 5, 7, 9, 11], group: 'Modes of the major scale', mood: 'Bright, resolved, home base.', theory: 'Major (Ionian)' },
+    'Dorian':           { iv: [0, 2, 3, 5, 7, 9, 10], group: 'Modes of the major scale', mood: 'Minor with a bright spot — the raised 6th is the jazz in it.', theory: 'Dorian' },
+    'Phrygian':         { iv: [0, 1, 3, 5, 7, 8, 10], group: 'Modes of the major scale', mood: 'Dark and Spanish. The ♭2 is instant tension.', theory: 'Phrygian' },
+    'Lydian':           { iv: [0, 2, 4, 6, 7, 9, 11], group: 'Modes of the major scale', mood: 'Dreamy, floating. The ♯4 lifts everything.', theory: 'Lydian' },
+    'Mixolydian':       { iv: [0, 2, 4, 5, 7, 9, 10], group: 'Modes of the major scale', mood: 'Major with a bluesy ♭7 — rock and roll.', theory: 'Mixolydian' },
+    'Natural Minor':    { iv: [0, 2, 3, 5, 7, 8, 10], group: 'Modes of the major scale', mood: 'Melancholic. The shadow side of major.', theory: 'Natural Minor (Aeolian)' },
+    'Locrian':          { iv: [0, 1, 3, 5, 6, 8, 10], group: 'Modes of the major scale', mood: 'Unstable — a diminished home chord. Tension, not a home key.', theory: 'Locrian' },
+    'Harmonic Minor':   { iv: [0, 2, 3, 5, 7, 8, 11], group: 'Other minors', mood: 'Classical drama — the raised 7th pulls home hard.', theory: 'Harmonic Minor' },
+    'Melodic Minor':    { iv: [0, 2, 3, 5, 7, 9, 11], group: 'Other minors', mood: 'Jazz’s secret weapon. Between major and minor.', theory: 'Melodic Minor' },
+    'Major Pentatonic': { iv: [0, 2, 4, 7, 9],        group: 'Pentatonic & blues', mood: 'Five notes, no wrong choices.', theory: 'Pentatonic Major', parent: 'Major' },
+    'Minor Pentatonic': { iv: [0, 3, 5, 7, 10],       group: 'Pentatonic & blues', mood: 'The rock and blues backbone.', theory: 'Pentatonic Minor', parent: 'Natural Minor' },
+    'Blues':            { iv: [0, 3, 5, 6, 7, 10],    group: 'Pentatonic & blues', mood: 'Minor pentatonic plus the blue note.', theory: 'Blues', parent: 'Natural Minor' },
+    'Phrygian Dominant':{ iv: [0, 1, 4, 5, 7, 8, 10], group: 'Exotic', mood: 'Flamenco’s heart — the ♭2 to 3 leap.', theory: 'Phrygian Dominant' },
+    'Double Harmonic':  { iv: [0, 1, 4, 5, 7, 8, 11], group: 'Exotic', mood: 'Byzantine grandeur. Two augmented seconds.', theory: 'Double Harmonic Major' },
+    'Hungarian Minor':  { iv: [0, 2, 3, 6, 7, 8, 11], group: 'Exotic', mood: 'Dark and ornate — harmonic minor with a ♯4.', theory: 'Hungarian Minor' },
+  };
+  // Chord qualities, keyed by the suffix a chart would print. The same keys
+  // are what the Chord Voicings page understands, so a chord here links to
+  // the same chord there.
+  const GUIDE_CHORDS = {
+    '':     { name: 'Major',        iv: [0, 4, 7] },
+    'm':    { name: 'Minor',        iv: [0, 3, 7] },
+    'dim':  { name: 'Diminished',   iv: [0, 3, 6] },
+    'aug':  { name: 'Augmented',    iv: [0, 4, 8] },
+    'sus2': { name: 'Sus2',         iv: [0, 2, 7] },
+    'sus4': { name: 'Sus4',         iv: [0, 5, 7] },
+    '7':    { name: 'Dominant 7',   iv: [0, 4, 7, 10] },
+    'maj7': { name: 'Major 7',      iv: [0, 4, 7, 11] },
+    'm7':   { name: 'Minor 7',      iv: [0, 3, 7, 10] },
+    'm7b5': { name: 'Half-dim',     iv: [0, 3, 6, 10] },
+    'dim7': { name: 'Dim 7',        iv: [0, 3, 6, 9] },
+    '6':    { name: 'Major 6',      iv: [0, 4, 7, 9] },
+    'm6':   { name: 'Minor 6',      iv: [0, 3, 7, 9] },
+    'add9': { name: 'Add 9',        iv: [0, 4, 7, 14] },
+    '9':    { name: 'Dominant 9',   iv: [0, 4, 7, 10, 14] },
+    'maj9': { name: 'Major 9',      iv: [0, 4, 7, 11, 14] },
+    'm9':   { name: 'Minor 9',      iv: [0, 3, 7, 10, 14] },
+    // Named so the chords-in-key view can label the stacks that harmonic and
+    // melodic minor throw up; not offered as chips, they are not day-one chords.
+    'mMaj7':{ name: 'Minor-major 7',iv: [0, 3, 7, 11], rare: true },
+    'maj7#5':{ name: 'Maj7 ♯5',     iv: [0, 4, 8, 11], rare: true },
+    '7b5':  { name: 'Dom 7 ♭5',     iv: [0, 4, 6, 10], rare: true },
+    'b5':   { name: 'Major ♭5',     iv: [0, 4, 6],     rare: true },
+  };
+  // Progressions worth having in your hands, as scale degrees (0 = the tonic).
+  // Which list you get depends on whether the key's home chord is minor.
+  const GUIDE_PROGRESSIONS = {
+    major: [[0, 4, 5, 3], [0, 3, 4], [5, 3, 0, 4], [1, 4, 0], [0, 5, 3, 4]],
+    minor: [[0, 5, 2, 6], [0, 3, 4], [0, 6, 5, 6], [0, 3, 6, 2], [0, 5, 3, 4]],
+  };
+  const GUIDE_STORAGE = 'synthGuide';
+  const NOTE_NAMES_FLAT = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+  const NOTE_NAMES_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  const DEGREE_LABEL = { 0:'1', 1:'♭2', 2:'2', 3:'♭3', 4:'3', 5:'4', 6:'♭5', 7:'5', 8:'♭6', 9:'6', 10:'♭7', 11:'7' };
+  const CHORD_IV_LABEL = { 0:'R', 1:'♭9', 2:'2', 3:'♭3', 4:'3', 5:'4', 6:'♭5', 7:'5', 8:'♯5', 9:'6', 10:'♭7', 11:'7', 14:'9', 17:'11', 21:'13' };
+
+  const guide = {
+    on: false, root: 0, scale: 'Major', view: 'scale',
+    degree: 0, sevenths: false, quality: '', labels: 'names'
+  };
+  var guideReady = false; // var: hoisted, so buildPiano can test it before this line runs
+
+  // Sharps or flats? Whichever spelling gives the scale one of each letter
+  // (E♭ F G A♭ B♭, not D♯ F G G♯ A♯); on a tie, the fewer accidentals. Decided
+  // once per root-and-scale and used for every name the guide prints.
+  let guideFlats = false;
+  function guideChooseSpelling(root, intervals) {
+    const score = names => {
+      const letters = new Set(intervals.map(i => names[(root + i) % 12][0]));
+      const accidentals = intervals.filter(i => names[(root + i) % 12].length > 1).length;
+      return letters.size * 10 - accidentals;
+    };
+    const sharp = score(NOTE_NAMES_SHARP), flat = score(NOTE_NAMES_FLAT);
+    guideFlats = flat > sharp || (flat === sharp && [1, 3, 5, 8, 10].includes(root));
+  }
+  function guideNoteName(pc) {
+    pc = ((pc % 12) + 12) % 12;
+    return (guideFlats ? NOTE_NAMES_FLAT : NOTE_NAMES_SHARP)[pc];
+  }
+  // Which slot a chord interval fills: root, third, fifth, seventh, extension.
+  // Sus chords put a 2 or 4 where the third would be, so they take its colour.
+  function guideRole(iv) {
+    if (iv === 0) return 'r';
+    if (iv >= 12) return 'x';
+    if (iv <= 5) return '3';
+    if (iv <= 8) return '5';
+    return '7';
+  }
+  function guideIvLabel(iv, quality) {
+    if (quality === 'dim7' && iv === 9) return '°7';
+    return CHORD_IV_LABEL[iv] || String(iv);
+  }
+
+  // The chords that live in a key: stack thirds off every degree. This is the
+  // same construction the Theory page uses, so I, ii, iii… match there.
+  const ROMAN_TAIL = { '': '', 'm': '', 'dim': '°', 'aug': '+', '7': '7', 'maj7': 'maj7', 'm7': '7', 'm7b5': 'ø7',
+                       'dim7': '°7', 'mMaj7': 'maj7', 'maj7#5': '+maj7', 'b5': '♭5', '7b5': '7♭5' };
+  function guideDiatonicChords() {
+    const sc = GUIDE_SCALES[guide.scale];
+    const parentName = sc.iv.length === 7 ? guide.scale : sc.parent;
+    const iv = GUIDE_SCALES[parentName].iv;
+    guideChooseSpelling(guide.root, iv);
+    const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+    return iv.map((deg, i) => {
+      const pick = k => (iv[(i + k) % 7] - deg + 12 * (i + k >= 7 ? 1 : 0)) % 12;
+      const third = pick(2), fifth = pick(4), seventh = pick(6);
+      const notes = guide.sevenths ? [0, third, fifth, seventh] : [0, third, fifth];
+      let suffix = '?';
+      const key = notes.join(',');
+      for (const [q, c] of Object.entries(GUIDE_CHORDS)) {
+        if (c.iv.join(',') === key) { suffix = q; break; }
+      }
+      const minorish = third === 3;
+      const roman = (minorish ? romans[i].toLowerCase() : romans[i]) + (ROMAN_TAIL[suffix] !== undefined ? ROMAN_TAIL[suffix] : '?');
+      const rootPc = (guide.root + deg) % 12;
+      // A stack the chord list doesn't name (exotic scales throw a few up):
+      // spell it out by interval rather than pretend.
+      const name = guideNoteName(rootPc) + (suffix === '?' ? ' (' + notes.map(n => guideIvLabel(n, '')).join(' ') + ')' : suffix);
+      return { degree: i, rootPc, suffix, intervals: notes, roman, name, parentName };
+    });
+  }
+
+  // The pattern currently on the keys, as pitch class → {role, label}.
+  function guidePattern() {
+    const sc = GUIDE_SCALES[guide.scale];
+    const scalePcs = new Map();
+    sc.iv.forEach(i => scalePcs.set((guide.root + i) % 12, i));
+    const out = { keys: new Map(), scalePcs, chordRoot: null, chordIv: null, title: '', notes: [], mood: '' };
+    guideChooseSpelling(guide.root, sc.iv);
+    const rootName = guideNoteName(guide.root);
+
+    if (guide.view === 'scale') {
+      sc.iv.forEach((i, n) => {
+        const pc = (guide.root + i) % 12;
+        out.keys.set(pc, { role: i === 0 ? 'r' : 't', label: guide.labels === 'names' ? guideNoteName(pc) : DEGREE_LABEL[i] });
+      });
+      out.title = rootName + ' ' + guide.scale;
+      out.notes = sc.iv.map(i => guideNoteName(guide.root + i));
+      out.mood = sc.mood;
+      return out;
+    }
+
+    let chordRoot, intervals, suffix, title;
+    if (guide.view === 'chords') {
+      const chords = guideDiatonicChords();
+      const c = chords[Math.min(guide.degree, chords.length - 1)];
+      chordRoot = c.rootPc; intervals = c.intervals; suffix = c.suffix;
+      title = c.name + ' — ' + c.roman + ' of ' + rootName + ' ' + c.parentName;
+    } else {
+      chordRoot = guide.root; intervals = GUIDE_CHORDS[guide.quality].iv; suffix = guide.quality;
+      guideChooseSpelling(chordRoot, intervals);
+      title = guideNoteName(chordRoot) + suffix + ' — ' + GUIDE_CHORDS[suffix].name;
+    }
+    out.chordRoot = chordRoot; out.chordIv = intervals; out.suffix = suffix;
+    // Scale tones first, faint; chord tones on top in colour.
+    if (guide.view === 'chords') {
+      scalePcs.forEach((i, pc) => out.keys.set(pc, { role: 't', faint: true, label: guide.labels === 'names' ? guideNoteName(pc) : DEGREE_LABEL[i] }));
+    }
+    intervals.forEach(iv => {
+      const pc = (chordRoot + iv) % 12;
+      out.keys.set(pc, { role: guideRole(iv), label: guide.labels === 'names' ? guideNoteName(pc) : guideIvLabel(iv, suffix) });
+    });
+    out.title = title;
+    out.notes = intervals.map(iv => guideNoteName(chordRoot + iv) + ' ' + guideIvLabel(iv, suffix));
+    return out;
+  }
+
+  const ROLE_NAMES = { r: 'Root', 3: 'Third', 5: 'Fifth', 7: 'Seventh', x: 'Extension', t: 'Scale tone' };
+  function guideApply() {
+    if (!pianoKeysEl) return;
+    pianoKeysEl.classList.toggle('guide-on', guide.on);
+    pianoKeysEl.querySelectorAll('.piano-key').forEach(el => {
+      el.classList.remove('g-r', 'g-3', 'g-5', 'g-7', 'g-x', 'g-t', 'g-out', 'g-faint');
+      const note = el.querySelector('.piano-key-note');
+      if (note) note.remove();
+    });
+    if (!guide.on) return;
+    const pat = guidePattern();
     pianoKeysEl.querySelectorAll('[data-semitone]').forEach(el => {
       const pc = parseInt(el.dataset.semitone, 10) % 12;
-      if (pc === root) el.classList.add('scale-root');
-      else if (pcs.has(pc)) el.classList.add('scale-tone');
+      const k = pat.keys.get(pc);
+      if (!k) { el.classList.add('g-out'); return; }
+      el.classList.add('g-' + k.role);
+      if (k.faint) el.classList.add('g-faint');
+      const span = document.createElement('span');
+      span.className = 'piano-key-note';
+      span.textContent = k.label;
+      el.appendChild(span);
+    });
+    // Readout
+    document.getElementById('guideTitle').textContent = pat.title;
+    document.getElementById('guideNotes').innerHTML = pat.notes.map((n, i) => i === 0 ? '<b>' + n + '</b>' : n).join(' · ');
+    document.getElementById('guideMood').textContent = pat.mood || '';
+    // Legend: only the roles actually on screen
+    const roles = new Set(); pat.keys.forEach(k => roles.add(k.role));
+    document.getElementById('guideLegend').innerHTML = ['r', '3', '5', '7', 'x', 't'].filter(r => roles.has(r))
+      .map(r => `<span><i style="background:var(--role-${r})"></i>${ROLE_NAMES[r]}</span>`).join('');
+    // Cross-links
+    const sc = GUIDE_SCALES[guide.scale];
+    const rootParam = encodeURIComponent(NOTE_NAMES[guide.root]);
+    document.getElementById('guideTheoryLink').href = 'theory.html?root=' + rootParam + '&scale=' + encodeURIComponent(sc.theory);
+    const gl = document.getElementById('guideGuitarLink');
+    if (pat.chordRoot !== null && pat.suffix !== '?') {
+      gl.hidden = false;
+      gl.href = 'chord-voicings.html?root=' + encodeURIComponent(NOTE_NAMES[pat.chordRoot]) + '&q=' + encodeURIComponent(pat.suffix);
+    } else gl.hidden = true;
+  }
+
+  function guideRenderChips() {
+    const box = document.getElementById('guideChips');
+    box.innerHTML = '';
+    if (guide.view === 'scale') return;
+    if (guide.view === 'chords') {
+      const chords = guideDiatonicChords();
+      const sc = GUIDE_SCALES[guide.scale];
+      if (sc.iv.length !== 7) {
+        const hint = document.createElement('span');
+        hint.className = 'tg-hint';
+        hint.textContent = 'Pentatonics don’t stack into chords — these are the chords of the parent key, ' + guideNoteName(guide.root) + ' ' + sc.parent + '.';
+        box.appendChild(hint);
+      }
+      chords.forEach(c => {
+        const b = document.createElement('button');
+        b.className = 'tg-chip' + (c.degree === guide.degree ? ' active' : '');
+        b.innerHTML = c.name + '<small>' + c.roman + '</small>';
+        b.title = 'Show ' + c.name + ' on the keys and hear it';
+        tapHandler(b, () => { guide.degree = c.degree; guideRenderChips(); guideApply(); guideSave(); guideAudition(); });
+        box.appendChild(b);
+      });
+      const sev = document.createElement('button');
+      sev.className = 'tg-chip sev' + (guide.sevenths ? ' active' : '');
+      sev.innerHTML = (guide.sevenths ? '7ths' : 'Triads') + '<small>' + (guide.sevenths ? 'tap for triads' : 'tap for 7ths') + '</small>';
+      tapHandler(sev, () => { guide.sevenths = !guide.sevenths; guideRenderChips(); guideApply(); guideSave(); });
+      box.appendChild(sev);
+      // Progressions: hear four chords in a row, watch each one land on the
+      // keys, then play it back yourself. This is how songs actually go.
+      const prog = document.createElement('div');
+      prog.className = 'tg-progs';
+      const lbl = document.createElement('span'); lbl.className = 'tg-progs-label'; lbl.textContent = 'Hear a progression';
+      prog.appendChild(lbl);
+      const list = GUIDE_PROGRESSIONS[chords[0].intervals[1] === 3 ? 'minor' : 'major'];
+      list.forEach(degrees => {
+        const b = document.createElement('button');
+        b.className = 'tg-chip prog';
+        b.innerHTML = degrees.map(d => chords[d].roman).join(' – ') + '<small>' + degrees.map(d => chords[d].name).join(' ') + '</small>';
+        tapHandler(b, () => guidePlayProgression(degrees));
+        prog.appendChild(b);
+      });
+      box.appendChild(prog);
+      return;
+    }
+    Object.entries(GUIDE_CHORDS).forEach(([q, c]) => {
+      if (c.rare) return;
+      const b = document.createElement('button');
+      b.className = 'tg-chip' + (q === guide.quality ? ' active' : '');
+      guideChooseSpelling(guide.root, c.iv);
+      b.innerHTML = guideNoteName(guide.root) + q + '<small>' + c.name + '</small>';
+      tapHandler(b, () => { guide.quality = q; guideRenderChips(); guideApply(); guideSave(); guideAudition(); });
+      box.appendChild(b);
     });
   }
 
-  function saveGuide() {
-    try {
-      localStorage.setItem(GUIDE_STORAGE, JSON.stringify({
-        root: document.getElementById('guideRoot').value,
-        pattern: document.getElementById('guidePattern').value
-      }));
-    } catch (e) {}
+  // Hear what you see, through whatever is patched. A scale runs up and back;
+  // a chord is strummed and held. Any earlier audition is cut short first.
+  let guideTimers = [];
+  let guideSounding = [];
+  function guideStopAudition() {
+    guideTimers.forEach(clearTimeout); guideTimers = [];
+    guideSounding.forEach(n => noteOff(n)); guideSounding = [];
+  }
+  function guideAudition() {
+    guideStopAudition();
+    if (Tone.context.state !== 'running') Tone.start().catch(() => {});
+    const pat = guidePattern();
+    const base = (keyboardOctave + 1) * 12;
+    const vel = keyboardVelocity;
+    const at = (ms, fn) => guideTimers.push(setTimeout(fn, ms));
+    if (guide.view === 'scale') {
+      const iv = GUIDE_SCALES[guide.scale].iv.concat([12]);
+      const seq = iv.concat(iv.slice(0, -1).reverse());
+      const step = 170;
+      seq.forEach((i, n) => {
+        const note = base + guide.root + i;
+        at(n * step, () => { noteOn(note, vel, 'guide'); guideSounding.push(note); });
+        at(n * step + step * 0.9, () => { noteOff(note); guideSounding = guideSounding.filter(x => x !== note); });
+      });
+      return;
+    }
+    const notes = pat.chordIv.map(i => base + pat.chordRoot + i);
+    notes.forEach((note, n) => {
+      at(n * 45, () => { noteOn(note, vel, 'guide'); guideSounding.push(note); });
+    });
+    at(1100, () => { guideSounding.forEach(x => noteOff(x)); guideSounding = []; });
   }
 
-  (function initGuideControls() {
+  function guidePlayProgression(degrees) {
+    guideStopAudition();
+    if (Tone.context.state !== 'running') Tone.start().catch(() => {});
+    const base = (keyboardOctave + 1) * 12;
+    const vel = keyboardVelocity;
+    const step = 750;
+    const chords = guideDiatonicChords();
+    degrees.forEach((d, n) => {
+      const c = chords[d];
+      const notes = c.intervals.map(i => base + c.rootPc + i);
+      guideTimers.push(setTimeout(() => {
+        guide.degree = d; guideRenderChips(); guideApply();
+        notes.forEach((note, k) => guideTimers.push(setTimeout(() => { noteOn(note, vel, 'guide'); guideSounding.push(note); }, k * 40)));
+      }, n * step));
+      guideTimers.push(setTimeout(() => { notes.forEach(x => noteOff(x)); guideSounding = guideSounding.filter(x => !notes.includes(x)); }, n * step + step * 0.9));
+    });
+    // Land back on the first chord so the loop reads as a loop.
+    guideTimers.push(setTimeout(() => { guide.degree = degrees[0]; guideRenderChips(); guideApply(); guideSave(); }, degrees.length * step));
+  }
+
+  function guideSave() {
+    try { localStorage.setItem(GUIDE_STORAGE, JSON.stringify(guide)); } catch (e) {}
+  }
+  function guideSetOpen(on) {
+    guide.on = on;
+    document.getElementById('theoryGuide').hidden = !on;
+    const btn = document.getElementById('guideBtn');
+    btn.classList.toggle('on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (!on) guideStopAudition();
+    guideRenderChips();
+    guideApply();
+    guideSave();
+    if (typeof seqUpdateDock === 'function') seqUpdateDock();
+  }
+  function guideSetView(view) {
+    guide.view = view;
+    document.querySelectorAll('.tg-tab').forEach(t => {
+      const on = t.dataset.view === view;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    guideRenderChips(); guideApply(); guideSave();
+    if (typeof seqUpdateDock === 'function') seqUpdateDock();
+  }
+
+  (function initGuide() {
     const rootSel = document.getElementById('guideRoot');
-    const patSel  = document.getElementById('guidePattern');
+    const scaleSel = document.getElementById('guideScale');
     NOTE_NAMES.forEach((n, i) => {
-      const o = document.createElement('option'); o.value = i; o.textContent = n;
+      const o = document.createElement('option'); o.value = i;
+      o.textContent = NOTE_NAMES_SHARP[i] === NOTE_NAMES_FLAT[i] ? NOTE_NAMES_SHARP[i] : NOTE_NAMES_SHARP[i] + ' / ' + NOTE_NAMES_FLAT[i];
       rootSel.appendChild(o);
     });
-    const scaleKeys = Object.keys(SCALES);
-    const chordKeys = Object.keys(GUIDE_PATTERNS).filter(k => !scaleKeys.includes(k));
-    const sg = document.createElement('optgroup'); sg.label = 'Scales';
-    scaleKeys.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sg.appendChild(o); });
-    const cg = document.createElement('optgroup'); cg.label = 'Chords';
-    chordKeys.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; cg.appendChild(o); });
-    patSel.appendChild(sg); patSel.appendChild(cg);
+    const groups = {};
+    Object.entries(GUIDE_SCALES).forEach(([name, sc]) => {
+      if (!groups[sc.group]) { groups[sc.group] = document.createElement('optgroup'); groups[sc.group].label = sc.group; scaleSel.appendChild(groups[sc.group]); }
+      const o = document.createElement('option'); o.value = name; o.textContent = name; groups[sc.group].appendChild(o);
+    });
+    // Saved state, then anything in the URL on top of it — a link from the
+    // Theory page or the Chord Voicings page opens the guide on that thing.
     try {
       const s = JSON.parse(localStorage.getItem(GUIDE_STORAGE) || '{}');
-      if (s.root !== undefined && s.root !== '') rootSel.value = s.root;
-      if (s.pattern && GUIDE_PATTERNS[s.pattern]) patSel.value = s.pattern;
+      ['on', 'root', 'scale', 'view', 'degree', 'sevenths', 'quality', 'labels'].forEach(k => { if (s[k] !== undefined) guide[k] = s[k]; });
     } catch (e) {}
-    rootSel.addEventListener('change', () => { applyScaleGuide(); saveGuide(); rootSel.blur(); });
-    patSel.addEventListener('change', () => { applyScaleGuide(); saveGuide(); patSel.blur(); });
-    applyScaleGuide();
+    try {
+      const q = new URLSearchParams(location.search);
+      const rootQ = q.get('root');
+      if (rootQ !== null) {
+        const norm = rootQ.replace('♯', '#').replace('♭', 'b');
+        const flatIdx = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'].indexOf(norm);
+        const sharpIdx = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'].indexOf(norm);
+        const found = sharpIdx >= 0 ? sharpIdx : flatIdx;
+        if (found >= 0) { guide.root = found; guide.on = true; }
+      }
+      const scaleQ = q.get('scale');
+      if (scaleQ) {
+        const byName = GUIDE_SCALES[scaleQ] ? scaleQ : Object.keys(GUIDE_SCALES).find(k => GUIDE_SCALES[k].theory === scaleQ);
+        if (byName) { guide.scale = byName; guide.view = 'scale'; guide.on = true; }
+      }
+      const chordQ = q.get('chord');
+      if (chordQ !== null && GUIDE_CHORDS[chordQ]) { guide.quality = chordQ; guide.view = 'chord'; guide.on = true; }
+    } catch (e) {}
+    if (!GUIDE_SCALES[guide.scale]) guide.scale = 'Major';
+    if (!GUIDE_CHORDS[guide.quality]) guide.quality = '';
+    if (!['scale', 'chords', 'chord'].includes(guide.view)) guide.view = 'scale';
+    guide.root = Math.max(0, Math.min(11, parseInt(guide.root, 10) || 0));
+    guide.degree = Math.max(0, Math.min(6, parseInt(guide.degree, 10) || 0));
+    rootSel.value = guide.root;
+    scaleSel.value = guide.scale;
+    document.getElementById('guideLabels').textContent = guide.labels === 'names' ? 'Names' : 'Degrees';
+
+    rootSel.addEventListener('change', () => { guide.root = parseInt(rootSel.value, 10); guideRenderChips(); guideApply(); guideSave(); rootSel.blur(); });
+    scaleSel.addEventListener('change', () => { guide.scale = scaleSel.value; guide.degree = 0; guideRenderChips(); guideApply(); guideSave(); scaleSel.blur(); });
+    document.querySelectorAll('.tg-tab').forEach(t => tapHandler(t, () => guideSetView(t.dataset.view)));
+    tapHandler(document.getElementById('guideBtn'), () => guideSetOpen(!guide.on));
+    tapHandler(document.getElementById('guideClose'), () => guideSetOpen(false));
+    tapHandler(document.getElementById('guidePlay'), guideAudition);
+    tapHandler(document.getElementById('guideLabels'), () => {
+      guide.labels = guide.labels === 'names' ? 'degrees' : 'names';
+      document.getElementById('guideLabels').textContent = guide.labels === 'names' ? 'Names' : 'Degrees';
+      guideApply(); guideSave();
+    });
+    guideReady = true;
+    guideSetView(guide.view);
+    guideSetOpen(guide.on);
   })();
 
   // Remap: click toggles the mode; right-click resets to the default layout
