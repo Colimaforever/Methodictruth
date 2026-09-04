@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: September 11, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-11</link>
+    <guid isPermaLink="false">changelog-2026-09-11</guid>
+    <pubDate>Fri, 11 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Song Analyzer now says whether it's working before you paste a link. Its YouTube path runs on a home server behind a tunnel, and when that box was down or YouTube was blocking it, visitors got Failed to fetch and no idea why. The backend now records the outcome of every YouTube download and reports it from its health endpoint, and the page shows a status line on load: online and YouTube working, online but YouTube is blocking downloads so drop a file in, or server offline. Under the hood, a bot-checked download is retried through YouTube's embedded and mobile players before giving up, the JavaScript runtime prefers Deno with Node as a fallback, and every link shape works: Shorts, live, YouTube Music, youtu.be share links, or a bare video ID.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 10, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-10</link>
     <guid isPermaLink="false">changelog-2026-09-10</guid>

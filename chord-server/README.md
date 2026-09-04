@@ -164,9 +164,16 @@ ERROR: [youtube] <id>: Sign in to confirm you're not a bot.
 
 This is YouTube rate-limiting/flagging the server's IP, not a bug in this
 codebase — it happens to `yt-dlp` users generally, more often on
-cloud/datacenter IPs but can hit residential ones too. The fix is to give
-`yt-dlp` cookies from a real logged-in browser session so requests look
-like they're coming from an authenticated browser, not a script.
+cloud/datacenter IPs but can hit residential ones too.
+
+`app.py` now retries a bot-checked download once through YouTube's other
+player clients (`web_embedded`, `mweb`, `android_vr` — see
+`YT_FALLBACK_CLIENTS`), because the check is applied per client as much as
+per IP and the embedded/mobile players are often still served when the
+default web player isn't. That clears most transient cases on its own. When
+it doesn't, the fix is to give `yt-dlp` cookies from a real logged-in
+browser session so requests look like they're coming from an authenticated
+browser, not a script.
 
 1. Log into youtube.com in a normal browser, on the same network the
    server uses (or any browser, then transfer the file).
@@ -199,13 +206,56 @@ Solving it requires:
    instead — the `[default]` extras pull in `yt-dlp-ejs`, the package that
    actually does the challenge-solving. See `yt-dlp-update.service`/
    `.timer` below to keep this current automatically.
-2. **A JS runtime.** `yt-dlp-ejs` needs Node.js (v22+), Deno, or QuickJS
-   installed to execute the challenge-solving script. This repo's `app.py`
-   sets `'js_runtimes': ['node']` directly in `ydl_opts`, so install Node
-   (`sudo apt install nodejs`) and that's it — no extra config file needed.
+2. **A JS runtime — install Deno.** `yt-dlp-ejs` needs a JavaScript
+   runtime to execute the challenge-solving script. **Deno is the runtime
+   yt-dlp supports and tests against**; Node.js is accepted but second-class,
+   and a YouTube change that the Node path can't solve shows up as throttled
+   or failed downloads with no clearer error. `app.py` lists both
+   (`'js_runtimes': {'deno': {}, 'node': {}}`), so it uses Deno when the box
+   has it and still works on Node when it doesn't. Install Deno for the
+   service's user:
+
+   ```bash
+   curl -fsSL https://deno.land/install.sh | sh      # installs to ~/.deno/bin
+   sudo ln -sf ~/.deno/bin/deno /usr/local/bin/deno  # so gunicorn's PATH sees it
+   deno --version
+   sudo systemctl restart chord-analyzer
+   curl -s https://api.methodictruth.com/health | grep -o '"js_runtime_deno":[a-z]*'   # want true
+   ```
+
    (`--js-runtimes` / `~/.config/yt-dlp/config` only apply to the `yt-dlp`
    CLI tool's own argument parser; they're silently ignored when using
-   `yt_dlp.YoutubeDL(...)` as a library, which is what `app.py` does.)
+   `yt_dlp.YoutubeDL(...)` as a library, which is what `app.py` does — hence
+   the setting lives in `ydl_opts`.)
+
+## Is YouTube working right now? (`/health`)
+
+The only honest answer comes from real downloads, so every YouTube attempt
+records its outcome in `cache/.yt-status.json` and `GET /health` reports it:
+
+| field | meaning |
+|---|---|
+| `youtube` | `ok` (last attempt succeeded), `degraded` (the last one failed), `failing` (two or more in a row failed), `unknown` (nothing attempted yet) |
+| `youtube_last_ok_ago` / `youtube_last_error_ago` | seconds since the last success / failure |
+| `youtube_last_error` | yt-dlp's message from the last failure, trimmed |
+| `ytdlp_version`, `js_runtime_deno`, `js_runtime_node`, `ffmpeg` | what the box actually has on its PATH |
+| `yt_proxy_configured`, `cookies_present` | whether the two things that rescue a datacenter IP are set up |
+
+`GET /health?probe=1` additionally asks YouTube for the metadata of one
+fixed public video (no download) and reports `youtube_probe: {ok, seconds,
+error}`. The probe is cached for ten minutes so a monitor polling it can't
+turn into a bot signal.
+
+The frontend calls `/health` on load and shows a status line under the
+input — *online and YouTube working*, *online but YouTube is blocking
+downloads, drop a file in*, or *server offline* — so visitors aren't left
+with "Failed to fetch" when the box or the tunnel is down.
+
+A one-line check from anywhere:
+
+```bash
+curl -s 'https://api.methodictruth.com/health?probe=1' | python3 -m json.tool
+```
 
 ## Keeping yt-dlp current automatically
 
