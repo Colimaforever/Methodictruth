@@ -231,12 +231,21 @@ SEVENTH_RATIO = 0.85
 MAJOR_PROFILE = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
 MINOR_PROFILE = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17])
 
-YOUTUBE_RE = re.compile(r'(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([^&?/]+)')
+# Every shape a YouTube link arrives in: watch?v=, youtu.be short links,
+# /embed/, /shorts/, /live/, /v/, music.youtube.com and m.youtube.com (the
+# host prefix is not anchored, so those match too), plus a bare 11-character
+# video id pasted on its own.
+YOUTUBE_RE = re.compile(
+    r'(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/|v/)|youtu\.be/)([A-Za-z0-9_-]{11})')
+BARE_ID_RE = re.compile(r'^[A-Za-z0-9_-]{11}$')
 
 
 def extract_video_id(url):
+    url = (url or '').strip()
     match = YOUTUBE_RE.search(url)
-    return match.group(1) if match else None
+    if match:
+        return match.group(1)
+    return url if BARE_ID_RE.match(url) else None
 
 
 def detect_key_detailed(chroma_mean):
@@ -498,6 +507,108 @@ def _pp_hook(d):
         _log(f'ffmpeg postprocessor {pp} finished')
 
 
+# The bot check is per-client as much as per-IP: when the default web client
+# gets "Sign in to confirm you're not a bot", another of YouTube's own
+# players (the embedded player, the mobile web player) is often still served.
+# So a bot-check failure is retried once through those before giving up.
+# Client names yt-dlp doesn't know are skipped with a warning, not an error,
+# so this list can't break a download on its own.
+YT_FALLBACK_CLIENTS = ['web_embedded', 'mweb', 'android_vr']
+
+
+def _is_bot_check(msg):
+    m = msg.lower()
+    return 'sign in to confirm' in m or 'not a bot' in m or 'cookies' in m
+
+
+def _yt_download_with_fallback(url, ydl_opts):
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            return ydl.extract_info(url, download=True)
+    except yt_dlp.utils.DownloadError as exc:
+        if not _is_bot_check(str(exc)):
+            raise
+        _log(f'bot check on default client; retrying via {YT_FALLBACK_CLIENTS}')
+        retry_opts = dict(ydl_opts)
+        retry_opts['extractor_args'] = {'youtube': {'player_client': YT_FALLBACK_CLIENTS}}
+        with yt_dlp.YoutubeDL(retry_opts) as ydl:
+            return ydl.extract_info(url, download=True)
+
+
+# ── YouTube status, for /health ──
+# The question the owner actually has is "is YouTube working right now?", and
+# the only honest answer comes from real downloads. Every attempt writes its
+# outcome to a small file in the cache dir (shared across gunicorn workers),
+# and /health reports the last success and the last failure. A probe on demand
+# (/health?probe=1) asks YouTube for metadata without downloading anything.
+YT_STATUS_FILE = os.path.join(CACHE_DIR, '.yt-status.json')
+YT_PROBE_VIDEO = 'jNQXAC9IVRw'   # "Me at the zoo": the first YouTube video, never going away
+YT_PROBE_TTL = 600               # seconds a probe result is reused
+
+
+def _yt_status_read():
+    try:
+        with open(YT_STATUS_FILE) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def _yt_status_record(ok, error=None):
+    st = _yt_status_read()
+    now = time.time()
+    if ok:
+        st['last_ok'] = now
+        st['consecutive_failures'] = 0
+    else:
+        st['last_error_at'] = now
+        st['last_error'] = error or 'unknown'
+        st['consecutive_failures'] = int(st.get('consecutive_failures', 0)) + 1
+    try:
+        tmp = YT_STATUS_FILE + '.tmp'
+        with open(tmp, 'w') as f:
+            json.dump(st, f)
+        os.replace(tmp, YT_STATUS_FILE)
+    except OSError:
+        pass
+
+
+def _yt_probe():
+    # Metadata-only: proves the extractor still understands YouTube's player
+    # (the thing that breaks when YouTube changes something) without spending
+    # a download on it. Cached so a health poller can't turn into a bot signal.
+    st = _yt_status_read()
+    probe = st.get('probe') or {}
+    if probe and time.time() - probe.get('at', 0) < YT_PROBE_TTL:
+        return probe
+    opts = {'quiet': True, 'no_warnings': True, 'skip_download': True,
+            'noprogress': True, 'socket_timeout': 15,
+            'js_runtimes': {'deno': {}, 'node': {}}}
+    if YT_PROXY:
+        opts['proxy'] = YT_PROXY
+    if os.path.exists(COOKIES_FILE):
+        opts['cookiefile'] = COOKIES_FILE
+    t0 = time.monotonic()
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(f'https://www.youtube.com/watch?v={YT_PROBE_VIDEO}', download=False)
+        has_audio = any(f.get('acodec') not in (None, 'none') for f in (info.get('formats') or []))
+        probe = {'ok': bool(has_audio), 'at': time.time(), 'seconds': round(time.monotonic() - t0, 1),
+                 'error': None if has_audio else 'no audio formats offered'}
+    except Exception as exc:  # noqa: BLE001 — anything here is a "YouTube is broken" answer
+        probe = {'ok': False, 'at': time.time(), 'seconds': round(time.monotonic() - t0, 1),
+                 'error': str(exc)[:300]}
+    st['probe'] = probe
+    try:
+        tmp = YT_STATUS_FILE + '.tmp'
+        with open(tmp, 'w') as f:
+            json.dump(st, f)
+        os.replace(tmp, YT_STATUS_FILE)
+    except OSError:
+        pass
+    return probe
+
+
 def download_audio(url, workdir, video_id, progress=None):
     # Translate yt-dlp's frequent download callbacks into throttled progress
     # events (only when the percentage actually advances) so the frontend gets
@@ -552,7 +663,12 @@ def download_audio(url, workdir, video_id, progress=None):
         # runtime to solve. --js-runtimes is a CLI-only setting that the
         # yt_dlp.YoutubeDL library API never reads from
         # ~/.config/yt-dlp/config, so it must be set here directly.
-        'js_runtimes': {'node': {}},
+        # Deno is the runtime yt-dlp supports and tests against; Node is
+        # accepted but second-class, and a YouTube change that the Node path
+        # can't solve shows up as throttled or failed downloads. Listing both
+        # means the box uses Deno when it has it and still works when it
+        # doesn't. See README: "Install Deno".
+        'js_runtimes': {'deno': {}, 'node': {}},
         # Without a read timeout, a stalled googlevideo connection blocks
         # forever instead of triggering yt-dlp's own retry logic, so the
         # whole gunicorn worker eventually gets killed by --timeout instead
@@ -594,13 +710,14 @@ def download_audio(url, workdir, video_id, progress=None):
     # the hourly budget is spent; sleeps to space out bursts otherwise).
     yt_download_gate(progress)
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
+        info = _yt_download_with_fallback(url, ydl_opts)
+        _yt_status_record(ok=True)
     except yt_dlp.utils.DownloadError as exc:
         # Translate yt-dlp's raw failure text into something a visitor can act
         # on. The upload path is always the reliable escape hatch, so point at
         # it whenever YouTube itself is the obstacle.
         msg = str(exc)
+        _yt_status_record(ok=False, error=msg[:300])
         if 'Sign in to confirm' in msg or 'bot' in msg.lower():
             raise RuntimeError(
                 "YouTube is asking this server for a human check on that video. "
@@ -823,6 +940,26 @@ def health():
         songs = len([f for f in os.listdir(CACHE_DIR) if f.endswith('.mp3')])
     except OSError:
         songs = -1
+    st = _yt_status_read()
+    now = time.time()
+    probe = _yt_probe() if request.args.get('probe') else (st.get('probe') or None)
+    # One word for the frontend to act on. "unknown" means no download has
+    # been attempted since the status file was created — not a failure.
+    if st.get('last_ok') and (not st.get('last_error_at') or st['last_ok'] >= st['last_error_at']):
+        youtube = 'ok'
+    elif int(st.get('consecutive_failures', 0)) >= 2:
+        youtube = 'failing'
+    elif st.get('last_error_at'):
+        youtube = 'degraded'
+    else:
+        youtube = 'unknown'
+    if probe and probe.get('at', 0) > max(st.get('last_ok', 0), st.get('last_error_at', 0)):
+        youtube = 'ok' if probe.get('ok') else 'failing'
+    try:
+        import yt_dlp.version as _v
+        ytdlp_version = _v.__version__
+    except Exception:  # noqa: BLE001
+        ytdlp_version = None
     return jsonify(
         ok=True,
         cached_songs=songs,
@@ -831,6 +968,16 @@ def health():
         yt_downloads_last_hour=len(_yt_recent_downloads()),
         yt_hourly_cap=YT_HOURLY_CAP,
         analysis_slots=ANALYSIS_SLOTS,
+        youtube=youtube,
+        youtube_last_ok_ago=int(now - st['last_ok']) if st.get('last_ok') else None,
+        youtube_last_error=st.get('last_error'),
+        youtube_last_error_ago=int(now - st['last_error_at']) if st.get('last_error_at') else None,
+        youtube_consecutive_failures=int(st.get('consecutive_failures', 0)),
+        youtube_probe=probe,
+        ytdlp_version=ytdlp_version,
+        js_runtime_deno=bool(shutil.which('deno')),
+        js_runtime_node=bool(shutil.which('node')),
+        ffmpeg=bool(shutil.which('ffmpeg')),
     )
 
 

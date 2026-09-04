@@ -123,6 +123,15 @@
     </div>
 
     <article class="entry">
+      <p><strong>The <a href="song-analyzer.html">Song Analyzer</a> now says whether it's working before you paste a link.</strong> Its YouTube path runs on a home server behind a tunnel, and when that box was down, or YouTube was blocking it, visitors got "Failed to fetch" and no idea why. The backend now records the outcome of every YouTube download and reports it from <code>/health</code>, and the page shows a status line under the input on load: <em>online and YouTube working</em>, <em>online but YouTube is blocking downloads — drop a file in</em>, or <em>server offline</em>. Network failures mid-session say the same thing in plain words.</p>
+    </article>
+    <article class="entry">
+      <p>Under the hood: a bot-checked download is retried once through YouTube's embedded and mobile players before giving up, since the check is applied per client as much as per address; the JavaScript runtime yt-dlp needs for YouTube's player challenge now prefers Deno, the one yt-dlp actually supports, with Node kept as a fallback; and every link shape works — Shorts, <code>/live/</code>, YouTube Music, <code>youtu.be</code> share links, or a bare video ID.</p>
+    </article>
+
+    <div class="divider" id="2026-09-11"><span class="leaf">🌿</span> <span>September 11, 2026</span> <span class="leaf">🌿</span></div>
+
+    <article class="entry">
       <p><strong>The <a href="synth.html">Synth</a> now has sixty presets, in six moods.</strong> Thirty-four are new, and every one has a name that says what it feels like and a line that says when you'd want it: <em>Rhodes at Midnight</em>, <em>Warm Blanket</em>, <em>Choir of Ghosts</em>, <em>Sunrise</em> (hold a chord and wait three seconds for the filter to open), <em>Underwater Cathedral</em>, <em>Moog Walk</em>, <em>Neon Bass</em>, <em>Screaming Saw</em>, <em>Flute in the Fog</em>, <em>Theremin</em>, <em>Harp in the Rain</em>, <em>Berlin School</em>, <em>Wind Chimes</em>, <em>Bubbles</em>, <em>Distant Thunder</em>, <em>Broken Radio</em>. The toolbar's preset strip, which had already outgrown a laptop screen, is now six mood buttons — <strong>Keys, Pads, Bass, Leads, Plucks &amp; Arps, Texture &amp; FX</strong> — each opening a panel of cards, plus <code>🎲 Surprise me</code> for a sound you didn't choose. Every preset is built from the same modules you can add by hand, so load one and read the rack.</p>
     </article>
     <article class="entry">

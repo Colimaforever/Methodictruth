@@ -98,6 +98,21 @@
         .sa-btn:hover:not(:disabled) { box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); transform: translateY(-1px); }
         .sa-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* Server status: one line under the input that says whether the
+           analyzer's box is reachable and whether YouTube downloads are
+           currently succeeding, so nobody pastes a link into a dead tool. */
+        .sa-status {
+            display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+            margin: 0.55rem 0 0.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+            letter-spacing: 0.06em; color: var(--stone-dark);
+        }
+        .sa-status[hidden] { display: none; }
+        .sa-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--stone-dark); flex-shrink: 0; }
+        .sa-status.ok i { background: #6aad73; box-shadow: 0 0 6px #6aad73; }
+        .sa-status.warn i { background: #e8a87c; box-shadow: 0 0 6px #e8a87c; }
+        .sa-status.down i { background: #e85c5c; box-shadow: 0 0 6px #e85c5c; }
+        .sa-status.down, .sa-status.warn { color: var(--stone); }
+        .sa-status em { font-style: normal; color: var(--stone-dark); }
         .sa-error {
             background: rgba(80, 20, 20, 0.25); border: 1px solid rgba(180, 50, 50, 0.5);
             color: #ff9999; padding: 1rem; margin-bottom: 1.5rem;
@@ -332,10 +347,11 @@
                 type="text"
                 id="youtubeUrl"
                 class="sa-input"
-                placeholder="Paste YouTube URL here (e.g., https://www.youtube.com/watch?v=...)"
+                placeholder="Paste a YouTube link — watch, youtu.be, Shorts, Music or a video ID"
             >
             <button class="sa-btn" id="analyzeBtn">Analyze</button>
         </div>
+        <div class="sa-status" id="saStatus" hidden></div>
         <div class="sa-drop" id="dropZone" role="button" tabindex="0"
              aria-label="Upload an audio file to analyze">
             ⤓ or drop an audio file here (MP3 · M4A · WAV · FLAC) — no YouTube involved, no rate limits
@@ -354,7 +370,7 @@
             <li><strong>Character</strong> — tonal brightness and how dynamic or compressed the mix is</li>
             <li><strong>Play-Along</strong> — hit play and watch the chords light up in time</li>
         </ul>
-        <p style="opacity:0.7; font-size:0.9rem;">Works with any public YouTube video or an MP3/M4A/WAV/FLAC file. Analysis takes about 15 seconds (a little longer the very first time).</p>
+        <p style="opacity:0.7; font-size:0.9rem;">Works with any public YouTube video — regular, Shorts, YouTube Music, youtu.be — or an MP3/M4A/WAV/FLAC file. Analysis takes about 15 seconds (a little longer the very first time). The line under the box says whether the analyzer is online and whether YouTube is currently letting it download; when YouTube blocks it, dropping the audio file in always works.</p>
       </div>
 
       <div class="sa-section" id="librarySection" style="display:none; margin-top:1.2rem;">
@@ -557,7 +573,7 @@
                 displayResults(data, data.id);
                 loadLibrary();
             } catch (err) {
-                showError(err.message || 'Upload failed — please try again.');
+                showError(friendlyError(err, 'Upload failed — please try again.'));
             } finally {
                 document.getElementById('loading').classList.remove('visible');
                 document.getElementById('analyzeBtn').disabled = false;
@@ -606,6 +622,58 @@
             } catch (_) { return false; }
         }
 
+        // ─── Server status ───
+        // "Failed to fetch" is what a visitor used to see when the home box or
+        // its tunnel was down. Ask the backend how it is on load, say so in
+        // plain words, and translate the browser's network errors into the
+        // same words if it goes away mid-session.
+        let serverState = 'unknown';   // 'up' | 'down' | 'unknown'
+        function friendlyError(err, fallback) {
+            if (err && err.name === 'TypeError') {
+                serverState = 'down';
+                return 'Can\'t reach the analyzer\'s server — it may be offline or restarting. Try again in a few minutes.';
+            }
+            return (err && err.message) || fallback || 'Something went wrong. Please try again.';
+        }
+        function ago(sec) {
+            if (sec == null) return '';
+            if (sec < 90) return 'just now';
+            if (sec < 5400) return Math.round(sec / 60) + ' min ago';
+            if (sec < 172800) return Math.round(sec / 3600) + ' h ago';
+            return Math.round(sec / 86400) + ' days ago';
+        }
+        function setStatus(cls, text, detail) {
+            const el = document.getElementById('saStatus');
+            el.className = 'sa-status ' + cls;
+            el.innerHTML = '<i></i><span>' + text + '</span>' + (detail ? '<em>· ' + detail + '</em>' : '');
+            el.hidden = false;
+        }
+        async function checkHealth() {
+            const ctl = new AbortController();
+            const timer = setTimeout(() => ctl.abort(), 6000);
+            try {
+                const resp = await fetch(API_URL + '/health', { signal: ctl.signal, cache: 'no-store' });
+                if (!resp.ok) throw new Error('bad status');
+                const h = await resp.json();
+                serverState = 'up';
+                const yt = h.youtube || 'unknown';
+                if (yt === 'ok') {
+                    setStatus('ok', 'Analyzer online · YouTube downloads working', h.youtube_last_ok_ago != null ? 'last success ' + ago(h.youtube_last_ok_ago) : '');
+                } else if (yt === 'failing') {
+                    setStatus('warn', 'Analyzer online · YouTube is blocking downloads right now', 'drop an audio file in instead — that path never touches YouTube');
+                } else if (yt === 'degraded') {
+                    setStatus('warn', 'Analyzer online · the last YouTube download failed', 'it may work — if not, drop the audio file in');
+                } else {
+                    setStatus('ok', 'Analyzer online', (h.cached_songs > 0 ? h.cached_songs + ' songs in the library' : ''));
+                }
+            } catch (_) {
+                serverState = 'down';
+                setStatus('down', 'The analyzer\'s server is offline right now', 'YouTube links and uploads will fail until it\'s back — check again in a few minutes');
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+        checkHealth();
         loadLibrary();
 
         // Deep link: ?v=<id>. Try the cache first (instant, works for uploads
@@ -621,16 +689,13 @@
             }
         })();
 
+        // Every shape a YouTube link arrives in — watch?v=, youtu.be, /embed/,
+        // /shorts/, /live/, /v/, music. and m. subdomains — or a bare 11-char id.
         function extractVideoId(url) {
-            const patterns = [
-                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?\/]+)/,
-                /youtube\.com\/watch\?.*v=([^&]+)/
-            ];
-            for (const pattern of patterns) {
-                const match = url.match(pattern);
-                if (match) return match[1];
-            }
-            return null;
+            url = (url || '').trim();
+            const m = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+            if (m) return m[1];
+            return /^[A-Za-z0-9_-]{11}$/.test(url) ? url : null;
         }
 
         async function analyzeVideo() {
@@ -641,14 +706,13 @@
                 return;
             }
 
-            if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
-                showError('Please enter a valid YouTube URL');
-                return;
-            }
-
             const videoId = extractVideoId(url);
             if (!videoId) {
-                showError('Could not read a video ID from that link');
+                showError('That doesn\'t look like a YouTube link. Paste a watch, youtu.be, Shorts or YouTube Music link, or the 11-character video ID.');
+                return;
+            }
+            if (serverState === 'down') {
+                showError('The analyzer\'s server can\'t be reached right now, so YouTube links can\'t be fetched. Please try again in a few minutes.');
                 return;
             }
 
@@ -696,7 +760,8 @@
 
             } catch (error) {
                 if (error.name === 'AbortError') return;            // superseded by a newer run
-                if (analyzeAbort === myAbort) showError(error.message);
+                if (analyzeAbort === myAbort) showError(friendlyError(error));
+                checkHealth();                                      // a failure is a good moment to re-read the status
             } finally {
                 if (analyzeAbort === myAbort) {                      // only the current run owns the UI
                     document.getElementById('loading').classList.remove('visible');
