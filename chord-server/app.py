@@ -652,9 +652,11 @@ def download_audio(url, workdir, video_id, progress=None):
             'preferredcodec': 'mp3',
             'preferredquality': '128',
         }],
-        # EBU R128 loudness normalization so every analyzed track plays back at a
-        # consistent volume — no lunging for the volume knob between songs.
-        'postprocessor_args': {'extractaudio': ['-af', 'loudnorm=I=-16:TP=-1.5:LRA=11']},
+        # No loudness filter here any more. loudnorm was the single slowest
+        # step in the pipeline (26 s for one song on the analyzer box — the
+        # download itself took 10) and it also reshaped the dynamics the
+        # analysis then measured. The MP3 is now a plain encode; the page
+        # levels playback itself from the loudness the analysis reports.
         'quiet': True,
         'no_warnings': True,
         # quiet=True silences info messages but NOT the download progress
@@ -721,8 +723,16 @@ def download_audio(url, workdir, video_id, progress=None):
     # under "Downloading audio" at 5% and look like a stall.
     if progress:
         progress({'stage': 'extract'})
+    # Fetch the one video, by id, whatever the pasted link carried. A link
+    # copied from YouTube Music or a Mix comes with `list=`, and yt-dlp given
+    # that downloads the whole playlist: every video, one after another,
+    # and then the MP3 named after the playlist isn't where we look for the
+    # video's — which surfaced as "the download failed" after minutes of
+    # fetching. noplaylist is belt-and-braces for the same thing.
+    canonical = f'https://www.youtube.com/watch?v={video_id}'
+    ydl_opts['noplaylist'] = True
     try:
-        info = _yt_download_with_fallback(url, ydl_opts)
+        info = _yt_download_with_fallback(canonical, ydl_opts)
         _yt_status_record(ok=True)
     except yt_dlp.utils.DownloadError as exc:
         # Translate yt-dlp's raw failure text into something a visitor can act
@@ -1057,7 +1067,7 @@ def cached_result(video_id):
 
 def produce_upload_result(upload_id, src_path, title, emit):
     # Upload twin of produce_result: same cache/lock/slot discipline, no
-    # YouTube anywhere. Transcodes to the cache MP3 (same loudness treatment
+    # YouTube anywhere. Transcodes to the cache MP3 (same plain encode
     # as the YouTube path), then runs the shared analysis core.
     cache_path = os.path.join(CACHE_DIR, f'{upload_id}.json')
     if os.path.exists(cache_path):
@@ -1077,7 +1087,7 @@ def produce_upload_result(upload_id, src_path, title, emit):
                 mp3_path = os.path.join(CACHE_DIR, f'{upload_id}.mp3')
                 proc = subprocess.run(
                     ['ffmpeg', '-y', '-i', src_path, '-vn', '-map_metadata', '-1',
-                     '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-b:a', '128k', mp3_path],
+                     '-b:a', '128k', mp3_path],
                     capture_output=True, timeout=180)
                 if proc.returncode != 0 or not os.path.isfile(mp3_path):
                     try:
