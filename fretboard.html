@@ -14,7 +14,7 @@
   <meta property="og:url" content="https://methodictruth.com/fretboard.html">
   <meta property="og:image" content="https://methodictruth.com/og/fretboard.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=74">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <script type="application/ld+json">
   {
@@ -142,8 +142,23 @@
     .fb-dot { stroke-width: 1.2; }
     .fb-dot-r { fill: var(--glow-warm); stroke: var(--glow-warm); }
     .fb-dot-t { fill: rgba(0,229,255,0.75); stroke: var(--glow); }
+    .fb-dot-3 { fill: rgba(123,104,238,0.88); stroke: rgba(123,104,238,1); }
+    .fb-dot-5 { fill: rgba(106,173,115,0.88); stroke: rgba(106,173,115,1); }
     .fb-dot-g { fill: rgba(10,14,26,0.6); stroke: rgba(138,126,107,0.5); }
     .fb-dot-x { fill: rgba(232,92,92,0.55); stroke: rgba(232,92,92,0.8); }
+
+    /* Legend strip for chord-box sections */
+    .fb-legend {
+      display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+      margin: 0.5rem 0 1rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      color: var(--stone); letter-spacing: 0.07em;
+    }
+    .fb-legend-item { display: flex; align-items: center; gap: 0.35rem; }
+    .fb-legend-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    .fb-legend-r { background: var(--glow-warm); box-shadow: 0 0 5px var(--glow-warm); }
+    .fb-legend-3 { background: rgba(123,104,238,0.88); box-shadow: 0 0 4px rgba(123,104,238,0.6); }
+    .fb-legend-5 { background: rgba(106,173,115,0.88); box-shadow: 0 0 4px rgba(106,173,115,0.5); }
     .fb-dtxt { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; text-anchor: middle; fill: rgba(10,14,26,0.95); font-weight: 600; }
     .fb-dtxt-g { fill: var(--stone-dark); }
 
@@ -593,9 +608,13 @@
           Here is one chord — <strong>C major</strong> — as every three-note shape on every string set. Nine boxes,
           three notes each, and not a single new note among them: it is always C, E and G. Read them the way you read
           any chord box — strings left to right, frets top to bottom, the number on the left telling you where on the
-          neck to put your first finger. <span class="ar-term">Amber is the root</span>; the other dots are labelled
-          with their interval, <code>3</code> for the third and <code>5</code> for the fifth.
+          neck to put your first finger. Each dot is <strong>color-coded by its role</strong> so you can see the structure at a glance, and labelled with its interval.
         </p>
+        <div class="fb-legend">
+          <span class="fb-legend-item"><span class="fb-legend-dot fb-legend-r"></span>Root</span>
+          <span class="fb-legend-item"><span class="fb-legend-dot fb-legend-3"></span>Third <span style="opacity:0.55;font-size:0.55rem">— the note that says major or minor</span></span>
+          <span class="fb-legend-item"><span class="fb-legend-dot fb-legend-5"></span>Fifth <span style="opacity:0.55;font-size:0.55rem">— fills the chord out</span></span>
+        </div>
         <div class="fb-setlabel">Strings 5-4-3 <span>· A D G · all fourths — the shapes are even</span></div>
         <div class="fb-boxrow">
           <svg class="fb-box" viewBox="0 0 104 158" role="img" aria-label="C major, 1st inversion, strings 5-4-3, frets 7 5 5"><text class="fb-blbl" x="32" y="20">A</text><text class="fb-blbl" x="58" y="20">D</text><text class="fb-blbl" x="84" y="20">G</text><line class="fb-bfret" x1="26" y1="30" x2="90" y2="30"/><line class="fb-bfret" x1="26" y1="52" x2="90" y2="52"/><line class="fb-bfret" x1="26" y1="74" x2="90" y2="74"/><line class="fb-bfret" x1="26" y1="96" x2="90" y2="96"/><line class="fb-bfret" x1="26" y1="118" x2="90" y2="118"/><line class="fb-bstr" x1="32" y1="30" x2="32" y2="118"/><line class="fb-bstr" x1="58" y1="30" x2="58" y2="118"/><line class="fb-bstr" x1="84" y1="30" x2="84" y2="118"/><text class="fb-bpos" x="20" y="45">5fr</text><circle class="fb-dot fb-dot-t" cx="32" cy="85" r="8.5"/><text class="fb-dtxt" x="32" y="87.7">3</text><circle class="fb-dot fb-dot-t" cx="58" cy="41" r="8.5"/><text class="fb-dtxt" x="58" y="43.7">5</text><circle class="fb-dot fb-dot-r" cx="84" cy="41" r="8.5"/><text class="fb-dtxt" x="84" y="43.7">R</text><text class="fb-bcap" x="52" y="150">E G C</text></svg>
@@ -838,6 +857,17 @@
   </script>
 
   <script src="stars.js?v=1"></script>
+
+  <script>
+  // Colorize chord-box dots by interval role so thirds and fifths are distinct.
+  document.querySelectorAll('.fb-dtxt').forEach(function(txt) {
+    var lbl = txt.textContent.trim();
+    if (lbl !== '3' && lbl !== '5') return;
+    var circle = txt.previousElementSibling;
+    if (circle && circle.classList.contains('fb-dot-t'))
+      circle.classList.replace('fb-dot-t', lbl === '3' ? 'fb-dot-3' : 'fb-dot-5');
+  });
+  </script>
 
   <!-- Analytics -->
   <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>

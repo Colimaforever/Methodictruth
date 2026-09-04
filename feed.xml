@@ -8,6 +8,22 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: September 9, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-09</link>
+    <guid isPermaLink="false">changelog-2026-09-09</guid>
+    <pubDate>Wed, 09 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth has an arpeggiator: hold a chord and it plays one note at a time, in time, up, down, up and down, random or as played, over one to four octaves, at any note length with a gate and a Hold that keeps the chord going hands-free. It runs on the same clock as the sequencer, so a programmed beat and a held chord lock together. And a second envelope: the new Mod Env module sits outside the audio path like the LFO and drives any parameter. Aim it at the filter cutoff with a fast decay and every note opens bright and snaps dark, which is what a pluck is; aim it at pitch and you have an 808. Oscillators gained a Coarse tune in semitones, the octave switch on every hardware panel, and a fix underneath means an LFO on pitch finally gives vibrato on played notes. Eight new presets and a rebuilt Pad, each one a lesson: Strings, E-Piano, Kalimba, Trance Pluck, Chiptune, Reese, 808 and Dub Stab.</description>
+  </item>
+
+  <item>
+    <title>Changelog: September 8, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-08</link>
+    <guid isPermaLink="false">changelog-2026-09-08</guid>
+    <pubDate>Tue, 08 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth now shows you what to play. Press the Guide button in the piano bar, pick a root and a scale or mode, and every key that belongs lights up while the rest fall back: play the lit ones and nothing is wrong, and the amber key is home. Labels switch between note names and scale degrees, and Hear it runs the scale through whatever you have patched. It also knows the chords in a key, the seven the Theory page builds with their roman numerals, and any chord on any root from triads to ninths. Tap one and its notes are coloured by their role: amber root, purple third, green fifth, yellow seventh. Three fingers on the coloured keys is the chord, and every chip plays as you tap it. The Chord Voicings page is rebuilt: voicings are real chord boxes with a finger number in every dot, coloured by what each note is doing in the same five colours as the Synth and the Theory page. A neck map shows every place the chord's notes live in twelve frets, tapping a voicing lights up which of them it uses, and every voicing has a play button. The voicings are searched from the tuning rather than typed from three templates, and the page picks a spread up the neck plus a small shape for playing in a band. An In the key of row lists the chords that belong together, and the three pages now hand chords to each other.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 7, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-07</link>
     <guid isPermaLink="false">changelog-2026-09-07</guid>

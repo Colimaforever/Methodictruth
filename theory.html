@@ -15,7 +15,7 @@
   <meta property="og:url" content="https://methodictruth.com/theory.html">
   <meta property="og:image" content="https://methodictruth.com/og/theory.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=74">
   <style>
     /* ─── THEORY PAGE ─── */
     .theory-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-bottom: 4rem; }
@@ -60,6 +60,16 @@
     .theory-select option { background: #0a0e1a; color: var(--parchment); }
     .theory-select optgroup { background: #0a0e1a; color: rgba(0,229,255,0.6); font-style: normal; font-size: 0.7rem; letter-spacing: 0.08em; }
     .theory-select:focus { border-color: var(--glow); box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); }
+
+    /* ─── CROSS-LINKS: take this to an instrument ─── */
+    .theory-xlinks { display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0 0.2rem; }
+    .theory-xlink {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--glow-warm); text-decoration: none; padding: 0.3rem 0.7rem;
+      border: 1px solid rgba(232, 168, 124, 0.3); border-radius: 2px; transition: all 0.2s;
+    }
+    .theory-xlink:hover { border-color: var(--glow-warm); background: rgba(232, 168, 124, 0.08); box-shadow: 0 0 12px rgba(232, 168, 124, 0.15); }
+    .theory-xlink[hidden] { display: none; }
 
     /* ─── SCALE MOOD ─── */
     .scale-mood {
@@ -133,12 +143,12 @@
     .tp-key.scale-note { border-color: rgba(0, 229, 255, 0.6); border-width: 2px; }
     .tp-key.white.scale-note { background: rgba(0, 229, 255, 0.22); }
     .tp-key.black.scale-note { background: rgba(0, 229, 255, 0.42); }
-    .tp-key.chord-root { background: rgba(0, 229, 255, 0.65) !important;
-      box-shadow: 0 0 14px rgba(0, 229, 255, 0.65); border: 2px solid #00e5ff !important; }
+    .tp-key.chord-root { background: rgba(232, 168, 124, 0.7) !important;
+      box-shadow: 0 0 14px rgba(232, 168, 124, 0.65); border: 2px solid #e8a87c !important; }
     .tp-key.chord-third { background: rgba(123, 104, 238, 0.65) !important;
       box-shadow: 0 0 14px rgba(123, 104, 238, 0.65); border: 2px solid #a594f7 !important; }
-    .tp-key.chord-fifth { background: rgba(232, 168, 124, 0.65) !important;
-      box-shadow: 0 0 14px rgba(232, 168, 124, 0.6); border: 2px solid #e8a87c !important; }
+    .tp-key.chord-fifth { background: rgba(106, 173, 115, 0.65) !important;
+      box-shadow: 0 0 14px rgba(106, 173, 115, 0.6); border: 2px solid #6aad73 !important; }
     .tp-key.chord-seventh { background: rgba(255, 220, 120, 0.6) !important;
       box-shadow: 0 0 14px rgba(255, 220, 120, 0.55); border: 2px solid #ffdc78 !important; }
     .tp-key-label {
@@ -478,6 +488,9 @@
         <div class="keyboard-legend" id="pianoLegend">
           <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:rgba(0,229,255,0.4)"></div>Scale tone</div>
         </div>
+        <div class="theory-xlinks">
+          <a class="theory-xlink" id="scaleSynthLink" href="synth.html" title="Open the Synth with this scale lit up on the keys">♪ Play this scale on the Synth ↗</a>
+        </div>
       </div>
 
       <!-- ═══ SECTION 2: THE CHORDS ═══ -->
@@ -513,6 +526,10 @@
               </div>
               <div class="guitar-diagram-container" id="guitarDiagram"></div>
             </div>
+          </div>
+          <div class="theory-xlinks">
+            <a class="theory-xlink" id="chordSynthLink" href="synth.html" title="Open the Synth with this chord lit up on the keys">♪ On the Synth keys ↗</a>
+            <a class="theory-xlink" id="chordGuitarLink" href="chord-voicings.html" title="Every way to finger this chord on a guitar">🎸 Guitar voicings ↗</a>
           </div>
         </div>
       </div>
@@ -1106,6 +1123,13 @@
     // Scale title
     document.getElementById('scaleTitle').textContent = noteName(currentRoot, useFlats) + ' ' + currentScale;
 
+    // Hand this scale to the Synth's guide (it knows the Western and the
+    // approximated maqam scales; the true quarter-tone ones it can't draw).
+    const synthLink = document.getElementById('scaleSynthLink');
+    const synthScale = SYNTH_GUIDE_SCALES[currentScale];
+    synthLink.hidden = !synthScale;
+    if (synthScale) synthLink.href = 'synth.html?root=' + encodeURIComponent(NOTES[currentRoot]) + '&scale=' + encodeURIComponent(synthScale);
+
     // Scale mood
     const mood = SCALE_MOODS[currentScale];
     const moodEl = document.getElementById('scaleMood');
@@ -1146,9 +1170,9 @@
     const legend = document.getElementById('pianoLegend');
     if (selectedChord !== null) {
       legend.innerHTML = `
-        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#00e5ff"></div>Root</div>
+        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#e8a87c"></div>Root</div>
         <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#a594f7"></div>3rd</div>
-        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#e8a87c"></div>5th</div>
+        <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#6aad73"></div>5th</div>
         <div class="keyboard-legend-item"><div class="keyboard-legend-dot" style="background:#ffdc78"></div>7th</div>
       `;
     } else {
@@ -1204,6 +1228,18 @@
       document.getElementById('voicingName').textContent = chord.rootNote + chord.symbol;
       document.getElementById('voicingFormula').textContent = chord.notes.join(' — ');
       document.getElementById('voicingCharacter').textContent = CHORD_CHARACTERS[chord.quality] || '';
+
+      // Same chord on the other instruments. Both pages read the same suffix
+      // vocabulary (m7, maj7, m7b5 …), so the link carries the chord itself.
+      const suffix = SYNTH_CHORD_SUFFIX[chord.chordIntervals.join(',')];
+      const rootParam = encodeURIComponent(NOTES[((chord.rootMidi % 12) + 12) % 12]);
+      const synthChordLink = document.getElementById('chordSynthLink');
+      const guitarChordLink = document.getElementById('chordGuitarLink');
+      synthChordLink.hidden = guitarChordLink.hidden = suffix === undefined;
+      if (suffix !== undefined) {
+        synthChordLink.href = 'synth.html?root=' + rootParam + '&chord=' + encodeURIComponent(suffix);
+        guitarChordLink.href = 'chord-voicings.html?root=' + rootParam + '&q=' + encodeURIComponent(suffix);
+      }
 
       // Update full keyboard with chord highlights
       const chordNoteIndices = chord.chordIntervals.map(iv => (chord.rootMidi + iv) % 12);
@@ -1556,6 +1592,34 @@
       });
     });
   }
+
+  // What the Synth's guide calls these scales, and the chord suffixes both the
+  // Synth and the Chord Voicings page understand.
+  const SYNTH_GUIDE_SCALES = {
+    'Major (Ionian)': 'Major', 'Natural Minor (Aeolian)': 'Natural Minor', 'Dorian': 'Dorian', 'Phrygian': 'Phrygian',
+    'Lydian': 'Lydian', 'Mixolydian': 'Mixolydian', 'Locrian': 'Locrian', 'Harmonic Minor': 'Harmonic Minor',
+    'Melodic Minor': 'Melodic Minor', 'Pentatonic Major': 'Major Pentatonic', 'Pentatonic Minor': 'Minor Pentatonic',
+    'Blues': 'Blues', 'Phrygian Dominant': 'Phrygian Dominant', 'Double Harmonic Major': 'Double Harmonic',
+    'Hungarian Minor': 'Hungarian Minor', 'Hijaz': 'Phrygian Dominant',
+  };
+  const SYNTH_CHORD_SUFFIX = {
+    '0,4,7': '', '0,3,7': 'm', '0,3,6': 'dim', '0,4,8': 'aug', '0,4,7,11': 'maj7', '0,3,7,10': 'm7',
+    '0,4,7,10': '7', '0,3,6,10': 'm7b5', '0,3,6,9': 'dim7', '0,4,8,11': 'maj7#5', '0,3,7,11': 'mMaj7',
+  };
+
+  // Arriving from the Synth or the Chord Voicings page: open on their scale.
+  (function readUrl() {
+    try {
+      const q = new URLSearchParams(location.search);
+      const rootQ = (q.get('root') || '').replace('♯', '#').replace('♭', 'b');
+      const sharpIdx = NOTES.indexOf(rootQ);
+      const flatIdx = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'].indexOf(rootQ);
+      const idx = sharpIdx >= 0 ? sharpIdx : flatIdx;
+      if (idx >= 0) { currentRoot = idx; rootSelect.value = idx; }
+      const scaleQ = q.get('scale');
+      if (scaleQ && SCALES[scaleQ]) { currentScale = scaleQ; scaleSelect.value = scaleQ; }
+    } catch (e) {}
+  })();
 
   // Initial render
   update();

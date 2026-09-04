@@ -5,274 +5,185 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0e1a">
   <title>Guitar Chord Voicings — Methodic Truth</title>
-  <meta name="description" content="Learn multiple fingerings for every chord. Save your hands from barre chord fatigue and discover moveable voicing patterns across the fretboard.">
+  <meta name="description" content="Every way to play a chord on guitar, drawn as real chord boxes with finger numbers and colour-coded by what each note does — root, third, fifth, seventh. Hear each voicing, see where the notes live on the neck, and find the chords that belong in a key.">
   <link rel="canonical" href="https://methodictruth.com/chord-voicings.html">
   <meta property="og:title" content="Guitar Chord Voicings — Methodic Truth">
-  <meta property="og:description" content="Learn multiple fingerings for every chord. Save your hands from barre chord fatigue and discover moveable voicing patterns across the fretboard.">
+  <meta property="og:description" content="Every way to play a chord on guitar, drawn as real chord boxes with finger numbers and colour-coded by what each note does. Hear each voicing and see where the notes live on the neck.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/chord-voicings.html">
   <meta property="og:image" content="https://methodictruth.com/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=74">
   <style>
-    body {
-      background: linear-gradient(180deg, #0a0604 0%, #1a0f08 50%, #0a0604 100%);
+    body { background: linear-gradient(180deg, #0a0604 0%, #1a0f08 50%, #0a0604 100%); }
+
+    /* Role colours — the same five as the Synth's guide and the Theory page,
+       so a purple dot means "third" wherever on this site you see one. */
+    :root {
+      --role-r: #e8a87c; --role-3: #a594f7; --role-5: #6aad73; --role-7: #ffdc78; --role-x: #00e5ff;
     }
 
-    .voicings-container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 2rem;
-      position: relative;
-      z-index: 2;
-    }
+    .voicings-container { max-width: 1200px; margin: 2rem auto; padding: 2rem; position: relative; z-index: 2; }
+    h1 { color: var(--accent); text-align: center; margin-bottom: 1rem; font-size: 2.5rem; }
+    .subtitle { text-align: center; color: var(--text); opacity: 0.8; margin-bottom: 2.2rem; font-size: 1.1rem; }
 
-    h1 {
-      color: var(--accent);
-      text-align: center;
-      margin-bottom: 1rem;
-      font-size: 2.5rem;
+    .panel {
+      background: rgba(20, 12, 8, 0.9); border: 2px solid var(--primary); border-radius: 12px;
+      padding: 1.5rem 2rem; margin-bottom: 1.5rem;
     }
-
-    .subtitle {
-      text-align: center;
-      color: var(--text);
-      opacity: 0.8;
-      margin-bottom: 3rem;
-      font-size: 1.1rem;
-    }
-
-    .chord-selector {
-      background: rgba(20, 12, 8, 0.9);
-      border: 2px solid var(--primary);
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .selector-row {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
+    .selector-row { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; flex-wrap: wrap; }
+    .selector-row:last-child { margin-bottom: 0; }
     .selector-label {
-      color: var(--primary);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      min-width: 80px;
+      color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+      min-width: 80px; padding-top: 0.55rem; font-size: 0.85rem;
     }
-
-    .note-buttons {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
+    .note-buttons { display: flex; gap: 0.4rem; flex-wrap: wrap; flex: 1; align-items: center; }
     .note-btn {
-      background: rgba(10, 6, 4, 0.8);
-      border: 2px solid rgba(0, 229, 255, 0.3);
-      color: var(--text);
-      padding: 0.75rem 1.5rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
+      background: rgba(10, 6, 4, 0.8); border: 2px solid rgba(0, 229, 255, 0.3); color: var(--text);
+      padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
     }
+    .note-btn:hover { border-color: var(--accent); background: rgba(20, 12, 8, 0.9); }
+    .note-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); box-shadow: 0 0 20px var(--accent); }
+    .quality-btn { border-color: rgba(123, 104, 238, 0.3); font-size: 0.78rem; padding: 0.45rem 0.8rem; }
+    .quality-btn.active { background: #7b68ee; border-color: #7b68ee; box-shadow: 0 0 20px rgba(123, 104, 238, 0.7); color: #fff; }
+    .quality-group { display: inline-flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; padding-right: 0.6rem; margin-right: 0.2rem; border-right: 1px solid rgba(138, 126, 107, 0.25); }
+    .quality-group:last-child { border-right: 0; }
+    .quality-group-label { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone-dark); }
 
-    .note-btn:hover {
-      border-color: var(--accent);
-      background: rgba(20, 12, 8, 0.9);
+    /* In the key of … — the chords that belong together */
+    .key-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; flex: 1; }
+    .key-select {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text);
+      background: rgba(10, 6, 4, 0.8); border: 2px solid rgba(232, 168, 124, 0.3); border-radius: 6px; padding: 0.45rem 0.6rem;
     }
-
-    .note-btn.active {
-      background: var(--accent);
-      color: var(--bg);
-      border-color: var(--accent);
-      box-shadow: 0 0 20px var(--accent);
+    .key-chip {
+      background: rgba(10, 6, 4, 0.8); border: 2px solid rgba(232, 168, 124, 0.3); color: var(--text);
+      padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+      line-height: 1.2; text-align: center; transition: all 0.2s;
     }
+    .key-chip small { display: block; font-size: 0.55rem; color: var(--stone-dark); letter-spacing: 0.08em; margin-top: 0.15rem; }
+    .key-chip:hover { border-color: var(--glow-warm); }
+    .key-chip.active { border-color: var(--glow-warm); background: rgba(232, 168, 124, 0.16); color: var(--glow-warm); box-shadow: 0 0 14px rgba(232, 168, 124, 0.3); }
+    .key-chip.active small { color: rgba(232, 168, 124, 0.75); }
+    .key-hint { font-family: 'EB Garamond', serif; font-size: 0.9rem; color: var(--stone-dark); font-style: italic; width: 100%; margin-top: 0.2rem; }
 
-    .quality-btn {
-      border-color: rgba(123, 104, 238, 0.3);
+    /* Chord header: what it is, what it's made of, hear it */
+    .chord-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1.4rem; }
+    .chord-head-name { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--accent); letter-spacing: 0.04em; }
+    .chord-head-name small { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark); letter-spacing: 0.1em; margin-left: 0.6rem; text-transform: uppercase; }
+    .chord-formula { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .formula-note {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; padding: 0.25rem 0.55rem; border-radius: 4px;
+      border: 1px solid; background: rgba(10, 6, 4, 0.6);
     }
-
-    .quality-btn.active {
-      background: #7b68ee;
+    .formula-note small { opacity: 0.75; margin-left: 0.3rem; font-size: 0.62rem; }
+    .chord-head-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-left: auto; }
+    .cv-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--glow-warm); background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(232, 168, 124, 0.4); border-radius: 4px;
+      padding: 0.45rem 0.8rem; cursor: pointer; text-decoration: none; transition: all 0.2s; white-space: nowrap;
     }
+    .cv-btn:hover { border-color: var(--glow-warm); background: rgba(232, 168, 124, 0.1); box-shadow: 0 0 12px rgba(232, 168, 124, 0.2); }
+    .cv-btn.cyan { color: var(--accent); border-color: rgba(0, 229, 255, 0.35); }
+    .cv-btn.cyan:hover { border-color: var(--accent); background: rgba(0, 229, 255, 0.08); box-shadow: 0 0 12px rgba(0, 229, 255, 0.2); }
+    .chord-character { width: 100%; font-family: 'EB Garamond', serif; font-size: 1rem; color: var(--stone); font-style: italic; }
 
-    .voicings-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-bottom: 3rem;
+    /* Legend */
+    .legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; align-items: center; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid rgba(138, 126, 107, 0.2); }
+    .legend-item { display: flex; align-items: center; gap: 0.45rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--stone); letter-spacing: 0.05em; }
+    .legend-item em { font-style: normal; color: var(--stone-dark); font-size: 0.62rem; }
+    .legend-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
+
+    /* Neck map — every place the chord's notes live */
+    .neck-title { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .neck-title h2 { color: var(--accent); font-size: 1.15rem; margin: 0; }
+    .neck-title span { font-family: 'EB Garamond', serif; font-size: 0.95rem; color: var(--stone-dark); font-style: italic; }
+    .neck-scroll { overflow-x: auto; }
+    .neck-map { display: block; width: 100%; min-width: 620px; height: auto; }
+    .nm-wood { fill: rgba(10, 6, 4, 0.55); stroke: rgba(138, 126, 107, 0.25); }
+    .nm-string { stroke: rgba(196, 183, 153, 0.45); }
+    .nm-fret { stroke: rgba(138, 126, 107, 0.35); stroke-width: 1; }
+    .nm-nut { stroke: rgba(240, 232, 216, 0.75); stroke-width: 4; }
+    .nm-inlay { fill: rgba(138, 126, 107, 0.2); }
+    .nm-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: var(--stone-dark); text-anchor: middle; }
+    .nm-slbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: var(--stone-dark); text-anchor: end; }
+    .nm-dot { stroke-width: 1.2; opacity: 0.42; transition: opacity 0.15s; }
+    .nm-dot.on { opacity: 1; stroke: #fff; stroke-width: 2.2; }
+    .nm-txt { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; text-anchor: middle; fill: rgba(10, 6, 4, 0.95); font-weight: 700; pointer-events: none; opacity: 0.55; }
+    .nm-txt.on { opacity: 1; }
+
+    /* Voicing cards */
+    .voicings-toolbar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .voicings-toolbar h2 { color: var(--accent); font-size: 1.15rem; margin: 0 0.6rem 0 0; }
+    .filter-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--stone); background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(138, 126, 107, 0.3); border-radius: 4px;
+      padding: 0.35rem 0.65rem; cursor: pointer; transition: all 0.2s;
     }
-
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0, 229, 255, 0.08); }
+    .voicings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
     .voicing-card {
-      background: rgba(20, 12, 8, 0.9);
-      border: 2px solid var(--primary);
-      border-radius: 12px;
-      padding: 1.5rem;
-      transition: all 0.3s;
+      background: rgba(20, 12, 8, 0.9); border: 2px solid var(--primary); border-radius: 12px; padding: 1rem 1rem 1.1rem;
+      transition: all 0.25s; cursor: pointer; display: flex; flex-direction: column; align-items: center;
     }
-
-    .voicing-card:hover {
-      border-color: var(--accent);
-      box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
-      transform: translateY(-5px);
+    .voicing-card:hover { border-color: rgba(0, 229, 255, 0.55); transform: translateY(-3px); }
+    .voicing-card.selected { border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 229, 255, 0.25); }
+    .voicing-title { color: var(--accent); font-size: 1.05rem; font-weight: 700; text-align: center; font-family: 'Cinzel', serif; letter-spacing: 0.03em; }
+    .voicing-position { color: var(--stone-dark); text-align: center; font-size: 0.68rem; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; margin: 0.2rem 0 0.5rem; }
+    .chord-box { display: block; width: 100%; max-width: 190px; height: auto; }
+    .cb-fret { stroke: rgba(196, 183, 153, 0.28); stroke-width: 1; }
+    .cb-nut { stroke: rgba(240, 232, 216, 0.8); stroke-width: 4; }
+    .cb-str { stroke: rgba(196, 183, 153, 0.5); stroke-width: 1; }
+    .cb-pos { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: var(--glow-warm); text-anchor: end; }
+    .cb-mark { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-anchor: middle; }
+    .cb-x { fill: rgba(232, 92, 92, 0.85); font-weight: 700; }
+    .cb-open { fill: none; stroke-width: 2; }
+    .cb-barre { fill: rgba(240, 232, 216, 0.16); stroke: rgba(240, 232, 216, 0.35); stroke-width: 1; }
+    .cb-dot { stroke-width: 1.2; stroke: rgba(10, 6, 4, 0.5); }
+    .cb-finger { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-anchor: middle; fill: rgba(10, 6, 4, 0.95); font-weight: 700; pointer-events: none; }
+    .cb-note { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-anchor: middle; font-weight: 700; }
+    .cb-iv { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; text-anchor: middle; fill: var(--stone-dark); }
+    .cb-slbl { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; text-anchor: middle; fill: rgba(138, 126, 107, 0.6); }
+    .voicing-meta { display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center; margin-top: 0.4rem; }
+    .voicing-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--stone-dark); border: 1px solid rgba(138, 126, 107, 0.25); border-radius: 3px; padding: 0.15rem 0.4rem;
     }
-
-    .voicing-title {
-      color: var(--accent);
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      text-align: center;
-    }
-
-    .voicing-position {
-      color: var(--text);
-      opacity: 0.7;
-      text-align: center;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-    }
-
-    .fretboard {
-      background: rgba(10, 6, 4, 0.8);
-      border-radius: 8px;
-      padding: 1.5rem 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .fret-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .string-label {
-      color: var(--text);
-      opacity: 0.5;
-      width: 30px;
-      font-size: 0.8rem;
-    }
-
-    .fret-dots {
-      display: flex;
-      gap: 0.5rem;
-      flex: 1;
-    }
-
-    .fret-dot {
-      width: 40px;
-      height: 40px;
-      border: 2px solid rgba(0, 229, 255, 0.3);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text);
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .fret-dot.fingered {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: var(--bg);
-    }
-
-    .fret-dot.muted {
-      background: rgba(255, 100, 100, 0.3);
-      border-color: rgba(255, 100, 100, 0.5);
-    }
-
-    .fret-dot.open {
-      border-color: var(--primary);
-    }
-
-    .voicing-notes {
-      text-align: center;
-      color: var(--text);
-      font-size: 0.9rem;
-      opacity: 0.8;
-      margin-bottom: 1rem;
-    }
-
+    .voicing-tag.warn { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.4); }
     .voicing-tips {
-      background: rgba(123, 104, 238, 0.1);
-      border-left: 3px solid #7b68ee;
-      padding: 0.75rem;
-      font-size: 0.85rem;
-      color: var(--text);
-      opacity: 0.9;
-      line-height: 1.5;
+      background: rgba(123, 104, 238, 0.1); border-left: 3px solid #7b68ee; padding: 0.6rem 0.7rem; font-size: 0.85rem;
+      color: var(--text); opacity: 0.9; line-height: 1.5; margin-top: 0.7rem; width: 100%; font-family: 'EB Garamond', serif;
     }
+    .voicing-play { margin-top: 0.7rem; }
+    .empty-note { color: var(--text); opacity: 0.7; grid-column: 1 / -1; text-align: center; padding: 2rem; font-family: 'EB Garamond', serif; }
 
-    .knowledge-section {
-      background: rgba(20, 12, 8, 0.9);
-      border: 2px solid var(--primary);
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
+    /* Reading the diagrams */
+    .how-to { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .how-to div { font-family: 'EB Garamond', serif; font-size: 0.95rem; color: var(--stone); line-height: 1.55; }
+    .how-to strong { color: var(--glow-warm); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
 
-    .knowledge-section h2 {
-      color: var(--accent);
-      margin-bottom: 1.5rem;
-    }
+    .knowledge-section { background: rgba(20, 12, 8, 0.9); border: 2px solid var(--primary); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; }
+    .knowledge-section h2 { color: var(--accent); margin-bottom: 1.5rem; }
+    .knowledge-section h3 { color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+    .knowledge-section p, .knowledge-section ul { color: var(--text); line-height: 1.8; margin-bottom: 1rem; }
+    .knowledge-section ul { margin-left: 1.5rem; }
+    .knowledge-section li { margin-bottom: 0.5rem; }
+    .tip-box { background: rgba(0, 229, 255, 0.1); border-left: 3px solid var(--accent); padding: 1rem; margin: 1rem 0; }
+    .practice-routine { background: rgba(232, 168, 124, 0.1); border: 2px solid #e8a87c; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+    .practice-routine h4 { color: #e8a87c; margin-bottom: 1rem; }
+    .practice-routine ol { margin-left: 1.5rem; }
+    .practice-routine li { color: var(--text); margin-bottom: 0.75rem; line-height: 1.6; }
 
-    .knowledge-section h3 {
-      color: var(--primary);
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .knowledge-section p, .knowledge-section ul {
-      color: var(--text);
-      line-height: 1.8;
-      margin-bottom: 1rem;
-    }
-
-    .knowledge-section ul {
-      margin-left: 1.5rem;
-    }
-
-    .knowledge-section li {
-      margin-bottom: 0.5rem;
-    }
-
-    .tip-box {
-      background: rgba(0, 229, 255, 0.1);
-      border-left: 3px solid var(--accent);
-      padding: 1rem;
-      margin: 1rem 0;
-    }
-
-    .practice-routine {
-      background: rgba(232, 168, 124, 0.1);
-      border: 2px solid #e8a87c;
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin: 1.5rem 0;
-    }
-
-    .practice-routine h4 {
-      color: #e8a87c;
-      margin-bottom: 1rem;
-    }
-
-    .practice-routine ol {
-      margin-left: 1.5rem;
-    }
-
-    .practice-routine li {
-      color: var(--text);
-      margin-bottom: 0.75rem;
-      line-height: 1.6;
+    @media (max-width: 640px) {
+      .voicings-container { padding: 1rem; }
+      .panel { padding: 1rem 1rem; }
+      .selector-label { min-width: 0; width: 100%; padding-top: 0; }
+      .note-btn { padding: 0.45rem 0.7rem; font-size: 0.78rem; }
+      .quality-group { border-right: 0; padding-right: 0; }
+      .chord-head-name { font-size: 1.4rem; }
+      .chord-head-actions { margin-left: 0; }
     }
   </style>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -338,24 +249,86 @@
 
   <div class="voicings-container">
     <h1>Guitar Chord Voicings</h1>
-    <p class="subtitle">Save your hands. Learn multiple ways to play every chord.</p>
+    <p class="subtitle">Every way to play a chord — drawn as real chord boxes, with finger numbers, and coloured by what each note is doing.</p>
 
-    <div class="chord-selector">
+    <div class="panel">
       <div class="selector-row">
-        <span class="selector-label">Root:</span>
+        <span class="selector-label">Root</span>
         <div class="note-buttons" id="rootButtons"></div>
       </div>
       <div class="selector-row">
-        <span class="selector-label">Quality:</span>
+        <span class="selector-label">Quality</span>
         <div class="note-buttons" id="qualityButtons"></div>
+      </div>
+      <div class="selector-row">
+        <span class="selector-label">In the key of</span>
+        <div class="key-row" id="keyRow">
+          <select class="key-select" id="keyRoot" aria-label="Key root"></select>
+          <select class="key-select" id="keyMode" aria-label="Key mode">
+            <option value="major">Major</option>
+            <option value="minor">Minor</option>
+          </select>
+          <button class="filter-btn" id="keySevenths" aria-pressed="false" title="Show the seventh chords of the key instead of the triads">7ths</button>
+          <span id="keyChips" style="display:contents"></span>
+          <span class="key-hint">These chords belong together. Tap through a progression — I, vi, IV, V — and each one's voicings appear below.</span>
+        </div>
       </div>
     </div>
 
+    <div class="panel">
+      <div class="chord-head">
+        <div class="chord-head-name" id="chordName">C <small>Major</small></div>
+        <div class="chord-formula" id="chordFormula"></div>
+        <div class="chord-head-actions">
+          <button class="cv-btn" id="hearChord" title="Strum the selected voicing">▶ Hear it</button>
+          <a class="cv-btn cyan" id="synthLink" href="synth.html" title="Light this chord up on the Synth's keys">♪ On the Synth keys ↗</a>
+          <a class="cv-btn cyan" id="theoryLink" href="theory.html" title="This chord's key on the Theory page">Theory ↗</a>
+        </div>
+        <div class="chord-character" id="chordCharacter"></div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:var(--role-r);color:var(--role-r)"></span>Root <em>— the name of the chord, the note that feels like home</em></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--role-3);color:var(--role-3)"></span>Third <em>— says major or minor (a 2 or 4 sits here in a sus chord)</em></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--role-5);color:var(--role-5)"></span>Fifth <em>— fills the chord out; the first note to drop</em></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--role-7);color:var(--role-7)"></span>Seventh / sixth <em>— the colour on top</em></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--role-x);color:var(--role-x)"></span>Extension <em>— 9ths and beyond</em></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="neck-title">
+        <h2>Where the notes live</h2>
+        <span>Every place these notes sit in the first twelve frets. Tap a voicing below and its notes light up here — that's the shape you're playing, seen on the whole neck.</span>
+      </div>
+      <div class="neck-scroll"><svg class="neck-map" id="neckMap" viewBox="0 0 720 150" role="img" aria-label="Chord tones across the neck"></svg></div>
+    </div>
+
+    <div class="voicings-toolbar">
+      <h2>Voicings</h2>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="open">Open</button>
+      <button class="filter-btn" data-filter="low">Low neck</button>
+      <button class="filter-btn" data-filter="mid">Middle</button>
+      <button class="filter-btn" data-filter="high">High neck</button>
+      <button class="filter-btn" data-filter="partial">Small shapes</button>
+    </div>
     <div id="voicingsDisplay" class="voicings-grid"></div>
 
     <div class="knowledge-section">
+      <h2>Reading the diagrams</h2>
+      <div class="how-to">
+        <div><strong>Strings and frets</strong>Low E is on the left, high E on the right, exactly as a chord chart in a songbook. Frets run downward. A thick line at the top is the nut; otherwise the number on the left tells you which fret the box starts at.</div>
+        <div><strong>The number in a dot</strong>is the finger: 1 index, 2 middle, 3 ring, 4 pinky. A pale bar across several strings is a barre — one finger lying flat across all of them.</div>
+        <div><strong>The colour of a dot</strong>is the note's job in the chord, not its name. Amber roots are your anchors. If a shape feels like a jumble, find the amber dot first and the rest falls into place around it.</div>
+        <div><strong>Above the nut</strong>a red <span style="color:rgba(232,92,92,0.9);font-family:'JetBrains Mono',monospace">×</span> is a string you don't play — mute it with the edge of a finger or just miss it. A ring is an open string that rings, coloured by its role like any other note.</div>
+        <div><strong>Under the box</strong>the note each string sounds, then its interval — R for root, 3 or ♭3 for the third, and so on. Read those left to right and you can hear the chord before you play it.</div>
+        <div><strong>Same chord, different sound</strong>Every card is the same handful of notes in a different order and register. Press <em>▶ Hear it</em> on two of them back to back: that difference in colour is the whole reason to learn more than one.</div>
+      </div>
+    </div>
+
+    <div class="knowledge-section">
       <h2>🎸 Why Learn Multiple Voicings?</h2>
-      
+
       <p><strong>Barre chords are exhausting.</strong> They're powerful, but if they're all you know, your hand fatigues fast and your playing stays locked in one area of the neck.</p>
 
       <p>Learning multiple voicings for the same chord gives you:</p>
@@ -367,7 +340,7 @@
       </ul>
 
       <div class="tip-box">
-        <strong>💡 The Pattern:</strong> Most chord shapes can be moved up and down the neck. A shape learned at the 3rd fret works at the 7th fret too — just different notes.
+        <strong>💡 The Pattern:</strong> Most chord shapes can be moved up and down the neck. A shape learned at the 3rd fret works at the 7th fret too — just different notes. The neck map above shows you exactly why: the same coloured pattern repeats.
       </div>
 
       <h3>How to Actually Use This</h3>
@@ -377,44 +350,44 @@
         <h4>5-Minute Daily Practice Routine</h4>
         <ol>
           <li><strong>Pick one chord</strong> (start simple — C major, G major, D major)</li>
-          <li><strong>Play 3 different voicings</strong> of that chord up the neck</li>
-          <li><strong>Listen to the difference</strong> — Which sounds brighter? Warmer? Fuller?</li>
+          <li><strong>Play 3 different voicings</strong> of that chord up the neck — use the Low, Middle and High filters</li>
+          <li><strong>Listen to the difference</strong> — Which sounds brighter? Warmer? Fuller? Press ▶ on each card and then match it</li>
           <li><strong>Connect them</strong> — Practice moving smoothly between voicings</li>
-          <li><strong>Use them in a song</strong> — Take a progression you know and try substituting voicings</li>
+          <li><strong>Use them in a song</strong> — Pick a key up top, tap through I – vi – IV – V, and play each chord from the same part of the neck</li>
         </ol>
       </div>
 
       <h3>Voicing Families (The Practical System)</h3>
-      
+
       <p><strong>CAGED System</strong> — Five shapes that cover the entire fretboard:</p>
       <ul>
         <li><strong>C shape</strong> — Open C major chord form, moveable</li>
-        <li><strong>A shape</strong> — Based on open A major, often barred</li>
+        <li><strong>A shape</strong> — Based on open A major, often barred; root on the 5th string</li>
         <li><strong>G shape</strong> — Open G major form, trickier but useful</li>
-        <li><strong>E shape</strong> — The classic barre chord, root on 6th string</li>
-        <li><strong>D shape</strong> — Based on open D major, root on 4th string</li>
+        <li><strong>E shape</strong> — The classic barre chord, root on the 6th string</li>
+        <li><strong>D shape</strong> — Based on open D major, root on the 4th string</li>
       </ul>
 
       <div class="tip-box">
-        <strong>💡 Start Here:</strong> Learn the E and A shapes first (they're the most common barre chords). Then add D shape voicings — they're easier on your hand and sound great for rhythm playing.
+        <strong>💡 Start Here:</strong> Learn the E and A shapes first (they're the most common barre chords). Then add D shape voicings — they're easier on your hand and sound great for rhythm playing. Each card says which string its root sits on, which is how you tell the shapes apart.
       </div>
 
       <h3>Voice Leading: The Secret to Smooth Playing</h3>
-      
+
       <p><strong>Voice leading</strong> means choosing voicings where notes move as little as possible between chords.</p>
-      
+
       <p><strong>Example:</strong> Playing C → Am → F → G</p>
       <ul>
         <li><strong>Bad:</strong> Open C → 5th fret Am barre → 1st fret F barre → Open G (hand jumps all over)</li>
         <li><strong>Good:</strong> 3rd fret C shape → 5th fret Am → 1st fret F → 3rd fret G (smooth movement, minimal jumping)</li>
       </ul>
 
-      <p>When you pick voicings that are <strong>close together on the neck</strong>, chord changes feel effortless and sound connected.</p>
+      <p>When you pick voicings that are <strong>close together on the neck</strong>, chord changes feel effortless and sound connected. Pick a key above and use the same neck filter for every chord in the progression.</p>
 
       <h3>Practical Tips for Learning</h3>
-      
+
       <p><strong>1. Start with triads (3-note chords)</strong><br>
-      They're easier to finger and you can move them around faster than full 6-string chords.</p>
+      They're easier to finger and you can move them around faster than full 6-string chords. The <em>Small shapes</em> filter is those.</p>
 
       <p><strong>2. Focus on string sets</strong><br>
       Practice voicings on just the top 4 strings (D-G-B-E), or middle 4 strings (A-D-G-B). This makes chord changes cleaner in context.</p>
@@ -435,7 +408,7 @@
       </div>
 
       <h3>When to Use Each Voicing Type</h3>
-      
+
       <p><strong>Open voicings (with open strings):</strong><br>
       Bright, ringing, great for acoustic and clean electric. Hard to move around.</p>
 
@@ -458,194 +431,540 @@
   <script src="scripts.js?v=69"></script>
   <script src="stars.js?v=1"></script>
   <script>
-    const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  (function () {
+    'use strict';
+
+    // ═══ THE CHORDS ═══
+    const NOTES_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+    const NOTES_FLAT  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+    const NOTES_ASCII = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    // Suffix → intervals. The suffix is the key: the Synth and the Theory page
+    // speak the same vocabulary, so a link can carry a chord between them.
     const QUALITIES = [
-      { name: 'Major', suffix: '' },
-      { name: 'Minor', suffix: 'm' },
-      { name: 'Dominant 7', suffix: '7' },
-      { name: 'Major 7', suffix: 'maj7' },
-      { name: 'Minor 7', suffix: 'm7' },
-      { name: 'Suspended 2', suffix: 'sus2' },
-      { name: 'Suspended 4', suffix: 'sus4' }
+      { suffix: '',     name: 'Major',        iv: [0, 4, 7],         group: 'Triads',     character: 'Stable, bright, resolved. Home.' },
+      { suffix: 'm',    name: 'Minor',        iv: [0, 3, 7],         group: 'Triads',     character: 'Soft, melancholic, introspective.' },
+      { suffix: 'dim',  name: 'Diminished',   iv: [0, 3, 6],         group: 'Triads',     character: 'Tense and unstable — it wants to resolve a half-step up.' },
+      { suffix: 'aug',  name: 'Augmented',    iv: [0, 4, 8],         group: 'Triads',     character: 'Suspended in mid-air. Dreamlike, unresolved.' },
+      { suffix: 'sus2', name: 'Sus2',         iv: [0, 2, 7],         group: 'Triads',     character: 'Open and airy — neither major nor minor, because the third is gone.' },
+      { suffix: 'sus4', name: 'Sus4',         iv: [0, 5, 7],         group: 'Triads',     character: 'Held breath. The 4 leans on the third and wants to fall onto it.' },
+      { suffix: '7',    name: 'Dominant 7',   iv: [0, 4, 7, 10],     group: 'Sevenths',   character: 'Bluesy tension that pulls toward the chord a fourth up.' },
+      { suffix: 'maj7', name: 'Major 7',      iv: [0, 4, 7, 11],     group: 'Sevenths',   character: 'Lush, sophisticated, jazzy warmth.' },
+      { suffix: 'm7',   name: 'Minor 7',      iv: [0, 3, 7, 10],     group: 'Sevenths',   character: 'Smooth, contemplative, cool.' },
+      { suffix: 'm7b5', name: 'Half-dim',     iv: [0, 3, 6, 10],     group: 'Sevenths',   character: 'The ii of a minor key. Dark, but going somewhere.' },
+      { suffix: 'dim7', name: 'Dim 7',        iv: [0, 3, 6, 9],      group: 'Sevenths',   character: 'Symmetrical — every note can be the root. Pure suspense.' },
+      { suffix: '6',    name: 'Major 6',      iv: [0, 4, 7, 9],      group: 'Sixths & adds', character: 'Sweet and settled — jazz and old pop endings.' },
+      { suffix: 'm6',   name: 'Minor 6',      iv: [0, 3, 7, 9],      group: 'Sixths & adds', character: 'Minor with a lift. Noir, gypsy jazz, Dorian colour.' },
+      { suffix: 'add9', name: 'Add 9',        iv: [0, 4, 7, 14],     group: 'Sixths & adds', character: 'Major with shimmer on top — no seventh, so it stays clean.' },
+      { suffix: '9',    name: 'Dominant 9',   iv: [0, 4, 7, 10, 14], group: 'Ninths',     character: 'Funk and soul. A 7 chord with more colour.' },
+      { suffix: 'maj9', name: 'Major 9',      iv: [0, 4, 7, 11, 14], group: 'Ninths',     character: 'Wide open and glassy. Neo-soul, film.' },
+      { suffix: 'm9',   name: 'Minor 9',      iv: [0, 3, 7, 10, 14], group: 'Ninths',     character: 'Velvet. The minor 7 with the lights turned down.' },
     ];
+    const IV_LABEL = { 0: 'R', 2: '2', 3: '♭3', 4: '3', 5: '4', 6: '♭5', 7: '5', 8: '♯5', 9: '6', 10: '♭7', 11: '7', 14: '9' };
+    function roleOf(iv) { return iv === 0 ? 'r' : iv >= 12 ? 'x' : iv <= 5 ? '3' : iv <= 8 ? '5' : '7'; }
+    function ivLabel(iv, suffix) { return suffix === 'dim7' && iv === 9 ? '°7' : (IV_LABEL[iv] || String(iv)); }
+    const ROLE_COLOR = { r: 'var(--role-r)', 3: 'var(--role-3)', 5: 'var(--role-5)', 7: 'var(--role-7)', x: 'var(--role-x)' };
 
-    let selectedRoot = 'C';
-    let selectedQuality = '';
+    // Sharps or flats: whichever gives the chord one of each letter, and on a
+    // tie the fewer accidentals. E♭ G B♭, not D♯ G A♯.
+    function chooseSpelling(root, intervals) {
+      const score = names => {
+        const letters = new Set(intervals.map(i => names[(root + i) % 12][0]));
+        return letters.size * 10 - intervals.filter(i => names[(root + i) % 12].length > 1).length;
+      };
+      const sh = score(NOTES_SHARP), fl = score(NOTES_FLAT);
+      return fl > sh || (fl === sh && [1, 3, 5, 8, 10].includes(root)) ? NOTES_FLAT : NOTES_SHARP;
+    }
 
-    // Movable-shape voicing engine — derives real fingerings for any root/quality
-    // from first principles instead of a hand-typed table, so every one of the
-    // 12 roots × 7 qualities below is correct, not just the few someone got around to.
-    const OPEN_STRINGS = [4, 9, 2, 7, 11, 4]; // E A D G B e, as pitch classes
-    const PC_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const NOTE_TO_PC = { 'C':0,'C#':1,'D':2,'D#':3,'E':4,'F':5,'F#':6,'G':7,'G#':8,'A':9,'A#':10,'B':11 };
-    const CHORD_INTERVALS = {
-      '': [0, 4, 7],          // Major
-      'm': [0, 3, 7],         // Minor
-      '7': [0, 4, 7, 10],     // Dominant 7
-      'maj7': [0, 4, 7, 11],  // Major 7
-      'm7': [0, 3, 7, 10],    // Minor 7
-      'sus2': [0, 2, 7],      // Suspended 2nd
-      'sus4': [0, 5, 7]       // Suspended 4th
-    };
-    const SHAPE_TEMPLATES = [
-      { label: 'E-shape', rootString: 0 },
-      { label: 'A-shape', rootString: 1 },
-      { label: 'D-shape', rootString: 2 }
-    ];
+    // Which notes a voicing must contain. The fifth is the first to go when
+    // fingers run out — except where it defines the chord (dim, aug, m7♭5).
+    function essentialIntervals(q) {
+      if (q.iv.length === 3) return q.iv.slice();
+      const fifthDefining = ['dim7', 'm7b5', 'aug'].includes(q.suffix);
+      return q.iv.filter(i => i !== 7 || fifthDefining);
+    }
 
-    function pcName(pc) { return PC_NAMES[((pc % 12) + 12) % 12]; }
+    // ═══ THE INSTRUMENT ═══
+    const OPEN_MIDI = [40, 45, 50, 55, 59, 64]; // E2 A2 D3 G3 B3 E4, low to high
+    const STRING_NAMES = ['E', 'A', 'D', 'G', 'B', 'e'];
+    const MAX_FRET = 12; // the neck map's width, and where shapes stop being useful
 
+    // ═══ THE SEARCH ═══
+    // Rather than a hand-typed table (which is only ever right for the chords
+    // someone got around to), every playable way to hold the chord is
+    // enumerated from the tuning: each string either mutes or takes one of the
+    // chord's notes inside a four-fret hand span, and what survives is checked
+    // for a real hand — four fingers, a barre where one finger can lie flat,
+    // the strings you play sitting together so a strum works.
+    function findVoicings(rootPc, q) {
+      const tones = q.iv.map(iv => ({ iv, pc: (rootPc + iv) % 12, role: roleOf(iv) }));
+      const pcToTone = new Map(tones.map(t => [t.pc, t]));
+      const essential = new Set(essentialIntervals(q).map(iv => (rootPc + iv) % 12));
+      const minStrings = Math.max(3, essential.size);
+      const seen = new Set();
+      const found = [];
+
+      for (let base = 0; base <= MAX_FRET - 3; base++) {
+        const perString = [];
+        for (let s = 0; s < 6; s++) {
+          const opts = [-1];
+          const lo = base === 0 ? 1 : base;
+          for (let f = lo; f <= Math.min(base + 3, MAX_FRET); f++) if (pcToTone.has((OPEN_MIDI[s] + f) % 12)) opts.push(f);
+          if (base <= 2 && pcToTone.has(OPEN_MIDI[s] % 12)) opts.push(0);
+          perString.push(opts);
+        }
+        const frets = new Array(6);
+        (function walk(s) {
+          if (s === 6) { consider(frets.slice()); return; }
+          for (const f of perString[s]) { frets[s] = f; walk(s + 1); }
+        })(0);
+      }
+
+      function consider(frets) {
+        const sounding = [];
+        for (let s = 0; s < 6; s++) if (frets[s] >= 0) sounding.push(s);
+        if (sounding.length < minStrings) return;
+        // No muted string inside the strummed range.
+        if (sounding[sounding.length - 1] - sounding[0] + 1 !== sounding.length) return;
+        const pcs = sounding.map(s => (OPEN_MIDI[s] + frets[s]) % 12);
+        for (const pc of essential) if (!pcs.includes(pc)) return;
+        const fretted = sounding.filter(s => frets[s] > 0);
+        const fVals = fretted.map(s => frets[s]);
+        const minF = fVals.length ? Math.min(...fVals) : 0;
+        const maxF = fVals.length ? Math.max(...fVals) : 0;
+        if (maxF - minF > 3) return;
+        const sig = frets.join(',');
+        if (seen.has(sig)) return;
+        const fingering = assignFingers(frets, sounding);
+        if (!fingering) return;
+        seen.add(sig);
+
+        const bassPc = pcs[0];
+        const bassRole = pcToTone.get(bassPc).role;
+        const opens = sounding.filter(s => frets[s] === 0).length;
+        const thirds = pcs.filter(pc => pcToTone.get(pc).role === '3').length;
+        const hasFifth = pcs.some(pc => pcToTone.get(pc).iv === 7);
+        const rootString = sounding.find(s => (OPEN_MIDI[s] + frets[s]) % 12 === rootPc);
+        // Lower is better. The weights encode what a hand and an ear prefer:
+        // few fingers, root in the bass, open strings when you're down there,
+        // a full sound, not too many doubled thirds (they turn to mud).
+        let score = fingering.count * 1.0
+          + (fingering.barre ? 1.4 : 0) + (fingering.miniBarre ? 0.8 : 0)
+          + (maxF - minF) * 0.3
+          + (bassRole === 'r' ? 0 : bassRole === '5' ? 3.5 : 5.0)
+          + minF * 0.12
+          // Open strings are a gift in open position and a stretch above it.
+          + (minF <= 2 ? -opens * 0.45 : opens * 1.0)
+          - sounding.length * 0.5
+          + (q.iv.includes(7) && !hasFifth ? (sounding.length <= 3 ? 1.2 : 0.7) : 0)
+          + (thirds > 1 ? 0.35 * (thirds - 1) : 0) + (thirds > 2 ? 0.8 : 0)
+          + 0;
+        const midi = sounding.map(s => OPEN_MIDI[s] + frets[s]);
+        found.push({ frets, sounding, pcs, midi, minF, maxF, opens, bassRole, bassPc, rootString, fingering, score, pcToTone });
+      }
+
+      found.sort((a, b) => a.score - b.score);
+      return { tones, voicings: chooseSpread(found) };
+    }
+
+    // Finger numbers. Notes are taken lowest fret first, low string to high,
+    // which is how most hands end up: 1-2-3 for D, 2-3-1 as a barre for F.
+    // A barre is the lowest fret held on two or more strings with nothing
+    // open between them; a "mini barre" is one finger flattening a group of
+    // neighbouring strings at a higher fret (the A-shape's ring finger).
+    function assignFingers(frets, sounding) {
+      const fingers = new Array(6).fill(0);
+      const fretted = sounding.filter(s => frets[s] > 0);
+      if (!fretted.length) return { fingers, count: 0, barre: null, miniBarre: null };
+      const minF = Math.min(...fretted.map(s => frets[s]));
+      const atMin = fretted.filter(s => frets[s] === minF);
+      let barre = null;
+      // Barre only when the hand needs it: three or more strings at the lowest
+      // fret, or too many notes for four separate fingers. An open D is three
+      // fingers, not a barre, even though its index could lie flat.
+      const adjacent = atMin.every((s, i) => i === 0 || s === atMin[i - 1] + 1);
+      if (atMin.length >= 3 || (atMin.length >= 2 && (adjacent || fretted.length > 4))) {
+        const lo = atMin[0], hi = sounding[sounding.length - 1];
+        let ok = true;
+        for (let s = lo; s <= hi; s++) if (frets[s] < minF) ok = false;
+        if (ok) barre = { fret: minF, from: lo, to: hi };
+      }
+      let next = 1;
+      const rest = [];
+      if (barre) { atMin.forEach(s => { fingers[s] = 1; }); next = 2; fretted.forEach(s => { if (frets[s] !== minF) rest.push(s); }); }
+      else fretted.forEach(s => rest.push(s));
+      rest.sort((a, b) => frets[a] - frets[b] || a - b);
+      let miniBarre = null;
+      if (rest.length + next - 1 > 4) {
+        // Too many notes for the fingers left: try flattening the highest
+        // fret's neighbouring strings under one finger.
+        const topF = Math.max(...rest.map(s => frets[s]));
+        const top = rest.filter(s => frets[s] === topF);
+        const contiguous = top.every((s, i) => i === 0 || s === top[i - 1] + 1);
+        if (top.length >= 2 && contiguous && rest.length - top.length + 1 + next - 1 <= 4) {
+          const lower = rest.filter(s => frets[s] !== topF);
+          lower.forEach(s => { fingers[s] = next++; });
+          top.forEach(s => { fingers[s] = next; });
+          miniBarre = { fret: topF, from: top[0], to: top[top.length - 1], finger: next };
+          next++;
+          return { fingers, count: next - 1, barre, miniBarre };
+        }
+        return null;
+      }
+      rest.forEach(s => { fingers[s] = next++; });
+      return { fingers, count: next - 1, barre, miniBarre };
+    }
+
+    // Pick a spread up the neck, not just the six best-scoring shapes (which
+    // would all be the same barre chord with one string more or less). One
+    // per region first, then the best of the rest, never a shape that is
+    // another shape with a string dropped.
+    function region(v) {
+      if (v.opens > 0 && v.maxF <= 4) return 'open';
+      if (v.minF <= 4) return 'low';
+      if (v.minF <= 8) return 'mid';
+      return 'high';
+    }
+    // Two shapes that differ on one string are the same shape; keep the
+    // fuller one unless filling it out costs a finger's worth of ease or
+    // puts the wrong note in the bass. A four-string shape and its six-string
+    // barre parent are NOT the same shape — both belong on the page.
+    function similar(a, b) {
+      let diff = 0;
+      for (let s = 0; s < 6; s++) {
+        if (a.frets[s] === b.frets[s]) continue;
+        if (a.frets[s] >= 0 && b.frets[s] >= 0) return false; // a different note, not a dropped one
+        diff++;
+      }
+      return diff <= 1;
+    }
+    const REGION_ORDER = { open: 0, low: 1, mid: 2, high: 3 };
+    function chooseSpread(all) {
+      all.forEach(v => { v.region = region(v); });
+      const picks = [];
+      const take = (v, cap) => {
+        for (let i = 0; i < picks.length; i++) {
+          const p = picks[i];
+          if (!similar(v, p)) continue;
+          // Fill the shape out only if it stays the same shape: same part of
+          // the neck, no wider a stretch, root still in the bass.
+          const fuller = v.sounding.length > p.sounding.length;
+          const bassOk = v.bassRole === 'r' || p.bassRole !== 'r';
+          const sameHand = v.region === p.region && (v.maxF - v.minF) <= (p.maxF - p.minF) + 1;
+          if (fuller && bassOk && sameHand && v.score - p.score < 1.2) picks[i] = v;
+          return;
+        }
+        if (picks.length >= 8) return;
+        if (cap && picks.filter(p => p.region === v.region).length >= cap) return;
+        picks.push(v);
+      };
+      ['open', 'low', 'mid', 'high'].forEach(r => {
+        const v = all.find(x => x.region === r && x.bassRole === 'r') || all.find(x => x.region === r);
+        if (v && v.score < 6) take(v);
+      });
+      // Small shapes are their own thing — a triad on three strings is what
+      // you reach for in a band, so make sure one is on the page.
+      const small = all.find(x => x.sounding.length <= 4 && x.bassRole === 'r' && !picks.includes(x));
+      if (small) take(small);
+      // Keep scanning past eight: a fuller version of a shape already picked
+      // can still replace it, even if there is no room for anything new.
+      for (const v of all) {
+        if (picks.includes(v) || v.score > 6) continue;
+        take(v, 3);
+      }
+      return picks.sort((a, b) => REGION_ORDER[a.region] - REGION_ORDER[b.region] || a.score - b.score);
+    }
+
+    // ═══ NAMING A SHAPE ═══
+    function describe(v, names, rootPc, q) {
+      const strings = v.sounding.length;
+      const rootStr = v.rootString !== undefined ? 6 - v.rootString : null;
+      let shape;
+      const barre = v.fingering.barre;
+      if (barre && barre.from === 0 && v.rootString === 0 && strings >= 5) shape = 'E-shape barre';
+      else if (barre && barre.from === 1 && v.rootString === 1 && strings >= 5) shape = 'A-shape barre';
+      else if (v.opens > 0 && strings >= 4) shape = 'Open';
+      else if (strings <= 4) shape = 'Small shape';
+      else if (v.fingering.barre) shape = 'Barre';
+      else shape = 'Closed shape';
+      const pos = v.maxF === 0 ? 'Open strings' : v.minF === 0 ? 'Open position' : v.minF === v.maxF ? `${ordinal(v.minF)} fret` : `Frets ${v.minF}–${v.maxF}`;
+      const tags = [];
+      if (rootStr) tags.push(`root on ${ordinal(rootStr)} string`);
+      tags.push(`${strings} strings`);
+      if (v.bassRole !== 'r') tags.push({ text: `${names[v.bassPc]} in the bass (${names[rootPc]}${q.suffix}/${names[v.bassPc]})`, warn: true });
+      if (!v.pcs.some(pc => v.pcToTone.get(pc).iv === 7) && q.iv.includes(7)) tags.push('no fifth');
+      const tip = tipFor(v, shape, strings);
+      return { shape, pos, tags, tip };
+    }
+    function tipFor(v, shape, strings) {
+      if (shape === 'E-shape barre') return 'The classic barre: your index finger is the nut, moved up the neck. Full six-string sound; tiring after a while, so learn a smaller shape for the same chord too.';
+      if (shape === 'A-shape barre') return 'Root on the A string, index finger across. Easier reach than the E-shape and sits a fourth higher, so the two shapes side by side cover the whole neck.';
+      if (shape === 'Open') return 'Open strings ring longer and brighter than fretted ones. Great on acoustic; hard to move, since the open strings only spell this one chord.';
+      if (shape === 'Small shape') return strings === 3 ? 'Three strings, three notes, nothing doubled. Slides anywhere, sits cleanly in a band mix, and it is the shape you can change quickest.' : 'Four strings — the shape you want with a bass player covering the low end. Punchy, easy to mute, and quick to move.';
+      if (v.minF >= 7) return 'High on the neck the same notes come out bright and cutting — good for sitting above a second guitar or a bass line rather than fighting them.';
+      return 'A closed shape: no open strings, so it moves. Learn it once here and you have it in every key by sliding it.';
+    }
     function ordinal(n) {
       if (n % 100 >= 11 && n % 100 <= 13) return n + 'th';
-      const s = ['th', 'st', 'nd', 'rd'];
-      return n + (s[n % 10] || 'th');
+      return n + (['th', 'st', 'nd', 'rd'][n % 10] || 'th');
     }
 
-    // Lowest fret at or above minFret, within a one-barre-position reach,
-    // whose note belongs to the chord. Mirrors how a hand actually finds notes.
-    function findFret(openPc, minFret, allowedPcs) {
-      for (let f = minFret; f <= minFret + 5; f++) {
-        if (allowedPcs.includes((openPc + f) % 12)) return f;
-      }
-      return null;
-    }
-
-    function buildShape(rootPc, intervals, rootStringIdx, label) {
-      const allowed = intervals.map(i => (rootPc + i) % 12);
-      const barreFret = ((rootPc - OPEN_STRINGS[rootStringIdx]) % 12 + 12) % 12;
-
-      const strings = [];
-      const noteNames = [];
+    // ═══ DRAWING: CHORD BOX ═══
+    // The vertical box a guitarist already reads. Strings across (low E on
+    // the left), frets down, dots coloured by role and numbered by finger.
+    function chordBoxSVG(v, names, q) {
+      const W = 170, H = 226, left = 30, right = 130, top = 46, fs = 26, nf = 5;
+      const sx = s => left + s * ((right - left) / 5);
+      const start = v.minF <= 1 || v.maxF <= 4 && v.minF <= 4 && v.opens > 0 ? 1 : v.minF;
+      const fy = f => top + (f - start + 0.5) * fs;
+      let svg = `<svg class="chord-box" viewBox="0 0 ${W} ${H}" role="img" aria-label="${ariaFor(v, names, q)}">`;
+      for (let f = 0; f <= nf; f++) svg += `<line class="${f === 0 && start === 1 ? 'cb-nut' : 'cb-fret'}" x1="${left}" y1="${top + f * fs}" x2="${right}" y2="${top + f * fs}"/>`;
+      for (let s = 0; s < 6; s++) svg += `<line class="cb-str" x1="${sx(s)}" y1="${top}" x2="${sx(s)}" y2="${top + nf * fs}" style="stroke-width:${1.6 - s * 0.15}"/>`;
+      if (start > 1) svg += `<text class="cb-pos" x="${left - 7}" y="${fy(start) + 3}">${start}fr</text>`;
+      const fg = v.fingering;
+      const barres = [fg.barre, fg.miniBarre].filter(Boolean);
+      barres.forEach(b => {
+        svg += `<rect class="cb-barre" x="${sx(b.from) - 9}" y="${fy(b.fret) - 8}" width="${sx(b.to) - sx(b.from) + 18}" height="16" rx="8"/>`;
+      });
       for (let s = 0; s < 6; s++) {
-        if (s < rootStringIdx) { strings.push('x'); continue; }
-        const fret = findFret(OPEN_STRINGS[s], barreFret, allowed);
-        if (fret === null) { strings.push('x'); continue; }
-        strings.push(String(fret));
-        noteNames.push(pcName((OPEN_STRINGS[s] + fret) % 12));
+        const f = v.frets[s];
+        const x = sx(s);
+        if (f < 0) { svg += `<text class="cb-mark cb-x" x="${x}" y="${top - 12}">×</text>`; continue; }
+        const tone = v.pcToTone.get((OPEN_MIDI[s] + f) % 12);
+        const color = ROLE_COLOR[tone.role];
+        if (f === 0) {
+          svg += `<circle class="cb-open" cx="${x}" cy="${top - 15}" r="5" style="stroke:${color}"/>`;
+        } else {
+          const y = fy(f);
+          svg += `<circle class="cb-dot" cx="${x}" cy="${y}" r="9" style="fill:${color}"/>`;
+          if (fg.fingers[s]) svg += `<text class="cb-finger" x="${x}" y="${y + 3.3}">${fg.fingers[s]}</text>`;
+        }
+        svg += `<text class="cb-note" x="${x}" y="${top + nf * fs + 16}" style="fill:${color}">${names[tone.pc]}</text>`;
+        svg += `<text class="cb-iv" x="${x}" y="${top + nf * fs + 28}">${ivLabel(tone.iv, q.suffix)}</text>`;
       }
-
-      if (strings.filter(f => f !== 'x').length < 3) return null; // too sparse to be playable
-
-      const fretsUsed = strings.filter(f => f !== 'x').map(Number);
-      const lo = Math.min(...fretsUsed), hi = Math.max(...fretsUsed);
-
-      const tips = {
-        'E-shape': barreFret === 0 ? 'Open E-family voicing. Full and ringing.' : 'E-shape barre. Root on the low E string — full 6-string sound.',
-        'A-shape': barreFret === 0 ? 'Open A-family voicing. Bright and direct.' : 'A-shape barre. Root on the 5th string — easier reach than E-shape.',
-        'D-shape': barreFret === 0 ? 'Open D-family voicing. Light and chiming.' : 'D-shape partial. Top strings only — easiest on the hand.'
-      };
-
-      return {
-        name: `${label}${barreFret === 0 ? ' (Open)' : ` (${ordinal(barreFret)} fret)`}`,
-        position: (lo === 0 && hi === 0) ? 'Open' : `Frets ${lo}-${hi}`,
-        strings,
-        notes: noteNames.join('-'),
-        tip: tips[label]
-      };
+      for (let s = 0; s < 6; s++) svg += `<text class="cb-slbl" x="${sx(s)}" y="${top + nf * fs + 40}">${STRING_NAMES[s]}</text>`;
+      return svg + '</svg>';
+    }
+    function ariaFor(v, names, q) {
+      return `${names[v.pcs[0]]} voicing, frets ${v.frets.map(f => f < 0 ? 'x' : f).join(' ')}, notes ${v.pcs.map(pc => names[pc]).join(' ')}`;
     }
 
-    function buildVoicings(rootPc, qualitySuffix) {
-      const intervals = CHORD_INTERVALS[qualitySuffix];
-      const seen = new Set();
-      return SHAPE_TEMPLATES
-        .map(t => buildShape(rootPc, intervals, t.rootString, t.label))
-        .filter(v => v && !seen.has(v.strings.join(',')) && seen.add(v.strings.join(',')));
+    // ═══ DRAWING: NECK MAP ═══
+    // The whole neck, twelve frets, every chord tone marked. This is the map
+    // the boxes are cut from: hover or tap a voicing and its notes light up
+    // here, so you see the shape as a piece of the neck instead of a diagram.
+    function neckMapSVG(pcToTone, names, q) {
+      const left = 46, nutX = 58, fw = 54, top = 22, sp = 20, frets = 12;
+      const fx = f => nutX + (f - 0.5) * fw;
+      const sy = s => top + (5 - s) * sp; // high e on top, like tab
+      let svg = `<rect class="nm-wood" x="${nutX}" y="${top - 10}" width="${fw * frets}" height="${sp * 5 + 20}" rx="3"/>`;
+      [3, 5, 7, 9].forEach(f => { svg += `<circle class="nm-inlay" cx="${fx(f)}" cy="${top + sp * 2.5}" r="5"/>`; });
+      svg += `<circle class="nm-inlay" cx="${fx(12)}" cy="${top + sp * 1.5}" r="5"/><circle class="nm-inlay" cx="${fx(12)}" cy="${top + sp * 3.5}" r="5"/>`;
+      for (let f = 0; f <= frets; f++) svg += `<line class="${f === 0 ? 'nm-nut' : 'nm-fret'}" x1="${nutX + f * fw}" y1="${top - 10}" x2="${nutX + f * fw}" y2="${top + sp * 5 + 10}"/>`;
+      for (let s = 0; s < 6; s++) svg += `<line class="nm-string" x1="${nutX}" y1="${sy(s)}" x2="${nutX + fw * frets}" y2="${sy(s)}" style="stroke-width:${2.2 - s * 0.25}"/>`;
+      for (let s = 0; s < 6; s++) svg += `<text class="nm-slbl" x="16" y="${sy(s) + 3}">${STRING_NAMES[s]}</text>`;
+      for (let f = 1; f <= frets; f++) svg += `<text class="nm-lbl" x="${fx(f)}" y="${top + sp * 5 + 24}">${f}</text>`;
+      for (let s = 0; s < 6; s++) for (let f = 0; f <= frets; f++) {
+        const tone = pcToTone.get((OPEN_MIDI[s] + f) % 12);
+        if (!tone) continue;
+        const x = f === 0 ? 36 : fx(f); // open strings sit just left of the nut
+        svg += `<circle class="nm-dot" data-s="${s}" data-f="${f}" cx="${x}" cy="${sy(s)}" r="8" style="fill:${ROLE_COLOR[tone.role]};stroke:${ROLE_COLOR[tone.role]}"/>`;
+        svg += `<text class="nm-txt" data-s="${s}" data-f="${f}" x="${x}" y="${sy(s) + 2.8}">${ivLabel(tone.iv, q.suffix)}</text>`;
+      }
+      return svg;
     }
+    function neckHighlight(v) {
+      const map = document.getElementById('neckMap');
+      map.querySelectorAll('.nm-dot, .nm-txt').forEach(el => {
+        const s = +el.dataset.s, f = +el.dataset.f;
+        el.classList.toggle('on', !!v && v.frets[s] === f);
+      });
+    }
+
+    // ═══ HEARING IT ═══
+    // A strum: each string a plucked-ish voice (two detuned oscillators into
+    // a lowpass that closes as the note decays), 55 ms apart, low to high.
+    let ac = null;
+    function audio() {
+      if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      return ac;
+    }
+    function strum(midis) {
+      const ctx = audio();
+      const t0 = ctx.currentTime + 0.02;
+      const master = ctx.createGain(); master.gain.value = 0.9 / Math.sqrt(midis.length); master.connect(ctx.destination);
+      midis.forEach((m, i) => {
+        const t = t0 + i * 0.055;
+        const f = 440 * Math.pow(2, (m - 69) / 12);
+        const o1 = ctx.createOscillator(); o1.type = 'triangle'; o1.frequency.value = f;
+        const o2 = ctx.createOscillator(); o2.type = 'sawtooth'; o2.frequency.value = f * 1.002;
+        const g2 = ctx.createGain(); g2.gain.value = 0.18;
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.7;
+        lp.frequency.setValueAtTime(Math.min(9000, f * 9), t);
+        lp.frequency.exponentialRampToValueAtTime(Math.max(300, f * 1.6), t + 1.6);
+        const env = ctx.createGain();
+        env.gain.setValueAtTime(0.0001, t);
+        env.gain.exponentialRampToValueAtTime(0.5, t + 0.008);
+        env.gain.exponentialRampToValueAtTime(0.0001, t + 2.2);
+        o1.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(env); env.connect(master);
+        o1.start(t); o2.start(t); o1.stop(t + 2.3); o2.stop(t + 2.3);
+      });
+    }
+
+    // ═══ STATE & UI ═══
+    let rootPc = 0, quality = QUALITIES[0], filter = 'all';
+    let current = null; // { tones, voicings, names }
+    let selected = 0;
+    const keyState = { root: 0, mode: 'major', sevenths: false };
+
+    const $ = id => document.getElementById(id);
 
     function initUI() {
-      const rootContainer = document.getElementById('rootButtons');
-      const qualityContainer = document.getElementById('qualityButtons');
-
-      NOTES.forEach(note => {
-        const btn = document.createElement('button');
-        btn.className = 'note-btn';
-        btn.textContent = note;
-        btn.onclick = () => selectRoot(note);
-        rootContainer.appendChild(btn);
+      NOTES_ASCII.forEach((n, i) => {
+        const b = document.createElement('button');
+        b.className = 'note-btn'; b.dataset.pc = i;
+        b.textContent = NOTES_SHARP[i] === NOTES_FLAT[i] ? NOTES_SHARP[i] : NOTES_SHARP[i] + '/' + NOTES_FLAT[i];
+        b.addEventListener('click', () => setChord(i, quality.suffix));
+        $('rootButtons').appendChild(b);
       });
-
+      const groups = {};
       QUALITIES.forEach(q => {
-        const btn = document.createElement('button');
-        btn.className = 'note-btn quality-btn';
-        btn.textContent = q.name;
-        btn.onclick = () => selectQuality(q.suffix);
-        qualityContainer.appendChild(btn);
+        if (!groups[q.group]) {
+          groups[q.group] = document.createElement('span'); groups[q.group].className = 'quality-group';
+          const l = document.createElement('span'); l.className = 'quality-group-label'; l.textContent = q.group;
+          groups[q.group].appendChild(l); $('qualityButtons').appendChild(groups[q.group]);
+        }
+        const b = document.createElement('button');
+        b.className = 'note-btn quality-btn'; b.dataset.suffix = q.suffix; b.textContent = q.name;
+        b.title = q.character;
+        b.addEventListener('click', () => setChord(rootPc, q.suffix));
+        groups[q.group].appendChild(b);
       });
+      NOTES_ASCII.forEach((n, i) => {
+        const o = document.createElement('option'); o.value = i;
+        o.textContent = NOTES_SHARP[i] === NOTES_FLAT[i] ? NOTES_SHARP[i] : NOTES_SHARP[i] + ' / ' + NOTES_FLAT[i];
+        $('keyRoot').appendChild(o);
+      });
+      $('keyRoot').addEventListener('change', e => { keyState.root = +e.target.value; renderKeyChips(); });
+      $('keyMode').addEventListener('change', e => { keyState.mode = e.target.value; renderKeyChips(); });
+      $('keySevenths').addEventListener('click', () => {
+        keyState.sevenths = !keyState.sevenths;
+        $('keySevenths').classList.toggle('active', keyState.sevenths);
+        $('keySevenths').setAttribute('aria-pressed', keyState.sevenths ? 'true' : 'false');
+        renderKeyChips();
+      });
+      document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.addEventListener('click', () => {
+        filter = b.dataset.filter;
+        document.querySelectorAll('.filter-btn[data-filter]').forEach(x => x.classList.toggle('active', x === b));
+        renderVoicings();
+      }));
+      $('hearChord').addEventListener('click', () => { const v = current && current.voicings[selected]; if (v) strum(v.midi); });
 
-      selectRoot('C');
-      selectQuality('');
+      // Arriving from the Synth or the Theory page: ?root=C&q=m7
+      let r = 0, sfx = '';
+      try {
+        const p = new URLSearchParams(location.search);
+        const rq = (p.get('root') || '').replace('♯', '#').replace('♭', 'b');
+        const ri = NOTES_ASCII.indexOf(rq) >= 0 ? NOTES_ASCII.indexOf(rq) : ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'].indexOf(rq);
+        if (ri >= 0) r = ri;
+        const qq = p.get('q');
+        if (qq !== null && QUALITIES.some(q => q.suffix === qq)) sfx = qq;
+      } catch (e) {}
+      keyState.root = r; $('keyRoot').value = r;
+      // Key mode follows the chord you arrived with, so a minor chord opens a minor key
+      if (['m', 'm7', 'm6', 'm9'].includes(sfx)) { keyState.mode = 'minor'; $('keyMode').value = 'minor'; }
+      renderKeyChips();
+      setChord(r, sfx, true);
     }
 
-    function selectRoot(note) {
-      selectedRoot = note;
-      document.querySelectorAll('#rootButtons .note-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent === note);
+    // The chords that belong in a key: thirds stacked off every scale degree.
+    const KEY_SCALES = { major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10] };
+    const STACK_SUFFIX = { '0,4,7': '', '0,3,7': 'm', '0,3,6': 'dim', '0,4,7,11': 'maj7', '0,3,7,10': 'm7', '0,4,7,10': '7', '0,3,6,10': 'm7b5' };
+    function keyChords() {
+      const iv = KEY_SCALES[keyState.mode];
+      const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+      return iv.map((deg, i) => {
+        const pick = k => (iv[(i + k) % 7] - deg + 12) % 12;
+        const stack = keyState.sevenths ? [0, pick(2), pick(4), pick(6)] : [0, pick(2), pick(4)];
+        const suffix = STACK_SUFFIX[stack.join(',')];
+        const minorish = pick(2) === 3;
+        const roman = (minorish ? romans[i].toLowerCase() : romans[i]) + (suffix === 'dim' ? '°' : suffix === 'm7b5' ? 'ø7' : suffix === 'maj7' ? 'maj7' : suffix === '7' || suffix === 'm7' ? '7' : '');
+        return { pc: (keyState.root + deg) % 12, suffix, roman };
       });
-      updateVoicings();
+    }
+    function renderKeyChips() {
+      const box = $('keyChips'); box.innerHTML = '';
+      const names = chooseSpelling(keyState.root, KEY_SCALES[keyState.mode]);
+      keyChords().forEach(c => {
+        const b = document.createElement('button');
+        b.className = 'key-chip' + (c.pc === rootPc && c.suffix === quality.suffix ? ' active' : '');
+        b.innerHTML = names[c.pc] + c.suffix + '<small>' + c.roman + '</small>';
+        b.title = 'Show every voicing of ' + names[c.pc] + c.suffix;
+        b.addEventListener('click', () => setChord(c.pc, c.suffix));
+        box.appendChild(b);
+      });
     }
 
-    function selectQuality(suffix) {
-      selectedQuality = suffix;
-      document.querySelectorAll('#qualityButtons .note-btn').forEach(btn => {
-        const quality = QUALITIES.find(q => q.suffix === suffix);
-        btn.classList.toggle('active', btn.textContent === quality.name);
-      });
-      updateVoicings();
+    function setChord(pc, suffix, silent) {
+      rootPc = pc;
+      quality = QUALITIES.find(q => q.suffix === suffix) || QUALITIES[0];
+      document.querySelectorAll('#rootButtons .note-btn').forEach(b => b.classList.toggle('active', +b.dataset.pc === pc));
+      document.querySelectorAll('#qualityButtons .quality-btn').forEach(b => b.classList.toggle('active', b.dataset.suffix === quality.suffix));
+      const names = chooseSpelling(pc, quality.iv);
+      const res = findVoicings(pc, quality);
+      current = { tones: res.tones, voicings: res.voicings, names, pcToTone: new Map(res.tones.map(t => [t.pc, t])) };
+      selected = 0;
+
+      $('chordName').innerHTML = names[pc] + quality.suffix + '<small>' + quality.name + '</small>';
+      $('chordFormula').innerHTML = res.tones.map(t =>
+        `<span class="formula-note" style="color:${ROLE_COLOR[t.role]};border-color:${ROLE_COLOR[t.role]}">${names[t.pc]}<small>${ivLabel(t.iv, quality.suffix)}</small></span>`).join('');
+      $('chordCharacter').textContent = quality.character;
+      $('synthLink').href = 'synth.html?root=' + encodeURIComponent(NOTES_ASCII[pc]) + '&chord=' + encodeURIComponent(quality.suffix);
+      $('theoryLink').href = 'theory.html?root=' + encodeURIComponent(NOTES_ASCII[keyState.root]) + '&scale=' + (keyState.mode === 'minor' ? 'Natural%20Minor%20(Aeolian)' : 'Major%20(Ionian)');
+      $('neckMap').innerHTML = neckMapSVG(current.pcToTone, names, quality);
+      renderKeyChips();
+      renderVoicings();
+      try { history.replaceState(null, '', '?root=' + encodeURIComponent(NOTES_ASCII[pc]) + '&q=' + encodeURIComponent(quality.suffix)); } catch (e) {}
+      if (!silent) { const v = current.voicings[0]; if (v) strum(v.midi); }
     }
 
-    function updateVoicings() {
-      const chordKey = selectedRoot + selectedQuality;
-      const voicings = buildVoicings(NOTE_TO_PC[selectedRoot], selectedQuality);
-
-      const container = document.getElementById('voicingsDisplay');
-
-      if (voicings.length === 0) {
-        container.innerHTML = `<p style="color: var(--text); opacity: 0.7; grid-column: 1 / -1; text-align: center; padding: 2rem;">No clean voicing found for ${chordKey} in this position — try another quality.</p>`;
+    function renderVoicings() {
+      const box = $('voicingsDisplay');
+      const { voicings, names } = current;
+      const show = voicings.filter(v => filter === 'all' || (filter === 'partial' ? v.sounding.length <= 4 : v.region === filter));
+      if (!show.length) {
+        box.innerHTML = '<p class="empty-note">Nothing clean in that part of the neck for this chord — try another filter.</p>';
+        neckHighlight(null);
         return;
       }
-
-      container.innerHTML = voicings.map(v => `
-        <div class="voicing-card">
-          <div class="voicing-title">${chordKey} — ${v.name}</div>
-          <div class="voicing-position">${v.position}</div>
-          <div class="fretboard">
-            ${renderFretboard(v.strings)}
-          </div>
-          <div class="voicing-notes">Notes: ${v.notes}</div>
-          <div class="voicing-tips">${v.tip}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderFretboard(strings) {
-      const stringLabels = ['E', 'A', 'D', 'G', 'B', 'e'];
-      return strings.map((fret, idx) => {
-        let dotClass = '';
-        let dotText = '';
-        
-        if (fret === 'x') {
-          dotClass = 'muted';
-          dotText = 'X';
-        } else if (fret === '0') {
-          dotClass = 'open';
-          dotText = 'O';
-        } else {
-          dotClass = 'fingered';
-          dotText = fret;
-        }
-
-        return `
-          <div class="fret-row">
-            <div class="string-label">${stringLabels[idx]}</div>
-            <div class="fret-dots">
-              <div class="fret-dot ${dotClass}">${dotText}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      if (!show.includes(voicings[selected])) selected = voicings.indexOf(show[0]);
+      box.innerHTML = '';
+      show.forEach(v => {
+        const idx = voicings.indexOf(v);
+        const d = describe(v, names, rootPc, quality);
+        const card = document.createElement('div');
+        card.className = 'voicing-card' + (idx === selected ? ' selected' : '');
+        card.setAttribute('role', 'button'); card.tabIndex = 0;
+        card.innerHTML = `
+          <div class="voicing-title">${d.shape}</div>
+          <div class="voicing-position">${d.pos}</div>
+          ${chordBoxSVG(v, names, quality)}
+          <div class="voicing-meta">${d.tags.map(t => typeof t === 'string' ? `<span class="voicing-tag">${t}</span>` : `<span class="voicing-tag warn">${t.text}</span>`).join('')}</div>
+          <div class="voicing-tips">${d.tip}</div>
+          <button class="cv-btn voicing-play" type="button">▶ Hear this one</button>`;
+        const pick = () => { selected = idx; document.querySelectorAll('.voicing-card').forEach(c => c.classList.toggle('selected', c === card)); neckHighlight(v); };
+        card.addEventListener('click', pick);
+        card.addEventListener('mouseenter', () => neckHighlight(v));
+        card.addEventListener('mouseleave', () => neckHighlight(voicings[selected]));
+        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); strum(v.midi); } });
+        card.querySelector('.voicing-play').addEventListener('click', e => { e.stopPropagation(); pick(); strum(v.midi); });
+        box.appendChild(card);
+      });
+      neckHighlight(voicings[selected]);
     }
 
     initUI();
+  })();
   </script>
 </body>
 </html>
