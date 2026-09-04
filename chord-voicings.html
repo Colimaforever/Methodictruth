@@ -18,6 +18,11 @@
   <style>
     body { background: linear-gradient(180deg, #0a0604 0%, #1a0f08 50%, #0a0604 100%); }
 
+    /* This page was written against --accent/--primary/--text, which the
+       site's stylesheet never defines, so every heading, border and button
+       fell back to inherited greys. Map them onto the site's own palette. */
+    :root { --accent: var(--glow); --primary: rgba(0, 229, 255, 0.18); --text: var(--stone); --bg: var(--sky-deep); }
+
     /* Role colours — the same five as the Synth's guide and the Theory page,
        so a purple dot means "third" wherever on this site you see one. */
     :root {
@@ -25,29 +30,43 @@
     }
 
     .voicings-container { max-width: 1200px; margin: 2rem auto; padding: 2rem; position: relative; z-index: 2; }
-    h1 { color: var(--accent); text-align: center; margin-bottom: 1rem; font-size: 2.5rem; }
-    .subtitle { text-align: center; color: var(--text); opacity: 0.8; margin-bottom: 2.2rem; font-size: 1.1rem; }
+    /* Header follows the site: Cinzel title, small tracked mono subtitle,
+       then a Garamond lede for the sentence that explains the page. */
+    .cv-lede {
+      font-family: 'EB Garamond', Georgia, serif; font-style: italic; font-size: 1.1rem; line-height: 1.6;
+      color: var(--stone); text-align: center; max-width: 640px; margin: -0.6rem auto 2rem;
+    }
+    .voicings-container h2 {
+      font-family: 'Cinzel', serif; font-weight: 400; font-size: 1.05rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--glow-warm); margin: 0 0 1.1rem;
+    }
+    .voicings-container h3 {
+      font-family: 'Cinzel', serif; font-weight: 400; font-size: 0.92rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--parchment); margin: 1.8rem 0 0.7rem;
+    }
+    .voicings-container h4 { font-family: 'Cinzel', serif; font-weight: 400; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; }
 
     .panel {
-      background: rgba(20, 12, 8, 0.9); border: 2px solid var(--primary); border-radius: 12px;
+      background: rgba(12, 8, 5, 0.82); border: 1px solid rgba(0, 229, 255, 0.16); border-radius: 6px;
       padding: 1.5rem 2rem; margin-bottom: 1.5rem;
     }
     .selector-row { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; flex-wrap: wrap; }
     .selector-row:last-child { margin-bottom: 0; }
     .selector-label {
-      color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-      min-width: 80px; padding-top: 0.55rem; font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--glow); opacity: 0.65; min-width: 96px; padding-top: 0.75rem;
     }
     .note-buttons { display: flex; gap: 0.4rem; flex-wrap: wrap; flex: 1; align-items: center; }
     .note-btn {
-      background: rgba(10, 6, 4, 0.8); border: 2px solid rgba(0, 229, 255, 0.3); color: var(--text);
-      padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+      background: rgba(10, 6, 4, 0.8); border: 1px solid rgba(0, 229, 255, 0.28); color: var(--stone);
+      padding: 0.5rem 0.95rem; border-radius: 4px; cursor: pointer; font-weight: 500; transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 0.04em;
     }
-    .note-btn:hover { border-color: var(--accent); background: rgba(20, 12, 8, 0.9); }
-    .note-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); box-shadow: 0 0 20px var(--accent); }
-    .quality-btn { border-color: rgba(123, 104, 238, 0.3); font-size: 0.78rem; padding: 0.45rem 0.8rem; }
-    .quality-btn.active { background: #7b68ee; border-color: #7b68ee; box-shadow: 0 0 20px rgba(123, 104, 238, 0.7); color: #fff; }
+    .note-btn:hover { border-color: var(--glow); color: var(--glow); background: rgba(0, 229, 255, 0.06); }
+    .note-btn.active { background: rgba(0, 229, 255, 0.18); color: var(--glow); border-color: var(--glow); box-shadow: 0 0 14px rgba(0, 229, 255, 0.35); }
+    .quality-btn { border-color: rgba(123, 104, 238, 0.3); font-size: 0.76rem; padding: 0.42rem 0.75rem; }
+    .quality-btn:hover { border-color: var(--oracle); color: #b4a7ff; background: rgba(123, 104, 238, 0.08); }
+    .quality-btn.active { background: rgba(123, 104, 238, 0.22); border-color: var(--oracle); box-shadow: 0 0 14px rgba(123, 104, 238, 0.45); color: #cfc6ff; }
     .quality-group { display: inline-flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; padding-right: 0.6rem; margin-right: 0.2rem; border-right: 1px solid rgba(138, 126, 107, 0.25); }
     .quality-group:last-child { border-right: 0; }
     .quality-group-label { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone-dark); }
@@ -55,12 +74,12 @@
     /* In the key of … — the chords that belong together */
     .key-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; flex: 1; }
     .key-select {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text);
-      background: rgba(10, 6, 4, 0.8); border: 2px solid rgba(232, 168, 124, 0.3); border-radius: 6px; padding: 0.45rem 0.6rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--stone);
+      background: rgba(10, 6, 4, 0.8); border: 1px solid rgba(232, 168, 124, 0.3); border-radius: 4px; padding: 0.45rem 0.6rem;
     }
     .key-chip {
-      background: rgba(10, 6, 4, 0.8); border: 2px solid rgba(232, 168, 124, 0.3); color: var(--text);
-      padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+      background: rgba(10, 6, 4, 0.8); border: 1px solid rgba(232, 168, 124, 0.3); color: var(--stone);
+      padding: 0.35rem 0.7rem; border-radius: 4px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
       line-height: 1.2; text-align: center; transition: all 0.2s;
     }
     .key-chip small { display: block; font-size: 0.55rem; color: var(--stone-dark); letter-spacing: 0.08em; margin-top: 0.15rem; }
@@ -71,7 +90,7 @@
 
     /* Chord header: what it is, what it's made of, hear it */
     .chord-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1.4rem; }
-    .chord-head-name { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--accent); letter-spacing: 0.04em; }
+    .chord-head-name { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 400; color: var(--parchment); letter-spacing: 0.06em; }
     .chord-head-name small { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark); letter-spacing: 0.1em; margin-left: 0.6rem; text-transform: uppercase; }
     .chord-formula { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .formula-note {
@@ -88,7 +107,7 @@
     .cv-btn:hover { border-color: var(--glow-warm); background: rgba(232, 168, 124, 0.1); box-shadow: 0 0 12px rgba(232, 168, 124, 0.2); }
     .cv-btn.cyan { color: var(--accent); border-color: rgba(0, 229, 255, 0.35); }
     .cv-btn.cyan:hover { border-color: var(--accent); background: rgba(0, 229, 255, 0.08); box-shadow: 0 0 12px rgba(0, 229, 255, 0.2); }
-    .chord-character { width: 100%; font-family: 'EB Garamond', serif; font-size: 1rem; color: var(--stone); font-style: italic; }
+    .chord-character { width: 100%; font-family: 'EB Garamond', serif; font-size: 1.05rem; color: var(--stone); font-style: italic; }
 
     /* Legend */
     .legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; align-items: center; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid rgba(138, 126, 107, 0.2); }
@@ -98,7 +117,7 @@
 
     /* Neck map — every place the chord's notes live */
     .neck-title { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
-    .neck-title h2 { color: var(--accent); font-size: 1.15rem; margin: 0; }
+    .neck-title h2 { margin: 0; }
     .neck-title span { font-family: 'EB Garamond', serif; font-size: 0.95rem; color: var(--stone-dark); font-style: italic; }
     .neck-scroll { overflow-x: auto; }
     .neck-map { display: block; width: 100%; min-width: 620px; height: auto; }
@@ -116,7 +135,7 @@
 
     /* Voicing cards */
     .voicings-toolbar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .voicings-toolbar h2 { color: var(--accent); font-size: 1.15rem; margin: 0 0.6rem 0 0; }
+    .voicings-toolbar h2 { margin: 0 0.6rem 0 0; }
     .filter-btn {
       font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--stone); background: rgba(10, 6, 4, 0.7); border: 1px solid rgba(138, 126, 107, 0.3); border-radius: 4px;
@@ -126,12 +145,12 @@
     .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0, 229, 255, 0.08); }
     .voicings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
     .voicing-card {
-      background: rgba(20, 12, 8, 0.9); border: 2px solid var(--primary); border-radius: 12px; padding: 1rem 1rem 1.1rem;
+      background: rgba(12, 8, 5, 0.82); border: 1px solid rgba(138, 126, 107, 0.28); border-radius: 6px; padding: 1rem 1rem 1.1rem;
       transition: all 0.25s; cursor: pointer; display: flex; flex-direction: column; align-items: center;
     }
     .voicing-card:hover { border-color: rgba(0, 229, 255, 0.55); transform: translateY(-3px); }
     .voicing-card.selected { border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 229, 255, 0.25); }
-    .voicing-title { color: var(--accent); font-size: 1.05rem; font-weight: 700; text-align: center; font-family: 'Cinzel', serif; letter-spacing: 0.03em; }
+    .voicing-title { color: var(--glow); font-size: 0.95rem; font-weight: 400; text-align: center; font-family: 'Cinzel', serif; letter-spacing: 0.08em; }
     .voicing-position { color: var(--stone-dark); text-align: center; font-size: 0.68rem; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; margin: 0.2rem 0 0.5rem; }
     .chord-box { display: block; width: 100%; max-width: 190px; height: auto; }
     .cb-fret { stroke: rgba(196, 183, 153, 0.28); stroke-width: 1; }
@@ -154,26 +173,25 @@
     }
     .voicing-tag.warn { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.4); }
     .voicing-tips {
-      background: rgba(123, 104, 238, 0.1); border-left: 3px solid #7b68ee; padding: 0.6rem 0.7rem; font-size: 0.85rem;
-      color: var(--text); opacity: 0.9; line-height: 1.5; margin-top: 0.7rem; width: 100%; font-family: 'EB Garamond', serif;
+      background: rgba(123, 104, 238, 0.08); border-left: 2px solid rgba(123, 104, 238, 0.7); padding: 0.6rem 0.7rem; font-size: 0.9rem;
+      color: var(--stone); line-height: 1.5; margin-top: 0.7rem; width: 100%; font-family: 'EB Garamond', serif;
     }
     .voicing-play { margin-top: 0.7rem; }
-    .empty-note { color: var(--text); opacity: 0.7; grid-column: 1 / -1; text-align: center; padding: 2rem; font-family: 'EB Garamond', serif; }
+    .empty-note { color: var(--stone); opacity: 0.8; grid-column: 1 / -1; text-align: center; padding: 2rem; font-family: 'EB Garamond', serif; }
 
     /* Reading the diagrams */
     .how-to { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
     .how-to div { font-family: 'EB Garamond', serif; font-size: 0.95rem; color: var(--stone); line-height: 1.55; }
     .how-to strong { color: var(--glow-warm); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
 
-    .knowledge-section { background: rgba(20, 12, 8, 0.9); border: 2px solid var(--primary); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; }
-    .knowledge-section h2 { color: var(--accent); margin-bottom: 1.5rem; }
-    .knowledge-section h3 { color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
-    .knowledge-section p, .knowledge-section ul { color: var(--text); line-height: 1.8; margin-bottom: 1rem; }
+    .knowledge-section { background: rgba(12, 8, 5, 0.82); border: 1px solid rgba(0, 229, 255, 0.16); border-radius: 6px; padding: 2rem; margin-bottom: 2rem; }
+    .knowledge-section p, .knowledge-section ul { color: var(--stone); line-height: 1.8; margin-bottom: 1rem; font-size: 1.02rem; }
+    .knowledge-section strong { color: var(--parchment); font-weight: 600; }
     .knowledge-section ul { margin-left: 1.5rem; }
     .knowledge-section li { margin-bottom: 0.5rem; }
-    .tip-box { background: rgba(0, 229, 255, 0.1); border-left: 3px solid var(--accent); padding: 1rem; margin: 1rem 0; }
-    .practice-routine { background: rgba(232, 168, 124, 0.1); border: 2px solid #e8a87c; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
-    .practice-routine h4 { color: #e8a87c; margin-bottom: 1rem; }
+    .tip-box { background: rgba(0, 229, 255, 0.06); border-left: 2px solid rgba(0, 229, 255, 0.6); padding: 1rem 1.1rem; margin: 1rem 0; }
+    .practice-routine { background: rgba(232, 168, 124, 0.07); border: 1px solid rgba(232, 168, 124, 0.45); border-radius: 6px; padding: 1.5rem; margin: 1.5rem 0; }
+    .practice-routine h4 { color: var(--glow-warm); margin-bottom: 1rem; }
     .practice-routine ol { margin-left: 1.5rem; }
     .practice-routine li { color: var(--text); margin-bottom: 0.75rem; line-height: 1.6; }
 
@@ -275,8 +293,11 @@
   </nav>
 
   <div class="voicings-container">
-    <h1>Guitar Chord Voicings</h1>
-    <p class="subtitle">Every way to play a chord — drawn as real chord boxes, with finger numbers, and coloured by what each note is doing.</p>
+    <div class="page-header" style="padding:3.5rem 1rem 1.2rem;">
+      <h1>Chord Voicings</h1>
+      <div class="subtitle">Every Way to Play Any Chord on Guitar</div>
+    </div>
+    <p class="cv-lede">Pick a chord and see every way to hold it, drawn as real chord boxes with finger numbers, each note coloured by what it is doing.</p>
 
     <div class="panel">
       <div class="selector-row">
@@ -354,7 +375,7 @@
     </div>
 
     <div class="knowledge-section">
-      <h2>🎸 Why Learn Multiple Voicings?</h2>
+      <h2>Why Learn Multiple Voicings?</h2>
 
       <p><strong>Barre chords are exhausting.</strong> They're powerful, but if they're all you know, your hand fatigues fast and your playing stays locked in one area of the neck.</p>
 
@@ -367,7 +388,7 @@
       </ul>
 
       <div class="tip-box">
-        <strong>💡 The Pattern:</strong> Most chord shapes can be moved up and down the neck. A shape learned at the 3rd fret works at the 7th fret too — just different notes. The neck map above shows you exactly why: the same coloured pattern repeats.
+        <strong>The pattern:</strong> Most chord shapes can be moved up and down the neck. A shape learned at the 3rd fret works at the 7th fret too — just different notes. The neck map above shows you exactly why: the same coloured pattern repeats.
       </div>
 
       <h3>How to Actually Use This</h3>
@@ -396,7 +417,7 @@
       </ul>
 
       <div class="tip-box">
-        <strong>💡 Start Here:</strong> Learn the E and A shapes first (they're the most common barre chords). Then add D shape voicings — they're easier on your hand and sound great for rhythm playing. Each card says which string its root sits on, which is how you tell the shapes apart.
+        <strong>Start here:</strong> Learn the E and A shapes first (they're the most common barre chords). Then add D shape voicings — they're easier on your hand and sound great for rhythm playing. Each card says which string its root sits on, which is how you tell the shapes apart.
       </div>
 
       <h3>Voice Leading: The Secret to Smooth Playing</h3>
@@ -449,7 +470,7 @@
       Bright, cutting, great for leads or when you want chords to sit above a bass line.</p>
 
       <div class="tip-box">
-        <strong>💡 The Real Goal:</strong> You want to be able to see a chord symbol (e.g., "Dm7") and instantly have 3-5 places you could play it on the neck. Then you choose based on context — what came before, what's coming next, and what tone you want.
+        <strong>The real goal:</strong> You want to be able to see a chord symbol (e.g., "Dm7") and instantly have 3-5 places you could play it on the neck. Then you choose based on context — what came before, what's coming next, and what tone you want.
       </div>
     </div>
 
