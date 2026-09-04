@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: September 9, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-09</link>
+    <guid isPermaLink="false">changelog-2026-09-09</guid>
+    <pubDate>Wed, 09 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth has an arpeggiator: hold a chord and it plays one note at a time, in time, up, down, up and down, random or as played, over one to four octaves, at any note length with a gate and a Hold that keeps the chord going hands-free. It runs on the same clock as the sequencer, so a programmed beat and a held chord lock together. And a second envelope: the new Mod Env module sits outside the audio path like the LFO and drives any parameter. Aim it at the filter cutoff with a fast decay and every note opens bright and snaps dark, which is what a pluck is; aim it at pitch and you have an 808. Oscillators gained a Coarse tune in semitones, the octave switch on every hardware panel, and a fix underneath means an LFO on pitch finally gives vibrato on played notes. Eight new presets and a rebuilt Pad, each one a lesson: Strings, E-Piano, Kalimba, Trance Pluck, Chiptune, Reese, 808 and Dub Stab.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 8, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-08</link>
     <guid isPermaLink="false">changelog-2026-09-08</guid>

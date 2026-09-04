@@ -41,6 +41,17 @@
       flex-shrink: 0;
     }
     .synth-toolbar-section:last-child { border-right: none; }
+    /* The presets are one long strip that scrolls sideways rather than
+       wrapping: the toolbar is fixed, so growing it would push modules under
+       it. A fade on the right edge says there is more. */
+    .synth-toolbar-section.presets {
+      flex: 1 1 100%; min-width: 0; overflow-x: auto; overflow-y: hidden;
+      scrollbar-width: thin; scrollbar-color: rgba(123, 104, 238, 0.35) transparent;
+      -webkit-overflow-scrolling: touch; padding-bottom: 0.15rem;
+      -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent);
+      mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent);
+    }
+    .synth-toolbar-section.presets > * { flex-shrink: 0; }
 
     .synth-toolbar-label {
       font-size: 0.5rem; color: var(--stone-dark);
@@ -746,6 +757,27 @@
       outline-offset: -2px;
     }
 
+    /* ─── ARPEGGIATOR ─── */
+    .arp-bar {
+      width: 100%; align-self: stretch; max-width: 1040px; margin: 0 auto 0.35rem;
+      padding: 0.3rem 0.45rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem;
+      background: rgba(10, 14, 26, 0.55);
+      border: 1px solid rgba(123, 104, 238, 0.3); border-radius: 4px;
+    }
+    .arp-bar[hidden] { display: none; }
+    .arp-label { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--oracle); }
+    .arp-gate {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.06em; color: var(--stone-dark);
+    }
+    .arp-gate input[type=range] { width: 70px; accent-color: var(--oracle); }
+    .arp-gate .seq-input { width: 3.2rem; }
+    .arp-hint { font-family: 'EB Garamond', serif; font-size: 0.8rem; color: var(--stone-dark); font-style: italic; }
+    .piano-oct-btn#arpBtn.on, .piano-oct-btn#arpHold.on { color: var(--oracle); border-color: rgba(123, 104, 238, 0.7); background: rgba(123, 104, 238, 0.12); }
+    .piano-key.arp-held:not(.active) { box-shadow: inset 0 0 0 2px rgba(232, 168, 124, 0.65); }
+    .piano-key.white.arp-held:not(.active) { background: rgba(232, 168, 124, 0.12); }
+    @media (max-width: 560px) { .arp-hint { display: none; } }
+
     /* ─── THEORY GUIDE ───
        The theory page knows what the notes are; the synth is where you play
        them. This panel puts the one onto the other: the keys that belong to a
@@ -987,6 +1019,7 @@
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label" data-cat="mod">Mod</span>
         <button class="synth-btn" data-cat="mod" data-add="lfo">LFO</button>
+        <button class="synth-btn" data-cat="mod" data-add="modenv" title="A second envelope that drives any parameter — point it at the filter cutoff">Mod Env</button>
       </div>
       <div class="synth-toolbar-section">
         <span class="synth-toolbar-label" data-cat="mix">Mix</span>
@@ -1006,26 +1039,34 @@
         <button class="synth-btn" data-cat="out" data-add="output">Output</button>
         <button class="synth-btn macro" id="channelStripBtn">+ Channel Strip</button>
       </div>
-      <div class="synth-toolbar-section">
+      <div class="synth-toolbar-section presets">
         <span class="synth-toolbar-label">Presets:</span>
-        <button class="synth-btn preset" data-preset="pad">Pad</button>
+        <button class="synth-btn preset" data-preset="pad" title="Three oscillators, two envelopes, chorus — slow and wide">Pad</button>
+        <button class="synth-btn preset" data-preset="strings" title="A pad that bows in faster and sits brighter">Strings</button>
+        <button class="synth-btn preset" data-preset="epiano" title="FM at a 1:1 ratio — the DX7 electric piano">E-Piano</button>
+        <button class="synth-btn preset" data-preset="organ">Organ</button>
+        <button class="synth-btn preset" data-preset="fmbell" title="FM at an inharmonic ratio rings like metal">FM Bell</button>
+        <button class="synth-btn preset" data-preset="kalimba" title="Struck, no sustain — a thumb piano">Kalimba</button>
+        <button class="synth-btn preset" data-preset="pluck" title="A filter envelope snapping shut is what makes a pluck">Pluck</button>
+        <button class="synth-btn preset" data-preset="trancepluck" title="Supersaw, filter envelope, dotted-eighth delay">Trance Pluck</button>
         <button class="synth-btn preset" data-preset="lead">Lead</button>
+        <button class="synth-btn preset" data-preset="chip" title="One square wave and the arpeggiator — the NES">Chiptune</button>
+        <button class="synth-btn preset" data-preset="arp" title="A plucky patch with the arpeggiator switched on">Arp</button>
         <button class="synth-btn preset" data-preset="bass">Bass</button>
-        <button class="synth-btn preset" data-preset="pluck">Pluck</button>
+        <button class="synth-btn preset" data-preset="subbass">Sub Bass</button>
+        <button class="synth-btn preset" data-preset="reese" title="Two saws detuned wide, an octave down — jungle bass">Reese</button>
+        <button class="synth-btn preset" data-preset="boom808" title="A sine whose pitch drops — the Mod Env driving the oscillator">808</button>
+        <button class="synth-btn preset" data-preset="acid">Acid</button>
+        <button class="synth-btn preset" data-preset="wobble">Wobble</button>
+        <button class="synth-btn preset" data-preset="growl">Growl</button>
+        <button class="synth-btn preset" data-preset="dubstab" title="A chord hit once and left to a long delay">Dub Stab</button>
+        <button class="synth-btn preset" data-preset="supersaw">Supersaw</button>
+        <button class="synth-btn preset" data-preset="brass">Brass</button>
         <button class="synth-btn preset" data-preset="drone">Drone</button>
         <button class="synth-btn preset" data-preset="ambient">Ambient</button>
-        <button class="synth-btn preset" data-preset="wobble">Wobble</button>
-        <button class="synth-btn preset" data-preset="fmbell">FM Bell</button>
-        <button class="synth-btn preset" data-preset="organ">Organ</button>
-        <button class="synth-btn preset" data-preset="arp">Arp</button>
         <button class="synth-btn preset" data-preset="scifi">Sci-Fi</button>
         <button class="synth-btn preset" data-preset="ritual">Ritual</button>
         <button class="synth-btn preset" data-preset="noisewash">Noise Wash</button>
-        <button class="synth-btn preset" data-preset="acid">Acid</button>
-        <button class="synth-btn preset" data-preset="subbass">Sub Bass</button>
-        <button class="synth-btn preset" data-preset="supersaw">Supersaw</button>
-        <button class="synth-btn preset" data-preset="growl">Growl</button>
-        <button class="synth-btn preset" data-preset="brass">Brass</button>
       </div>
       <div class="synth-toolbar-section">
         <button class="synth-btn" id="kbToggleBtn">⌨ Minimize</button>
@@ -1070,10 +1111,46 @@
         <option value="Two rows">Two rows</option>
         <option value="Custom">Custom</option>
       </select>
+      <button class="piano-oct-btn" id="arpBtn" title="Arpeggiator — hold a chord and it plays one note at a time, in time" aria-pressed="false">⇅ Arp</button>
       <button class="piano-oct-btn" id="guideBtn" title="Theory guide — light up a scale, the chords in a key, or any chord on the keys" aria-pressed="false">♪ Guide</button>
       <button class="piano-oct-btn" id="remapBtn" title="Bind your own keyboard keys to the piano">⌨ Remap</button>
       <button class="piano-oct-btn" id="padsBtn" title="Touch pads — play with your fingers, locked to a scale" hidden>◇ Pads</button>
       <span class="piano-info-hint" id="pianoHint">← → octave · ↑ ↓ velocity</span>
+    </div>
+    <!-- Arpeggiator: between the keys and the voices. Hidden until ⇅ Arp is pressed. -->
+    <div class="arp-bar" id="arpBar" hidden>
+      <span class="arp-label">Arp</span>
+      <select class="tp-select" id="arpMode" aria-label="Arpeggiator direction" title="Which way through the chord">
+        <option value="up">Up</option>
+        <option value="down">Down</option>
+        <option value="updown">Up &amp; down</option>
+        <option value="random">Random</option>
+        <option value="played">As played</option>
+      </select>
+      <select class="tp-select" id="arpRate" aria-label="Arpeggiator rate" title="Note length, at the sequencer's BPM">
+        <option value="4n">1/4</option>
+        <option value="8n">1/8</option>
+        <option value="8t">1/8 triplet</option>
+        <option value="16n">1/16</option>
+        <option value="16t">1/16 triplet</option>
+        <option value="32n">1/32</option>
+      </select>
+      <select class="tp-select" id="arpOct" aria-label="Arpeggiator octave range" title="Repeat the chord this many octaves up">
+        <option value="1">1 oct</option>
+        <option value="2">2 oct</option>
+        <option value="3">3 oct</option>
+        <option value="4">4 oct</option>
+      </select>
+      <label class="arp-gate" title="How much of each step the note is held — short is staccato, long is legato">Gate
+        <input type="range" id="arpGate" min="10" max="100" value="65" step="5">
+        <span id="arpGateOut">65%</span>
+      </label>
+      <label class="arp-gate" title="Tempo — shared with the sequencer">BPM
+        <input class="seq-input" id="arpBpm" type="number" min="40" max="300" value="120" inputmode="numeric">
+      </label>
+      <button class="piano-oct-btn" id="arpHold" title="Keep the chord playing after you let go">Hold</button>
+      <span class="arp-hint" id="arpHint"></span>
+      <button class="piano-oct-btn tg-close" id="arpClose" title="Turn the arpeggiator off">✕</button>
     </div>
     <!-- Theory guide: the theory page's scales and chords, drawn onto the keys
          you are about to play. Hidden until ♪ Guide is pressed. -->
@@ -1188,6 +1265,10 @@
       <dd>Slow modulation for movement. Pick what it drives from its <code>Drives</code> menu — every parameter in the rack is listed, and choosing one sets a depth range that suits it (<code>Min</code>/<code>Max</code> are the two ends of the sweep, <code>Rate</code> is how fast). Pitch = vibrato · Filter cutoff = wah · Vol = tremolo · Pan = auto-pan. A dashed violet line shows what it's driving. Modulation isn't audio, so no cable can carry it — that's why it's a menu.</dd>
       <dt>FM (Frequency Modulation)</dt>
       <dd>Patch one oscillator's <code>out</code> into another's <code>FM</code> input to modulate its pitch at audio rate. <code>FM Amt</code> = depth in Hz of frequency deviation. Set the modulator at a simple ratio of the carrier: <code>1:1</code>/<code>2:1</code> = harmonic (clean, organ-like), <code>3.5:1</code>+ = inharmonic/metallic (bells, e-piano, gongs).</dd>
+      <dt>Coarse and Detune (on the Oscillator)</dt>
+      <dd><code>Coarse</code> shifts the oscillator in semitones — the octave switch on a hardware panel. <code>−12</code> makes a sub-oscillator under your other oscillators; <code>+19</code> puts an FM modulator at a 3:1 ratio; <code>+7</code> is a fifth. <code>Detune</code> is the fine tune in cents: two saws a few cents apart beat against each other, and that beating is most of what people mean by "warm".</dd>
+      <dt>Mod Env — the second envelope</dt>
+      <dd>Every subtractive synth since the Minimoog has had two envelopes: one for loudness, one for the filter. The <code>ADSR</code> module is the first; this is the second. It sits outside the audio path like the LFO, and its <code>Drives</code> menu points it at any parameter. Point it at <strong>Filter · Cutoff</strong> with a fast Decay and no Sustain and every note opens bright and snaps dark — that is what a pluck <em>is</em>. Slow Attack on a pad makes the note bloom. Point it at <strong>Pitch</strong> with a short Decay and you have an 808 kick. <code>Amt</code> is how far it pushes, as a fraction of the target's useful range; negative pulls the other way.</dd>
       <dt>Envelope (ADSR)</dt>
       <dd>Attack = fade-in time · Decay = drop after peak · Sustain = held level · Release = fade after note off. Patch it between an oscillator and <code>Output</code> and it re-fires on every note — piano keys, MIDI, and the sequencer all retrigger it, so a short Decay gives plucked/percussive steps instead of a flat on/off. <strong>Drag the handles on its curve</strong> (or the sliders) to shape it — the graph and sliders stay in sync.</dd>
       <dt>Delay</dt>
@@ -1219,7 +1300,7 @@
     <ul>
       <li><strong style="color:#00e5ff">Source</strong> — Oscillator, Noise, Audio File, Audio In: where the sound starts.</li>
       <li><strong style="color:#e8a87c">Shape</strong> — Filter, EQ, Envelope: where its tone and contour are carved.</li>
-      <li><strong style="color:#7b68ee">Mod</strong> — LFO: slow movement driving another module's parameter. Sits outside the audio path; pick its target from the <code>Drives</code> menu.</li>
+      <li><strong style="color:#7b68ee">Mod</strong> — LFO and Mod Env: movement driving another module's parameter, cyclic or per note. Both sit outside the audio path; pick the target from the <code>Drives</code> menu.</li>
       <li><strong style="color:#6aad73">Mix</strong> — Gain, Pan, Compressor, Limiter: levels and stereo placement.</li>
       <li><strong style="color:#ffa050">Space FX</strong> — Delay, Reverb, Chorus: depth and width.</li>
       <li><strong style="color:#f0e8d8">Out</strong> — Output: the final stage, with a live VU meter showing how hot the signal is running.</li>
@@ -1248,6 +1329,21 @@
       <dt>Drum Machine</dt>
       <dd>Below the melodic grid, four drum rows — <code>Kick</code>, <code>Snare</code>, <code>Hat</code>, <code>Clap</code> — on the same clock and step count. Click cells to program a beat; each hit auditions as you click so you can build it by ear while stopped. <strong>Beat</strong> drops in a four-on-the-floor starting point to edit from — kick on every beat, snare on 2 and 4, and hats on eighths <em>with alternating accents</em>, because a flat hat line is what makes a beat sound typed in rather than played. The drums are synthesized and routed straight to the output, so they work <em>without</em> a patch on the canvas — you can program a beat before you've built a sound. <code>Clear</code> only wipes the melody; <code>Clear Drums</code> only wipes the beat.</dd>
     </dl>
+
+    <h3>⇅ Arpeggiator</h3>
+    <dl>
+      <dt>What it does</dt>
+      <dd>Press <code>⇅ Arp</code>, hold a chord, and the synth plays it <strong>one note at a time, in time</strong>. The notes are yours, the rhythm is the clock's. It runs on the same tempo as the sequencer, so the two lock together: program a beat, then hold chords over it. Keys, pads and MIDI all feed it; the sequencer and the guide bypass it, since they already know when their notes land.</dd>
+      <dt>The controls</dt>
+      <dd><strong>Direction</strong>: Up, Down, Up &amp; down, Random, or As played (the order you pressed the keys, which is how you write a melody with a chord). <strong>Rate</strong> is the note length — 1/8 for a groove, 1/16 for a run, triplets for a shuffle. <strong>Octaves</strong> repeats the chord that many octaves up, so a three-note chord over three octaves is a nine-note climb. <strong>Gate</strong> is how much of each step the note is held: short is staccato, long is legato, and with a Release on your ADSR the notes overlap.</dd>
+      <dt>Hold</dt>
+      <dd>With <code>Hold</code> on, the chord keeps playing after you let go, which frees your hands for the filter and the mixer. Play a new chord and it replaces the old one. Turning Hold off with no keys down stops the arpeggio.</dd>
+      <dt>Where it shines</dt>
+      <dd>The <em>Arp</em> and <em>Chiptune</em> presets switch it on with a sound made for it. Add an <code>ADSR</code> with a short Decay for a plucked arpeggio, and a <code>Delay</code> set to a dotted eighth (0.375 s at 120 BPM) so the echoes fall between the notes. A Mod Env on the filter cutoff is the difference between a run of notes and a run of <em>plucks</em>.</dd>
+    </dl>
+
+    <h3>Presets — each one is a lesson</h3>
+    <p>Every preset demonstrates one idea, and hovering its button says which. <strong>Pad</strong> and <strong>Strings</strong> are width and slowness: detuned saws, a sub, slow envelopes, chorus. <strong>Pluck</strong> and <strong>Trance Pluck</strong> are the filter envelope. <strong>E-Piano</strong> and <strong>FM Bell</strong> are FM at a harmonic ratio and an inharmonic one. <strong>Kalimba</strong> is an envelope with no sustain. <strong>Chiptune</strong> and <strong>Arp</strong> switch the arpeggiator on. <strong>Reese</strong> is wide detune under a driven filter. <strong>808</strong> is the Mod Env driving pitch. <strong>Dub Stab</strong> is a chord left to a long delay. Load one, then change one thing and listen for what moved.</p>
 
     <h3>♪ Guide — theory on the keys</h3>
     <dl>
@@ -1369,6 +1465,13 @@
       if (!target) return;
       modules[fromId].audio.node.connect(target);
       modConnections.push({ from: fromId, to: toId, param });
+      // A Mod Env's Amount is a fraction of its target's range, so it needs
+      // to know what it is driving before it can mean anything.
+      const spec = (MOD_TARGETS[modules[toId].type] || []).find(t => t.param === param);
+      if (spec && modules[fromId].type === 'modenv') {
+        modules[fromId].audio.span = spec.range[1] - spec.range[0];
+        modules[fromId].audio.apply();
+      }
     } catch (e) {}
   }
 
@@ -1619,6 +1722,10 @@
       setParam(fromId, 'min', spec.range[0]);
       setParam(fromId, 'max', spec.range[1]);
     }
+    if (spec && modules[fromId].type === 'modenv') {
+      modules[fromId].audio.span = spec.range[1] - spec.range[0];
+      modules[fromId].audio.apply();
+    }
     syncModCables();
     synthToast(`◎ ${moduleLabel(modules[fromId])} → ${moduleLabel(target)} · ${spec ? spec.label : param}`);
     if (window.Analytics) Analytics.trackDebounced('synth_mod_routed', { param }, 2000);
@@ -1710,9 +1817,14 @@
       controls: [
         { id: 'type', type: 'select', options: ['sine','sawtooth','square','triangle'], default: 'sawtooth', label: 'Wave' },
         { id: 'frequency', type: 'range', min: 20, max: 2000, default: 220, step: 1, label: 'Freq', unit: 'Hz' },
+        { id: 'coarse', type: 'range', min: -24, max: 24, default: 0, step: 1, label: 'Coarse', unit: 'st' },
         { id: 'detune', type: 'range', min: -100, max: 100, default: 0, step: 1, label: 'Detune', unit: 'ct' },
         { id: 'fmAmount', type: 'range', min: 0, max: 2000, default: 0, step: 1, label: 'FM Amt', unit: 'Hz' },
       ],
+      // Coarse is the octave/interval switch every hardware synth has (16'/8'/4'
+      // on the front panel): a sub-oscillator is Coarse −12, an FM modulator at
+      // a 3:1 ratio is Coarse +19. It is applied per note in noteOn; Detune is
+      // the fine tune in cents that makes two saws beat against each other.
       create(params) {
         const osc = new Tone.Oscillator({ type: params.type, frequency: params.frequency, detune: params.detune });
         // fmGain scales an incoming modulator signal into Hz of frequency deviation
@@ -2015,6 +2127,40 @@
       },
       update(audio, key, val) {
         audio.node[key] = val;
+      }
+    },
+    modenv: {
+      title: 'Mod Env',
+      glyph: '⏢',
+      category: 'mod',
+      viz: 'adsr',
+      inputs: [],
+      outputs: ['out'],
+      controls: [
+        { id: 'attack', type: 'range', min: 0.001, max: 2, default: 0.005, step: 0.001, label: 'Atk', unit: 's' },
+        { id: 'decay', type: 'range', min: 0.001, max: 2, default: 0.25, step: 0.001, label: 'Dec', unit: 's' },
+        { id: 'sustain', type: 'range', min: 0, max: 1, default: 0, step: 0.01, label: 'Sus', unit: '' },
+        { id: 'release', type: 'range', min: 0.001, max: 5, default: 0.2, step: 0.001, label: 'Rel', unit: 's' },
+        { id: 'amount', type: 'range', min: -1, max: 1, default: 0.6, step: 0.01, label: 'Amt', unit: '' },
+      ],
+      // The second envelope every subtractive synth has. The ADSR module shapes
+      // loudness; this one shapes *anything else* — point it at the filter's
+      // cutoff and a note opens bright and closes dark, which is the whole
+      // difference between a pluck and an organ. It is a control signal, not
+      // audio, so like the LFO it has a Drives menu instead of an input.
+      // Amount is a fraction of the target's useful range; negative inverts.
+      create(params) {
+        const env = new Tone.Envelope({ attack: params.attack, decay: params.decay, sustain: params.sustain, release: params.release });
+        const scale = new Tone.Scale(0, 0);
+        env.connect(scale);
+        const audio = { node: scale, env, out: scale, span: 1000, amount: params.amount };
+        audio.apply = () => { scale.min = 0; scale.max = audio.span * audio.amount; };
+        audio.apply();
+        return audio;
+      },
+      update(audio, key, val) {
+        if (key === 'amount') { audio.amount = val; audio.apply(); }
+        else audio.env[key] = val;
       }
     },
     output: {
@@ -2952,34 +3098,22 @@
       autoConnect(flt, 'out', rev, 'in');
       autoConnect(rev, 'out', out, 'in');
     } else if (name === 'arp') {
-      const osc = addModule('oscillator', 60, 40);
-      setParam(osc, 'type', 'square');
-      setParam(osc, 'frequency', 330);
-      const lfo = addModule('lfo', 60, 260);
-      setParam(lfo, 'frequency', 4);
-      setParam(lfo, 'min', 200);
-      setParam(lfo, 'max', 800);
-      const dly = addModule('delay', 320, 40);
-      setParam(dly, 'delayTime', 0.2);
-      setParam(dly, 'feedback', 0.5);
-      setParam(dly, 'wet', 0.4);
-      const gain = addModule('gain', 580, 40);
-      setParam(gain, 'gain', 0.3);
-      const out = addModule('output', 840, 40);
-      setParam(out, 'gain', 0.4);
-
-      // Connect LFO to osc frequency
-      autoConnect(osc, 'out', dly, 'in');
-      autoConnect(dly, 'out', gain, 'in');
-      autoConnect(gain, 'out', out, 'in');
-
-      // LFO → osc frequency modulation (direct Tone.js connect)
-      try {
-        modConnect(lfo, osc, 'frequency');
-      } catch(e) {}
-      // Visual cable for LFO
-      const lfoCircle = document.getElementById(`port_${lfo}_out`);
-      // We'll just show the standard cables
+      // The arpeggiator does the arpeggiating now; this patch is what it
+      // sounds best on — short, bright, with a delay a dotted eighth long so
+      // the echoes fall between the notes instead of on them.
+      const o1 = mk('oscillator', 40, 40,  { type: 'square' });
+      const o2 = mk('oscillator', 40, 200, { type: 'sawtooth', coarse: -12, detune: 4 });
+      const mix = mk('gain', 260, 120, { gain: 0.36 });
+      const flt = mk('filter', 460, 120, { type: 'lowpass', frequency: 700, Q: 3, rolloff: '-24' });
+      const menv = mk('modenv', 460, 320, { attack: 0.002, decay: 0.16, sustain: 0.05, release: 0.1, amount: 0.7 });
+      const env = mk('envelope', 660, 120, { attack: 0.002, decay: 0.2, sustain: 0.25, release: 0.12 });
+      const dly = mk('delay', 860, 120, { delayTime: 0.375, feedback: 0.42, wet: 0.32 });
+      const out = mk('output', 1060, 120, { gain: 0.38 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, dly, out);
+      modConnect(menv, flt, 'frequency');
+      arp.mode = 'updown'; arp.rate = '16n'; arp.octaves = 2; arp.hold = true;
+      arpSyncUI(); arpSetOn(true);
+      synthToast('⇅ Hold a chord — the arpeggiator plays it');
     } else if (name === 'noisewash') {
       const nz = addModule('noise', 60, 40);
       setParam(nz, 'type', 'pink');
@@ -2997,31 +3131,23 @@
       autoConnect(rev, 'out', out, 'in');
 
     } else if (name === 'pad') {
-      // Warm pad: two detuned saws → LP filter → reverb
-      const osc1 = addModule('oscillator', 60, 20);
-      setParam(osc1, 'type', 'sawtooth');
-      setParam(osc1, 'frequency', 220);
-      setParam(osc1, 'detune', -12);
-      const osc2 = addModule('oscillator', 60, 200);
-      setParam(osc2, 'type', 'sawtooth');
-      setParam(osc2, 'frequency', 220);
-      setParam(osc2, 'detune', 12);
-      const gain1 = addModule('gain', 280, 100);
-      setParam(gain1, 'gain', 0.4);
-      const flt = addModule('filter', 480, 100);
-      setParam(flt, 'type', 'lowpass');
-      setParam(flt, 'frequency', 1200);
-      setParam(flt, 'Q', 1.5);
-      const rev = addModule('reverb', 680, 100);
-      setParam(rev, 'decay', 6);
-      setParam(rev, 'wet', 0.6);
-      const out = addModule('output', 880, 100);
-      setParam(out, 'gain', 0.3);
-      autoConnect(osc1, 'out', gain1, 'in');
-      autoConnect(osc2, 'out', gain1, 'in');
-      autoConnect(gain1, 'out', flt, 'in');
-      autoConnect(flt, 'out', rev, 'in');
-      autoConnect(rev, 'out', out, 'in');
+      // A pad is three things at once: width (saws detuned against each other
+      // and a sub an octave down), slowness (an amp envelope that takes most of
+      // a second to arrive and seconds to leave) and motion (a filter that
+      // opens as the note blooms, then a slow chorus). Two saws into a static
+      // filter is a drone with a name, not a pad.
+      const o1 = mk('oscillator', 40, 20,  { type: 'sawtooth', detune: -9 });
+      const o2 = mk('oscillator', 40, 180, { type: 'sawtooth', detune: 9 });
+      const o3 = mk('oscillator', 40, 340, { type: 'square', coarse: -12, detune: 3 });   // the sub: weight under the saws
+      const mix = mk('gain', 260, 180, { gain: 0.26 });
+      const flt = mk('filter', 460, 180, { type: 'lowpass', frequency: 650, Q: 1.3, rolloff: '-24', drive: 0.06 });
+      const menv = mk('modenv', 460, 380, { attack: 1.4, decay: 1.6, sustain: 0.55, release: 2.5, amount: 0.55 });
+      const env = mk('envelope', 660, 180, { attack: 0.9, decay: 1.2, sustain: 0.85, release: 2.8 });
+      const cho = mk('chorus', 860, 180, { frequency: 0.35, depth: 0.55, wet: 0.4 });
+      const rev = mk('reverb', 1060, 180, { decay: 7, wet: 0.5 });
+      const out = mk('output', 1260, 180, { gain: 0.32 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(mix, flt, env, cho, rev, out);
+      modConnect(menv, flt, 'frequency');   // the filter opens as the note blooms
 
     } else if (name === 'lead') {
       // Synth lead: square → BP filter (high resonance) → delay → output
@@ -3090,23 +3216,20 @@
       autoConnect(gain1, 'out', out, 'in');
 
     } else if (name === 'pluck') {
-      // Pluck: triangle → filter sweep → short delay
-      const osc = addModule('oscillator', 60, 60);
-      setParam(osc, 'type', 'triangle');
-      setParam(osc, 'frequency', 330);
-      const flt = addModule('filter', 280, 60);
-      setParam(flt, 'type', 'lowpass');
-      setParam(flt, 'frequency', 3000);
-      setParam(flt, 'Q', 4);
-      const dly = addModule('delay', 480, 60);
-      setParam(dly, 'delayTime', 0.08);
-      setParam(dly, 'feedback', 0.2);
-      setParam(dly, 'wet', 0.25);
-      const out = addModule('output', 680, 60);
-      setParam(out, 'gain', 0.4);
-      autoConnect(osc, 'out', flt, 'in');
-      autoConnect(flt, 'out', dly, 'in');
-      autoConnect(dly, 'out', out, 'in');
+      // A pluck is a filter envelope: the cutoff starts open and snaps shut in
+      // a quarter of a second, so the note is bright for an instant and dark
+      // after. That is the sound of a string being struck; a static filter
+      // cannot do it, which is why this patch has two envelopes.
+      const o1 = mk('oscillator', 40, 40,  { type: 'sawtooth' });
+      const o2 = mk('oscillator', 40, 200, { type: 'triangle', detune: 6 });
+      const mix = mk('gain', 260, 120, { gain: 0.4 });
+      const flt = mk('filter', 460, 120, { type: 'lowpass', frequency: 380, Q: 3.5, rolloff: '-24', drive: 0.1 });
+      const menv = mk('modenv', 460, 320, { attack: 0.002, decay: 0.24, sustain: 0, release: 0.2, amount: 0.85 });
+      const env = mk('envelope', 660, 120, { attack: 0.002, decay: 0.4, sustain: 0.12, release: 0.3 });
+      const dly = mk('delay', 860, 120, { delayTime: 0.19, feedback: 0.3, wet: 0.22 });
+      const out = mk('output', 1060, 120, { gain: 0.42 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, dly, out);
+      modConnect(menv, flt, 'frequency');
 
     } else if (name === 'wobble') {
       // Wobble bass: saw → LP filter modulated by LFO
@@ -3233,7 +3356,7 @@
       setParam(carrier, 'fmAmount', 450);
       const modu = addModule('oscillator', 60, 240);
       setParam(modu, 'type', 'sine');
-      setParam(modu, 'frequency', 770); // ~3.5x carrier → bell-like inharmonics
+      setParam(modu, 'coarse', 22); // ~3.6× the carrier — inharmonic, so it rings like metal, not like an organ
       const env = addModule('envelope', 560, 40);
       setParam(env, 'attack', 0.005);
       setParam(env, 'decay', 0.8);
@@ -3317,9 +3440,119 @@
       const out = addModule('output', 940, 110); setParam(out, 'gain', 0.36);
       autoConnect(o1, 'out', mix, 'in'); autoConnect(o2, 'out', mix, 'in');
       autoConnect(mix, 'out', flt, 'in'); autoConnect(flt, 'out', env, 'in'); autoConnect(env, 'out', out, 'in');
+    } else if (name === 'epiano') {
+      // DX7 rule: a modulator at the same pitch as the carrier (1:1) adds
+      // harmonics, not clangour, and a fast envelope makes it a struck key.
+      const car = mk('oscillator', 260, 40, { type: 'sine', fmAmount: 260 });
+      const mo = mk('oscillator', 40, 200, { type: 'sine', coarse: 0, detune: 2 });
+      const env = mk('envelope', 480, 40, { attack: 0.003, decay: 1.1, sustain: 0.15, release: 0.5 });
+      const cho = mk('chorus', 680, 40, { frequency: 0.7, depth: 0.3, wet: 0.3 });
+      const rev = mk('reverb', 880, 40, { decay: 2.8, wet: 0.28 });
+      const out = mk('output', 1080, 40, { gain: 0.45 });
+      autoConnect(mo, 'out', car, 'fm');
+      chain(car, env, cho, rev, out);
+    } else if (name === 'strings') {
+      // Strings are a pad that bows in faster and sits brighter: three saws
+      // (one an octave up, quiet) with a slow attack and a lot of chorus.
+      const o1 = mk('oscillator', 40, 20,  { type: 'sawtooth', detune: -8 });
+      const o2 = mk('oscillator', 40, 180, { type: 'sawtooth', detune: 8 });
+      const o3 = mk('oscillator', 40, 340, { type: 'sawtooth', coarse: 12, detune: -3 });
+      const mix = mk('gain', 260, 180, { gain: 0.24 });
+      const flt = mk('filter', 460, 180, { type: 'lowpass', frequency: 2600, Q: 0.9, rolloff: '-12' });
+      const env = mk('envelope', 660, 180, { attack: 0.45, decay: 0.6, sustain: 0.9, release: 1.3 });
+      const cho = mk('chorus', 860, 180, { frequency: 0.5, depth: 0.7, wet: 0.5 });
+      const rev = mk('reverb', 1060, 180, { decay: 5, wet: 0.45 });
+      const out = mk('output', 1260, 180, { gain: 0.3 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(mix, flt, env, cho, rev, out);
+    } else if (name === 'chip') {
+      // One square wave, no filter, an envelope that is basically on/off —
+      // the NES sound. The arpeggiator is what turned three-voice chips into
+      // chords, so it comes on with this patch.
+      const o1 = mk('oscillator', 40, 40, { type: 'square' });
+      const env = mk('envelope', 260, 40, { attack: 0.002, decay: 0.08, sustain: 0.6, release: 0.05 });
+      const dly = mk('delay', 460, 40, { delayTime: 0.14, feedback: 0.22, wet: 0.14 });
+      const out = mk('output', 660, 40, { gain: 0.3 });
+      chain(o1, env, dly, out);
+      arp.mode = 'up'; arp.rate = '16n'; arp.octaves = 2; arp.hold = true;
+      arpSyncUI(); arpSetOn(true);
+      synthToast('⇅ Hold a chord — chiptune chords are arpeggios');
+    } else if (name === 'dubstab') {
+      // A stab is a chord hit once and left to the delay: saw and a sub
+      // through a resonant bandpass, a fast envelope, and a long feedback
+      // delay a dotted eighth long, so the echoes fall off the beat.
+      const o1 = mk('oscillator', 40, 40,  { type: 'sawtooth' });
+      const o2 = mk('oscillator', 40, 200, { type: 'square', coarse: -12 });
+      const mix = mk('gain', 260, 120, { gain: 0.34 });
+      const flt = mk('filter', 460, 120, { type: 'bandpass', frequency: 900, Q: 5, rolloff: '-24', drive: 0.3 });
+      const env = mk('envelope', 660, 120, { attack: 0.004, decay: 0.28, sustain: 0, release: 0.2 });
+      const dly = mk('delay', 860, 120, { delayTime: 0.375, feedback: 0.6, wet: 0.5 });
+      const rev = mk('reverb', 1060, 120, { decay: 4, wet: 0.3 });
+      const out = mk('output', 1260, 120, { gain: 0.36 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, dly, rev, out);
+    } else if (name === 'kalimba') {
+      // A thumb piano is a sine with an octave of overtone, struck and left
+      // to die — no sustain at all. The FM adds the click of the tine.
+      const car = mk('oscillator', 260, 40, { type: 'sine', fmAmount: 140 });
+      const mo = mk('oscillator', 40, 200, { type: 'sine', coarse: 19 });
+      const o3 = mk('oscillator', 40, 360, { type: 'triangle', coarse: 12 });
+      const mix = mk('gain', 480, 120, { gain: 0.45 });
+      const env = mk('envelope', 680, 120, { attack: 0.001, decay: 0.55, sustain: 0, release: 0.35 });
+      const dly = mk('delay', 880, 120, { delayTime: 0.21, feedback: 0.28, wet: 0.2 });
+      const rev = mk('reverb', 1080, 120, { decay: 2.5, wet: 0.35 });
+      const out = mk('output', 1280, 120, { gain: 0.45 });
+      autoConnect(mo, 'out', car, 'fm');
+      chain(car, mix); chain(o3, mix); chain(mix, env, dly, rev, out);
+    } else if (name === 'trancepluck') {
+      // Supersaw plus filter envelope plus a dotted-eighth delay: the sound
+      // that ran a decade of dance music, and a lesson in why the same three
+      // saws are a pad with one envelope and a pluck with two.
+      const o1 = mk('oscillator', 40, 20,  { type: 'sawtooth', detune: -12 });
+      const o2 = mk('oscillator', 40, 180, { type: 'sawtooth' });
+      const o3 = mk('oscillator', 40, 340, { type: 'sawtooth', detune: 12 });
+      const mix = mk('gain', 260, 180, { gain: 0.28 });
+      const flt = mk('filter', 460, 180, { type: 'lowpass', frequency: 450, Q: 2, rolloff: '-24', drive: 0.15 });
+      const menv = mk('modenv', 460, 380, { attack: 0.002, decay: 0.22, sustain: 0, release: 0.2, amount: 0.9 });
+      const env = mk('envelope', 660, 180, { attack: 0.002, decay: 0.32, sustain: 0.08, release: 0.25 });
+      const dly = mk('delay', 860, 180, { delayTime: 0.375, feedback: 0.45, wet: 0.35 });
+      const rev = mk('reverb', 1060, 180, { decay: 3, wet: 0.3 });
+      const out = mk('output', 1260, 180, { gain: 0.3 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(mix, flt, env, dly, rev, out);
+      modConnect(menv, flt, 'frequency');
+    } else if (name === 'reese') {
+      // The jungle bass: two saws detuned wide enough to churn against each
+      // other, an octave down, into a driven lowpass. Play it low.
+      const o1 = mk('oscillator', 40, 40,  { type: 'sawtooth', coarse: -12, detune: -28 });
+      const o2 = mk('oscillator', 40, 200, { type: 'sawtooth', coarse: -12, detune: 28 });
+      const mix = mk('gain', 260, 120, { gain: 0.38 });
+      const flt = mk('filter', 460, 120, { type: 'lowpass', frequency: 380, Q: 1.6, rolloff: '-24', drive: 0.35 });
+      const env = mk('envelope', 660, 120, { attack: 0.01, decay: 0.2, sustain: 1, release: 0.2 });
+      const out = mk('output', 860, 120, { gain: 0.42 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, out);
+    } else if (name === 'boom808') {
+      // An 808 kick is a sine whose pitch falls in the first hundred
+      // milliseconds — that drop is the "boom". Here the Mod Env drives the
+      // oscillator's pitch and the amp envelope rings for most of a second.
+      const o1 = mk('oscillator', 40, 40, { type: 'sine', coarse: -12 });
+      const menv = mk('modenv', 40, 240, { attack: 0.001, decay: 0.11, sustain: 0, release: 0.05, amount: 0.22 });
+      const flt = mk('filter', 260, 40, { type: 'lowpass', frequency: 260, Q: 0.8, rolloff: '-12', drive: 0.3 });
+      const env = mk('envelope', 460, 40, { attack: 0.001, decay: 0.9, sustain: 0, release: 0.35 });
+      const out = mk('output', 660, 40, { gain: 0.55 });
+      chain(o1, flt, env, out);
+      modConnect(menv, o1, 'frequency');
+      synthToast('Play it low — an octave or two under middle C');
     }
     userMovedModules = true;   // presets place their own modules — leave the layout alone
     chainChanged();
+  }
+
+  // Preset shorthand: make a module with its params, and wire a chain in order.
+  function mk(type, x, y, params) {
+    const id = addModule(type, x, y);
+    Object.entries(params || {}).forEach(([k, v]) => setParam(id, k, v));
+    return id;
+  }
+  function chain() {
+    for (let i = 0; i + 1 < arguments.length; i++) autoConnect(arguments[i], 'out', arguments[i + 1], 'in');
   }
 
   function setParam(moduleId, paramId, value) {
@@ -3556,8 +3789,10 @@
     try { midiOutput.send([status, noteNum & 0x7f, (vel || 0) & 0x7f]); } catch(e) {}
   }
 
-  // Trigger a note on
-  function noteOn(noteNum, vel, source) {
+  // Trigger a note on — the raw voice, below the arpeggiator. Everything
+  // that plays goes through noteOn()/noteOff() further down, which hand a
+  // note to the arpeggiator when it is on and to these otherwise.
+  function voiceOn(noteNum, vel, source) {
     const startTime = performance.now();
     sendMidiOut('on', noteNum, vel);
 
@@ -3581,7 +3816,7 @@
     const gain = vel / 127;
 
     // Retrigger if note already playing
-    if (activeNotes.has(noteNum)) noteOff(noteNum);
+    if (activeNotes.has(noteNum)) voiceOff(noteNum);
 
     // Create temporary oscillators for this note
     const synthNodes = [];
@@ -3597,8 +3832,17 @@
       const origOsc = mod.audio.node;
 
       // Create temp oscillator with minimal overhead
-      const tempOsc = new Tone.Oscillator(freq, origOsc.type);
+      const tempOsc = new Tone.Oscillator(freq * Math.pow(2, (mod.params.coarse || 0) / 12), origOsc.type);
       tempOsc.detune.value = origOsc.detune.value;
+
+      // A modulator pointed at this oscillator's pitch or detune was only ever
+      // wired to the module's template oscillator, which never sounds — so an
+      // LFO set to "Pitch" gave no vibrato. Each voice gets the same wiring.
+      const voiceMods = [];
+      modConnections.forEach(mc => {
+        if (mc.to !== mod.id || !tempOsc[mc.param] || !modules[mc.from]) return;
+        try { modules[mc.from].audio.node.connect(tempOsc[mc.param]); voiceMods.push({ node: modules[mc.from].audio.node, param: tempOsc[mc.param] }); } catch (e) {}
+      });
 
       const tempGain = new Tone.Gain(gain);
       tempOsc.connect(tempGain);
@@ -3607,13 +3851,13 @@
       const tempFmGain = new Tone.Gain(mod.params.fmAmount);
       tempFmGain.connect(tempOsc.frequency);
 
-      tempByModId[mod.id] = { tempOsc, tempGain, tempFmGain };
+      tempByModId[mod.id] = { tempOsc, tempGain, tempFmGain, voiceMods };
     }
 
     // Pass 2: route each oscillator's output through its cables.
     for (let i = 0; i < oscs.length; i++) {
       const mod = oscs[i];
-      const { tempOsc, tempGain, tempFmGain } = tempByModId[mod.id];
+      const { tempOsc, tempGain, tempFmGain, voiceMods } = tempByModId[mod.id];
 
       // Route through cables or direct to destination
       const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
@@ -3638,7 +3882,7 @@
 
       // Start at precise time (no delay)
       tempOsc.start(startTime2);
-      synthNodes.push({ osc: tempOsc, gain: tempGain, fmGain: tempFmGain });
+      synthNodes.push({ osc: tempOsc, gain: tempGain, fmGain: tempFmGain, voiceMods });
     }
 
     activeNotes.set(noteNum, synthNodes);
@@ -3649,6 +3893,7 @@
     // shape even when notes overlap (e.g. fast sequencer steps).
     Object.values(modules).forEach(m => {
       if (m.type === 'envelope') { try { m.audio.node.triggerAttack(); } catch(e) {} }
+      else if (m.type === 'modenv') { try { m.audio.env.triggerAttack(); } catch(e) {} }
     });
 
     // Log processing time for first few notes
@@ -3659,12 +3904,13 @@
   }
 
   // Trigger a note off
-  function noteOff(noteNum) {
+  function voiceOff(noteNum) {
     sendMidiOut('off', noteNum, 0);
     const nodes = activeNotes.get(noteNum);
     if (!nodes) return;
     nodes.forEach(n => {
       try {
+        (n.voiceMods || []).forEach(vm => { try { vm.node.disconnect(vm.param); } catch (e) {} });
         n.osc.stop();
         n.osc.dispose();
         n.gain.dispose();
@@ -3679,8 +3925,198 @@
     if (activeNotes.size === 0) {
       Object.values(modules).forEach(m => {
         if (m.type === 'envelope') { try { m.audio.node.triggerRelease(); } catch(e) {} }
+        else if (m.type === 'modenv') { try { m.audio.env.triggerRelease(); } catch(e) {} }
       });
     }
+  }
+
+  // ═══════════════════════════════════════════════
+  // ARPEGGIATOR
+  // ═══════════════════════════════════════════════
+  // Hold a chord and the synth plays it one note at a time, in time. The
+  // Juno and the SH-101 had this on the front panel because it turns a
+  // person with one free hand into a sequencer: the notes are yours, the
+  // rhythm is the clock's. It sits between the keys and the voices — keys,
+  // pads and MIDI feed it; the sequencer and the guide bypass it, since they
+  // already know when their notes should land. It runs on the same Transport
+  // as the sequencer, so the two lock together at one BPM.
+  const ARP_SOURCES = new Set(['keyboard', 'mouse', 'touch', 'midi', 'pads']);
+  const ARP_STORAGE = 'synthArp';
+  var arp = { on: false, mode: 'up', rate: '8n', octaves: 1, gate: 65, hold: false, open: false };
+  let arpHeld = [];            // [{note, vel}] in the order they were pressed
+  const arpPhysical = new Set(); // notes with a key or finger actually on them
+  let arpLatched = false;      // Hold: keys are up but the chord is kept
+  let arpPattern = [];         // the notes the loop steps through
+  let arpIdx = 0;
+  let arpLoop = null;
+  let arpSounding = null;
+  let arpGateToken = 0;
+
+  function noteOn(noteNum, vel, source) {
+    if (arp.on && ARP_SOURCES.has(source)) { arpNoteOn(noteNum, vel); return; }
+    voiceOn(noteNum, vel, source);
+  }
+  function noteOff(noteNum) {
+    if (arp.on && (arpPhysical.has(noteNum) || arpHeld.some(h => h.note === noteNum))) { arpNoteOff(noteNum); return; }
+    voiceOff(noteNum);
+  }
+
+  function arpNoteOn(note, vel) {
+    // With Hold on, a fresh chord after everything was let go replaces the
+    // latched one instead of piling onto it — how latch works on hardware.
+    if (arp.hold && arpLatched && arpPhysical.size === 0) { arpHeld = []; arpLatched = false; }
+    arpPhysical.add(note);
+    if (!arpHeld.some(h => h.note === note)) arpHeld.push({ note, vel });
+    else arpHeld.find(h => h.note === note).vel = vel;
+    arpMarkHeld();
+    arpRebuild();
+    arpStart();
+  }
+  function arpNoteOff(note) {
+    arpPhysical.delete(note);
+    if (arp.hold) {
+      if (arpPhysical.size === 0) arpLatched = true;   // keep the chord going
+      return;
+    }
+    arpHeld = arpHeld.filter(h => h.note !== note);
+    arpMarkHeld();
+    arpRebuild();
+    if (!arpHeld.length) arpStop();
+  }
+  function arpClear() {
+    arpHeld = []; arpPhysical.clear(); arpLatched = false;
+    arpMarkHeld(); arpRebuild(); arpStop();
+  }
+
+  // The held chord shows on the keys in amber so you can see what the
+  // arpeggiator is working from while the blue highlight walks through it.
+  function arpMarkHeld() {
+    if (!pianoKeysEl) return;
+    pianoKeysEl.querySelectorAll('.piano-key.arp-held').forEach(el => el.classList.remove('arp-held'));
+    const base = (keyboardOctave + 1) * 12;
+    arpHeld.forEach(h => {
+      const el = pianoKeysEl.querySelector(`[data-semitone="${h.note - base}"]`);
+      if (el) el.classList.add('arp-held');
+    });
+  }
+
+  function arpRebuild() {
+    const byPitch = [...arpHeld].sort((a, b) => a.note - b.note);
+    const base = arp.mode === 'played' ? arpHeld : byPitch;
+    let notes = [];
+    for (let o = 0; o < arp.octaves; o++) base.forEach(h => notes.push({ note: h.note + 12 * o, vel: h.vel }));
+    if (arp.mode === 'down') notes.reverse();
+    else if (arp.mode === 'updown' && notes.length > 2) notes = notes.concat(notes.slice(1, -1).reverse());
+    arpPattern = notes;
+    if (arpIdx >= arpPattern.length) arpIdx = 0;
+  }
+
+  function arpTick(time) {
+    if (!arpPattern.length) return;
+    const pick = arp.mode === 'random' ? arpPattern[Math.floor(Math.random() * arpPattern.length)] : arpPattern[arpIdx % arpPattern.length];
+    arpIdx = (arpIdx + 1) % Math.max(1, arpPattern.length);
+    const stepSec = Tone.Time(arp.rate).toSeconds();
+    const holdMs = Math.max(15, stepSec * 1000 * arp.gate / 100);
+    Tone.Draw.schedule(() => {
+      if (arpSounding !== null) { voiceOff(arpSounding); arpSounding = null; }
+      voiceOn(pick.note, pick.vel, 'arp');
+      arpSounding = pick.note;
+      const token = ++arpGateToken;
+      setTimeout(() => { if (token === arpGateToken && arpSounding === pick.note) { voiceOff(pick.note); arpSounding = null; } }, holdMs);
+    }, time);
+  }
+
+  function arpRunning() { return !!arpLoop; }
+  function arpStart() {
+    if (arpLoop) return;
+    if (Tone.context.state !== 'running') Tone.start().catch(() => {});
+    arpIdx = 0;
+    arpLoop = new Tone.Loop(arpTick, arp.rate);
+    if (Tone.Transport.state === 'started') {
+      // Join a running sequencer on its next grid line, not mid-step.
+      arpLoop.start(Tone.Transport.nextSubdivision(arp.rate));
+    } else {
+      if (typeof seqApplyTransport === 'function') seqApplyTransport();
+      arpLoop.start(0);
+      Tone.Transport.start();
+    }
+  }
+  function arpStop() {
+    if (arpLoop) { try { arpLoop.stop(); arpLoop.dispose(); } catch (e) {} arpLoop = null; }
+    if (arpSounding !== null) { voiceOff(arpSounding); arpSounding = null; }
+    arpGateToken++;
+    // The sequencer shares the clock; only stop it when nothing else needs it.
+    if (Tone.Transport.state === 'started' && !(typeof seqPlaying !== 'undefined' && seqPlaying)) Tone.Transport.stop();
+  }
+  // Rate is baked into the loop, so a rate change means a fresh loop.
+  function arpRestart() { if (arpLoop) { arpStop(); if (arpHeld.length) arpStart(); } }
+
+  function arpSave() { try { localStorage.setItem(ARP_STORAGE, JSON.stringify(arp)); } catch (e) {} }
+  function arpSyncUI() {
+    const $ = id => document.getElementById(id);
+    if (!$('arpMode')) return;
+    $('arpMode').value = arp.mode; $('arpRate').value = arp.rate; $('arpOct').value = arp.octaves;
+    $('arpGate').value = arp.gate; $('arpGateOut').textContent = arp.gate + '%';
+    $('arpHold').classList.toggle('on', arp.hold);
+    arpRebuild(); arpRestart();
+  }
+  function arpSetOn(on) {
+    arp.on = !!on;
+    if (!arp.on) arpClear();
+    const btn = document.getElementById('arpBtn');
+    btn.classList.toggle('on', arp.on);
+    btn.setAttribute('aria-pressed', arp.on ? 'true' : 'false');
+    document.getElementById('arpBar').hidden = !arp.on;
+    if (!arp.on) { const h = document.getElementById('arpHint'); if (h) h.textContent = ''; }
+    else arpHintUpdate();
+    arpSave();
+    if (typeof seqUpdateDock === 'function') seqUpdateDock();
+  }
+  function arpHintUpdate() {
+    const h = document.getElementById('arpHint');
+    if (!h) return;
+    h.textContent = arp.hold ? 'Hold is on — play a chord and let go; the next chord replaces it' : 'Hold a chord and it plays in time. Press Hold to keep it going hands-free';
+  }
+
+  // Called once the sequencer's state exists, since the two share a BPM.
+  function initArp() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(ARP_STORAGE) || '{}');
+      ['mode', 'rate', 'octaves', 'gate', 'hold'].forEach(k => { if (saved[k] !== undefined) arp[k] = saved[k]; });
+      // `on` is deliberately not restored: an arpeggiator that is silently on
+      // when you come back is the classic "why does my synth play a run" bug.
+    } catch (e) {}
+    if (!['up', 'down', 'updown', 'random', 'played'].includes(arp.mode)) arp.mode = 'up';
+    if (!['4n', '8n', '8t', '16n', '16t', '32n'].includes(arp.rate)) arp.rate = '8n';
+    arp.octaves = Math.max(1, Math.min(4, parseInt(arp.octaves, 10) || 1));
+    arp.gate = Math.max(10, Math.min(100, parseInt(arp.gate, 10) || 65));
+    const $ = id => document.getElementById(id);
+    $('arpMode').value = arp.mode; $('arpRate').value = arp.rate; $('arpOct').value = arp.octaves;
+    $('arpGate').value = arp.gate; $('arpGateOut').textContent = arp.gate + '%';
+    $('arpHold').classList.toggle('on', arp.hold);
+    $('arpMode').addEventListener('change', e => { arp.mode = e.target.value; arpIdx = 0; arpRebuild(); arpSave(); e.target.blur(); });
+    $('arpRate').addEventListener('change', e => { arp.rate = e.target.value; arpRestart(); arpSave(); e.target.blur(); });
+    $('arpOct').addEventListener('change', e => { arp.octaves = parseInt(e.target.value, 10); arpRebuild(); arpSave(); e.target.blur(); });
+    $('arpGate').addEventListener('input', e => { arp.gate = parseInt(e.target.value, 10); $('arpGateOut').textContent = arp.gate + '%'; arpSave(); });
+    tapHandler($('arpHold'), () => {
+      arp.hold = !arp.hold;
+      $('arpHold').classList.toggle('on', arp.hold);
+      if (!arp.hold && arpPhysical.size === 0) arpClear();   // letting go of Hold lets go of the chord
+      arpHintUpdate(); arpSave();
+    });
+    tapHandler($('arpBtn'), () => arpSetOn(!arp.on));
+    tapHandler($('arpClose'), () => arpSetOn(false));
+    // BPM lives with the sequencer; this is the same number, reachable from here.
+    const bpm = $('arpBpm');
+    bpm.value = seqState.bpm;
+    bpm.addEventListener('change', () => {
+      const v = Math.max(40, Math.min(300, parseInt(bpm.value, 10) || 120));
+      bpm.value = v; seqState.bpm = v; Tone.Transport.bpm.value = v;
+      const seqBpm = $('seqBpm'); if (seqBpm) seqBpm.value = v;
+      if (typeof seqSave === 'function') seqSave();
+      bpm.blur();
+    });
+    window.addEventListener('blur', () => { arpPhysical.clear(); if (!arp.hold) arpClear(); });
   }
 
   // ─── MIDI SETUP ───
@@ -5154,7 +5590,7 @@
 
   function seqStop() {
     if (!seqPlaying) return;
-    Tone.Transport.stop();
+    if (!(typeof arpRunning === 'function' && arpRunning())) Tone.Transport.stop();
     if (seqSequence) { seqSequence.dispose(); seqSequence = null; }
     seqStopActiveNote();
     seqCurrentStep = -1;
@@ -5314,6 +5750,7 @@
       if (isNaN(v)) v = 120;
       v = Math.max(40, Math.min(300, v));
       bpmEl.value = v; seqState.bpm = v;
+      const arpBpm = document.getElementById('arpBpm'); if (arpBpm) arpBpm.value = v;
       if (seqPlaying) Tone.Transport.bpm.value = v;
       seqSave();
     };
@@ -5347,6 +5784,7 @@
       updateDockHeight();
     });
   })();
+  initArp();
 
   // Re-dock the sequencer above the piano on resize / initial layout
   window.addEventListener('resize', seqUpdateDock);
