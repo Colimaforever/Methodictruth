@@ -829,7 +829,8 @@
             let pct = null, label = 'Working…';
             switch (ev.stage) {
                 case 'paced':    pct = 4;  label = 'Waiting our turn — spacing out YouTube requests…'; break;
-                case 'download': pct = 5 + Math.round((ev.pct || 0) * 0.65); label = 'Downloading audio…'; break;
+                case 'extract':  pct = 6;  label = 'Asking YouTube for the audio stream…'; break;
+                case 'download': pct = 8 + Math.round((ev.pct || 0) * 0.62); label = 'Downloading audio… ' + (ev.pct != null ? ev.pct + '%' : ''); break;
                 case 'convert':  pct = 75; label = 'Normalizing audio…'; break;
                 case 'load':     pct = 85; label = 'Decoding waveform…'; break;
                 case 'analyze':  pct = 95; label = 'Detecting beat, key & chords…'; break;
