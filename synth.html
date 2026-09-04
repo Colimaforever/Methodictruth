@@ -18,10 +18,19 @@
   <link rel="stylesheet" href="styles.css?v=74">
   <style>
     /* ─── SYNTH LAYOUT ─── */
-    .synth-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; padding-top: 110px; }
+    /* The nav and the toolbar are fixed and their heights depend on how wide
+       the window is (both wrap), and the dock at the bottom depends on what is
+       open. None of that is a constant, so the page measures all three and
+       pads itself to fit — a narrow or short window no longer hides the top
+       row of modules under the toolbar or the bottom row under the keys. */
+    .synth-page {
+      position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh;
+      padding-top: calc(var(--nav-h, 48px) + var(--toolbar-h, 62px));
+      padding-bottom: calc(var(--dock-h, 0px) + 24px);
+    }
 
     .synth-toolbar {
-      position: fixed; top: 48px; left: 0; right: 0; z-index: 400;
+      position: fixed; top: var(--nav-h, 48px); left: 0; right: 0; z-index: 400;
       display: flex; align-items: center; gap: 0.3rem;
       padding: 0.3rem 0.5rem;
       padding-left: max(0.5rem, env(safe-area-inset-left));
@@ -44,14 +53,35 @@
     /* The presets are one long strip that scrolls sideways rather than
        wrapping: the toolbar is fixed, so growing it would push modules under
        it. A fade on the right edge says there is more. */
-    .synth-toolbar-section.presets {
-      flex: 1 1 100%; min-width: 0; overflow-x: auto; overflow-y: hidden;
-      scrollbar-width: thin; scrollbar-color: rgba(123, 104, 238, 0.35) transparent;
-      -webkit-overflow-scrolling: touch; padding-bottom: 0.15rem;
-      -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent);
-      mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent);
+    .synth-toolbar-section.presets { flex-wrap: wrap; }
+    .synth-btn.preset-cat.active { border-color: var(--oracle); color: var(--oracle); background: rgba(123, 104, 238, 0.12); }
+    .synth-btn.surprise { border-color: rgba(232, 168, 124, 0.35); color: rgba(232, 168, 124, 0.8); }
+    .synth-btn.surprise:hover { border-color: var(--glow-warm); color: var(--glow-warm); }
+    .preset-now { font-family: 'Cinzel', serif; font-size: 0.62rem; letter-spacing: 0.06em; color: var(--oracle); margin-left: 0.3rem; white-space: nowrap; }
+    .preset-now:empty { display: none; }
+    .preset-panel {
+      position: fixed; left: 0.5rem; right: 0.5rem; z-index: 420;
+      max-width: 1100px; margin: 0 auto; max-height: 62vh; overflow-y: auto;
+      background: rgba(10, 14, 26, 0.97); border: 1px solid rgba(123, 104, 238, 0.35);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px);
+      padding: 0.7rem 0.9rem 0.9rem; scrollbar-width: thin;
     }
-    .synth-toolbar-section.presets > * { flex-shrink: 0; }
+    .preset-panel[hidden] { display: none; }
+    .preset-panel-head { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+    .preset-panel-title { font-family: 'Cinzel', serif; font-size: 0.9rem; letter-spacing: 0.1em; color: var(--oracle); }
+    .preset-panel-blurb { font-family: 'EB Garamond', serif; font-size: 0.9rem; font-style: italic; color: var(--stone-dark); flex: 1; }
+    .preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.45rem; }
+    .preset-card {
+      text-align: left; padding: 0.5rem 0.65rem; cursor: pointer;
+      background: rgba(26, 18, 10, 0.7); border: 1px solid rgba(138, 126, 107, 0.25); border-radius: 3px;
+      transition: border-color 0.15s, background 0.15s; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    }
+    .preset-card:hover { border-color: var(--oracle); background: rgba(123, 104, 238, 0.08); }
+    .preset-card.current { border-color: var(--oracle); box-shadow: 0 0 10px rgba(123, 104, 238, 0.3); }
+    .preset-card b { display: block; font-family: 'Cinzel', serif; font-weight: 600; font-size: 0.68rem; letter-spacing: 0.06em; color: var(--parchment); margin-bottom: 0.15rem; }
+    .preset-card.current b { color: var(--oracle); }
+    .preset-card span { font-family: 'EB Garamond', serif; font-size: 0.82rem; font-style: italic; color: var(--stone); line-height: 1.35; }
+    @media (max-width: 560px) { .preset-grid { grid-template-columns: 1fr 1fr; } .preset-now { display: none; } }
 
     .synth-toolbar-label {
       font-size: 0.5rem; color: var(--stone-dark);
@@ -106,8 +136,10 @@
 
     /* ─── CANVAS ─── */
     .synth-canvas {
-      position: relative; width: 100%; min-height: calc(100vh - 110px); min-height: calc(100dvh - 110px);
-      margin-top: 50px; overflow: hidden;
+      position: relative; width: 100%;
+      min-height: calc(100vh - var(--nav-h, 48px) - var(--toolbar-h, 62px) - var(--dock-h, 0px));
+      min-height: calc(100dvh - var(--nav-h, 48px) - var(--toolbar-h, 62px) - var(--dock-h, 0px));
+      margin-top: 8px; overflow: hidden;
       background-image:
         linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px);
@@ -369,7 +401,7 @@
       .synth-toolbar-section { border-right: none; padding-right: 0; margin-right: 0; }
       .synth-toolbar-label { display: none; }
       .synth-btn { font-size: 0.4rem; padding: 0.15rem 0.3rem; }
-      .synth-canvas { min-height: calc(100vh - 200px); min-height: calc(100dvh - 200px); margin-top: 40px; }
+      .synth-canvas { margin-top: 4px; }
       .synth-module { width: 168px; }
       .module-title { font-size: 0.55rem; }
       .module-control { gap: 0.35rem; }
@@ -784,6 +816,9 @@
        scale or a chord are coloured by their role, everything else is dimmed,
        and each lit key says which note (or degree) it is. Purely visual — the
        keyboard still plays every note. */
+    /* A short window: the dock (keys + guide + arp) scrolls inside itself
+       rather than swallowing the canvas. */
+    .piano-container { max-height: min(64vh, 560px); overflow-y: auto; overscroll-behavior: contain; }
     .theory-guide {
       width: 100%; align-self: stretch; max-width: 1040px; margin: 0 auto 0.35rem;
       padding: 0.35rem 0.45rem 0.3rem;
@@ -859,47 +894,65 @@
       --role-x: #00e5ff;  /* extensions: 9, 11, 13 */
       --role-t: rgba(0, 229, 255, 0.65);  /* plain scale tone */
     }
+    /* Each lit key wears its role: the face is tinted, the label is set in the
+       same colour, and a dot sits above the computer-key letter. Tinting the
+       whole key is what reads from arm's length; a 9px dot did not. Keys
+       outside the pattern go dark, so the scale is the bright thing. */
+    .piano-key.g-r { --kc: var(--role-r); }
+    .piano-key.g-3 { --kc: var(--role-3); }
+    .piano-key.g-5 { --kc: var(--role-5); }
+    .piano-key.g-7 { --kc: var(--role-7); }
+    .piano-key.g-x { --kc: var(--role-x); }
+    .piano-key.g-t { --kc: var(--role-x); }
     .piano-key .piano-key-note {
       position: absolute; top: 4px; left: 0; right: 0; text-align: center;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; font-weight: 600;
-      letter-spacing: 0; pointer-events: none; color: var(--role-t);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0; pointer-events: none; color: var(--kc, var(--role-t));
+      text-shadow: 0 0 4px rgba(10, 14, 26, 0.95), 0 1px 2px rgba(10, 14, 26, 0.9);
     }
-    .piano-key.black .piano-key-note { font-size: 0.42rem; top: 3px; }
-    .piano-key.g-r .piano-key-note { color: var(--role-r); }
-    .piano-key.g-3 .piano-key-note { color: var(--role-3); }
-    .piano-key.g-5 .piano-key-note { color: var(--role-5); }
-    .piano-key.g-7 .piano-key-note { color: var(--role-7); }
-    .piano-key.g-x .piano-key-note { color: var(--role-x); }
-    .piano-key.g-t .piano-key-note { color: var(--role-t); }
-    /* The dot is the thing you see from across the room; the label is for
-       when you lean in. Dots sit just above the computer-key letter. */
+    .piano-key.black .piano-key-note { font-size: 0.5rem; top: 3px; }
+    .piano-key.white.g-r:not(.active), .piano-key.white.g-3:not(.active), .piano-key.white.g-5:not(.active),
+    .piano-key.white.g-7:not(.active), .piano-key.white.g-x:not(.active) {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--kc) 10%, rgba(200, 195, 180, 0.12)) 0%, color-mix(in srgb, var(--kc) 42%, rgba(200, 195, 180, 0.12)) 100%);
+      border-color: color-mix(in srgb, var(--kc) 70%, transparent);
+    }
+    .piano-key.black.g-r:not(.active), .piano-key.black.g-3:not(.active), .piano-key.black.g-5:not(.active),
+    .piano-key.black.g-7:not(.active), .piano-key.black.g-x:not(.active) {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--kc) 22%, rgba(10, 14, 26, 0.9)) 0%, color-mix(in srgb, var(--kc) 55%, rgba(10, 14, 26, 0.9)) 100%);
+      border-color: color-mix(in srgb, var(--kc) 80%, transparent);
+    }
+    /* Plain scale tones: a lighter wash, so chord tones stand out from them. */
+    .piano-key.white.g-t:not(.active) { background: linear-gradient(180deg, rgba(200, 195, 180, 0.12), color-mix(in srgb, var(--kc) 22%, rgba(200, 195, 180, 0.12))); border-color: color-mix(in srgb, var(--kc) 45%, transparent); }
+    .piano-key.black.g-t:not(.active) { background: linear-gradient(180deg, rgba(10, 14, 26, 0.9), color-mix(in srgb, var(--kc) 32%, rgba(10, 14, 26, 0.9))); border-color: color-mix(in srgb, var(--kc) 55%, transparent); }
+    /* The root is the landmark: a stronger wash and a glow. */
+    .piano-key.g-r:not(.active) { box-shadow: 0 0 12px color-mix(in srgb, var(--kc) 45%, transparent), inset 0 -3px 0 var(--kc); }
+    .piano-key.g-3:not(.active), .piano-key.g-5:not(.active), .piano-key.g-7:not(.active), .piano-key.g-x:not(.active) { box-shadow: inset 0 -3px 0 var(--kc); }
+    .piano-key.g-t:not(.active) { box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--kc) 60%, transparent); }
+    /* Dot above the computer-key letter, same colour as the face. */
     .piano-key.g-r::after, .piano-key.g-3::after, .piano-key.g-5::after,
     .piano-key.g-7::after, .piano-key.g-x::after, .piano-key.g-t::after {
       content: ''; position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: 14px; width: 9px; height: 9px; border-radius: 50%; pointer-events: none;
+      bottom: 15px; width: 10px; height: 10px; border-radius: 50%; pointer-events: none;
+      background: var(--kc); box-shadow: 0 0 6px var(--kc);
     }
-    .piano-key.black::after { bottom: 11px; width: 6px; height: 6px; }
-    .piano-key.g-r::after { background: var(--role-r); box-shadow: 0 0 7px var(--role-r); }
-    .piano-key.g-3::after { background: var(--role-3); box-shadow: 0 0 6px var(--role-3); }
-    .piano-key.g-5::after { background: var(--role-5); box-shadow: 0 0 6px var(--role-5); }
-    .piano-key.g-7::after { background: var(--role-7); box-shadow: 0 0 6px var(--role-7); }
-    .piano-key.g-x::after { background: var(--role-x); box-shadow: 0 0 6px var(--role-x); }
-    .piano-key.g-t::after { background: var(--role-t); box-shadow: 0 0 4px rgba(0, 229, 255, 0.35); width: 6px; height: 6px; }
-    .piano-key.black.g-t::after { width: 4px; height: 4px; }
+    .piano-key.black::after { bottom: 12px; width: 7px; height: 7px; }
+    .piano-key.g-t::after { width: 7px; height: 7px; opacity: 0.85; box-shadow: none; }
+    .piano-key.black.g-t::after { width: 5px; height: 5px; }
     /* A scale tone that is not in the chord being shown: still there, but quiet. */
-    .piano-key.g-t.g-faint::after { opacity: 0.4; box-shadow: none; }
-    .piano-key.g-t.g-faint .piano-key-note { opacity: 0.45; }
+    .piano-key.g-t.g-faint::after { opacity: 0.35; }
+    .piano-key.g-t.g-faint .piano-key-note { opacity: 0.5; }
+    .piano-key.white.g-t.g-faint:not(.active) { background: rgba(200, 195, 180, 0.09); box-shadow: none; }
+    .piano-key.black.g-t.g-faint:not(.active) { background: rgba(10, 14, 26, 0.9); box-shadow: none; }
     /* Keys outside the pattern drop back so the pattern is what you see.
        :not(.active) keeps the blue play highlight at full strength. */
-    .piano-keys.guide-on .piano-key.white.g-out:not(.active) { background: rgba(200, 195, 180, 0.04); }
-    .piano-keys.guide-on .piano-key.black.g-out:not(.active) { background: rgba(10, 14, 26, 0.6); border-color: rgba(138, 126, 107, 0.12); }
-    .piano-keys.guide-on .piano-key.g-out .piano-key-label { opacity: 0.45; }
-    .piano-key.g-r:not(.active) { border-color: rgba(232, 168, 124, 0.45); }
+    .piano-keys.guide-on .piano-key.white.g-out:not(.active) { background: rgba(200, 195, 180, 0.035); border-color: rgba(138, 126, 107, 0.12); }
+    .piano-keys.guide-on .piano-key.black.g-out:not(.active) { background: rgba(10, 14, 26, 0.55); border-color: rgba(138, 126, 107, 0.1); }
+    .piano-keys.guide-on .piano-key.g-out .piano-key-label { opacity: 0.3; }
     .piano-oct-btn.on { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.6); background: rgba(232, 168, 124, 0.1); }
     @media (max-width: 560px) {
       .tg-mood { display: none; }
       .tg-tab { padding: 0.22rem 0.35rem; font-size: 0.52rem; }
-      .theory-guide { padding: 0.3rem 0.3rem 0.25rem; max-height: 38vh; overflow-y: auto; }
+      .theory-guide { padding: 0.3rem 0.3rem 0.25rem; }
       .tg-chip { padding: 0.18rem 0.35rem; font-size: 0.55rem; }
       .tg-chip small { display: none; }
       .tg-chip.prog small { display: none; }
@@ -1041,32 +1094,14 @@
       </div>
       <div class="synth-toolbar-section presets">
         <span class="synth-toolbar-label">Presets:</span>
-        <button class="synth-btn preset" data-preset="pad" title="Three oscillators, two envelopes, chorus — slow and wide">Pad</button>
-        <button class="synth-btn preset" data-preset="strings" title="A pad that bows in faster and sits brighter">Strings</button>
-        <button class="synth-btn preset" data-preset="epiano" title="FM at a 1:1 ratio — the DX7 electric piano">E-Piano</button>
-        <button class="synth-btn preset" data-preset="organ">Organ</button>
-        <button class="synth-btn preset" data-preset="fmbell" title="FM at an inharmonic ratio rings like metal">FM Bell</button>
-        <button class="synth-btn preset" data-preset="kalimba" title="Struck, no sustain — a thumb piano">Kalimba</button>
-        <button class="synth-btn preset" data-preset="pluck" title="A filter envelope snapping shut is what makes a pluck">Pluck</button>
-        <button class="synth-btn preset" data-preset="trancepluck" title="Supersaw, filter envelope, dotted-eighth delay">Trance Pluck</button>
-        <button class="synth-btn preset" data-preset="lead">Lead</button>
-        <button class="synth-btn preset" data-preset="chip" title="One square wave and the arpeggiator — the NES">Chiptune</button>
-        <button class="synth-btn preset" data-preset="arp" title="A plucky patch with the arpeggiator switched on">Arp</button>
-        <button class="synth-btn preset" data-preset="bass">Bass</button>
-        <button class="synth-btn preset" data-preset="subbass">Sub Bass</button>
-        <button class="synth-btn preset" data-preset="reese" title="Two saws detuned wide, an octave down — jungle bass">Reese</button>
-        <button class="synth-btn preset" data-preset="boom808" title="A sine whose pitch drops — the Mod Env driving the oscillator">808</button>
-        <button class="synth-btn preset" data-preset="acid">Acid</button>
-        <button class="synth-btn preset" data-preset="wobble">Wobble</button>
-        <button class="synth-btn preset" data-preset="growl">Growl</button>
-        <button class="synth-btn preset" data-preset="dubstab" title="A chord hit once and left to a long delay">Dub Stab</button>
-        <button class="synth-btn preset" data-preset="supersaw">Supersaw</button>
-        <button class="synth-btn preset" data-preset="brass">Brass</button>
-        <button class="synth-btn preset" data-preset="drone">Drone</button>
-        <button class="synth-btn preset" data-preset="ambient">Ambient</button>
-        <button class="synth-btn preset" data-preset="scifi">Sci-Fi</button>
-        <button class="synth-btn preset" data-preset="ritual">Ritual</button>
-        <button class="synth-btn preset" data-preset="noisewash">Noise Wash</button>
+        <button class="synth-btn preset preset-cat" data-cat="keys" title="Pianos, bells, boxes, organs">Keys</button>
+        <button class="synth-btn preset preset-cat" data-cat="pads" title="Slow, wide chords">Pads</button>
+        <button class="synth-btn preset preset-cat" data-cat="bass" title="The floor">Bass</button>
+        <button class="synth-btn preset preset-cat" data-cat="leads" title="One voice out front">Leads</button>
+        <button class="synth-btn preset preset-cat" data-cat="plucks" title="Short notes that want to be many">Plucks &amp; Arps</button>
+        <button class="synth-btn preset preset-cat" data-cat="texture" title="Weather, machines, space">Texture &amp; FX</button>
+        <button class="synth-btn preset surprise" id="presetRandom" title="Load a sound you didn't choose">🎲 Surprise me</button>
+        <span class="preset-now" id="presetNow" title="The sound currently loaded"></span>
       </div>
       <div class="synth-toolbar-section">
         <button class="synth-btn" id="kbToggleBtn">⌨ Minimize</button>
@@ -1242,6 +1277,16 @@
     </div>
   </div>
 
+  <!-- Preset browser: one mood at a time, each sound with a line about when you'd want it -->
+  <div class="preset-panel" id="presetPanel" hidden>
+    <div class="preset-panel-head">
+      <span class="preset-panel-title" id="presetPanelTitle"></span>
+      <span class="preset-panel-blurb" id="presetPanelBlurb"></span>
+      <button class="piano-oct-btn tg-close" id="presetPanelClose" title="Close">✕</button>
+    </div>
+    <div class="preset-grid" id="presetGrid"></div>
+  </div>
+
   <div class="audio-status" id="audioStatus">◇ audio suspended</div>
 
   <!-- Knowledge Base -->
@@ -1342,8 +1387,9 @@
       <dd>The <em>Arp</em> and <em>Chiptune</em> presets switch it on with a sound made for it. Add an <code>ADSR</code> with a short Decay for a plucked arpeggio, and a <code>Delay</code> set to a dotted eighth (0.375 s at 120 BPM) so the echoes fall between the notes. A Mod Env on the filter cutoff is the difference between a run of notes and a run of <em>plucks</em>.</dd>
     </dl>
 
-    <h3>Presets — each one is a lesson</h3>
-    <p>Every preset demonstrates one idea, and hovering its button says which. <strong>Pad</strong> and <strong>Strings</strong> are width and slowness: detuned saws, a sub, slow envelopes, chorus. <strong>Pluck</strong> and <strong>Trance Pluck</strong> are the filter envelope. <strong>E-Piano</strong> and <strong>FM Bell</strong> are FM at a harmonic ratio and an inharmonic one. <strong>Kalimba</strong> is an envelope with no sustain. <strong>Chiptune</strong> and <strong>Arp</strong> switch the arpeggiator on. <strong>Reese</strong> is wide detune under a driven filter. <strong>808</strong> is the Mod Env driving pitch. <strong>Dub Stab</strong> is a chord left to a long delay. Load one, then change one thing and listen for what moved.</p>
+    <h3>Presets — sixty sounds in six moods</h3>
+    <p>The <code>Presets</code> row is six moods — <strong>Keys, Pads, Bass, Leads, Plucks &amp; Arps, Texture &amp; FX</strong> — and each opens a panel of sounds with a name and a line about when you'd want it: <em>Warm Blanket</em>, <em>Choir of Ghosts</em>, <em>Harp in the Rain</em>, <em>Broken Radio</em>. <code>🎲 Surprise me</code> loads one you didn't choose, which is the fastest way to find a sound you'd never have reached for. Every preset is built from the same modules you can add by hand, so load one and read the rack: that is how it was made.</p>
+    <p>A few are lessons in one idea, and hovering their button says which. <strong>Pad</strong> and <strong>Strings</strong> are width and slowness: detuned saws, a sub, slow envelopes, chorus. <strong>Pluck</strong> and <strong>Trance Pluck</strong> are the filter envelope. <strong>E-Piano</strong> and <strong>FM Bell</strong> are FM at a harmonic ratio and an inharmonic one. <strong>Kalimba</strong> is an envelope with no sustain. <strong>Chiptune</strong> and <strong>Arp</strong> switch the arpeggiator on. <strong>Reese</strong> is wide detune under a driven filter. <strong>808</strong> is the Mod Env driving pitch. <strong>Dub Stab</strong> is a chord left to a long delay. Load one, then change one thing and listen for what moved.</p>
 
     <h3>♪ Guide — theory on the keys</h3>
     <dl>
@@ -3082,7 +3128,12 @@
     }
     clearAll();
     if (window.Analytics) Analytics.Synth.presetLoaded(name);
-    if (name === 'drone') {
+    const entry = PRESET_BY_ID[name];
+    if (entry && entry.build) {
+      entry.build();
+      tidyLayout();   // bank presets don't place modules; lay the rack out in signal order
+      if (entry.arp) { Object.assign(arp, entry.arp); arpSyncUI(); arpSetOn(true); }
+    } else if (name === 'drone') {
       const osc = addModule('oscillator', 60, 40);
       setParam(osc, 'type', 'sawtooth');
       setParam(osc, 'frequency', 110);
@@ -3543,6 +3594,10 @@
     }
     userMovedModules = true;   // presets place their own modules — leave the layout alone
     chainChanged();
+    currentPreset = entry ? entry.id : null;
+    const now = document.getElementById('presetNow');
+    if (now) now.textContent = entry ? entry.name : '';
+    if (entry && !(entry.arp || ['arp', 'chip'].includes(name))) synthToast('◈ ' + entry.name + ' — ' + entry.desc);
   }
 
   // Preset shorthand: make a module with its params, and wire a chain in order.
@@ -5698,6 +5753,26 @@
   }
   window.addEventListener('resize', updateDockHeight);
 
+  // The fixed chrome is measured, not assumed: the nav and the toolbar both
+  // wrap as the window narrows, and a custom-sized window is the common case
+  // on a desktop, not the exception.
+  function updateChromeHeights() {
+    const nav = document.querySelector('.site-nav');
+    const tb = document.querySelector('.synth-toolbar');
+    if (nav) document.documentElement.style.setProperty('--nav-h', Math.round(nav.getBoundingClientRect().height) + 'px');
+    if (tb) document.documentElement.style.setProperty('--toolbar-h', Math.round(tb.getBoundingClientRect().height) + 'px');
+    const panel = document.getElementById('presetPanel');
+    if (panel && !panel.hidden && tb) panel.style.top = (tb.getBoundingClientRect().bottom + 6) + 'px';
+    updateDockHeight();
+  }
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(updateChromeHeights);
+    ['.site-nav', '.synth-toolbar', '#pianoContainer', '#seqPanel'].forEach(sel => { const el = document.querySelector(sel); if (el) ro.observe(el); });
+  }
+  window.addEventListener('resize', updateChromeHeights);
+  window.addEventListener('load', updateChromeHeights);
+  updateChromeHeights();
+
   // ─── Sequencer wiring ───
   (function initSequencer() {
     seqLoad();
@@ -5850,6 +5925,507 @@
   });
 
   // Preset buttons
+  // ═══════════════════════════════════════════════
+  // PRESET BANK
+  // ═══════════════════════════════════════════════
+  // A preset is a finished sound with a feeling, not a demo of a module. Each
+  // entry says what it is for in one line, because "Pad 3" tells a musician
+  // nothing and "Warm Blanket" tells them when to reach for it. The builds
+  // use the same modules you can add by hand — open one and read the rack.
+  const PRESET_CATS = {
+    keys:    { name: 'Keys',          blurb: 'Struck and plucked things — pianos, bells, boxes, organs.' },
+    pads:    { name: 'Pads',          blurb: 'Slow, wide, and holding still. Chords that fill a room.' },
+    bass:    { name: 'Bass',          blurb: 'The floor. Play these an octave or two below middle C.' },
+    leads:   { name: 'Leads',         blurb: 'One voice out front. Vibrato, bite, and a little delay.' },
+    plucks:  { name: 'Plucks & Arps', blurb: 'Short notes that want to be many. Most of these switch the arpeggiator on.' },
+    texture: { name: 'Texture & FX',  blurb: 'Weather, machines, and space. Some of these play on their own.' },
+  };
+  const m = (type, params) => mk(type, undefined, undefined, params);
+  const fm = (car, mo) => autoConnect(mo, 'out', car, 'fm');
+  const PRESET_BANK = [
+    // ── Keys ──
+    { id: 'rhodes', cat: 'keys', name: 'Rhodes at Midnight', desc: 'Warm electric piano, lights low. Play it slow and let the chorus breathe.', build() {
+      const car = m('oscillator', { type: 'sine', fmAmount: 180 });
+      const mo = m('oscillator', { type: 'sine', detune: 2 });
+      const flt = m('filter', { type: 'lowpass', frequency: 3200, Q: 0.7, rolloff: '-12' });
+      const env = m('envelope', { attack: 0.003, decay: 1.6, sustain: 0.12, release: 0.6 });
+      const cho = m('chorus', { frequency: 0.35, depth: 0.3, wet: 0.3 });
+      const rev = m('reverb', { decay: 3.5, wet: 0.3 });
+      const out = m('output', { gain: 0.45 });
+      fm(car, mo); chain(car, flt, env, cho, rev, out);
+    } },
+    { id: 'epiano', cat: 'keys', name: 'E-Piano', desc: 'The DX7 tine piano — bright, glassy, a little lonely.' },
+    { id: 'wurli', cat: 'keys', name: 'Wurli Bark', desc: 'The other electric piano: reedy, gritty, barks when you dig in.', build() {
+      const car = m('oscillator', { type: 'sine', fmAmount: 120 });
+      const mo = m('oscillator', { type: 'sine', coarse: 12 });
+      const o3 = m('oscillator', { type: 'triangle', detune: -5 });
+      const mix = m('gain', { gain: 0.35 });
+      const flt = m('filter', { type: 'lowpass', frequency: 2200, Q: 1.5, rolloff: '-12', drive: 0.4 });
+      const env = m('envelope', { attack: 0.003, decay: 0.9, sustain: 0.3, release: 0.5 });
+      const out = m('output', { gain: 0.4 });
+      fm(car, mo); chain(car, mix); chain(o3, mix); chain(mix, flt, env, out);
+    } },
+    { id: 'musicbox', cat: 'keys', name: 'Music Box', desc: 'Tiny, bright and far away. Nostalgia in a tin.', build() {
+      const o1 = m('oscillator', { type: 'sine', coarse: 12 });
+      const o2 = m('oscillator', { type: 'sine', coarse: 24 });
+      const g2 = m('gain', { gain: 0.15 });
+      const mix = m('gain', { gain: 0.45 });
+      const env = m('envelope', { attack: 0.001, decay: 0.9, sustain: 0, release: 0.5 });
+      const dly = m('delay', { delayTime: 0.3, feedback: 0.35, wet: 0.25 });
+      const rev = m('reverb', { decay: 4, wet: 0.5 });
+      const out = m('output', { gain: 0.45 });
+      chain(o1, mix); chain(o2, g2, mix); chain(mix, env, dly, rev, out);
+    } },
+    { id: 'toypiano', cat: 'keys', name: 'Toy Piano', desc: 'Childlike and slightly out of tune with the world.', build() {
+      const o1 = m('oscillator', { type: 'square', coarse: 12 });
+      const o2 = m('oscillator', { type: 'sine', coarse: 24, detune: 9 });
+      const mix = m('gain', { gain: 0.3 });
+      const flt = m('filter', { type: 'lowpass', frequency: 4500, Q: 0.8, rolloff: '-12' });
+      const env = m('envelope', { attack: 0.001, decay: 0.5, sustain: 0, release: 0.3 });
+      const dly = m('delay', { delayTime: 0.12, feedback: 0.2, wet: 0.15 });
+      const rev = m('reverb', { decay: 2, wet: 0.3 });
+      const out = m('output', { gain: 0.4 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, dly, rev, out);
+    } },
+    { id: 'glass', cat: 'keys', name: 'Glass Harmonica', desc: 'A wet finger on a crystal rim. Fragile, glowing, slow to speak.', build() {
+      const o1 = m('oscillator', { type: 'triangle' });
+      const o2 = m('oscillator', { type: 'sine', coarse: 12, detune: 4 });
+      const mix = m('gain', { gain: 0.35 });
+      const flt = m('filter', { type: 'lowpass', frequency: 2600, Q: 1, rolloff: '-12' });
+      const env = m('envelope', { attack: 0.5, decay: 0.8, sustain: 0.9, release: 1.8 });
+      const cho = m('chorus', { frequency: 0.2, depth: 0.4, wet: 0.35 });
+      const rev = m('reverb', { decay: 8, wet: 0.6 });
+      const out = m('output', { gain: 0.35 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, cho, rev, out);
+    } },
+    { id: 'lofikeys', cat: 'keys', name: 'Dusty Keys', desc: 'Lo-fi: dark, driven, the top end rolled off like an old tape.', build() {
+      const o1 = m('oscillator', { type: 'triangle' });
+      const o2 = m('oscillator', { type: 'square', detune: 8 });
+      const mix = m('gain', { gain: 0.35 });
+      const flt = m('filter', { type: 'lowpass', frequency: 1300, Q: 1, rolloff: '-12', drive: 0.45 });
+      const env = m('envelope', { attack: 0.005, decay: 1.2, sustain: 0.2, release: 0.6 });
+      const cho = m('chorus', { frequency: 0.3, depth: 0.5, wet: 0.35 });
+      const eq = m('eq3', { low: 0, mid: 0, high: -5 });
+      const out = m('output', { gain: 0.4 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, cho, eq, out);
+    } },
+    { id: 'cathedral', cat: 'keys', name: 'Cathedral Organ', desc: 'Four ranks of sine and a long stone room. Solemn.', build() {
+      const o1 = m('oscillator', { type: 'sine' });
+      const o2 = m('oscillator', { type: 'sine', coarse: 12 });
+      const o3 = m('oscillator', { type: 'sine', coarse: 19 });
+      const o4 = m('oscillator', { type: 'square', coarse: -12 });
+      const mix = m('gain', { gain: 0.2 });
+      const env = m('envelope', { attack: 0.05, decay: 0.1, sustain: 1, release: 0.7 });
+      const rev = m('reverb', { decay: 9, wet: 0.6 });
+      const out = m('output', { gain: 0.35 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(o4, mix); chain(mix, env, rev, out);
+    } },
+    { id: 'organ', cat: 'keys', name: 'Organ', desc: 'Two sines, a fifth of reverb. Plain and honest.' },
+    { id: 'steeldrum', cat: 'keys', name: 'Steel Drum', desc: 'FM at a 3:2 ratio — sunshine, bounce, a hint of tin.', build() {
+      const car = m('oscillator', { type: 'sine', fmAmount: 220 });
+      const mo = m('oscillator', { type: 'sine', coarse: 7 });
+      const env = m('envelope', { attack: 0.002, decay: 0.6, sustain: 0, release: 0.4 });
+      const dly = m('delay', { delayTime: 0.2, feedback: 0.25, wet: 0.2 });
+      const rev = m('reverb', { decay: 3, wet: 0.35 });
+      const out = m('output', { gain: 0.45 });
+      fm(car, mo); chain(car, env, dly, rev, out);
+    } },
+    { id: 'gamelan', cat: 'keys', name: 'Gamelan', desc: 'Bronze struck in a temple courtyard. Inharmonic, ceremonial.', build() {
+      const car = m('oscillator', { type: 'sine', fmAmount: 420 });
+      const mo = m('oscillator', { type: 'sine', coarse: 14 });
+      const env = m('envelope', { attack: 0.002, decay: 1.1, sustain: 0, release: 0.9 });
+      const rev = m('reverb', { decay: 6, wet: 0.5 });
+      const out = m('output', { gain: 0.4 });
+      fm(car, mo); chain(car, env, rev, out);
+    } },
+    { id: 'fmbell', cat: 'keys', name: 'FM Bell', desc: 'A bell that rings like metal because its ratio refuses to be a whole number.' },
+    { id: 'kalimba', cat: 'keys', name: 'Kalimba', desc: 'Thumb piano: a sine, an overtone, a click, and no sustain at all.' },
+
+    // ── Pads ──
+    { id: 'pad', cat: 'pads', name: 'Pad', desc: 'Three oscillators, a sub, a filter that blooms. The reference pad.' },
+    { id: 'strings', cat: 'pads', name: 'Strings', desc: 'A pad that bows in faster and sits brighter. Film cue in a box.' },
+    { id: 'aurora', cat: 'pads', name: 'Northern Lights', desc: 'Shimmer that moves on its own — an LFO breathing the filter under wide saws.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth', detune: -11 });
+      const o2 = m('oscillator', { type: 'sawtooth', detune: 11 });
+      const o3 = m('oscillator', { type: 'triangle', coarse: 12 });
+      const mix = m('gain', { gain: 0.25 });
+      const flt = m('filter', { type: 'lowpass', frequency: 900, Q: 1.2, rolloff: '-24' });
+      const lfo = m('lfo', { type: 'sine', frequency: 0.08, min: 500, max: 2000 });
+      const env = m('envelope', { attack: 1.8, decay: 1.5, sustain: 0.9, release: 4 });
+      const cho = m('chorus', { frequency: 0.25, depth: 0.7, wet: 0.5 });
+      const rev = m('reverb', { decay: 10, wet: 0.65 });
+      const out = m('output', { gain: 0.3 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(mix, flt, env, cho, rev, out);
+      modConnect(lfo, flt, 'frequency');
+    } },
+    { id: 'blanket', cat: 'pads', name: 'Warm Blanket', desc: 'Dark, soft, close. The chord you play at the end of a hard day.', build() {
+      const o1 = m('oscillator', { type: 'triangle' });
+      const o2 = m('oscillator', { type: 'square', coarse: -12 });
+      const o3 = m('oscillator', { type: 'sawtooth', detune: 6 });
+      const mix = m('gain', { gain: 0.28 });
+      const flt = m('filter', { type: 'lowpass', frequency: 600, Q: 0.8, rolloff: '-24', drive: 0.1 });
+      const env = m('envelope', { attack: 0.6, decay: 1, sustain: 0.9, release: 2.2 });
+      const cho = m('chorus', { frequency: 0.4, depth: 0.4, wet: 0.35 });
+      const rev = m('reverb', { decay: 5, wet: 0.45 });
+      const out = m('output', { gain: 0.32 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(mix, flt, env, cho, rev, out);
+    } },
+    { id: 'ghosts', cat: 'pads', name: 'Choir of Ghosts', desc: 'Voices in a ruined church: a bandpass drifting like a vowel, endless reverb.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth', detune: -15 });
+      const o2 = m('oscillator', { type: 'sawtooth', detune: 15 });
+      const nz = m('noise', { type: 'pink' });
+      const gn = m('gain', { gain: 0.05 });
+      const mix = m('gain', { gain: 0.25 });
+      const flt = m('filter', { type: 'bandpass', frequency: 1100, Q: 4, rolloff: '-12' });
+      const lfo = m('lfo', { type: 'sine', frequency: 0.15, min: 700, max: 1600 });
+      const env = m('envelope', { attack: 1.2, decay: 1, sustain: 0.85, release: 3 });
+      const rev = m('reverb', { decay: 12, wet: 0.8 });
+      const out = m('output', { gain: 0.3 });
+      chain(o1, mix); chain(o2, mix); chain(nz, gn, mix); chain(mix, flt, env, rev, out);
+      modConnect(lfo, flt, 'frequency');
+    } },
+    { id: 'sunrise', cat: 'pads', name: 'Sunrise', desc: 'Hold a chord and wait: the filter takes three seconds to open. Arrival.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth' });
+      const o2 = m('oscillator', { type: 'sawtooth', coarse: 12, detune: -6 });
+      const o3 = m('oscillator', { type: 'triangle', detune: 8 });
+      const mix = m('gain', { gain: 0.25 });
+      const flt = m('filter', { type: 'lowpass', frequency: 500, Q: 1.5, rolloff: '-24' });
+      const menv = m('modenv', { attack: 3, decay: 2, sustain: 0.8, release: 3, amount: 0.8 });
+      const env = m('envelope', { attack: 2.5, decay: 1, sustain: 1, release: 3 });
+      const cho = m('chorus', { frequency: 0.3, depth: 0.5, wet: 0.4 });
+      const rev = m('reverb', { decay: 6, wet: 0.5 });
+      const out = m('output', { gain: 0.3 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(mix, flt, env, cho, rev, out);
+      modConnect(menv, flt, 'frequency');
+    } },
+    { id: 'underwater', cat: 'pads', name: 'Underwater Cathedral', desc: 'Sines stacked in fifths, panning slowly, fifteen seconds of reverb. Submerged.', build() {
+      const o1 = m('oscillator', { type: 'sine' });
+      const o2 = m('oscillator', { type: 'sine', coarse: 7 });
+      const o3 = m('oscillator', { type: 'sine', coarse: 12 });
+      const mix = m('gain', { gain: 0.3 });
+      const flt = m('filter', { type: 'lowpass', frequency: 700, Q: 1, rolloff: '-12' });
+      const env = m('envelope', { attack: 1.5, decay: 1, sustain: 1, release: 5 });
+      const pan = m('pan', { pan: 0 });
+      const lfo = m('lfo', { type: 'sine', frequency: 0.3, min: -0.8, max: 0.8 });
+      const dly = m('delay', { delayTime: 0.5, feedback: 0.5, wet: 0.4 });
+      const rev = m('reverb', { decay: 15, wet: 0.9 });
+      const out = m('output', { gain: 0.3 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(mix, flt, env, pan, dly, rev, out);
+      modConnect(lfo, pan, 'pan');
+    } },
+    { id: 'vapor', cat: 'pads', name: 'Vapor', desc: 'Hazy mall-at-closing-time chords. Wide detune, wobbling chorus, no top end.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth', detune: -20 });
+      const o2 = m('oscillator', { type: 'sawtooth', detune: 20 });
+      const mix = m('gain', { gain: 0.3 });
+      const flt = m('filter', { type: 'lowpass', frequency: 1400, Q: 1, rolloff: '-12' });
+      const lfo = m('lfo', { type: 'sine', frequency: 0.4, min: 600, max: 2400 });
+      const env = m('envelope', { attack: 0.3, decay: 0.5, sustain: 0.9, release: 1.5 });
+      const cho = m('chorus', { frequency: 0.9, depth: 0.6, wet: 0.5 });
+      const eq = m('eq3', { low: -3, mid: 0, high: 2 });
+      const rev = m('reverb', { decay: 6, wet: 0.5 });
+      const out = m('output', { gain: 0.3 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, cho, eq, rev, out);
+      modConnect(lfo, flt, 'frequency');
+    } },
+    { id: 'heaven', cat: 'pads', name: "Heaven's Gate", desc: 'Four saws, three seconds to arrive, five to leave, a slow drift across the stereo field. Overwhelming.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth', detune: -14 });
+      const o2 = m('oscillator', { type: 'sawtooth' });
+      const o3 = m('oscillator', { type: 'sawtooth', detune: 14 });
+      const o4 = m('oscillator', { type: 'sawtooth', coarse: 12, detune: 5 });
+      const mix = m('gain', { gain: 0.22 });
+      const flt = m('filter', { type: 'lowpass', frequency: 5000, Q: 0.7, rolloff: '-12' });
+      const env = m('envelope', { attack: 3, decay: 1, sustain: 1, release: 5 });
+      const cho = m('chorus', { frequency: 0.2, depth: 0.8, wet: 0.6 });
+      const pan = m('pan', { pan: 0 });
+      const lfo = m('lfo', { type: 'sine', frequency: 0.1, min: -1, max: 1 });
+      const rev = m('reverb', { decay: 14, wet: 0.85 });
+      const out = m('output', { gain: 0.28 });
+      chain(o1, mix); chain(o2, mix); chain(o3, mix); chain(o4, mix); chain(mix, flt, env, cho, pan, rev, out);
+      modConnect(lfo, pan, 'pan');
+    } },
+    { id: 'supersaw', cat: 'pads', name: 'Supersaw', desc: 'The trance stack. Big, wide, and unapologetic.' },
+    { id: 'brass', cat: 'pads', name: 'Brass', desc: 'Two saws and a filter that pushes open on the attack. Fanfare.' },
+
+    // ── Bass ──
+    { id: 'bass', cat: 'bass', name: 'Bass', desc: 'Square into a resonant lowpass. The basic floor.' },
+    { id: 'subbass', cat: 'bass', name: 'Sub Bass', desc: 'Weight with no mud — felt more than heard.' },
+    { id: 'moogwalk', cat: 'bass', name: 'Moog Walk', desc: 'Funky, fat, walking. The filter envelope does the talking.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth', coarse: -12 });
+      const o2 = m('oscillator', { type: 'square', coarse: -12, detune: 5 });
+      const mix = m('gain', { gain: 0.4 });
+      const flt = m('filter', { type: 'lowpass', frequency: 500, Q: 4, rolloff: '-24', drive: 0.2 });
+      const menv = m('modenv', { attack: 0.002, decay: 0.18, sustain: 0, release: 0.15, amount: 0.6 });
+      const env = m('envelope', { attack: 0.003, decay: 0.25, sustain: 0.6, release: 0.15 });
+      const out = m('output', { gain: 0.45 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, out);
+      modConnect(menv, flt, 'frequency');
+    } },
+    { id: 'neon', cat: 'bass', name: 'Neon Bass', desc: 'Synthwave: driven, chorused, a little delay. Night drive.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth', coarse: -12, detune: -10 });
+      const o2 = m('oscillator', { type: 'sawtooth', coarse: -12, detune: 10 });
+      const mix = m('gain', { gain: 0.38 });
+      const flt = m('filter', { type: 'lowpass', frequency: 1200, Q: 2, rolloff: '-24', drive: 0.4 });
+      const menv = m('modenv', { attack: 0.002, decay: 0.3, sustain: 0, release: 0.2, amount: 0.5 });
+      const env = m('envelope', { attack: 0.003, decay: 0.3, sustain: 0.7, release: 0.2 });
+      const cho = m('chorus', { frequency: 0.5, depth: 0.3, wet: 0.25 });
+      const dly = m('delay', { delayTime: 0.19, feedback: 0.25, wet: 0.15 });
+      const out = m('output', { gain: 0.42 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, cho, dly, out);
+      modConnect(menv, flt, 'frequency');
+    } },
+    { id: 'fmslap', cat: 'bass', name: 'FM Slap', desc: 'The DX bass: a square with FM bite on the attack. Punchy, eighties.', build() {
+      const car = m('oscillator', { type: 'square', coarse: -12, fmAmount: 380 });
+      const mo = m('oscillator', { type: 'sine', coarse: 12 });
+      const flt = m('filter', { type: 'lowpass', frequency: 1500, Q: 1.5, rolloff: '-24', drive: 0.2 });
+      const env = m('envelope', { attack: 0.002, decay: 0.35, sustain: 0.4, release: 0.15 });
+      const out = m('output', { gain: 0.45 });
+      fm(car, mo); chain(car, flt, env, out);
+    } },
+    { id: 'reese', cat: 'bass', name: 'Reese', desc: 'Two saws detuned wide enough to churn. Jungle, drum and bass.' },
+    { id: 'boom808', cat: 'bass', name: '808', desc: 'A sine whose pitch falls in the first hundred milliseconds. Boom.' },
+    { id: 'acid', cat: 'bass', name: 'Acid', desc: 'The 303 squelch — resonance, drive, and a filter that never sits still.' },
+    { id: 'wobble', cat: 'bass', name: 'Wobble', desc: 'An LFO on the cutoff. Wub.' },
+    { id: 'growl', cat: 'bass', name: 'Growl', desc: 'Bandpass, heavy drive, fast wobble. Teeth.' },
+
+    // ── Leads ──
+    { id: 'lead', cat: 'leads', name: 'Lead', desc: 'Square through a resonant bandpass. Cuts through anything.' },
+    { id: 'screaming', cat: 'leads', name: 'Screaming Saw', desc: 'Two saws, resonance, drive, fast vibrato. Guitar solo energy.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth', detune: -7 });
+      const o2 = m('oscillator', { type: 'sawtooth', detune: 7 });
+      const mix = m('gain', { gain: 0.4 });
+      const flt = m('filter', { type: 'lowpass', frequency: 2200, Q: 6, rolloff: '-24', drive: 0.5 });
+      const lfo = m('lfo', { type: 'sine', frequency: 5.5, min: -12, max: 12 });
+      const env = m('envelope', { attack: 0.02, decay: 0.2, sustain: 0.9, release: 0.3 });
+      const dly = m('delay', { delayTime: 0.375, feedback: 0.4, wet: 0.3 });
+      const out = m('output', { gain: 0.38 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, dly, out);
+      modConnect(lfo, o1, 'detune'); modConnect(lfo, o2, 'detune');
+    } },
+    { id: 'flute', cat: 'leads', name: 'Flute in the Fog', desc: 'Breathy and distant: a triangle, a whisper of noise, slow vibrato, long reverb.', build() {
+      const o1 = m('oscillator', { type: 'triangle' });
+      const o2 = m('oscillator', { type: 'sine', coarse: 12 });
+      const nz = m('noise', { type: 'white' });
+      const gn = m('gain', { gain: 0.025 });
+      const mix = m('gain', { gain: 0.4 });
+      const flt = m('filter', { type: 'lowpass', frequency: 1800, Q: 1, rolloff: '-12' });
+      const lfo = m('lfo', { type: 'sine', frequency: 5, min: -6, max: 6 });
+      const env = m('envelope', { attack: 0.12, decay: 0.3, sustain: 0.85, release: 0.4 });
+      const rev = m('reverb', { decay: 7, wet: 0.5 });
+      const out = m('output', { gain: 0.4 });
+      chain(o1, mix); chain(o2, mix); chain(nz, gn, mix); chain(mix, flt, env, rev, out);
+      modConnect(lfo, o1, 'detune');
+    } },
+    { id: 'theremin', cat: 'leads', name: 'Theremin', desc: 'One sine and a nervous vibrato. Spooky, 1950s, hands in the air.', build() {
+      const o1 = m('oscillator', { type: 'sine' });
+      const lfo = m('lfo', { type: 'sine', frequency: 6, min: -20, max: 20 });
+      const env = m('envelope', { attack: 0.25, decay: 0.2, sustain: 1, release: 0.5 });
+      const dly = m('delay', { delayTime: 0.3, feedback: 0.3, wet: 0.2 });
+      const rev = m('reverb', { decay: 4, wet: 0.4 });
+      const out = m('output', { gain: 0.45 });
+      chain(o1, env, dly, rev, out);
+      modConnect(lfo, o1, 'detune');
+    } },
+    { id: 'laser', cat: 'leads', name: 'Laser Lead', desc: 'Every note starts high and drops — a pitch envelope doing pew. Playful sci-fi.', build() {
+      const o1 = m('oscillator', { type: 'square' });
+      const o2 = m('oscillator', { type: 'sawtooth', coarse: 12 });
+      const mix = m('gain', { gain: 0.35 });
+      const menv = m('modenv', { attack: 0.001, decay: 0.15, sustain: 0, release: 0.1, amount: 0.35 });
+      const flt = m('filter', { type: 'lowpass', frequency: 3000, Q: 8, rolloff: '-24' });
+      const env = m('envelope', { attack: 0.002, decay: 0.3, sustain: 0.5, release: 0.2 });
+      const dly = m('delay', { delayTime: 0.19, feedback: 0.3, wet: 0.25 });
+      const out = m('output', { gain: 0.38 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, dly, out);
+      modConnect(menv, o1, 'frequency'); modConnect(menv, o2, 'frequency');
+    } },
+
+    // ── Plucks & Arps ──
+    { id: 'pluck', cat: 'plucks', name: 'Pluck', desc: 'The filter envelope, demonstrated. Bright for an instant, then dark.' },
+    { id: 'trancepluck', cat: 'plucks', name: 'Trance Pluck', desc: 'Supersaw, filter envelope, dotted-eighth delay. A decade of dance floors.' },
+    { id: 'arp', cat: 'plucks', name: 'Arp', desc: 'A plucky patch with the arpeggiator switched on. Hold a chord.' },
+    { id: 'chip', cat: 'plucks', name: 'Chiptune', desc: 'One square wave and the arpeggiator. The NES had three voices; this is how it faked chords.' },
+    { id: 'harp', cat: 'plucks', name: 'Harp in the Rain', desc: 'Tender arpeggios that fall three octaves and echo back. Hold a chord and look out of a window.', arp: { mode: 'updown', rate: '16n', octaves: 3, hold: true }, build() {
+      const o1 = m('oscillator', { type: 'triangle' });
+      const o2 = m('oscillator', { type: 'sine', coarse: 12 });
+      const mix = m('gain', { gain: 0.4 });
+      const flt = m('filter', { type: 'lowpass', frequency: 500, Q: 2, rolloff: '-24' });
+      const menv = m('modenv', { attack: 0.002, decay: 0.3, sustain: 0, release: 0.2, amount: 0.7 });
+      const env = m('envelope', { attack: 0.002, decay: 0.8, sustain: 0, release: 0.6 });
+      const dly = m('delay', { delayTime: 0.25, feedback: 0.45, wet: 0.35 });
+      const rev = m('reverb', { decay: 5, wet: 0.4 });
+      const out = m('output', { gain: 0.4 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, dly, rev, out);
+      modConnect(menv, flt, 'frequency');
+    } },
+    { id: 'berlin', cat: 'plucks', name: 'Berlin School', desc: 'Tangerine Dream: a sixteenth-note pulse with a filter that drifts over a minute. Hold one chord for a long time.', arp: { mode: 'up', rate: '16n', octaves: 2, hold: true }, build() {
+      const o1 = m('oscillator', { type: 'sawtooth' });
+      const o2 = m('oscillator', { type: 'square', coarse: -12 });
+      const mix = m('gain', { gain: 0.36 });
+      const flt = m('filter', { type: 'lowpass', frequency: 800, Q: 3, rolloff: '-24' });
+      const menv = m('modenv', { attack: 0.002, decay: 0.2, sustain: 0, release: 0.15, amount: 0.6 });
+      const lfo = m('lfo', { type: 'triangle', frequency: 0.05, min: 400, max: 1800 });
+      const env = m('envelope', { attack: 0.002, decay: 0.25, sustain: 0.3, release: 0.2 });
+      const dly = m('delay', { delayTime: 0.375, feedback: 0.5, wet: 0.4 });
+      const out = m('output', { gain: 0.38 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, dly, out);
+      modConnect(menv, flt, 'frequency'); modConnect(lfo, flt, 'frequency');
+    } },
+    { id: 'pizz', cat: 'plucks', name: 'Pizzicato', desc: 'Plucked strings: precise, dry, over in a tenth of a second. Playful.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth' });
+      const o2 = m('oscillator', { type: 'triangle', detune: 4 });
+      const mix = m('gain', { gain: 0.4 });
+      const flt = m('filter', { type: 'lowpass', frequency: 1200, Q: 1.5, rolloff: '-24' });
+      const env = m('envelope', { attack: 0.001, decay: 0.12, sustain: 0, release: 0.1 });
+      const rev = m('reverb', { decay: 3, wet: 0.3 });
+      const out = m('output', { gain: 0.45 });
+      chain(o1, mix); chain(o2, mix); chain(mix, flt, env, rev, out);
+    } },
+    { id: 'marimba', cat: 'plucks', name: 'Marimba Sky', desc: 'Wooden bars, random order, a long delay. Airy, minimalist, Reich.', arp: { mode: 'random', rate: '8n', octaves: 2, hold: true }, build() {
+      const car = m('oscillator', { type: 'sine', fmAmount: 100 });
+      const mo = m('oscillator', { type: 'sine', coarse: 24 });
+      const env = m('envelope', { attack: 0.001, decay: 0.35, sustain: 0, release: 0.3 });
+      const dly = m('delay', { delayTime: 0.5, feedback: 0.3, wet: 0.3 });
+      const rev = m('reverb', { decay: 4, wet: 0.4 });
+      const out = m('output', { gain: 0.45 });
+      fm(car, mo); chain(car, env, dly, rev, out);
+    } },
+    { id: 'chimes', cat: 'plucks', name: 'Wind Chimes', desc: 'Bells in a triplet breeze, random, three octaves. Serene.', arp: { mode: 'random', rate: '8t', octaves: 3, hold: true }, build() {
+      const car = m('oscillator', { type: 'sine', fmAmount: 300 });
+      const mo = m('oscillator', { type: 'sine', coarse: 22 });
+      const env = m('envelope', { attack: 0.001, decay: 1.4, sustain: 0, release: 1 });
+      const dly = m('delay', { delayTime: 0.45, feedback: 0.4, wet: 0.35 });
+      const rev = m('reverb', { decay: 8, wet: 0.6 });
+      const out = m('output', { gain: 0.35 });
+      fm(car, mo); chain(car, env, dly, rev, out);
+    } },
+    { id: 'bubbles', cat: 'plucks', name: 'Bubbles', desc: 'Each note rises into place like a drop hitting water. Play it above middle C.', build() {
+      const o1 = m('oscillator', { type: 'sine' });
+      const menv = m('modenv', { attack: 0.001, decay: 0.09, sustain: 0, release: 0.05, amount: -0.12 });
+      const env = m('envelope', { attack: 0.001, decay: 0.25, sustain: 0, release: 0.15 });
+      const dly = m('delay', { delayTime: 0.33, feedback: 0.4, wet: 0.4 });
+      const rev = m('reverb', { decay: 3, wet: 0.35 });
+      const out = m('output', { gain: 0.45 });
+      chain(o1, env, dly, rev, out);
+      modConnect(menv, o1, 'frequency');
+    } },
+
+    // ── Texture & FX ──
+    { id: 'dubstab', cat: 'texture', name: 'Dub Stab', desc: 'A chord hit once and left to a long delay. Smoke.' },
+    { id: 'rain', cat: 'texture', name: 'Rain on Tin', desc: 'Filtered noise chopped by a fast square LFO. Plays on its own — press Start Audio.', build() {
+      const nz = m('noise', { type: 'white' });
+      const flt = m('filter', { type: 'bandpass', frequency: 3500, Q: 1.5, rolloff: '-12' });
+      const gn = m('gain', { gain: 0.3 });
+      const lfo = m('lfo', { type: 'square', frequency: 7, min: 0.02, max: 0.35 });
+      const rev = m('reverb', { decay: 3, wet: 0.35 });
+      const out = m('output', { gain: 0.35 });
+      chain(nz, flt, gn, rev, out);
+      modConnect(lfo, gn, 'gain');
+    } },
+    { id: 'thunder', cat: 'texture', name: 'Distant Thunder', desc: 'Brown noise swelling and fading under a long reverb. Ominous. Plays on its own.', build() {
+      const nz = m('noise', { type: 'brown' });
+      const flt = m('filter', { type: 'lowpass', frequency: 200, Q: 2, rolloff: '-24' });
+      const gn = m('gain', { gain: 0.6 });
+      const lfo = m('lfo', { type: 'sine', frequency: 0.2, min: 0, max: 0.6 });
+      const rev = m('reverb', { decay: 12, wet: 0.8 });
+      const comp = m('compressor', { threshold: -20, ratio: 4 });
+      const out = m('output', { gain: 0.4 });
+      chain(nz, flt, gn, rev, comp, out);
+      modConnect(lfo, gn, 'gain');
+    } },
+    { id: 'deepspace', cat: 'texture', name: 'Deep Space', desc: 'Two octaves down, a filter that drifts once every half-minute, endless delay. Hold a low note and wait.', build() {
+      const o1 = m('oscillator', { type: 'sawtooth', coarse: -24 });
+      const o2 = m('oscillator', { type: 'sine', coarse: -12 });
+      const nz = m('noise', { type: 'brown' });
+      const gn = m('gain', { gain: 0.05 });
+      const mix = m('gain', { gain: 0.3 });
+      const flt = m('filter', { type: 'lowpass', frequency: 300, Q: 3, rolloff: '-24' });
+      const lfo = m('lfo', { type: 'sine', frequency: 0.03, min: 150, max: 700 });
+      const dly = m('delay', { delayTime: 0.6, feedback: 0.6, wet: 0.5 });
+      const rev = m('reverb', { decay: 15, wet: 0.9 });
+      const out = m('output', { gain: 0.3 });
+      chain(o1, mix); chain(o2, mix); chain(nz, gn, mix); chain(mix, flt, dly, rev, out);
+      modConnect(lfo, flt, 'frequency');
+    } },
+    { id: 'radio', cat: 'texture', name: 'Broken Radio', desc: 'A square wave and static through a bandpass that jumps. Lo-fi, unsettled.', build() {
+      const o1 = m('oscillator', { type: 'square' });
+      const nz = m('noise', { type: 'white' });
+      const gn = m('gain', { gain: 0.1 });
+      const mix = m('gain', { gain: 0.35 });
+      const flt = m('filter', { type: 'bandpass', frequency: 1500, Q: 8, rolloff: '-24', drive: 0.7 });
+      const lfo = m('lfo', { type: 'square', frequency: 1.2, min: 900, max: 2200 });
+      const env = m('envelope', { attack: 0.005, decay: 0.5, sustain: 0.4, release: 0.2 });
+      const dly = m('delay', { delayTime: 0.11, feedback: 0.6, wet: 0.3 });
+      const out = m('output', { gain: 0.35 });
+      chain(o1, mix); chain(nz, gn, mix); chain(mix, flt, env, dly, out);
+      modConnect(lfo, flt, 'frequency');
+    } },
+    { id: 'tom', cat: 'texture', name: 'Floor Tom', desc: 'A drum you play from the keys: a pitch drop, a short ring, a small room.', build() {
+      const o1 = m('oscillator', { type: 'triangle', coarse: -5 });
+      const menv = m('modenv', { attack: 0.001, decay: 0.15, sustain: 0, release: 0.05, amount: 0.25 });
+      const flt = m('filter', { type: 'lowpass', frequency: 900, Q: 1, rolloff: '-12', drive: 0.2 });
+      const env = m('envelope', { attack: 0.001, decay: 0.4, sustain: 0, release: 0.2 });
+      const rev = m('reverb', { decay: 2, wet: 0.25 });
+      const out = m('output', { gain: 0.5 });
+      chain(o1, flt, env, rev, out);
+      modConnect(menv, o1, 'frequency');
+    } },
+    { id: 'drone', cat: 'texture', name: 'Drone', desc: 'One saw, one filter, a long room. Hold it and think.' },
+    { id: 'ambient', cat: 'texture', name: 'Ambient', desc: 'A triangle and pink noise under twelve seconds of reverb.' },
+    { id: 'scifi', cat: 'texture', name: 'Sci-Fi', desc: 'Two oscillators wandering on an LFO. The ship is drifting.' },
+    { id: 'ritual', cat: 'texture', name: 'Ritual', desc: 'Deep drone, brown noise, a cathedral of reverb. On-brand.' },
+    { id: 'noisewash', cat: 'texture', name: 'Noise Wash', desc: 'Pink noise through a lowpass into a long room. Plays on its own.' },
+  ];
+  const PRESET_BY_ID = Object.fromEntries(PRESET_BANK.map(p => [p.id, p]));
+  let currentPreset = null;
+
+  // ─── PRESET BROWSER ───
+  // Forty-odd sounds don't fit on a toolbar. Six moods do, and each opens a
+  // panel of cards with a name and a line about when you'd want it.
+  function presetPanelOpen(cat) {
+    const panel = document.getElementById('presetPanel');
+    const info = PRESET_CATS[cat];
+    document.querySelectorAll('.preset-cat').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+    document.getElementById('presetPanelTitle').textContent = info.name;
+    document.getElementById('presetPanelBlurb').textContent = info.blurb;
+    const grid = document.getElementById('presetGrid');
+    grid.innerHTML = '';
+    PRESET_BANK.filter(p => p.cat === cat).forEach(p => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'preset-card' + (currentPreset === p.id ? ' current' : '');
+      card.innerHTML = '<b>' + p.name + '</b><span>' + p.desc + '</span>';
+      tapHandler(card, () => { loadPreset(p.id); presetPanelClose(); });
+      grid.appendChild(card);
+    });
+    const tb = document.querySelector('.synth-toolbar');
+    panel.style.top = (tb ? tb.getBoundingClientRect().bottom + 6 : 190) + 'px';
+    panel.hidden = false;
+    panel.dataset.cat = cat;
+  }
+  function presetPanelClose() {
+    document.getElementById('presetPanel').hidden = true;
+    document.querySelectorAll('.preset-cat').forEach(b => b.classList.remove('active'));
+  }
+  (function initPresetBrowser() {
+    document.querySelectorAll('.preset-cat').forEach(btn => tapHandler(btn, () => {
+      const panel = document.getElementById('presetPanel');
+      if (!panel.hidden && panel.dataset.cat === btn.dataset.cat) presetPanelClose();
+      else presetPanelOpen(btn.dataset.cat);
+    }));
+    tapHandler(document.getElementById('presetPanelClose'), presetPanelClose);
+    tapHandler(document.getElementById('presetRandom'), () => {
+      const pool = PRESET_BANK.filter(p => p.id !== currentPreset);
+      loadPreset(pool[Math.floor(Math.random() * pool.length)].id);
+      presetPanelClose();
+    });
+    document.addEventListener('pointerdown', e => {
+      const panel = document.getElementById('presetPanel');
+      if (panel.hidden) return;
+      if (e.target.closest('#presetPanel') || e.target.closest('.preset-cat')) return;
+      presetPanelClose();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') presetPanelClose(); });
+  })();
+
   document.querySelectorAll('[data-preset]').forEach(btn => {
     tapHandler(btn, () => loadPreset(btn.dataset.preset));
   });

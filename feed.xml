@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Changelog: September 10, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-10</link>
+    <guid isPermaLink="false">changelog-2026-09-10</guid>
+    <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth now has sixty presets in six moods, thirty-four of them new, and every one has a name that says what it feels like and a line that says when you'd want it: Rhodes at Midnight, Warm Blanket, Choir of Ghosts, Sunrise, Underwater Cathedral, Moog Walk, Neon Bass, Screaming Saw, Flute in the Fog, Theremin, Harp in the Rain, Berlin School, Wind Chimes, Bubbles, Distant Thunder, Broken Radio. The preset strip is now six mood buttons, Keys, Pads, Bass, Leads, Plucks and Arps, Texture and FX, each opening a panel of cards, plus a Surprise me button. The theory guide's keys are easier to read: a lit key wears its role across its whole face with the note name in the same colour, and keys outside the pattern go dark. And the Synth fits any window: the page now measures its fixed nav, toolbar and dock and pads itself to fit as the window changes, so a custom-sized window no longer hides modules under the toolbar or the keys.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 9, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-09</link>
     <guid isPermaLink="false">changelog-2026-09-09</guid>
