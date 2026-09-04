@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0a0e1a">
     <title>Chord-Tone Trainer — Methodic Truth</title>
+    <meta name="keywords" content="chord tone trainer, chord tones guitar, target chord tones, soloing over chord changes, chord progression practice, guitar practice tool, ear and fretboard training, free guitar trainer">
     <meta name="description" content="Train your ear and your fretboard sense with the Chord-Tone Trainer — 7 progressions, key shuffle, and streak tracking.">
     <link rel="canonical" href="https://methodictruth.com/chord-trainer.html">
     <meta property="og:title" content="Chord-Tone Trainer — Methodic Truth">
@@ -530,7 +531,7 @@
         let tempo = 80;
         let barsPerChord = 2;
         let difficulty = 'beginner';
-        let isPlaying = false;
+        let trainerPlaying = false;
         let currentChordDegree = 1;
         let currentChordTones = [];
         let currentChordQuality = 'maj';
@@ -689,10 +690,10 @@
         }
 
         async function togglePlayback() {
-            if (isPlaying) {
+            if (trainerPlaying) {
                 Tone.Transport.stop();
                 if (loop) loop.dispose();
-                isPlaying = false;
+                trainerPlaying = false;
                 document.getElementById('startBtn').textContent = 'Start';
                 return;
             }
@@ -727,7 +728,7 @@
 
             loop.start(0);
             Tone.Transport.start();
-            isPlaying = true;
+            trainerPlaying = true;
             document.getElementById('startBtn').textContent = 'Stop';
 
             // Initialize first chord
@@ -792,17 +793,17 @@
         
         document.getElementById('keySelect').addEventListener('change', (e) => {
             key = e.target.value;
-            if (isPlaying) updateChordDisplay();
+            if (trainerPlaying) updateChordDisplay();
         });
 
         document.getElementById('tempoInput').addEventListener('change', (e) => {
             tempo = parseInt(e.target.value);
-            if (isPlaying) Tone.Transport.bpm.value = tempo;
+            if (trainerPlaying) Tone.Transport.bpm.value = tempo;
         });
 
         document.getElementById('barsInput').addEventListener('change', (e) => {
             barsPerChord = parseInt(e.target.value);
-            if (isPlaying) {
+            if (trainerPlaying) {
                 togglePlayback();
                 setTimeout(togglePlayback, 100);
             }
