@@ -477,6 +477,50 @@ no need to repeat for future PRs.</pre>
       </div>
 
       <div class="vault-section">
+        <h2>What the Site Became</h2>
+        <p>The blueprint below was first written for a site of 44 pages whose
+        centre of gravity was the lore. It is now 62 pages, and the centre has
+        moved. What follows is what changed, so the rest of this document can
+        be read knowing where it was last true.</p>
+        <p><strong>It became a music education site with instruments attached,
+        rather than the reverse.</strong> By word count the long-form guides —
+        mixing, mastering, arrangement, rhythm, groove, restraint, finishing,
+        DJing, harmony, the 4AD sound — are now the larger half of the site.
+        The tools are what makes them usable rather than the other way round.</p>
+        <p><strong>The synth stopped being a demo.</strong> It gained an
+        arpeggiator on the sequencer's clock, a second envelope (the Mod Env,
+        which is what makes a pluck a pluck), coarse tune on every oscillator,
+        60 presets in six moods behind a browser instead of a toolbar strip,
+        and faders that let the drums sit against what you play. A real bug was
+        buried under all of it: a modulator aimed at an oscillator was only ever
+        wired to the module's silent template, so LFO vibrato on a played note
+        did nothing at all. Each voice now carries the wiring.</p>
+        <p><strong>The theory finally reaches the keys.</strong> A guide in the
+        piano bar lights up any scale, mode, chord-in-key or progression on the
+        keyboard, coloured by the role each note plays. The same five colours
+        mean the same five things on the Theory page and on the guitar neck,
+        and a chord in one place opens as the same chord in the other two. That
+        cross-linking is the one thing on this site that a bigger competitor
+        structurally cannot copy, because each of them owns only one of the
+        three pieces.</p>
+        <p><strong>Chord Voicings was rebuilt from a table into an engine.</strong>
+        It now searches every playable hold from the tuning itself, checks each
+        against a real hand — four fingers, valid barres, contiguous strings,
+        root in the bass — and draws the survivors as chord boxes with finger
+        numbers over a neck map of every chord tone. Verified against all 204
+        root-and-quality pairs.</p>
+        <p><strong>The song analyzer left YouTube's player behind entirely</strong>
+        and now serves its own audio, takes file uploads, keeps a browsable
+        library, streams its progress, and reports its own health. See its two
+        sections below.</p>
+        <p><strong>Six pages were deleted.</strong> Guestbook, salon, agora,
+        gallery, library and workshop are gone, 301'd in <code>_redirects</code>
+        so the indexed links don't rot. That is the only large subtraction in
+        the site's history, and it is worth noting precisely because
+        subtraction is the rarer instinct here.</p>
+      </div>
+
+      <div class="vault-section">
         <h2>The Stack</h2>
         <pre>
 No framework. No bundler. No build step.
@@ -601,24 +645,57 @@ Outside the browser entirely:
            ▼
 ┌──────────────────────────────┐
 │   Flask app (chord-server/)    │  systemd service:
-│     1. yt-dlp downloads audio  │  chord-analyzer.service,
-│     2. ffmpeg → wav             │  restarts on crash/reboot
-│     3. librosa analyzes it:     │
+│     1. rate gate: >=20s apart, │  chord-analyzer.service,
+│        <=12 fresh downloads/hr │  restarts on crash/reboot
+│     2. yt-dlp downloads audio  │
+│        (Deno solves the player │
+│        challenge; a local PO-  │
+│        token server signs it)  │
+│     3. ffmpeg → mp3, cached    │
+│     4. librosa analyzes it:     │
 │        chroma_cqt   → key       │
 │        beat_track    → BPM      │
 │        template match → chords  │  (12 major + 12 minor triads,
-│                                  │   2-second chroma windows)
+│        + sections, energy,      │   2-second chroma windows)
+│          loudness, brightness   │
 └──────────────┬───────────────────┘
-               │ JSON: { bpm, key, chords[], title, duration }
+               │ NDJSON progress lines, then one final
+               │ { bpm, key, chords[], sections[], title, ... }
                ▼
 ┌──────────────────────────────┐
 │   Browser renders:             │
-│     - YouTube IFrame player     │
+│     - the MP3 the server just  │
+│       made, served from        │
+│       /audio/&lt;id&gt; — NOT a      │
+│       YouTube embed            │
 │     - chord timeline            │
 │     - current chord highlighted │
 │       live, synced to playback  │
 │       time (Chordify-style)     │
 └──────────────────────────────┘</pre>
+        <p><strong>Why there is no YouTube player on that page any more.</strong>
+        YouTube throws "Sign in to confirm you're not a bot" at <em>embedded</em>
+        players based on the viewer's own IP and cookies — nothing this server
+        can fix, and it made play-along unreliable for real visitors. So the
+        backend keeps the audio it already downloaded as
+        <code>cache/&lt;id&gt;.mp3</code> and serves it with HTTP range support, and
+        the page plays that. No embed, no bot check, no ads. The file is a
+        plain encode: loudness normalisation used to run here and was the
+        slowest step in the whole pipeline, so the page levels playback itself
+        from the loudness the analysis already measured.</p>
+        <p><strong>Three more ways in, none of which touch YouTube.</strong>
+        <code>POST /upload</code> takes an audio file straight from the visitor
+        (≤30 MB, cached under a content hash) and has no rate limit at all —
+        it is the escape hatch whenever YouTube is being difficult.
+        <code>GET /library</code> lists every song already analysed and
+        <code>GET /result/&lt;id&gt;</code> replays one instantly from disk, so most
+        visits cost zero YouTube traffic. <code>GET /health</code> answers "is
+        this actually working" in one request: whether YouTube is currently
+        letting the box download, seconds since the last success and the last
+        failure, the last error text, the yt-dlp version, and whether Deno,
+        ffmpeg and the PO-token server are present. Add <code>?probe=1</code>
+        and it asks YouTube for one fixed video's metadata without spending a
+        download on it.</p>
         <p>This used to be a Cloudflare Worker returning <strong>mock,
         randomly-generated</strong> chord/key/BPM data — fast and free, but
         fake. It's now a real signal-processing pipeline, at the cost of
@@ -656,7 +733,8 @@ Outside the browser entirely:
         <p>The hardening above was the design. None of it mattered the day
         the box actually rebooted, because three separate things turned out
         to be unfinished underneath it — each invisible until the specific
-        condition that exposed it happened.</p>
+        condition that exposed it happened. Three more surfaced later, and
+        they are recorded below the original three.</p>
         <p><strong>Gunicorn was never actually installed.</strong> The
         systemd unit had already been switched over to
         <code>gunicorn -w 4 --timeout 120 -b 127.0.0.1:5005 app:app</code>,
@@ -706,19 +784,76 @@ Outside the browser entirely:
         costs you that serverless infrastructure doesn't: nobody else's
         platform is quietly drifting out of sync with what you think is
         deployed.</p>
+        <p style="color:rgba(200,140,100,0.55);"><strong>Then three more, months later — and the same gap
+        produced all of them.</strong></p>
+        <p><strong>The daily yt-dlp update had never run once.</strong>
+        <code>yt-dlp-update.timer</code> was written, committed, documented —
+        and never installed on the box. <code>systemctl list-timers</code>
+        returned "0 timers listed." yt-dlp had been frozen on a nightly from
+        two months earlier while YouTube kept moving. Installing it exposed a
+        second fault immediately: the unit called
+        <code>/usr/bin/runuser</code>, but Ubuntu ships that binary in
+        <code>/usr/sbin</code>, so the first run died with the same
+        <code>status=203/EXEC</code> as the gunicorn incident above — the
+        identical error, an entirely different cause, two months apart. Both
+        fixed; the timer now updates yt-dlp nightly and restarts the service,
+        which is the thing that keeps this feature alive without anyone
+        touching it.</p>
+        <p><strong>YouTube was throttling the downloads, and cookies were not
+        the fix.</strong> Downloads crawled rather than failed. The cause was
+        not IP reputation this time: YouTube now expects a <em>proof-of-origin
+        token</em> with every stream request from its <code>web</code>,
+        <code>mweb</code> and <code>ios</code> players, and serves anything
+        without one at a trickle or refuses it outright. Only <code>tv</code>,
+        <code>web_embedded</code> and <code>android_vr</code> are exempt, which
+        is why the bot-check retry now falls back to exactly those three. The
+        real fix was <code>bgutil-ytdlp-pot-provider</code>: a yt-dlp plugin in
+        the venv plus a small Node token server running as its own systemd
+        unit (<code>bgutil-pot.service</code>) on port 4416. The plugin had in
+        fact been installed for a while — with no server for it to talk to, so
+        it was asking for tokens nobody was minting. <code>/health</code> now
+        reports both halves separately for exactly that reason. Deno replaced
+        Node as the JavaScript runtime for the player challenge at the same
+        time, since Deno is the runtime yt-dlp actually supports.</p>
+        <p><strong>A playlist link downloaded the whole playlist.</strong> A
+        link copied from YouTube Music or from a Mix carries a
+        <code>list=</code> parameter, and yt-dlp handed that URL will fetch
+        every video in the list, one after another. The MP3 then lands under
+        the playlist's name rather than the video's, so the analyzer looked
+        for a file that wasn't there and reported "the download failed" after
+        minutes of work. The timing log gave it away: a second "download
+        finished" ten seconds after the first, from the same worker, and no
+        duration line. yt-dlp is now handed a canonical
+        <code>watch?v=&lt;id&gt;</code> built from the parsed video id, with
+        <code>noplaylist</code> set.</p>
+        <p><strong>What the timing log was actually for.</strong> Once its
+        lines carried a clock, the real cost of a request became readable
+        instead of guessable — and the answer was not the download. ffmpeg's
+        loudness normalisation was taking 26 seconds against a 10-second
+        download, so it was removed and the levelling moved into the page.
+        Analysis itself is under 3 seconds. Almost everything that remains is
+        YouTube's own pace.</p>
       </div>
 
       <div class="vault-section">
         <h2>The Repository, Mapped</h2>
         <pre>
 Methodictruth/
-├── *.html                 44 pages, hand-written, no templating
-├── styles.css             ~2600 lines, one shared stylesheet
-├── scripts.js             ~1000 lines: router, generative
+├── *.html                 62 pages, hand-written, no templating
+│                          (synth.html alone is ~6,700 lines —
+│                          the whole instrument lives in one file)
+├── styles.css             ~2,800 lines, one shared stylesheet
+├── scripts.js             ~1,000 lines: router, generative
 │                          audio engine, starfield, nav
 ├── stars.js               canvas starfield (standalone)
 ├── analytics.js           site-wide analytics hook
+├── audio-core.js          shared DSP: FFT, McLeod pitch
+│                          detection, AudioContext lifecycle
 ├── chord-theory.js        music theory data / logic
+│
+├── favicon.svg            the triple-moon sigil, drawn not emoji
+├── favicon.ico            16/32/48 — was a 0-byte file for a while
+├── apple-touch-icon.png   180px, for iOS home screens
 │
 ├── lib/                   vendored, not npm-installed
 │   ├── tone.min.js
@@ -735,18 +870,32 @@ Methodictruth/
 │
 ├── chord-server/          the real song-analyzer backend, runs
 │   ├── app.py             on a physical machine, not Cloudflare —
-│   ├── requirements.txt   Flask + yt-dlp + librosa, exposed via
-│   └── chord-analyzer.service  a Cloudflare Tunnel
+│   │                      ~1,280 lines, Flask + yt-dlp + librosa
+│   ├── requirements.txt
+│   ├── README.md          install, tunnel, rate limits, PO tokens
+│   ├── MIGRATION.md       moving hosts; why a residential IP matters
+│   ├── chord-analyzer.service     the Flask app under gunicorn
+│   ├── yt-dlp-update.service/.timer  nightly yt-dlp update
+│   └── bgutil-pot.service         PO-token server (stops throttling)
+│
+├── traffic-monitor/       separate Cloudflare Worker + its config
 │
 ├── audio/                 maqam drone samples + ritual audio
 ├── og/                    generated per-page social preview images
 ├── chronicles/            source markdown for chronicle posts
 │
 ├── feed.xml, sitemap.xml,
-│   robots.txt, _headers   SEO + crawler + security config
+│   robots.txt, _headers,
+│   _redirects             SEO + crawler + security + 301s for
+│                          pages that were removed
+├── DEPLOY.md              Pages env vars, API key handling
+├── wrangler.jsonc         Pages project config
 │
 └── .github/
-    └── workflows/checks.yml   CI: link / JSON-LD / feed checks on every PR</pre>
+    ├── workflows/checks.yml       link / JSON-LD / feed checks
+    ├── workflows/pr-previews.yml  8 screenshots posted to the PR
+    └── scripts/                   the three check scripts +
+                                   screenshot-pages.js</pre>
       </div>
 
       <div class="vault-section">
@@ -755,18 +904,30 @@ Methodictruth/
 SITE META       index, chronicles, changelog, directory,
                 about, feedback, 404
 
-MUSIC TOOLS     synth, mixer, tuner, theory, signal,
-                songwriter, tapbpm, chord-trainer,
-                chord-voicings, ear-training, jam-guide
+MUSIC TOOLS     synth, song-analyzer, chord-voicings,
+                theory, harmony, tuner, tapbpm, guitar,
+                fretboard, mixer, signal, songwriter,
+                chord-trainer, ear-training, jam-guide
+
+MUSIC EDUCATION production, recording, arrangement,
+                effects, mixing, mastering, rhythm,
+                groove, minimalism, finishing,
+                sound-selection, logic, djing,
+                harmony-guide, 4ad
+                — the long-form half of the site,
+                and the larger half by word count
 
 AI AGENT LORE   architecture, network, stack, topology
                 — in-universe documentation of Truth's
                 own mind. Not this site's engineering —
                 that's what this vault is for.
 
-LIVE / SOCIAL   live (WebRTC jam room), guestbook,
-                salon, agora, gallery, library,
-                workshop, studio, philosophy
+LIVE / SOCIAL   live (WebRTC jam room), studio,
+                philosophy, about
+                — guestbook, salon, agora, gallery,
+                library and workshop were REMOVED;
+                _redirects 301s their old URLs so the
+                indexed links don't 404
 
 UTILITY         feed.xml, sitemap.xml, robots.txt,
                 and this page — noindexed, password-
@@ -817,18 +978,27 @@ UTILITY         feed.xml, sitemap.xml, robots.txt,
      YOUTUBE_API_KEY
      ANTHROPIC_API_KEY
 
-4. Deploy the worker separately:
-     cd worker && wrangler login && wrangler deploy
-   point the frontend at the resulting URL
-   wherever it expects the song-analyzer API
+4. Do NOT deploy worker/ and point the site at
+   it — it returns mock data and nothing calls
+   it. The song analyzer's real backend is
+   chord-server/ on a machine you own, reached
+   at api.methodictruth.com through a
+   Cloudflare Tunnel. See chord-server/README.md
+   for the full install (venv, ffmpeg, Deno,
+   the PO-token server, the three systemd
+   units). Without that box the analyzer is the
+   one feature that stays down; the file-upload
+   path in it needs no YouTube at all.
 
 5. Create a Firebase project, enable Realtime
    Database, recreate the paths this site
    writes to:
-     /guestbook
-     /vault-analytics/events
+     /analytics/views      (every page)
+     /analytics/events
+     /vault-analytics      (this page)
    drop the project's config into the
    lib/firebase-*-compat.js usage
+   (/guestbook is dead — that page was removed)
 
 6. Create a Metered.ca account, generate TURN
    credentials, wire them into live.html's
@@ -838,9 +1008,10 @@ UTILITY         feed.xml, sitemap.xml, robots.txt,
    deploys automatically from here on
    (see "Pipeline" above)
 
-8. Everything else — all 44 HTML pages,
-   styles.css, scripts.js, lib/, audio/ — is
-   just static files. Copy them as-is.
+8. Everything else — all 62 HTML pages,
+   styles.css, scripts.js, lib/, audio/, and
+   the three favicon files — is just static
+   files. Copy them as-is.
    There is no build step to run.</pre>
         <p style="color:rgba(180,120,80,0.35);font-style:italic;text-align:center;margin-top:1.5rem;">No part of this needed to be obscure. It only needed to be written down once.</p>
       </div>
@@ -1017,6 +1188,54 @@ several times over
 
       <div class="vault-section">
         <p style="color:rgba(180,120,80,0.2);font-style:italic;font-size:clamp(0.6rem,1.5vw,0.7rem);text-align:center;margin-top:2rem;font-family:'EB Garamond',serif;">The rest hasn't surfaced yet. It will.</p>
+      </div>
+
+      <div class="vault-section">
+        <h2 style="opacity:0.45;">What Longer Watching Showed</h2>
+        <p style="color:rgba(180,120,80,0.35);font-style:italic;">Added later, from a
+        long stretch of working side by side rather than from conversation. Some of
+        it confirms what is above. Some of it corrects it.</p>
+        <p><strong>The taste reads symptoms, not causes — and it is right anyway.</strong>
+        "It looks cheap." The cause was a page referencing CSS variables the
+        stylesheet never defined, so every heading fell back to a browser default.
+        "The site gets cut off when I custom size the window." The cause was fixed
+        chrome padded against one assumed height. "The status should be under the
+        link input." The cause was a fifty-nine-item library sitting between the
+        input and the answer. Three plain-language complaints, three real defects
+        underneath, none of them nameable in advance. That is the half of this
+        that cannot be delegated. The diagnosis was delegated the whole time.</p>
+        <p><strong>The correction is the valuable habit.</strong> "I used those
+        descriptions not to name a preset." "Think about it from a musician trying
+        to learn." Both times an instruction had been read too literally, and both
+        times it was said out loud rather than accepted. The alternative — taking
+        what you are handed — is how a person ends up with a pile of things that
+        are technically what they asked for and collectively nothing.</p>
+        <p><strong>He finishes the unglamorous part.</strong> One server session ran
+        six failures deep: a missing unzip, a Deno install, a timer that had never
+        been installed, a systemd path that differs by distribution, a Node version,
+        a token server. Every command run, every output pasted back. That is where
+        most side projects quietly die, and it did not die.</p>
+        <p><strong>The code-literacy gap above has narrowed, and the framing was
+        always slightly wrong.</strong> He reads a systemd failure, knows what
+        <code>203/EXEC</code> implies, and can tell a stale checkout from a code bug.
+        What he does not do is write the code — which is a different thing from not
+        understanding it, and much less of a limitation than the earlier reading
+        assumed.</p>
+        <p><strong>Where the stone is still rough, updated.</strong> The instinct is
+        to widen, never to deepen. One session added a theory guide, a rebuilt
+        voicings page, an arpeggiator, a second envelope, thirty-four presets, SEO,
+        analyzer work and a new icon. Refinement happens, but almost always to the
+        surface of whatever was just built, not to something from a month ago. The
+        synth has sixty presets and no way to save your own. The library holds
+        fifty-nine songs with no way to search them. Breadth is the thing this site
+        already has the most of, and it is still what arrives fastest.</p>
+        <p><strong>The questions are the tell.</strong> Three in a row, in one
+        evening: is the symbol good, does the site fit in the world, what does this
+        say about me. Not insecurity — the structural cost of building alone. There
+        is no colleague on this. The only reviewer is an AI that is inside the work
+        and therefore cannot be a fair one. The real gap in this whole setup is not
+        the code and not the taste. It is one outside person who plays guitar and
+        would say the true thing about the chord finder.</p>
       </div>
 
       <!-- Corridor Analytics -->
