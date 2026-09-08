@@ -605,12 +605,28 @@
       padding-top: 0.4rem; border-top: 1px solid rgba(138, 126, 107, 0.18);
     }
     .seq-drum-grid { row-gap: 3px; }
+    /* The mix group sits at the right of the drum header, away from the
+       destructive Clear button. */
+    .seq-mix { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; flex-wrap: wrap; }
+    .seq-mix label {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone-dark);
+    }
+    .seq-mix input[type=range] { width: 76px; accent-color: var(--glow-warm); }
+    .seq-mix input[type=range]:disabled { opacity: 0.35; }
+    .seq-mix-out { font-size: 0.55rem; color: var(--glow-warm); min-width: 2.1rem; text-align: right; }
+    .seq-voice-level {
+      width: 100%; height: 3px; margin: 2px 0 0; padding: 0;
+      accent-color: var(--glow-warm); cursor: pointer;
+    }
+    .seq-drum-name { line-height: 1.1; }
     .seq-drum-row { display: contents; }
     .seq-drum-label {
       font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
       color: var(--glow-warm); letter-spacing: 0.06em; text-transform: uppercase;
-      display: flex; align-items: center; padding-right: 0.3rem;
-      white-space: nowrap; user-select: none;
+      display: flex; flex-direction: column; justify-content: center; align-items: stretch;
+      padding-right: 0.3rem; white-space: nowrap; user-select: none;
     }
     .drum-cell {
       position: relative; height: 26px; min-width: 0;
@@ -968,6 +984,10 @@
       .seq-label { display: none; }
       .seq-scroll { --seq-label-w: 34px; }
       .seq-drum-label { font-size: 0.5rem; }
+      /* No room for a per-voice fader beside a 34px label; the kit fader in
+         the header still balances drums against the synth. */
+      .seq-voice-level { display: none; }
+      .seq-mix input[type=range] { width: 58px; }
       .drum-cell { height: 24px; }
     }
   </style>
@@ -1304,6 +1324,19 @@
         <span class="seq-label">Drums</span>
         <button class="synth-btn" id="drumBeatBtn" title="Drop in a basic four-on-the-floor pattern to start from">Beat</button>
         <button class="synth-btn danger" id="drumClearBtn">Clear Drums</button>
+        <!-- The balance between what you program and what you play. The drums
+             bypass the patch, so before this they had no fader at all. -->
+        <span class="seq-mix">
+          <span class="seq-label">Mix</span>
+          <label title="Level of the whole drum kit">Drums
+            <input type="range" id="drumLevel" min="0" max="100" step="1" value="80" aria-label="Drum kit level">
+            <span class="seq-mix-out" id="drumLevelOut">80%</span>
+          </label>
+          <label title="Level of everything you play">Synth
+            <input type="range" id="synthLevel" min="0" max="100" step="1" value="50" aria-label="Synth level">
+            <span class="seq-mix-out" id="synthLevelOut">50%</span>
+          </label>
+        </span>
       </div>
       <div class="seq-drum-grid" id="seqDrumGrid"></div>
     </div>
@@ -1403,6 +1436,8 @@
       <dd>Every step has a <strong>velocity strip</strong> beneath it: drag along it to set how hard that note plays, and the cell fills from the bottom to show it. On the drum rows there's no pitch to set, so <strong>dragging up and down on a drum cell sets its velocity directly</strong> — which is where ghost notes come from. A pattern where every hit is identical is the clearest giveaway of programmed music; see <a href="groove.html">Groove &amp; Timing</a> for what to do with it. Arrow keys work too: ↑/↓ for pitch, ←/→ for velocity, once a step is focused.</dd>
       <dt>Shaping each step (Decay/ADSR)</dt>
       <dd>The sequencer has no envelope of its own — it plays through whatever's patched on the canvas. Add an <code>ADSR</code> module before <code>Output</code> and set a short <code>Dec</code> (decay) with low <code>Sus</code> (sustain) for plucky, percussive steps, or a longer Decay/higher Sustain for pads that bleed into the next step. It retriggers on every step automatically.</dd>
+      <dt>Balancing the drums against what you play</dt>
+      <dd>The drums bypass the patch on their way out, which is what lets them work before you have built a sound. It also meant they had one fixed level. The <code>Mix</code> pair at the right of the drum row fixes that: <strong>Drums</strong> is the kit's fader, <strong>Synth</strong> is everything you play. The Synth fader is the <code>Output</code> module's Master reached from down here, so the module's own slider moves with it and the two can never disagree. Each drum row also has <strong>its own fader</strong> under its name, so a hat can sit under a kick the way it would on any drum machine. Levels are remembered between visits; the per-voice faders are hidden on a phone, where the kit fader still does the balancing.</dd>
       <dt>Drum Machine</dt>
       <dd>Below the melodic grid, four drum rows — <code>Kick</code>, <code>Snare</code>, <code>Hat</code>, <code>Clap</code> — on the same clock and step count. Click cells to program a beat; each hit auditions as you click so you can build it by ear while stopped. <strong>Beat</strong> drops in a four-on-the-floor starting point to edit from — kick on every beat, snare on 2 and 4, and hats on eighths <em>with alternating accents</em>, because a flat hat line is what makes a beat sound typed in rather than played. The drums are synthesized and routed straight to the output, so they work <em>without</em> a patch on the canvas — you can program a beat before you've built a sound. <code>Clear</code> only wipes the melody; <code>Clear Drums</code> only wipes the beat.</dd>
     </dl>
@@ -1856,6 +1891,9 @@
   function chainChanged() {
     refreshModTargets();
     syncModCables();
+    // The sequencer's Synth fader points at the Output module's Master, so it
+    // has to re-find its target whenever the rack gains or loses one.
+    if (typeof seqSyncSynthLevel === 'function') seqSyncSynthLevel();
   }
 
   // ─── AUDIO START ───
@@ -2636,6 +2674,8 @@
     mod.params[paramId] = value;
     mod.def.update(mod.audio, paramId, value);
     if (mod.redrawADSR) mod.redrawADSR();   // keep the visual envelope in sync with its sliders
+    // The sequencer's Synth fader is a second view of this same value.
+    if (mod.type === 'output' && paramId === 'gain' && typeof seqSyncSynthLevel === 'function') seqSyncSynthLevel();
     if (window.Analytics) Analytics.Synth.paramChanged(mod.type, paramId);
   }
 
@@ -3659,6 +3699,7 @@
       }
     }
     if (mod.redrawADSR) mod.redrawADSR();   // keep the visual envelope in sync
+    if (mod.type === 'output' && paramId === 'gain' && typeof seqSyncSynthLevel === 'function') seqSyncSynthLevel();
   }
 
   function autoConnect(fromId, fromPort, toId, toPort, auto) {
@@ -5220,7 +5261,13 @@
     root: 0,       // 0-11, C..B — the key steps snap to
     scale: 'Minor Pentatonic',
     steps: [],     // [{on:bool, note:midiNum, vel:1-127}]
-    drums: { kick: [], snare: [], hat: [], clap: [] }  // velocity per step, 0 = off
+    drums: { kick: [], snare: [], hat: [], clap: [] },  // velocity per step, 0 = off
+    // The drums bypass the patch on their way to the output, which is what
+    // lets them work before you have built a sound — but it also meant they
+    // had one hardcoded level and no way to sit them against the notes.
+    // drumLevel is the kit's fader; drumMix is one fader per voice.
+    drumLevel: 0.8,
+    drumMix: { kick: 1, snare: 1, hat: 1, clap: 1 }
   };
   let seqPlaying = false;
   let seqSequence = null;     // Tone.Sequence
@@ -5241,30 +5288,68 @@
   function ensureDrumVoices() {
     if (drumVoices) return drumVoices;
     try {
-      const out = new Tone.Gain(0.8).toDestination();
+      // Each voice gets its own fader into a kit bus, so a hat can be tucked
+      // under a kick the way it would be on any drum machine, and the whole
+      // kit can then be balanced against the synth in one move.
+      const out = new Tone.Gain(seqState.drumLevel).toDestination();
+      const ch = {};
+      DRUM_ROWS.forEach(r => { ch[r.id] = new Tone.Gain(seqState.drumMix[r.id]).connect(out); });
       drumVoices = {
-        out,
+        out, ch,
         kick: new Tone.MembraneSynth({
           pitchDecay: 0.03, octaves: 6,
           envelope: { attack: 0.001, decay: 0.32, sustain: 0 }
-        }).connect(out),
+        }).connect(ch.kick),
         snare: new Tone.NoiseSynth({
           noise: { type: 'white' },
           envelope: { attack: 0.001, decay: 0.16, sustain: 0 }
-        }).connect(new Tone.Filter(1400, 'highpass').connect(out)),
+        }).connect(new Tone.Filter(1400, 'highpass').connect(ch.snare)),
         hat: new Tone.NoiseSynth({
           noise: { type: 'white' },
           envelope: { attack: 0.001, decay: 0.045, sustain: 0 }
-        }).connect(new Tone.Filter(7000, 'highpass').connect(out)),
+        }).connect(new Tone.Filter(7000, 'highpass').connect(ch.hat)),
         clap: new Tone.NoiseSynth({
           noise: { type: 'pink' },
           envelope: { attack: 0.002, decay: 0.22, sustain: 0 }
-        }).connect(new Tone.Filter(900, 'bandpass').connect(out))
+        }).connect(new Tone.Filter(900, 'bandpass').connect(ch.clap))
       };
     } catch (e) {
       drumVoices = null;   // no drums rather than a broken page
     }
     return drumVoices;
+  }
+
+  // ─── DRUM / SYNTH BALANCE ───
+  // The kit fader and the per-voice faders write straight to the live gain
+  // nodes when they exist, and are read by ensureDrumVoices when they don't,
+  // so the sliders work whether or not a note has been played yet.
+  function setDrumLevel(v) {
+    seqState.drumLevel = Math.max(0, Math.min(1, v));
+    if (drumVoices && drumVoices.out) drumVoices.out.gain.value = seqState.drumLevel;
+  }
+  function setDrumVoiceLevel(id, v) {
+    seqState.drumMix[id] = Math.max(0, Math.min(1, v));
+    if (drumVoices && drumVoices.ch && drumVoices.ch[id]) drumVoices.ch[id].gain.value = seqState.drumMix[id];
+  }
+
+  // The melodic side has no bus of its own: notes run through whatever is
+  // patched and end at an Output module's Master. So rather than inserting a
+  // second gain stage nobody asked for, the Synth fader is a remote control
+  // for that Master — the module's own slider moves with it, and vice versa.
+  function seqSynthOutput() {
+    return Object.values(modules).find(m => m.type === 'output') || null;
+  }
+  function seqSyncSynthLevel() {
+    const el = document.getElementById('synthLevel');
+    if (!el) return;
+    const out = seqSynthOutput();
+    el.disabled = !out;
+    el.title = out ? 'Level of everything you play — the Output module\u2019s Master, reachable from here'
+                   : 'Add an Output module to set the synth level';
+    const pct = out ? Math.round(out.params.gain * 100) : 0;
+    el.value = pct;
+    const readout = document.getElementById('synthLevelOut');
+    if (readout) readout.textContent = out ? pct + '%' : '--';
   }
 
   function triggerDrum(id, time, vel) {
@@ -5357,6 +5442,13 @@
       }
       // Drums are newer than this save format, so tolerate their absence.
       // They were booleans before velocity: true meant a hit at 100.
+      if (typeof data.drumLevel === 'number') seqState.drumLevel = Math.max(0, Math.min(1, data.drumLevel));
+      if (data.drumMix && typeof data.drumMix === 'object') {
+        DRUM_ROWS.forEach(r => {
+          const v = data.drumMix[r.id];
+          if (typeof v === 'number') seqState.drumMix[r.id] = Math.max(0, Math.min(1, v));
+        });
+      }
       if (data.drums && typeof data.drums === 'object') {
         DRUM_ROWS.forEach(r => {
           const row = data.drums[r.id];
@@ -5522,7 +5614,27 @@
     DRUM_ROWS.forEach(r => {
       const label = document.createElement('div');
       label.className = 'seq-drum-label';
-      label.textContent = r.label;
+      const name = document.createElement('span');
+      name.className = 'seq-drum-name';
+      name.textContent = r.label;
+      // One fader per voice, so a hat can sit under a kick. Narrow screens
+      // hide these and keep the kit fader in the header.
+      const lvl = document.createElement('input');
+      lvl.type = 'range'; lvl.min = 0; lvl.max = 100; lvl.step = 1;
+      lvl.value = Math.round((seqState.drumMix[r.id] ?? 1) * 100);
+      lvl.className = 'seq-voice-level';
+      lvl.setAttribute('aria-label', r.label + ' level');
+      lvl.title = r.label + ' level';
+      lvl.addEventListener('input', () => {
+        setDrumVoiceLevel(r.id, lvl.value / 100);
+        lvl.title = r.label + ' level ' + lvl.value + '%';
+        seqSave();
+      });
+      // The grid cells own the drag gesture; keep the fader's to itself.
+      ['pointerdown', 'mousedown', 'touchstart'].forEach(ev =>
+        lvl.addEventListener(ev, e => e.stopPropagation()));
+      label.appendChild(name);
+      label.appendChild(lvl);
       seqDrumGridEl.appendChild(label);
 
       for (let i = 0; i < seqState.length; i++) {
@@ -5755,6 +5867,9 @@
 
   // Keep sequencer docked above the piano when the piano is visible
   function seqUpdateDock() {
+    // A preset may have swapped the Output module out since this was last
+    // open, so the Synth fader re-reads its source every time.
+    if (typeof seqSyncSynthLevel === 'function') seqSyncSynthLevel();
     const minimized = pianoContainer.classList.contains('minimized');
     document.body.classList.toggle('piano-visible', !minimized);
     if (!minimized) {
@@ -5815,6 +5930,27 @@
     document.getElementById('seqSwing').value = seqState.swing;
     document.getElementById('seqSwingOut').textContent = seqState.swing + '%';
     document.getElementById('seqGate').value = seqState.gate;
+
+    // ── The drums/synth balance ──
+    const drumLevelEl = document.getElementById('drumLevel');
+    const drumLevelOut = document.getElementById('drumLevelOut');
+    drumLevelEl.value = Math.round(seqState.drumLevel * 100);
+    drumLevelOut.textContent = drumLevelEl.value + '%';
+    drumLevelEl.addEventListener('input', () => {
+      setDrumLevel(drumLevelEl.value / 100);
+      drumLevelOut.textContent = drumLevelEl.value + '%';
+      seqSave();
+    });
+    const synthLevelEl = document.getElementById('synthLevel');
+    synthLevelEl.addEventListener('input', () => {
+      const out = seqSynthOutput();
+      if (!out) return;
+      // setParam drives the audio and the Output module's own slider, so the
+      // two views of this value can never drift apart.
+      setParam(out.id, 'gain', synthLevelEl.value / 100);
+    });
+    seqSyncSynthLevel();
+
     document.querySelectorAll('[data-seq-len]').forEach(b => {
       b.classList.toggle('active', Number(b.dataset.seqLen) === seqState.length);
     });

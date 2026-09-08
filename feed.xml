@@ -16,6 +16,14 @@
   </item>
 
   <item>
+    <title>Changelog: September 8, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-08</link>
+    <guid isPermaLink="false">changelog-2026-09-08b</guid>
+    <pubDate>Tue, 08 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth's drums have faders. They bypass the patch on their way to the output, which is what lets them work before you have built a sound, and it also meant they had one fixed level and no way to sit against the notes you play. There is now a Mix pair at the right of the drum row: Drums for the kit, Synth for everything you play. The Synth fader is the Output module's Master reached from beside the grid, so the module's own slider moves with it and the two views can never drift apart. Every drum row also gained its own fader under its name, so a hat can be tucked under a kick the way it would be on any drum machine. All of it is remembered between visits.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 10, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-10</link>
     <guid isPermaLink="false">changelog-2026-09-10</guid>
