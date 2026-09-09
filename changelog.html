@@ -134,6 +134,9 @@
     <div class="divider" id="2026-09-11"><span class="leaf">🌿</span> <span>September 11, 2026</span> <span class="leaf">🌿</span></div>
 
     <article class="entry">
+      <p><strong>The <a href="synth.html">Synth</a>'s recordings are WAV files now, not WebM.</strong> Browsers only offer WebM to a web recorder, and WebM has one specific failure that matters here: it plays fine in a browser and <em>most DAWs refuse to import it</em>. A jam you can't open in the thing you make music with isn't much of a recording. The capture is now decoded and rewritten as a 16-bit WAV before it reaches your downloads — no encoder library, no external service, just the samples written out properly — so it opens in Logic, Ableton, Reaper or GarageBand and plays on any device. The cost is size, about 10 MB per stereo minute, which is the honest price of lossless and universal. If a browser ever fails to re-encode, the original is saved rather than the take being lost.</p>
+    </article>
+    <article class="entry">
       <p><strong>The <a href="synth.html">Synth</a>'s drums have faders.</strong> They bypass the patch on their way to the output, which is what lets them work before you have built a sound, and it also meant they had one fixed level and no way to sit against the notes. There is now a <code>Mix</code> pair at the right of the drum row: <strong>Drums</strong> for the kit, <strong>Synth</strong> for everything you play. The Synth fader is the Output module's Master reached from beside the grid, so the module's own slider moves with it and the two views can never drift apart. Every drum row also gained its own fader under its name, so a hat can be tucked under a kick the way it would be on any drum machine. All of it is remembered between visits.</p>
     </article>
 
