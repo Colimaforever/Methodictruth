@@ -1422,6 +1422,8 @@
       <dd>Add one <code>Audio File</code> module per stem, route each through its own <code>Pan</code>/<code>EQ</code> into a shared <code>Gain</code> or <code>Compressor</code>, then into one <code>Output</code>. Add a <code>Limiter</code> just before <code>Output</code> to keep the combined level in check.</dd>
       <dt>+ Channel Strip</dt>
       <dd>One click adds <code>Pan → EQ → Compressor → Limiter</code> in mixing order, spliced into whatever you already have, just before the Output. It joins your rack rather than standing up a second one beside it.</dd>
+      <dt>● Record — capturing what you play</dt>
+      <dd>Taps the master output, so it records the patch, the sequencer and the drums together, exactly as you hear them. The file is a <strong>16-bit WAV</strong>: it opens in Logic, Ableton, Reaper, GarageBand and anything else, plays on every device, and loses nothing. Browsers only offer WebM here, which plays in a browser and is <em>refused by most DAWs on import</em>, so the recording is decoded and rewritten before it reaches your downloads. The trade is size — roughly 10 MB per stereo minute — which is the honest price of lossless and universal.</dd>
       <dt>VU Meter</dt>
       <dd>Every <code>Output</code> module shows a live level bar under its Master slider — green while there's headroom, amber as it gets hot, red near clipping. Pull the Master fader or add a Limiter upstream if it's pinned red.</dd>
     </dl>
@@ -2923,7 +2925,59 @@
   // ─── RECORD YOUR JAM TO A FILE ───
   // The counterpart to Share: taps the master output through Tone.Recorder and
   // hands back a downloadable audio file. Capture what you play, not just the patch.
+  //
+  // MediaRecorder — which Tone.Recorder wraps — only offers WebM/Opus on Chrome
+  // and Firefox, and that is the one thing about this feature that failed people:
+  // WebM plays fine in a browser and is refused by Logic, Ableton, and most DAWs
+  // on import. A jam you cannot open in the thing you make music with is a jam
+  // you cannot use. So the captured blob is decoded back to samples and written
+  // out as a 16-bit PCM WAV: no encoder library, no CDN, no build step, and a
+  // format that every DAW and every device on earth accepts. The cost is size
+  // (about 10 MB per stereo minute), which is the honest trade for lossless and
+  // universal. If the decode ever fails, the original recording is saved as-is
+  // rather than lost.
   let jamRecorder = null, jamRecording = false, jamStart = 0, jamTimer = null;
+
+  // AudioBuffer → 16-bit PCM WAV. Canonical 44-byte header, interleaved samples,
+  // clamped before scaling so a hot master can't wrap around into a click.
+  function audioBufferToWav(buf) {
+    const numCh = Math.min(2, buf.numberOfChannels);
+    const len = buf.length;
+    const sampleRate = buf.sampleRate;
+    const blockAlign = numCh * 2;
+    const dataSize = len * blockAlign;
+    const ab = new ArrayBuffer(44 + dataSize);
+    const view = new DataView(ab);
+    const str = (off, t) => { for (let i = 0; i < t.length; i++) view.setUint8(off + i, t.charCodeAt(i)); };
+    str(0, 'RIFF');  view.setUint32(4, 36 + dataSize, true);  str(8, 'WAVE');
+    str(12, 'fmt '); view.setUint32(16, 16, true);            view.setUint16(20, 1, true);  // PCM
+    view.setUint16(22, numCh, true);                          view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * blockAlign, true);        view.setUint16(32, blockAlign, true);
+    view.setUint16(34, 16, true);
+    str(36, 'data'); view.setUint32(40, dataSize, true);
+    const chans = [];
+    for (let c = 0; c < numCh; c++) chans.push(buf.getChannelData(c));
+    let off = 44;
+    for (let i = 0; i < len; i++) {
+      for (let c = 0; c < numCh; c++) {
+        let v = chans[c][i];
+        v = v < -1 ? -1 : v > 1 ? 1 : v;
+        view.setInt16(off, v < 0 ? v * 0x8000 : v * 0x7fff, true);
+        off += 2;
+      }
+    }
+    return new Blob([ab], { type: 'audio/wav' });
+  }
+
+  function saveBlob(blob, ext) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date(), pad = n => String(n).padStart(2, '0');
+    a.href = url;
+    a.download = `methodictruth-jam-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.${ext}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+  }
 
   async function toggleRecord() {
     const btn = document.getElementById('recordBtn');
@@ -2952,17 +3006,31 @@
       try { jamRecorder.dispose(); } catch (e) {}
       jamRecorder = null;
       btn.classList.remove('recording');
-      btn.textContent = '● Record';
+      btn.textContent = '● Record';   // reset now; the save path re-labels it while encoding
       if (blob && blob.size > 0) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const d = new Date(), pad = n => String(n).padStart(2, '0');
-        a.href = url;
-        a.download = `methodictruth-jam-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.webm`;
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 8000);
-        synthToast('◈ Recording saved to your downloads');
-        if (window.Analytics) Analytics.trackDebounced('synth_jam_recorded', {}, 2000);
+        // Re-encoding a long take is not instant, so say so rather than
+        // leaving a dead button while the tab thinks.
+        btn.textContent = '⧗ Saving…';
+        btn.disabled = true;
+        let saved = false;
+        try {
+          const ctx = Tone.getContext().rawContext;
+          const decoded = await ctx.decodeAudioData(await blob.arrayBuffer());
+          const wav = audioBufferToWav(decoded);
+          saveBlob(wav, 'wav');
+          saved = true;
+          const secs = Math.round(decoded.duration);
+          synthToast(`◈ Saved as WAV — ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}, ` +
+                     `${(wav.size / 1048576).toFixed(1)} MB. Opens in any DAW.`);
+        } catch (e) {
+          // Never lose a take to a failed conversion.
+          saveBlob(blob, 'webm');
+          saved = true;
+          synthToast('◈ Saved — this browser couldn’t re-encode it, so it’s a .webm');
+        }
+        btn.disabled = false;
+        btn.textContent = '● Record';
+        if (saved && window.Analytics) Analytics.trackDebounced('synth_jam_recorded', {}, 2000);
       } else {
         synthToast('Nothing was captured — make some sound, then record');
       }

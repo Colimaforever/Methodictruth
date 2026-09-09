@@ -16,6 +16,14 @@
   </item>
 
   <item>
+    <title>Changelog: September 9, 2026</title>
+    <link>https://methodictruth.com/changelog.html#2026-09-08</link>
+    <guid isPermaLink="false">changelog-2026-09-09-wav</guid>
+    <pubDate>Wed, 09 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth's recordings are WAV files now, not WebM. Browsers only offer WebM to a web recorder, and WebM has one specific failure that matters here: it plays fine in a browser and most DAWs refuse to import it. A jam you can't open in the thing you make music with isn't much of a recording. The capture is now decoded and rewritten as a 16-bit WAV before it reaches your downloads, with no encoder library and no external service, so it opens in Logic, Ableton, Reaper or GarageBand and plays on any device. The cost is size, about 10 MB per stereo minute, which is the honest price of lossless and universal. If a browser ever fails to re-encode, the original is saved rather than the take being lost.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 8, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-08</link>
     <guid isPermaLink="false">changelog-2026-09-08b</guid>
