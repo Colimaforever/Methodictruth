@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Synth: notes that breathe, per-oscillator pan, and routing that knows signal order</title>
+    <link>https://methodictruth.com/changelog.html</link>
+    <guid isPermaLink="false">changelog-2026-09-12-synth-release-pan</guid>
+    <pubDate>Sat, 12 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Lifting a key on the Synth used to stop the oscillator dead in the same instant, so the Release on a patched Envelope was never audible and every note ended on a click. A released note is now let go of rather than destroyed: it sounds through its fade and is cleaned up afterwards, with any LFO or Mod Env still moving through the tail. The Oscillator gained a Release of its own, from a fiftieth of a second for a pluck to two seconds for a pad you can play chords on, and a Pan that places each oscillator separately in the stereo field. Auto-routing also learned signal order: a Filter added after a Reverb now lands before it, since every module has a place in the chain — tone, then shape, then level and position, then space, then the glue on the end — regardless of the order you built the rack in.</description>
+  </item>
+
+  <item>
     <title>Changelog: September 11, 2026</title>
     <link>https://methodictruth.com/changelog.html#2026-09-11</link>
     <guid isPermaLink="false">changelog-2026-09-11</guid>
