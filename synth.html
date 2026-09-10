@@ -1359,7 +1359,7 @@
   <div class="kb-panel" id="kbPanel">
     <h3>📖 Synth Guide</h3>
 
-    <p><strong>You don't have to wire anything.</strong> Click <code>Osc</code> and you have a working synth — an Output appears and the cable is drawn for you. Every module you add after that joins the signal path automatically: sources stack in parallel at the front, effects land at the end just before the Output. Delete something and the chain closes over the gap. Hit a <strong>preset</strong> up top for a finished patch in one click.</p>
+    <p><strong>You don't have to wire anything.</strong> Click <code>Osc</code> and you have a working synth — an Output appears and the cable is drawn for you. Every module you add after that joins the signal path automatically, <em>at the point where it belongs</em>: sources stack in parallel at the front, then tone (Filter, EQ), then shape (Envelope), then level and position (Gain, Pan), then space (Chorus, Delay, Reverb), then the glue (Compressor, Limiter) just before the Output. Add a Filter after a Reverb and it lands <em>before</em> it, where a filter goes — the order you click things in doesn't decide the order you hear them in. Delete something and the chain closes over the gap. Hit a <strong>preset</strong> up top for a finished patch in one click.</p>
 
     <h3>Changing the order</h3>
     <p>Order is the whole of sound design, so it's a choice, not a consequence of what you plugged in first. Use the <code>◂</code> <code>▸</code> arrows in a module's header to walk it up and down the chain — filter before delay is a different instrument than delay before filter. <code>⌗ Tidy</code> re-lays the rack out left-to-right in signal order, so what you see matches what you hear.</p>
@@ -1377,6 +1377,8 @@
       <dd>Patch one oscillator's <code>out</code> into another's <code>FM</code> input to modulate its pitch at audio rate. <code>FM Amt</code> = depth in Hz of frequency deviation. Set the modulator at a simple ratio of the carrier: <code>1:1</code>/<code>2:1</code> = harmonic (clean, organ-like), <code>3.5:1</code>+ = inharmonic/metallic (bells, e-piano, gongs).</dd>
       <dt>Coarse and Detune (on the Oscillator)</dt>
       <dd><code>Coarse</code> shifts the oscillator in semitones — the octave switch on a hardware panel. <code>−12</code> makes a sub-oscillator under your other oscillators; <code>+19</code> puts an FM modulator at a 3:1 ratio; <code>+7</code> is a fifth. <code>Detune</code> is the fine tune in cents: two saws a few cents apart beat against each other, and that beating is most of what people mean by "warm".</dd>
+      <dt>Release and Pan (on the Oscillator)</dt>
+      <dd><code>Release</code> is how long a note takes to fade once you let the key go, so notes breathe out instead of being cut off — that abruptness is a large part of why software synths sound stiff. Short (<code>0.05</code>) is a pluck; a second or more is a pad you can play chords on, since each note hangs while you find the next. Patch an <code>Envelope</code> and its Release takes over the fade — this still decides how long the voice is held open for it, so set it at least as long. <code>Pan</code> puts each oscillator somewhere in the stereo field on its own: pan two detuned saws to <code>−0.6</code> and <code>+0.6</code> and the patch opens up wide, which is a different thing than panning the finished sound with the <code>Pan</code> module.</dd>
       <dt>Mod Env — the second envelope</dt>
       <dd>Every subtractive synth since the Minimoog has had two envelopes: one for loudness, one for the filter. The <code>ADSR</code> module is the first; this is the second. It sits outside the audio path like the LFO, and its <code>Drives</code> menu points it at any parameter. Point it at <strong>Filter · Cutoff</strong> with a fast Decay and no Sustain and every note opens bright and snaps dark — that is what a pluck <em>is</em>. Slow Attack on a pad makes the note bloom. Point it at <strong>Pitch</strong> with a short Decay and you have an 808 kick. <code>Amt</code> is how far it pushes, as a fraction of the target's useful range; negative pulls the other way.</dd>
       <dt>Envelope (ADSR)</dt>
@@ -1618,6 +1620,26 @@
   const isMod    = m => !!m && m.def.category === 'mod';
   const isChainable = m => !!m && !isSource(m) && !isMod(m) && !isOut(m);
 
+  // Where each module belongs in a signal path, low to high. Auto-routing puts
+  // a new module at its rank rather than wherever it happened to be clicked,
+  // because order is the whole of sound design: a filter after a reverb filters
+  // the room instead of the instrument, which is not what anyone means when
+  // they add a filter. Subtractive shaping first, then level and placement,
+  // then the time-based effects, then the things that catch what comes out.
+  const CHAIN_RANK = {
+    filter: 10,      // carve the tone
+    eq3: 20,
+    envelope: 30,    // then give it a shape
+    gain: 40,        // then a level
+    pan: 50,         // and a place to sit
+    chorus: 60,      // width
+    delay: 70,       // time
+    reverb: 80,      // space, last of the effects
+    compressor: 90,  // glue over the whole thing
+    limiter: 95      // the ceiling, immediately before the Output
+  };
+  const chainRank = m => (m && CHAIN_RANK[m.type] != null) ? CHAIN_RANK[m.type] : 45;
+
   function outputModule() { return Object.values(modules).find(isOut) || null; }
   function cableBetween(fromId, toId) {
     return cables.find(c => c.from.moduleId === fromId && c.to.moduleId === toId
@@ -1694,19 +1716,27 @@
       return;
     }
 
-    // Everything else splices in immediately before the Output. When several
-    // things feed the Output, only the router's own cables get moved — a
-    // parallel path you drew by hand is a deliberate choice, not a loose end.
-    const feeders = feedersOf(out.id);
+    // Everything else splices in at its rank in the chain rather than always
+    // at the end: a Filter added after a Reverb lands before it, where a filter
+    // belongs. The insertion point is the first module that ranks higher than
+    // this one, or the Output when nothing does. When several things feed that
+    // point, only the router's own cables get moved — a parallel path you drew
+    // by hand is a deliberate choice, not a loose end.
+    const body = actualChain().filter(isChainable);
+    const myRank = chainRank(m);
+    const after = body.find(x => chainRank(x) > myRank);
+    const next = after || out;
+
+    const feeders = feedersOf(next.id);
     const targets = feeders.length <= 1
       ? feeders
-      : feeders.filter(fid => { const c = cableBetween(fid, out.id); return c && c.auto; });
+      : feeders.filter(fid => { const c = cableBetween(fid, next.id); return c && c.auto; });
     if (targets.length) {
-      targets.forEach(fid => { unlink(fid, out.id); linkAuto(fid, id); });
+      targets.forEach(fid => { unlink(fid, next.id); linkAuto(fid, id); });
     } else {
       Object.values(modules).filter(isSource).forEach(s => linkAuto(s.id, id));
     }
-    linkAuto(id, out.id);
+    linkAuto(id, next.id);
   }
 
   // Rebuild a span of the chain in a new order, carrying the sources with it.
@@ -1885,8 +1915,8 @@
   function rerouteHeldNotes() {
     if (!activeNotes || !activeNotes.size) return;
     const held = Array.from(activeNotes.keys());
-    held.forEach(n => noteOff(n));
-    held.forEach(n => noteOn(n, keyboardVelocity, 'reroute'));
+    held.forEach(n => voiceOff(n, true));   // hard cut: the old path is going away
+    held.forEach(n => voiceOn(n, keyboardVelocity, 'reroute'));
   }
 
   // One call after anything that changes the shape of the rack.
@@ -1938,6 +1968,10 @@
         { id: 'coarse', type: 'range', min: -24, max: 24, default: 0, step: 1, label: 'Coarse', unit: 'st' },
         { id: 'detune', type: 'range', min: -100, max: 100, default: 0, step: 1, label: 'Detune', unit: 'ct' },
         { id: 'fmAmount', type: 'range', min: 0, max: 2000, default: 0, step: 1, label: 'FM Amt', unit: 'Hz' },
+        { id: 'pan', type: 'range', min: -1, max: 1, default: 0, step: 0.01, label: 'Pan', unit: '',
+          hint: 'Where this oscillator sits in the stereo field. −1 hard left, 0 centre, +1 hard right. Two oscillators panned apart is the oldest trick for width.' },
+        { id: 'release', type: 'range', min: 0.005, max: 4, default: 0.25, step: 0.005, label: 'Release', unit: 's',
+          hint: 'How long the note takes to fade after you let go. A patched Envelope takes over the fade; this still sets how long the voice is held open for it.' },
       ],
       // Coarse is the octave/interval switch every hardware synth has (16'/8'/4'
       // on the front panel): a sub-oscillator is Coarse −12, an FM modulator at
@@ -1955,6 +1989,8 @@
         else if (key === 'frequency') audio.node.frequency.value = val;
         else if (key === 'detune') audio.node.detune.value = val;
         else if (key === 'fmAmount') audio.fm.gain.value = val;
+        // coarse, pan and release are per-voice: the template oscillator here
+        // never sounds, so they are read when each note builds its own nodes.
       }
     },
     filter: {
@@ -2393,7 +2429,7 @@
         </div>`;
       } else {
         const displayVal = Number(c.default).toFixed(c.step < 1 ? (c.step < 0.01 ? 3 : 2) : 0);
-        html += `<div class="module-control">
+        html += `<div class="module-control"${c.hint ? ` title="${c.hint}"` : ''}>
           <label>${c.label}</label>
           <input type="range" class="synth-slider" min="${c.min}" max="${c.max}" value="${c.default}" step="${c.step}"
             data-module="${id}" data-param="${c.id}"
@@ -2566,6 +2602,33 @@
       frontier = next;
     }
     return false;
+  }
+
+  // How long the tail downstream of a module lasts. An Envelope in the path
+  // draws the release curve itself, so the voice has to stay alive at least
+  // that long or the curve is cut off mid-fade — which is exactly what used to
+  // happen: the oscillator was stopped the instant the key came up and the
+  // Release knob did nothing you could hear. Longest release wins when several
+  // envelopes are patched.
+  function envelopeReleaseFrom(id) {
+    const seen = new Set([id]);
+    let frontier = [id];
+    let longest = 0;
+    for (let depth = 0; depth < 64 && frontier.length; depth++) {
+      const next = [];
+      for (const cur of frontier) {
+        for (const c of cables) {
+          if (c.from.moduleId !== cur) continue;
+          const to = c.to.moduleId;
+          if (seen.has(to)) continue;
+          seen.add(to); next.push(to);
+          const m = modules[to];
+          if (m && m.type === 'envelope') longest = Math.max(longest, Number(m.params.release) || 0);
+        }
+      }
+      frontier = next;
+    }
+    return longest;
   }
 
   // An Envelope is a *note* gate — it sits shut until a key is pressed, so a
@@ -2827,8 +2890,19 @@
     }
   }
 
+  // A released note outlives the keypress by its release time, so there are
+  // voices still sounding that nothing holds a reference to any more. Keep the
+  // pending teardowns here so the rack can be torn down without leaving an
+  // orphaned oscillator running into a disposed graph.
+  const voiceTails = new Set();
+  function killVoiceTails() {
+    Array.from(voiceTails).forEach(finish => { try { finish(true); } catch (e) {} });
+    voiceTails.clear();
+  }
+
   // ─── CLEAR ALL ───
   function clearAll() {
+    killVoiceTails();
     chainHealing = false;                       // nothing to heal when everything goes
     Object.keys(modules).forEach(id => removeModule(id));
     chainHealing = true;
@@ -4043,17 +4117,38 @@
       const tempGain = new Tone.Gain(gain);
       tempOsc.connect(tempGain);
 
+      // Pan places this voice in the stereo field. Built only when the knob is
+      // actually off-centre — a Panner per oscillator per note is real cost and
+      // most patches sit dead centre, so centred voices pay nothing.
+      const panVal = Number(mod.params.pan) || 0;
+      let tempPan = null, voiceOut = tempGain;
+      if (panVal !== 0) {
+        tempPan = new Tone.Panner(panVal);
+        tempGain.connect(tempPan);
+        voiceOut = tempPan;
+      }
+
       // Per-voice FM depth gain feeding this voice's pitch (frequency)
       const tempFmGain = new Tone.Gain(mod.params.fmAmount);
       tempFmGain.connect(tempOsc.frequency);
 
-      tempByModId[mod.id] = { tempOsc, tempGain, tempFmGain, voiceMods };
+      // How this voice ends. An Envelope downstream owns the fade, so we only
+      // have to hold the oscillator open for it; with no envelope patched the
+      // voice fades itself over its own Release, which is also what removes the
+      // click a hard stop leaves behind.
+      const envRelease = envelopeReleaseFrom(mod.id);
+      const release = Number(mod.params.release);
+
+      tempByModId[mod.id] = {
+        tempOsc, tempGain, tempPan, voiceOut, tempFmGain, voiceMods,
+        release: isFinite(release) ? release : 0.25, envRelease
+      };
     }
 
     // Pass 2: route each oscillator's output through its cables.
     for (let i = 0; i < oscs.length; i++) {
       const mod = oscs[i];
-      const { tempOsc, tempGain, tempFmGain, voiceMods } = tempByModId[mod.id];
+      const { tempOsc, tempGain, tempPan, voiceOut, tempFmGain, voiceMods, release, envRelease } = tempByModId[mod.id];
 
       // Route through cables or direct to destination
       const outCables = cables.filter(c => c.from.moduleId === mod.id && c.from.portName === 'out');
@@ -4069,16 +4164,16 @@
             if (targetTemp) tempOsc.connect(targetTemp.tempFmGain);
           } else {
             const inNode = targetMod.audio[toPort] || targetMod.audio.in;
-            if (inNode) tempGain.connect(inNode);
+            if (inNode) voiceOut.connect(inNode);
           }
         }
       } else {
-        tempGain.toDestination();
+        voiceOut.toDestination();
       }
 
       // Start at precise time (no delay)
       tempOsc.start(startTime2);
-      synthNodes.push({ osc: tempOsc, gain: tempGain, fmGain: tempFmGain, voiceMods });
+      synthNodes.push({ osc: tempOsc, gain: tempGain, pan: tempPan, fmGain: tempFmGain, voiceMods, release, envRelease });
     }
 
     activeNotes.set(noteNum, synthNodes);
@@ -4099,22 +4194,57 @@
     }
   }
 
-  // Trigger a note off
-  function voiceOff(noteNum) {
+  // Trigger a note off. Lifting a key does not end the note — it starts its
+  // release. Tearing the voice down on the spot is what made every patch sound
+  // like a switch being thrown: the oscillator was disposed before any Release
+  // could be heard, and the abrupt zero-crossing left a click. So the note is
+  // let go of here and cleaned up later, once it has actually finished sounding.
+  // Pass immediate = true to cut it dead, which is only right when the routing
+  // it is playing through is about to disappear.
+  function voiceOff(noteNum, immediate) {
     sendMidiOut('off', noteNum, 0);
     const nodes = activeNotes.get(noteNum);
     if (!nodes) return;
-    nodes.forEach(n => {
-      try {
-        (n.voiceMods || []).forEach(vm => { try { vm.node.disconnect(vm.param); } catch (e) {} });
-        n.osc.stop();
-        n.osc.dispose();
-        n.gain.dispose();
-        if (n.fmGain) n.fmGain.dispose();
-      } catch(e) {}
-    });
     activeNotes.delete(noteNum);
     highlightPianoKey(noteNum, false);
+
+    const now = Tone.now();
+    nodes.forEach(n => {
+      // An Envelope in the path is already drawing the fade, so don't fight it —
+      // just keep the oscillator running until its curve has finished.
+      const rel = immediate ? 0 : Math.max(n.envRelease || 0, n.release || 0);
+      if (!immediate) {
+        try {
+          if (!(n.envRelease > 0)) {
+            const g = n.gain.gain;
+            g.cancelScheduledValues(now);
+            g.setValueAtTime(g.value, now);
+            g.linearRampToValueAtTime(0, now + Math.max(0.005, rel));
+          }
+          n.osc.stop(now + rel + 0.05);
+        } catch (e) {}
+      }
+
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        voiceTails.delete(finish);
+        // The modulators stay wired through the tail, so vibrato and filter
+        // sweeps keep moving while the note fades — cutting them at key-up is
+        // what makes a release sound frozen rather than alive.
+        (n.voiceMods || []).forEach(vm => { try { vm.node.disconnect(vm.param); } catch (e) {} });
+        try { n.osc.stop(); } catch (e) {}   // already scheduled to stop; harmless if it has
+        try { n.osc.dispose(); } catch (e) {}
+        try { n.gain.dispose(); } catch (e) {}
+        try { if (n.pan) n.pan.dispose(); } catch (e) {}
+        try { if (n.fmGain) n.fmGain.dispose(); } catch (e) {}
+      };
+      const timer = immediate ? null : setTimeout(finish, (rel + 0.15) * 1000);
+      if (immediate) finish();
+      else voiceTails.add(finish);
+    });
 
     // Release any patched Envelope modules once nothing is left held —
     // matches the monophonic-style retrigger in noteOn above.

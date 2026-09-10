@@ -125,6 +125,15 @@
     </div>
 
     <article class="entry">
+      <p><strong>Notes on the <a href="synth.html">Synth</a> breathe out now instead of being cut off.</strong> Lifting a key used to stop the oscillator dead in the same instant — which meant the <code>Release</code> on a patched Envelope was never audible, because the sound it was fading had already been thrown away, and every note ended on a small click. A released note is now let go of rather than destroyed: it keeps sounding through its fade and is cleaned up afterwards, with any LFO or Mod Env still moving through the tail so the release lives instead of freezing. Every preset in the bank gained the release it was always written to have.</p>
+    </article>
+    <article class="entry">
+      <p><strong>The Oscillator has <code>Release</code> and <code>Pan</code> of its own.</strong> Release is how long that voice takes to fade after you let go — a fiftieth of a second is a pluck, two seconds is a pad you can play chords on because each note hangs while you find the next. Pan places each oscillator separately in the stereo field, so two detuned saws at <code>−0.6</code> and <code>+0.6</code> open the patch out wide, which is a different thing than panning the finished sound.</p>
+    </article>
+    <article class="entry">
+      <p><strong>Modules now join the chain where they belong, not where you clicked.</strong> Auto-routing used to splice everything in immediately before the Output, so a Filter added after a Reverb landed after it — filtering the room instead of the sound. Each kind of module now has a place in the signal path — tone, then shape, then level and position, then space, then the glue on the end — and a new one is inserted at its place regardless of what order you built the rack in. Cables you drew by hand are still never touched, and the <code>◂ ▸</code> arrows still override all of it.</p>
+    </article>
+    <article class="entry">
       <p><strong>The <a href="song-analyzer.html">Song Analyzer</a> now says whether it's working before you paste a link.</strong> Its YouTube path runs on a home server behind a tunnel, and when that box was down, or YouTube was blocking it, visitors got "Failed to fetch" and no idea why. The backend now records the outcome of every YouTube download and reports it from <code>/health</code>, and the page shows a status line under the input on load: <em>online and YouTube working</em>, <em>online but YouTube is blocking downloads — drop a file in</em>, or <em>server offline</em>. Network failures mid-session say the same thing in plain words.</p>
     </article>
     <article class="entry">
