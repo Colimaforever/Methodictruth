@@ -17,6 +17,7 @@ const PAGES = [
   { slug: 'architecture', path: '/architecture.html' },
   { slug: 'synth', path: '/synth.html' },
   { slug: 'theory', path: '/theory.html' },
+  { slug: 'breaking-the-loop', path: '/breaking-the-loop.html' },
   { slug: 'about', path: '/about.html' },
 ];
 
