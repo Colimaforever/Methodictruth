@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 chord-server/cache/
 chord-server/cookies.txt
+
+# Test output written when a scratchpad path is unset — never source.
+undefined/
