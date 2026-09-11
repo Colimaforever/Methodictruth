@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0e1a">
-  <title>Guitar Chord Voicings — Methodic Truth</title>
-  <meta name="description" content="Learn multiple fingerings for every chord. Save your hands from barre chord fatigue and discover moveable voicing patterns across the fretboard.">
+  <title>Chord Voicings — Guitar &amp; Keyboard | Methodic Truth</title>
+  <meta name="description" content="Every way to play a chord, on guitar and on keys. Moveable CAGED shapes, top-string triads, and piano inversions — each note coloured by its role in the chord.">
   <link rel="canonical" href="https://methodictruth.com/chord-voicings.html">
-  <meta property="og:title" content="Guitar Chord Voicings — Methodic Truth">
-  <meta property="og:description" content="Learn multiple fingerings for every chord. Save your hands from barre chord fatigue and discover moveable voicing patterns across the fretboard.">
+  <meta property="og:title" content="Chord Voicings — Guitar &amp; Keyboard">
+  <meta property="og:description" content="Every way to play a chord, on guitar and on keys — CAGED shapes, triad inversions, and piano voicings.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/chord-voicings.html">
   <meta property="og:image" content="https://methodictruth.com/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=75">
   <style>
     body {
       background: linear-gradient(180deg, #0a0604 0%, #1a0f08 50%, #0a0604 100%);
@@ -21,8 +21,8 @@
 
     .voicings-container {
       max-width: 1200px;
-      margin: 2rem auto;
-      padding: 2rem;
+      margin: 0 auto;
+      padding: max(5.5rem, calc(env(safe-area-inset-top, 0px) + 4.5rem)) 2rem 2rem;
       position: relative;
       z-index: 2;
     }
@@ -105,7 +105,7 @@
 
     .voicings-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 2rem;
       margin-bottom: 3rem;
     }
@@ -143,55 +143,16 @@
     .fretboard {
       background: rgba(10, 6, 4, 0.8);
       border-radius: 8px;
-      padding: 1.5rem 1rem;
+      padding: 1.2rem 1rem;
       margin-bottom: 1rem;
+      overflow-x: auto;
     }
 
-    .fret-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .string-label {
-      color: var(--text);
-      opacity: 0.5;
-      width: 30px;
-      font-size: 0.8rem;
-    }
-
-    .fret-dots {
-      display: flex;
-      gap: 0.5rem;
-      flex: 1;
-    }
-
-    .fret-dot {
-      width: 40px;
-      height: 40px;
-      border: 2px solid rgba(0, 229, 255, 0.3);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text);
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .fret-dot.fingered {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: var(--bg);
-    }
-
-    .fret-dot.muted {
-      background: rgba(255, 100, 100, 0.3);
-      border-color: rgba(255, 100, 100, 0.5);
-    }
-
-    .fret-dot.open {
-      border-color: var(--primary);
+    /* Diagrams come from chord-shapes.js; .cs-* styles live in styles.css. */
+    .inst-btn { border-color: rgba(232, 168, 124, 0.35); }
+    .inst-btn.active {
+      background: var(--glow-warm); border-color: var(--glow-warm);
+      color: #0a0e1a; box-shadow: 0 0 20px rgba(232, 168, 124, 0.5);
     }
 
     .voicing-notes {
@@ -337,8 +298,8 @@
   </nav>
 
   <div class="voicings-container">
-    <h1>Guitar Chord Voicings</h1>
-    <p class="subtitle">Save your hands. Learn multiple ways to play every chord.</p>
+    <h1>Chord Voicings</h1>
+    <p class="subtitle">Save your hands. Every way to play a chord — on guitar and on keys.</p>
 
     <div class="chord-selector">
       <div class="selector-row">
@@ -348,6 +309,19 @@
       <div class="selector-row">
         <span class="selector-label">Quality:</span>
         <div class="note-buttons" id="qualityButtons"></div>
+      </div>
+      <div class="selector-row">
+        <span class="selector-label">Play on:</span>
+        <div class="note-buttons" id="instrumentButtons">
+          <button class="note-btn inst-btn active" data-inst="guitar">Guitar</button>
+          <button class="note-btn inst-btn" data-inst="piano">Keyboard</button>
+        </div>
+      </div>
+      <div class="cs-legend" style="margin-top:0.5rem;">
+        <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-r"></span>Root</span>
+        <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-3"></span>3rd — the major/minor tone</span>
+        <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-5"></span>5th</span>
+        <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-7"></span>7th &amp; extensions</span>
       </div>
     </div>
 
@@ -457,8 +431,12 @@
 
   <script src="scripts.js?v=69"></script>
   <script src="stars.js?v=1"></script>
+  <script src="chord-shapes.js?v=1"></script>
   <script>
-    const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    // The voicing engine itself lives in chord-shapes.js, shared with the Song
+    // Analyzer's "How To Play" panel — one source of truth for what a chord is
+    // and where it sits, on either instrument.
+    const NOTES = ChordShapes.PC_NAMES;
     const QUALITIES = [
       { name: 'Major', suffix: '' },
       { name: 'Minor', suffix: 'm' },
@@ -466,91 +444,16 @@
       { name: 'Major 7', suffix: 'maj7' },
       { name: 'Minor 7', suffix: 'm7' },
       { name: 'Suspended 2', suffix: 'sus2' },
-      { name: 'Suspended 4', suffix: 'sus4' }
+      { name: 'Suspended 4', suffix: 'sus4' },
+      { name: 'Major 6', suffix: '6' },
+      { name: 'Add 9', suffix: 'add9' },
+      { name: 'Diminished', suffix: 'dim' },
+      { name: 'Augmented', suffix: 'aug' }
     ];
 
     let selectedRoot = 'C';
     let selectedQuality = '';
-
-    // Movable-shape voicing engine — derives real fingerings for any root/quality
-    // from first principles instead of a hand-typed table, so every one of the
-    // 12 roots × 7 qualities below is correct, not just the few someone got around to.
-    const OPEN_STRINGS = [4, 9, 2, 7, 11, 4]; // E A D G B e, as pitch classes
-    const PC_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const NOTE_TO_PC = { 'C':0,'C#':1,'D':2,'D#':3,'E':4,'F':5,'F#':6,'G':7,'G#':8,'A':9,'A#':10,'B':11 };
-    const CHORD_INTERVALS = {
-      '': [0, 4, 7],          // Major
-      'm': [0, 3, 7],         // Minor
-      '7': [0, 4, 7, 10],     // Dominant 7
-      'maj7': [0, 4, 7, 11],  // Major 7
-      'm7': [0, 3, 7, 10],    // Minor 7
-      'sus2': [0, 2, 7],      // Suspended 2nd
-      'sus4': [0, 5, 7]       // Suspended 4th
-    };
-    const SHAPE_TEMPLATES = [
-      { label: 'E-shape', rootString: 0 },
-      { label: 'A-shape', rootString: 1 },
-      { label: 'D-shape', rootString: 2 }
-    ];
-
-    function pcName(pc) { return PC_NAMES[((pc % 12) + 12) % 12]; }
-
-    function ordinal(n) {
-      if (n % 100 >= 11 && n % 100 <= 13) return n + 'th';
-      const s = ['th', 'st', 'nd', 'rd'];
-      return n + (s[n % 10] || 'th');
-    }
-
-    // Lowest fret at or above minFret, within a one-barre-position reach,
-    // whose note belongs to the chord. Mirrors how a hand actually finds notes.
-    function findFret(openPc, minFret, allowedPcs) {
-      for (let f = minFret; f <= minFret + 5; f++) {
-        if (allowedPcs.includes((openPc + f) % 12)) return f;
-      }
-      return null;
-    }
-
-    function buildShape(rootPc, intervals, rootStringIdx, label) {
-      const allowed = intervals.map(i => (rootPc + i) % 12);
-      const barreFret = ((rootPc - OPEN_STRINGS[rootStringIdx]) % 12 + 12) % 12;
-
-      const strings = [];
-      const noteNames = [];
-      for (let s = 0; s < 6; s++) {
-        if (s < rootStringIdx) { strings.push('x'); continue; }
-        const fret = findFret(OPEN_STRINGS[s], barreFret, allowed);
-        if (fret === null) { strings.push('x'); continue; }
-        strings.push(String(fret));
-        noteNames.push(pcName((OPEN_STRINGS[s] + fret) % 12));
-      }
-
-      if (strings.filter(f => f !== 'x').length < 3) return null; // too sparse to be playable
-
-      const fretsUsed = strings.filter(f => f !== 'x').map(Number);
-      const lo = Math.min(...fretsUsed), hi = Math.max(...fretsUsed);
-
-      const tips = {
-        'E-shape': barreFret === 0 ? 'Open E-family voicing. Full and ringing.' : 'E-shape barre. Root on the low E string — full 6-string sound.',
-        'A-shape': barreFret === 0 ? 'Open A-family voicing. Bright and direct.' : 'A-shape barre. Root on the 5th string — easier reach than E-shape.',
-        'D-shape': barreFret === 0 ? 'Open D-family voicing. Light and chiming.' : 'D-shape partial. Top strings only — easiest on the hand.'
-      };
-
-      return {
-        name: `${label}${barreFret === 0 ? ' (Open)' : ` (${ordinal(barreFret)} fret)`}`,
-        position: (lo === 0 && hi === 0) ? 'Open' : `Frets ${lo}-${hi}`,
-        strings,
-        notes: noteNames.join('-'),
-        tip: tips[label]
-      };
-    }
-
-    function buildVoicings(rootPc, qualitySuffix) {
-      const intervals = CHORD_INTERVALS[qualitySuffix];
-      const seen = new Set();
-      return SHAPE_TEMPLATES
-        .map(t => buildShape(rootPc, intervals, t.rootString, t.label))
-        .filter(v => v && !seen.has(v.strings.join(',')) && seen.add(v.strings.join(',')));
-    }
+    let selectedInstrument = 'guitar';
 
     function initUI() {
       const rootContainer = document.getElementById('rootButtons');
@@ -572,8 +475,21 @@
         qualityContainer.appendChild(btn);
       });
 
-      selectRoot('C');
-      selectQuality('');
+      document.getElementById('instrumentButtons').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-inst]');
+        if (!btn) return;
+        selectedInstrument = btn.dataset.inst;
+        document.querySelectorAll('#instrumentButtons .note-btn').forEach(b =>
+          b.classList.toggle('active', b === btn));
+        updateVoicings();
+      });
+
+      // Deep link: chord-voicings.html?chord=Am — how the Song Analyzer hands
+      // a chord over to this page.
+      const asked = new URLSearchParams(location.search).get('chord');
+      const parsed = asked && ChordShapes.parseChord(asked);
+      selectRoot(parsed ? parsed.rootName : 'C');
+      selectQuality(parsed && QUALITIES.some(q => q.suffix === parsed.suffix) ? parsed.suffix : '');
     }
 
     function selectRoot(note) {
@@ -586,63 +502,82 @@
 
     function selectQuality(suffix) {
       selectedQuality = suffix;
+      const quality = QUALITIES.find(q => q.suffix === suffix);
       document.querySelectorAll('#qualityButtons .note-btn').forEach(btn => {
-        const quality = QUALITIES.find(q => q.suffix === suffix);
         btn.classList.toggle('active', btn.textContent === quality.name);
       });
       updateVoicings();
     }
 
     function updateVoicings() {
-      const chordKey = selectedRoot + selectedQuality;
-      const voicings = buildVoicings(NOTE_TO_PC[selectedRoot], selectedQuality);
-
       const container = document.getElementById('voicingsDisplay');
+      const chord = ChordShapes.parseChord(selectedRoot + selectedQuality);
+      container.innerHTML = '';
 
-      if (voicings.length === 0) {
-        container.innerHTML = `<p style="color: var(--text); opacity: 0.7; grid-column: 1 / -1; text-align: center; padding: 2rem;">No clean voicing found for ${chordKey} in this position — try another quality.</p>`;
+      const voicings = !chord ? [] : selectedInstrument === 'guitar'
+        ? ChordShapes.guitarVoicings(chord)
+        : ChordShapes.pianoVoicings(chord);
+
+      if (!voicings.length) {
+        const p = document.createElement('p');
+        p.style.cssText = 'color:var(--text); opacity:0.7; grid-column:1/-1; text-align:center; padding:2rem;';
+        p.textContent = `No clean voicing found for ${selectedRoot + selectedQuality} — try another quality.`;
+        container.appendChild(p);
         return;
       }
 
-      container.innerHTML = voicings.map(v => `
-        <div class="voicing-card">
-          <div class="voicing-title">${chordKey} — ${v.name}</div>
-          <div class="voicing-position">${v.position}</div>
-          <div class="fretboard">
-            ${renderFretboard(v.strings)}
-          </div>
-          <div class="voicing-notes">Notes: ${v.notes}</div>
-          <div class="voicing-tips">${v.tip}</div>
-        </div>
-      `).join('');
+      voicings.forEach(v => container.appendChild(voicingCard(chord, v)));
     }
 
-    function renderFretboard(strings) {
-      const stringLabels = ['E', 'A', 'D', 'G', 'B', 'e'];
-      return strings.map((fret, idx) => {
-        let dotClass = '';
-        let dotText = '';
-        
-        if (fret === 'x') {
-          dotClass = 'muted';
-          dotText = 'X';
-        } else if (fret === '0') {
-          dotClass = 'open';
-          dotText = 'O';
-        } else {
-          dotClass = 'fingered';
-          dotText = fret;
-        }
+    function voicingCard(chord, v) {
+      const isGuitar = selectedInstrument === 'guitar';
+      const midi = isGuitar ? ChordShapes.voicingToMidi(v) : v.notes;
 
-        return `
-          <div class="fret-row">
-            <div class="string-label">${stringLabels[idx]}</div>
-            <div class="fret-dots">
-              <div class="fret-dot ${dotClass}">${dotText}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      const card = document.createElement('div');
+      card.className = 'voicing-card';
+
+      const title = document.createElement('div');
+      title.className = 'voicing-title';
+      title.textContent = chord.symbol + ' — ' + v.name;
+      card.appendChild(title);
+
+      const pos = document.createElement('div');
+      pos.className = 'voicing-position';
+      pos.textContent = isGuitar
+        ? 'Frets (low to high): ' + ChordShapes.fretsText(v)
+        : midi.map(ChordShapes.midiName).join('  ');
+      card.appendChild(pos);
+
+      const board = document.createElement('div');
+      board.className = 'fretboard';
+      board.innerHTML = isGuitar
+        ? ChordShapes.renderChordBox(v)
+        : ChordShapes.renderPiano(v.notes, chord);
+      card.appendChild(board);
+
+      const notes = document.createElement('div');
+      notes.className = 'voicing-notes';
+      notes.textContent = isGuitar
+        ? v.strings.filter(s => !s.muted).map(s => s.note + ' (' + s.degree + ')').join('  ')
+        : chord.qualityName;
+      card.appendChild(notes);
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cs-play';
+      btn.textContent = '▶ Hear it';
+      btn.addEventListener('click', () => ChordShapes.playNotes(midi));
+      const btnWrap = document.createElement('div');
+      btnWrap.style.cssText = 'text-align:center; margin-bottom:1rem;';
+      btnWrap.appendChild(btn);
+      card.appendChild(btnWrap);
+
+      const tips = document.createElement('div');
+      tips.className = 'voicing-tips';
+      tips.textContent = v.hint;
+      card.appendChild(tips);
+
+      return card;
     }
 
     initUI();
