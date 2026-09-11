@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Breaking the Loop — for when you know the theory and still play the same four chords</title>
+    <link>https://methodictruth.com/breaking-the-loop.html</link>
+    <guid isPermaLink="false">breaking-the-loop-2026-09-12</guid>
+    <pubDate>Sat, 12 Sep 2026 00:00:00 GMT</pubDate>
+    <description>A new page about the gap between understanding music theory and being able to use it. Theory gets stored as facts and playing runs on reflexes, so it is entirely possible to know every chord in a key and still reach for the same four. The page teaches no new chords. You type in a progression you catch yourself playing, it names it in Roman numerals, and then hands it back thirteen ways: rotated to start on a different chord, inverted so the bass walks, pinned to a pedal note, one chord borrowed from the parallel key, one swapped for its cousin a third away, sevenths added, arrivals suspended, notes taken away, a dominant borrowed before a target chord, one voice moved by a half step, rebuilt in another mode, and finally with nothing changed at all except how long each chord lasts. Every move is computed from your own chords and shown as playable guitar shapes and keyboard notes, with an A/B pair of buttons so the difference reaches your ear. There is a diagnostic for which rut you are in, and a ten-minute drill for tonight.</description>
+  </item>
+
+  <item>
     <title>Synth: notes that breathe, per-oscillator pan, and routing that knows signal order</title>
     <link>https://methodictruth.com/changelog.html</link>
     <guid isPermaLink="false">changelog-2026-09-12-synth-release-pan</guid>
