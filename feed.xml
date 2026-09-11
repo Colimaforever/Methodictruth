@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Synth: fixing a phone layout that hid a third of the toolbar</title>
+    <link>https://methodictruth.com/synth.html</link>
+    <guid isPermaLink="false">synth-mobile-2026-09-14</guid>
+    <pubDate>Mon, 14 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The Synth toolbar is fixed under the site nav and was pinned there at a hardcoded 40px, but the nav grows by the safe-area inset iOS reserves for the clock and the notch. The nav therefore covered the toolbar's first row: ten buttons unreachable on any phone and twenty-six on one with a Dynamic Island, including the whole Source and Shape rows. It now follows the nav's measured height, and the measurement itself is fixed too: the observer watching the nav was watching its content box, and a safe-area inset arrives as padding, so the content box never changed and the observer never fired. Beyond the bug, nineteen module buttons at 6.4px moved into a Modules sheet generated from the rack's own module definitions, with proper 46px tap targets grouped by category; the remaining buttons roughly doubled in size; the unstyled MIDI select that was clipping its own label is styled and hidden where Web MIDI does not exist; toolbar sections wrap instead of running off the edge.</description>
+  </item>
+
+  <item>
     <title>Try it: the guides now say what to do, not just what is true</title>
     <link>https://methodictruth.com/changelog.html</link>
     <guid isPermaLink="false">try-it-boxes-2026-09-13</guid>
