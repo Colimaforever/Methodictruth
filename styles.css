@@ -2810,3 +2810,52 @@ footer .donate-link:hover {
   text-align: center; font-family: 'EB Garamond', Georgia, serif; font-size: 0.9rem;
   color: var(--stone-dark); font-style: italic; padding: 1rem 0; opacity: 0.7;
 }
+
+/* ─── TRY IT ───────────────────────────────────────────────────────────────
+   Explaining something and being able to do it are different skills, and the
+   manual was only ever doing the first. Every concept that can be turned into a
+   physical action gets one of these: one thing to do now, on the instrument or in
+   the DAW, small enough to finish before you have finished reading the page.
+   Defined here rather than per-page so it reads as the same instrument in every
+   guide — you learn to recognise it once. */
+.try-it {
+  margin: 1.2rem 0 0.4rem;
+  padding: 0.8rem 1rem 0.85rem;
+  border: 1px solid rgba(232, 168, 124, 0.22);
+  border-left: 3px solid var(--glow-warm);
+  border-radius: 0 4px 4px 0;
+  background: rgba(232, 168, 124, 0.05);
+}
+.try-it > b {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--glow-warm); font-weight: 500; margin-bottom: 0.45rem;
+}
+.try-it p {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.93rem; line-height: 1.68; color: var(--stone);
+  margin: 0 0 0.5rem;
+}
+.try-it p:last-of-type { margin-bottom: 0; }
+.try-it strong { color: var(--parchment); font-weight: 600; }
+.try-it em { color: var(--glow-warm); font-style: italic; }
+.try-it code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+  color: var(--parchment); background: rgba(0, 0, 0, 0.32);
+  padding: 0.05rem 0.3rem; border-radius: 2px;
+}
+.try-it .try-go {
+  display: inline-block; margin-top: 0.6rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--glow); text-decoration: none;
+  border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 3px;
+  padding: 0.3rem 0.6rem; transition: all 0.18s;
+}
+.try-it .try-go:hover { background: rgba(0, 229, 255, 0.1); color: var(--parchment); border-color: var(--glow); }
+.try-it .try-go + .try-go { margin-left: 0.4rem; }
+@media (max-width: 620px) {
+  .try-it { padding: 0.7rem 0.75rem 0.75rem; }
+  .try-it .try-go { display: block; text-align: center; margin-left: 0 !important; margin-top: 0.4rem; }
+}
