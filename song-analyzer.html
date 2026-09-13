@@ -483,6 +483,23 @@
                     </label>
                 </div>
 
+                <div class="cs-controls">
+                    <span class="cs-ctl-label">Key</span>
+                    <div class="cs-seg">
+                        <button type="button" id="csKeyDown" title="Down a semitone">−</button>
+                        <button type="button" id="csKeyReset" class="cs-key-readout"
+                                title="Back to the song's own key">as played</button>
+                        <button type="button" id="csKeyUp" title="Up a semitone">+</button>
+                    </div>
+                    <span class="cs-ctl-label cs-guitar-only">Capo</span>
+                    <select class="cs-select cs-guitar-only" id="csCapo" aria-label="Capo fret"></select>
+                    <label class="cs-follow cs-guitar-only">
+                        <input type="checkbox" id="csLefty">
+                        Left-handed
+                    </label>
+                    <button type="button" class="cs-play" id="csCopySheet">⧉ Copy chord sheet</button>
+                </div>
+
                 <div class="cs-stage" id="csStage"></div>
 
                 <div class="cs-legend">
@@ -1310,12 +1327,39 @@
         // quietly — if chord-shapes.js didn't load, or none of the detected
         // labels parse, the section just stays hidden.
 
-        const csState = { root: null, suffix: '', instrument: 'piano', voicing: null, follow: true };
+        const csState = {
+            root: null, suffix: '', instrument: 'piano', voicing: null, follow: true,
+            transpose: 0,   // semitones the whole progression is shifted by
+            capo: 0,        // guitar only; the shape you finger sits this far below the sound
+            lefty: false
+        };
         const csStage = document.getElementById('csStage');
         const csVoicingEl = document.getElementById('csVoicing');
         const csQualityEl = document.getElementById('csQuality');
+        const csCapoEl = document.getElementById('csCapo');
 
-        function csSymbol() { return csState.root === null ? null : csState.root + csState.suffix; }
+        // What the chord sounds like, after transposition.
+        function csSymbol() {
+            if (csState.root === null) return null;
+            const base = csState.root + csState.suffix;
+            return csState.transpose
+                ? (ChordShapes.transposeSymbol(base, csState.transpose) || base)
+                : base;
+        }
+
+        // What you actually finger. With a capo the shape sits below the sound,
+        // which is the whole point of using one: it buys you easier shapes.
+        function csShapeSymbol() {
+            const sounding = csSymbol();
+            if (!sounding || csState.instrument !== 'guitar' || !csState.capo) return sounding;
+            return ChordShapes.transposeSymbol(sounding, -csState.capo) || sounding;
+        }
+
+        // Relabels a detected chord through the current transposition.
+        function csDisplayChord(name) {
+            if (!csState.transpose) return name;
+            return ChordShapes.transposeSymbol(name, csState.transpose) || name;
+        }
 
         function buildHowToPlay(chords) {
             const section = document.getElementById('howToPlaySection');
@@ -1335,7 +1379,10 @@
                 btn.type = 'button';
                 btn.className = 'cs-chip';
                 btn.dataset.chord = name;
-                btn.appendChild(document.createTextNode(name));
+                const lbl = document.createElement('span');
+                lbl.className = 'cs-chip-name';
+                lbl.textContent = name;
+                btn.appendChild(lbl);
                 const n = document.createElement('span');
                 n.className = 'cs-chip-count';
                 n.textContent = '×' + counts.get(name);
@@ -1380,18 +1427,32 @@
         // Highlights whichever chip matches what's selected — none of them, once
         // you've swapped the quality to something the song never played.
         function csSyncControls() {
-            const sym = csSymbol();
-            document.querySelectorAll('#csChips .cs-chip').forEach(b =>
-                b.classList.toggle('cs-on', b.dataset.chord === sym));
+            // Chips carry the chord as the analyzer detected it, so matching is
+            // done before transposition; only their labels move with the key.
+            const raw = csState.root === null ? null : csState.root + csState.suffix;
+            document.querySelectorAll('#csChips .cs-chip').forEach(b => {
+                b.classList.toggle('cs-on', b.dataset.chord === raw);
+                const lbl = b.querySelector('.cs-chip-name');
+                if (lbl) lbl.textContent = csDisplayChord(b.dataset.chord);
+            });
             csQualityEl.value = csState.suffix;
+
+            const t = csState.transpose;
+            document.getElementById('csKeyReset').textContent =
+                t === 0 ? 'as played' : (t > 0 ? '+' + t : String(t));
+            document.getElementById('csKeyReset').classList.toggle('cs-on', t !== 0);
+
+            const guitar = csState.instrument === 'guitar';
+            document.querySelectorAll('.cs-guitar-only').forEach(el => { el.hidden = !guitar; });
         }
 
         // Repopulates the voicing dropdown, keeping the current choice when the
         // new chord offers the same one — so you can step through a progression
         // staying in, say, 1st inversion the whole way.
         function renderCsVoicings() {
-            const chord = ChordShapes.parseChord(csSymbol());
-            if (!chord) return;
+            const sounding = ChordShapes.parseChord(csSymbol());
+            const chord = ChordShapes.parseChord(csShapeSymbol());
+            if (!chord || !sounding) return;
             const list = csState.instrument === 'piano'
                 ? ChordShapes.pianoVoicings(chord)
                 : ChordShapes.guitarVoicings(chord);
@@ -1415,29 +1476,34 @@
                 if (v.id === keep) opt.selected = true;
                 csVoicingEl.appendChild(opt);
             });
-            drawCs(chord, list.find(v => v.id === keep) || list[0]);
+            drawCs(chord, list.find(v => v.id === keep) || list[0], sounding);
         }
 
-        function drawCs(chord, voicing) {
+        function drawCs(chord, voicing, sounding) {
             const isPiano = csState.instrument === 'piano';
-            const midi = isPiano ? voicing.notes : ChordShapes.voicingToMidi(voicing);
+            const capo = isPiano ? 0 : csState.capo;
+            let midi = isPiano ? voicing.notes : ChordShapes.voicingToMidi(voicing);
+            // A capo raises every string, so the preview has to be raised too or
+            // it plays the shape's pitch instead of the chord's.
+            if (capo) midi = midi.map(n => n + capo);
 
             const fig = document.createElement('div');
             fig.className = isPiano ? 'cs-figure cs-figure-wide' : 'cs-figure';
             fig.innerHTML = isPiano
                 ? ChordShapes.renderPiano(voicing.notes, chord)
-                : ChordShapes.renderChordBox(voicing);
+                : ChordShapes.renderChordBox(voicing, { capo: capo, lefty: csState.lefty });
 
             const meta = document.createElement('div');
             meta.className = 'cs-meta';
 
             const h = document.createElement('h4');
-            h.textContent = chord.symbol;
+            h.textContent = sounding.symbol;
             meta.appendChild(h);
 
             const sub = document.createElement('div');
             sub.className = 'cs-meta-sub';
-            sub.textContent = chord.qualityName + ' · ' + voicing.name;
+            sub.textContent = sounding.qualityName + ' · ' + voicing.name +
+                (capo ? ' · capo ' + capo + ', finger it as ' + chord.symbol : '');
             meta.appendChild(sub);
 
             const notes = document.createElement('div');
@@ -1488,6 +1554,7 @@
             csState.voicing = null;          // shape ids don't carry across instruments
             document.querySelectorAll('#csInstrument button').forEach(b =>
                 b.classList.toggle('cs-on', b === btn));
+            csSyncControls();                // capo and handedness are guitar-only
             renderCsVoicings();
         });
 
@@ -1503,6 +1570,103 @@
         csVoicingEl.addEventListener('change', () => {
             csState.voicing = csVoicingEl.value;
             renderCsVoicings();
+        });
+
+        // ─── Key, capo, handedness ───
+
+        function csShiftKey(by) {
+            // Wrap at the octave: past twelve semitones you're back where you
+            // started, just with a sillier number on screen.
+            csState.transpose = by === 0 ? 0 : ((csState.transpose + by + 18) % 12) - 6;
+            csSyncControls();
+            renderCsVoicings();
+        }
+
+        document.getElementById('csKeyDown').addEventListener('click', () => csShiftKey(-1));
+        document.getElementById('csKeyUp').addEventListener('click', () => csShiftKey(1));
+        document.getElementById('csKeyReset').addEventListener('click', () => csShiftKey(0));
+
+        for (let f = 0; f <= 7; f++) {
+            const opt = document.createElement('option');
+            opt.value = String(f);
+            opt.textContent = f === 0 ? 'No capo' : 'Fret ' + f;
+            csCapoEl.appendChild(opt);
+        }
+        csCapoEl.addEventListener('change', () => {
+            csState.capo = parseInt(csCapoEl.value, 10) || 0;
+            csState.voicing = null;     // the shape changed chord, so its ids did too
+            renderCsVoicings();
+        });
+
+        document.getElementById('csLefty').addEventListener('change', (e) => {
+            csState.lefty = e.target.checked;
+            renderCsVoicings();
+        });
+
+        // ─── Chord sheet ───
+        // A plain-text chart: what to play, how to hold it, and when it changes.
+        // Plain text so it pastes into a notes app, a DAW marker, or a forum post.
+
+        function csBuildSheet() {
+            const title = document.getElementById('songTitle').textContent || 'Untitled';
+            const key = document.getElementById('keyValue').textContent || '';
+            const bpm = document.getElementById('bpmValue').textContent || '';
+            const lines = [title];
+
+            const head = [];
+            if (key) head.push('Key: ' + key + (csState.transpose ? ' (as detected)' : ''));
+            if (bpm) head.push('BPM: ' + bpm);
+            if (csState.transpose) {
+                head.push('Transposed: ' + (csState.transpose > 0 ? '+' : '') + csState.transpose);
+            }
+            if (csState.instrument === 'guitar' && csState.capo) head.push('Capo: fret ' + csState.capo);
+            if (head.length) lines.push(head.join('   '));
+            lines.push('');
+
+            const seen = [];
+            currentChords.forEach(c => { if (seen.indexOf(c.chord) < 0) seen.push(c.chord); });
+
+            lines.push(csState.instrument === 'guitar'
+                ? 'Chords (low to high: E A D G B e)' : 'Chords');
+            seen.forEach(raw => {
+                const sounding = csDisplayChord(raw);
+                const shapeSym = csState.instrument === 'guitar' && csState.capo
+                    ? (ChordShapes.transposeSymbol(sounding, -csState.capo) || sounding)
+                    : sounding;
+                const parsed = ChordShapes.parseChord(shapeSym);
+                if (!parsed) { lines.push('  ' + sounding); return; }
+                if (csState.instrument === 'guitar') {
+                    const v = ChordShapes.guitarVoicings(parsed)[0];
+                    lines.push('  ' + sounding.padEnd(7) +
+                        (v ? ChordShapes.fretsText(v) : '') +
+                        (csState.capo ? '   (shape of ' + parsed.symbol + ')' : ''));
+                } else {
+                    const v = ChordShapes.pianoVoicings(parsed)[0];
+                    lines.push('  ' + sounding.padEnd(7) +
+                        (v ? v.notes.map(ChordShapes.midiName).join(' ') : ''));
+                }
+            });
+
+            lines.push('', 'Progression');
+            currentChords.forEach(c => {
+                lines.push('  ' + formatTime(c.timestamp).padStart(5) + '  ' + csDisplayChord(c.chord));
+            });
+
+            lines.push('', 'methodictruth.com/song-analyzer.html' +
+                (currentVideoId ? '?v=' + currentVideoId : ''));
+            return lines.join('\n');
+        }
+
+        document.getElementById('csCopySheet').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            const text = csBuildSheet();
+            const done = (msg) => {
+                btn.textContent = msg;
+                setTimeout(() => { btn.textContent = '⧉ Copy chord sheet'; }, 1800);
+            };
+            (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+                .then(() => done('✓ Copied'))
+                .catch(() => window.prompt('Copy your chord sheet:', text));
         });
 
         document.getElementById('csFollow').addEventListener('change', (e) => {
