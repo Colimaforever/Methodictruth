@@ -53,7 +53,7 @@
     <!-- Warm up the connection to the analysis API; it also serves the
          play-along audio, so this speeds first playback too. -->
     <link rel="preconnect" href="https://api.methodictruth.com">
-    <link rel="stylesheet" href="styles.css?v=74">
+    <link rel="stylesheet" href="styles.css?v=75">
     <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
   <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="favicon.ico?v=3">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
@@ -262,6 +262,17 @@
 
         .sa-description { font-family: 'EB Garamond', Georgia, serif; color: var(--stone); line-height: 1.8; font-style: italic; }
 
+        .sa-howto-intro {
+            font-family: 'EB Garamond', Georgia, serif; color: var(--stone);
+            line-height: 1.7; margin-bottom: 1.1rem;
+        }
+        .cs-follow {
+            display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+            letter-spacing: 0.08em; color: var(--stone-dark); min-height: 38px;
+        }
+        .cs-follow input { accent-color: var(--glow); width: 15px; height: 15px; cursor: pointer; }
+
         @media (max-width: 600px) {
             .sa-player { flex-direction: column; }
             .sa-video-wrap { width: 100%; flex: none; }
@@ -441,6 +452,48 @@
             </div>
         </div>
 
+        <div class="sa-section" style="margin-bottom:1.5rem; display:none;" id="howToPlaySection">
+            <div class="sa-section-label">④ How To Play It</div>
+            <p class="sa-howto-intro">
+                Every chord the analyzer found, as something you can put your hands on.
+                Pick one, pick an instrument, then work through the voicings — inversions
+                hold the same notes and just reorder them, so your hand barely travels
+                between changes. Swap the quality to hear what else that root will take.
+            </p>
+
+            <div class="cs-panel">
+                <div class="cs-controls">
+                    <span class="cs-ctl-label">Chord</span>
+                    <div class="cs-chips" id="csChips"></div>
+                </div>
+
+                <div class="cs-controls">
+                    <span class="cs-ctl-label">On</span>
+                    <div class="cs-seg" id="csInstrument">
+                        <button type="button" data-inst="piano" class="cs-on">Keyboard</button>
+                        <button type="button" data-inst="guitar">Guitar</button>
+                    </div>
+                    <span class="cs-ctl-label">Quality</span>
+                    <select class="cs-select" id="csQuality" aria-label="Chord quality"></select>
+                    <span class="cs-ctl-label">Voicing</span>
+                    <select class="cs-select" id="csVoicing" aria-label="Voicing"></select>
+                    <label class="cs-follow">
+                        <input type="checkbox" id="csFollow" checked>
+                        Follow along with playback
+                    </label>
+                </div>
+
+                <div class="cs-stage" id="csStage"></div>
+
+                <div class="cs-legend">
+                    <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-r"></span>Root</span>
+                    <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-3"></span>3rd — the major/minor tone</span>
+                    <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-5"></span>5th</span>
+                    <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-7"></span>7th &amp; extensions</span>
+                </div>
+            </div>
+        </div>
+
         <div class="sa-section">
             <div class="sa-section-label">Description</div>
             <p class="sa-description" id="description"></p>
@@ -503,6 +556,7 @@
     </main>
   </div>
 
+    <script src="chord-shapes.js?v=1"></script>
     <script>
         // Wrapped in an IIFE so none of this page's declarations land on the
         // global scope. scripts.js also declares top-level `const audio` /
@@ -863,6 +917,7 @@
             currentMeasures = data.measures || [];
             renderTimeline(currentChords);
             renderChart(currentMeasures);
+            buildHowToPlay(currentChords);
             resetNowPlaying();
             loadAudio(data.audio_url || ('/audio/' + videoId));
 
@@ -1232,6 +1287,10 @@
             document.getElementById('chordNext').textContent =
                 activeIdx + 1 < currentChords.length ? currentChords[activeIdx + 1].chord : '—';
 
+            // Walk the How-To-Play panel along with the song, so the diagram on
+            // screen is always the chord you're hearing.
+            if (csState.follow) selectCsChord(currentChords[activeIdx].chord);
+
             for (let idx = 0; idx < chordItems.length; idx++) {
                 chordItems[idx].classList.toggle('sa-active', idx === activeIdx);
                 chordItems[idx].classList.toggle('sa-played', idx < activeIdx);
@@ -1242,6 +1301,216 @@
                 activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
         }
+
+        // ─── How To Play ───
+        // Bridges the analysis to actual fingerings: every chord the analyzer
+        // found, on a keyboard or a fretboard, in whichever voicing you ask for.
+        // Root and quality are tracked separately so the quality dropdown can
+        // swap what's built on the root the song actually played. Degrades
+        // quietly — if chord-shapes.js didn't load, or none of the detected
+        // labels parse, the section just stays hidden.
+
+        const csState = { root: null, suffix: '', instrument: 'piano', voicing: null, follow: true };
+        const csStage = document.getElementById('csStage');
+        const csVoicingEl = document.getElementById('csVoicing');
+        const csQualityEl = document.getElementById('csQuality');
+
+        function csSymbol() { return csState.root === null ? null : csState.root + csState.suffix; }
+
+        function buildHowToPlay(chords) {
+            const section = document.getElementById('howToPlaySection');
+            const chipsEl = document.getElementById('csChips');
+            if (!window.ChordShapes) { section.style.display = 'none'; return; }
+
+            // Unique chords in order of first appearance, with how often each
+            // comes round — the frequent ones are the ones worth drilling.
+            const counts = new Map();
+            chords.forEach(c => counts.set(c.chord, (counts.get(c.chord) || 0) + 1));
+            const names = Array.from(counts.keys()).filter(n => ChordShapes.parseChord(n));
+            if (!names.length) { section.style.display = 'none'; return; }
+
+            chipsEl.innerHTML = '';
+            names.forEach(name => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'cs-chip';
+                btn.dataset.chord = name;
+                btn.appendChild(document.createTextNode(name));
+                const n = document.createElement('span');
+                n.className = 'cs-chip-count';
+                n.textContent = '×' + counts.get(name);
+                btn.appendChild(n);
+                btn.addEventListener('click', () => {
+                    csSetFollow(false);
+                    selectCsChord(name);
+                });
+                chipsEl.appendChild(btn);
+            });
+
+            if (!csQualityEl.options.length) {
+                ChordShapes.QUALITY_LIST.forEach(q => {
+                    const opt = document.createElement('option');
+                    opt.value = q.suffix;
+                    opt.textContent = q.name;
+                    csQualityEl.appendChild(opt);
+                });
+            }
+
+            section.style.display = '';
+            csState.root = null;
+            selectCsChord(names[0]);
+        }
+
+        function csSetFollow(on) {
+            csState.follow = on;
+            document.getElementById('csFollow').checked = on;
+        }
+
+        // Takes a chord symbol from the song and makes it the current selection.
+        function selectCsChord(name) {
+            const parsed = ChordShapes.parseChord(name);
+            if (!parsed) return;
+            if (parsed.rootName === csState.root && parsed.suffix === csState.suffix) return;
+            csState.root = parsed.rootName;
+            csState.suffix = parsed.suffix;
+            csSyncControls();
+            renderCsVoicings();
+        }
+
+        // Highlights whichever chip matches what's selected — none of them, once
+        // you've swapped the quality to something the song never played.
+        function csSyncControls() {
+            const sym = csSymbol();
+            document.querySelectorAll('#csChips .cs-chip').forEach(b =>
+                b.classList.toggle('cs-on', b.dataset.chord === sym));
+            csQualityEl.value = csState.suffix;
+        }
+
+        // Repopulates the voicing dropdown, keeping the current choice when the
+        // new chord offers the same one — so you can step through a progression
+        // staying in, say, 1st inversion the whole way.
+        function renderCsVoicings() {
+            const chord = ChordShapes.parseChord(csSymbol());
+            if (!chord) return;
+            const list = csState.instrument === 'piano'
+                ? ChordShapes.pianoVoicings(chord)
+                : ChordShapes.guitarVoicings(chord);
+            if (!list.length) {
+                csStage.innerHTML = '';
+                const p = document.createElement('div');
+                p.className = 'cs-meta-hint';
+                p.textContent = 'No playable shape for ' + chord.symbol +
+                    ' on this instrument — try another quality.';
+                csStage.appendChild(p);
+                return;
+            }
+
+            const keep = list.some(v => v.id === csState.voicing) ? csState.voicing : list[0].id;
+            csState.voicing = keep;
+            csVoicingEl.innerHTML = '';
+            list.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id;
+                opt.textContent = v.name;
+                if (v.id === keep) opt.selected = true;
+                csVoicingEl.appendChild(opt);
+            });
+            drawCs(chord, list.find(v => v.id === keep) || list[0]);
+        }
+
+        function drawCs(chord, voicing) {
+            const isPiano = csState.instrument === 'piano';
+            const midi = isPiano ? voicing.notes : ChordShapes.voicingToMidi(voicing);
+
+            const fig = document.createElement('div');
+            fig.className = isPiano ? 'cs-figure cs-figure-wide' : 'cs-figure';
+            fig.innerHTML = isPiano
+                ? ChordShapes.renderPiano(voicing.notes, chord)
+                : ChordShapes.renderChordBox(voicing);
+
+            const meta = document.createElement('div');
+            meta.className = 'cs-meta';
+
+            const h = document.createElement('h4');
+            h.textContent = chord.symbol;
+            meta.appendChild(h);
+
+            const sub = document.createElement('div');
+            sub.className = 'cs-meta-sub';
+            sub.textContent = chord.qualityName + ' · ' + voicing.name;
+            meta.appendChild(sub);
+
+            const notes = document.createElement('div');
+            notes.className = 'cs-notes';
+            notes.appendChild(document.createTextNode(isPiano ? 'Notes  ' : 'Frets (low to high)  '));
+            const span = document.createElement('span');
+            span.textContent = isPiano
+                ? midi.map(ChordShapes.midiName).join('  ')
+                : ChordShapes.fretsText(voicing);
+            notes.appendChild(span);
+            if (!isPiano) {
+                const nn = document.createElement('div');
+                nn.style.marginTop = '0.25rem';
+                nn.textContent = voicing.strings.filter(s => !s.muted)
+                    .map(s => s.note + ' (' + s.degree + ')').join('  ');
+                notes.appendChild(nn);
+            }
+            meta.appendChild(notes);
+
+            const hint = document.createElement('div');
+            hint.className = 'cs-meta-hint';
+            hint.textContent = voicing.hint;
+            meta.appendChild(hint);
+
+            const play = document.createElement('button');
+            play.type = 'button';
+            play.className = 'cs-play';
+            play.textContent = '▶ Hear it';
+            play.addEventListener('click', () => ChordShapes.playNotes(midi));
+            meta.appendChild(play);
+
+            const roll = document.createElement('button');
+            roll.type = 'button';
+            roll.className = 'cs-play';
+            roll.textContent = '↗ Roll it';
+            roll.addEventListener('click', () => ChordShapes.playNotes(midi, { arpeggio: true }));
+            meta.appendChild(roll);
+
+            csStage.innerHTML = '';
+            csStage.appendChild(fig);
+            csStage.appendChild(meta);
+        }
+
+        document.getElementById('csInstrument').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-inst]');
+            if (!btn || btn.dataset.inst === csState.instrument) return;
+            csState.instrument = btn.dataset.inst;
+            csState.voicing = null;          // shape ids don't carry across instruments
+            document.querySelectorAll('#csInstrument button').forEach(b =>
+                b.classList.toggle('cs-on', b === btn));
+            renderCsVoicings();
+        });
+
+        // Swapping the quality is exploring, not following — otherwise the next
+        // chord change would silently undo the choice.
+        csQualityEl.addEventListener('change', () => {
+            csState.suffix = csQualityEl.value;
+            csSetFollow(false);
+            csSyncControls();
+            renderCsVoicings();
+        });
+
+        csVoicingEl.addEventListener('change', () => {
+            csState.voicing = csVoicingEl.value;
+            renderCsVoicings();
+        });
+
+        document.getElementById('csFollow').addEventListener('change', (e) => {
+            csState.follow = e.target.checked;
+            if (csState.follow && currentChords.length && lastChordIdx >= 0) {
+                selectCsChord(currentChords[lastChordIdx].chord);
+            }
+        });
 
         function showError(message) {
             const errorEl = document.getElementById('error');
