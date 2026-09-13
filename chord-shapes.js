@@ -317,6 +317,53 @@
     };
   }
 
+  // The first-position chords everyone actually learns. These are irregular —
+  // they use open strings in ways no moveable shape reproduces, so they can't
+  // be derived and have to be written down. Without them, asking for C hands
+  // you an 8th-fret barre instead of x32010.
+  const OPEN_SHAPES = {
+    'C':     [null, 3, 2, 0, 1, 0],
+    'C7':    [null, 3, 2, 3, 1, 0],
+    'Cmaj7': [null, 3, 2, 0, 0, 0],
+    'A':     [null, 0, 2, 2, 2, 0],
+    'Am':    [null, 0, 2, 2, 1, 0],
+    'A7':    [null, 0, 2, 0, 2, 0],
+    'Am7':   [null, 0, 2, 0, 1, 0],
+    'Amaj7': [null, 0, 2, 1, 2, 0],
+    'Asus2': [null, 0, 2, 2, 0, 0],
+    'Asus4': [null, 0, 2, 2, 3, 0],
+    'G':     [3, 2, 0, 0, 0, 3],
+    'G7':    [3, 2, 0, 0, 0, 1],
+    'Gmaj7': [3, 2, 0, 0, 0, 2],
+    'E':     [0, 2, 2, 1, 0, 0],
+    'Em':    [0, 2, 2, 0, 0, 0],
+    'E7':    [0, 2, 0, 1, 0, 0],
+    'Em7':   [0, 2, 0, 0, 0, 0],
+    'Emaj7': [0, 2, 1, 1, 0, 0],
+    'Esus4': [0, 2, 2, 2, 0, 0],
+    'D':     [null, null, 0, 2, 3, 2],
+    'Dm':    [null, null, 0, 2, 3, 1],
+    'D7':    [null, null, 0, 2, 1, 2],
+    'Dm7':   [null, null, 0, 2, 1, 1],
+    'Dmaj7': [null, null, 0, 2, 2, 2],
+    'Dsus2': [null, null, 0, 2, 3, 0],
+    'Dsus4': [null, null, 0, 2, 3, 3],
+    'Fmaj7': [null, null, 3, 2, 1, 0]
+  };
+
+  function openShape(chord) {
+    const frets = OPEN_SHAPES[chord.symbol];
+    if (!frets) return null;
+    return {
+      id: 'open-position',
+      name: 'Open position',
+      frets: frets.slice(),
+      strings: describe(frets, chord),
+      hint: 'The first-position shape — open strings ringing, nothing barred. ' +
+            'This is the one to reach for unless you need to move it.'
+    };
+  }
+
   function guitarVoicings(chord) {
     if (!chord) return [];
     const out = [];
@@ -329,6 +376,7 @@
       out.push(v);
     };
 
+    add(openShape(chord));               // easiest first, when one exists
     CAGED.forEach(tpl => add(cagedShape(chord, tpl)));
     if (chord.intervals.length === 3) {
       for (let r = 0; r < 3; r++) add(stringSetTriad(chord, [3, 4, 5], r));
@@ -340,26 +388,49 @@
 
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+  // Move a chord symbol by n semitones, keeping its quality and slash bass.
+  // Returns null for anything that doesn't parse, so callers can fall back to
+  // the original label rather than showing a wrong one.
+  function transposeSymbol(symbol, semitones) {
+    const c = parseChord(symbol);
+    if (!c) return null;
+    let out = pcName(c.rootPc + semitones) + c.suffix;
+    if (c.bassPc !== null) out += '/' + pcName(c.bassPc + semitones);
+    return out;
+  }
+
   // Guitar chord box. Six strings, five fret spaces, dots coloured by degree.
-  function renderChordBox(voicing) {
+  // opts.lefty mirrors the string order; opts.capo relabels the position so
+  // fret numbers read from the capo rather than the nut.
+  function renderChordBox(voicing, opts) {
     const L = 26, R = 10, SP = 18, TOP = 30, FH = 20, FRETS = 5;
     const W = L + SP * 5 + R, H = TOP + FH * FRETS + 20;
     const played = voicing.strings.filter(s => !s.muted && s.fret > 0).map(s => s.fret);
     const maxF = played.length ? Math.max.apply(null, played) : 0;
     const minF = played.length ? Math.min.apply(null, played) : 0;
     const base = maxF <= FRETS ? 1 : minF;      // show the nut when the shape reaches it
-    const x = i => L + i * SP;
+    const o = opts || {};
+    // A left-handed neck is the same diagram read right to left.
+    const x = i => L + (o.lefty ? 5 - i : i) * SP;
     const y = f => TOP + (f - base + 0.5) * FH;
+    // With a capo the nut moves, so the thick bar means "capo" and the numbers
+    // a player counts from are the capo's, not the neck's.
+    const capo = o.capo || 0;
 
     let svg = `<svg class="cs-box" viewBox="0 0 ${W} ${H}" role="img" ` +
               `aria-label="${esc(voicing.name)} chord diagram">`;
 
     // Fret wires, then strings.
     for (let f = 0; f <= FRETS; f++) {
-      svg += `<line class="cs-fret" x1="${x(0)}" y1="${TOP + f * FH}" x2="${x(5)}" y2="${TOP + f * FH}"/>`;
+      svg += `<line class="cs-fret" x1="${L}" y1="${TOP + f * FH}" x2="${L + SP * 5}" y2="${TOP + f * FH}"/>`;
     }
-    if (base === 1) svg += `<rect class="cs-nut" x="${x(0) - 1}" y="${TOP - 4}" width="${SP * 5 + 2}" height="4"/>`;
-    else svg += `<text class="cs-basefret" x="${x(0) - 7}" y="${TOP + FH * 0.72}">${base}fr</text>`;
+    if (base === 1) {
+      svg += `<rect class="${capo ? 'cs-capo' : 'cs-nut'}" x="${L - 1}" y="${TOP - 4}" ` +
+             `width="${SP * 5 + 2}" height="4"/>`;
+      if (capo) svg += `<text class="cs-basefret" x="${L - 7}" y="${TOP + FH * 0.72}">c${capo}</text>`;
+    } else {
+      svg += `<text class="cs-basefret" x="${L - 7}" y="${TOP + FH * 0.72}">${base}fr</text>`;
+    }
     for (let s = 0; s < 6; s++) {
       svg += `<line class="cs-string" x1="${x(s)}" y1="${TOP}" x2="${x(s)}" y2="${TOP + FH * FRETS}"/>`;
     }
@@ -482,7 +553,7 @@
 
   global.ChordShapes = {
     parseChord, pianoVoicings, guitarVoicings,
-    renderPiano, renderChordBox,
+    renderPiano, renderChordBox, transposeSymbol,
     playNotes, voicingToMidi, fretsText,
     midiName, pcName, degreeLabel, roleOf,
     STRING_NAMES, PC_NAMES, QUALITY_LIST

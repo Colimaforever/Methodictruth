@@ -2904,6 +2904,7 @@ footer .donate-link:hover {
   border-color: var(--glow); background: rgba(0, 229, 255, 0.16); color: var(--glow);
   box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
 }
+.cs-key-readout { min-width: 5.5rem; }
 .cs-chip-count {
   font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
   color: var(--stone-dark); margin-left: 0.35rem;
@@ -2949,6 +2950,8 @@ footer .donate-link:hover {
 .cs-fret { stroke: rgba(138, 126, 107, 0.45); stroke-width: 1; }
 .cs-string { stroke: rgba(138, 126, 107, 0.55); stroke-width: 1; }
 .cs-nut { fill: var(--stone); }
+/* A capo bar reads as a movable nut, so it takes the accent colour. */
+.cs-capo { fill: var(--glow-warm); }
 .cs-basefret {
   font-family: 'JetBrains Mono', monospace; font-size: 9px;
   fill: var(--glow-warm); text-anchor: end;
