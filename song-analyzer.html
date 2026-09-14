@@ -53,7 +53,7 @@
     <!-- Warm up the connection to the analysis API; it also serves the
          play-along audio, so this speeds first playback too. -->
     <link rel="preconnect" href="https://api.methodictruth.com">
-    <link rel="stylesheet" href="styles.css?v=75">
+    <link rel="stylesheet" href="styles.css?v=76">
     <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
   <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="favicon.ico?v=3">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
@@ -475,15 +475,21 @@
                 </div>
 
                 <div class="cs-controls">
-                    <span class="cs-ctl-label">On</span>
-                    <div class="cs-seg" id="csInstrument">
-                        <button type="button" data-inst="piano" class="cs-on">Keyboard</button>
-                        <button type="button" data-inst="guitar">Guitar</button>
-                    </div>
-                    <span class="cs-ctl-label">Quality</span>
-                    <select class="cs-select" id="csQuality" aria-label="Chord quality"></select>
-                    <span class="cs-ctl-label">Voicing</span>
-                    <select class="cs-select" id="csVoicing" aria-label="Voicing"></select>
+                    <span class="cs-field">
+                        <span class="cs-ctl-label">On</span>
+                        <span class="cs-seg" id="csInstrument">
+                            <button type="button" data-inst="piano" class="cs-on">Keyboard</button>
+                            <button type="button" data-inst="guitar">Guitar</button>
+                        </span>
+                    </span>
+                    <span class="cs-field">
+                        <span class="cs-ctl-label">Quality</span>
+                        <select class="cs-select" id="csQuality" aria-label="Chord quality"></select>
+                    </span>
+                    <span class="cs-field">
+                        <span class="cs-ctl-label">Voicing</span>
+                        <select class="cs-select" id="csVoicing" aria-label="Voicing"></select>
+                    </span>
                     <label class="cs-follow">
                         <input type="checkbox" id="csFollow" checked>
                         Follow along with playback
@@ -491,15 +497,19 @@
                 </div>
 
                 <div class="cs-controls">
-                    <span class="cs-ctl-label">Key</span>
-                    <div class="cs-seg">
-                        <button type="button" id="csKeyDown" title="Down a semitone">−</button>
-                        <button type="button" id="csKeyReset" class="cs-key-readout"
-                                title="Back to the song's own key">as played</button>
-                        <button type="button" id="csKeyUp" title="Up a semitone">+</button>
-                    </div>
-                    <span class="cs-ctl-label cs-guitar-only">Capo</span>
-                    <select class="cs-select cs-guitar-only" id="csCapo" aria-label="Capo fret"></select>
+                    <span class="cs-field">
+                        <span class="cs-ctl-label">Key</span>
+                        <span class="cs-seg">
+                            <button type="button" id="csKeyDown" title="Down a semitone">−</button>
+                            <button type="button" id="csKeyReset" class="cs-key-readout"
+                                    title="Back to the song's own key">as played</button>
+                            <button type="button" id="csKeyUp" title="Up a semitone">+</button>
+                        </span>
+                    </span>
+                    <span class="cs-field cs-guitar-only">
+                        <span class="cs-ctl-label">Capo</span>
+                        <select class="cs-select" id="csCapo" aria-label="Capo fret"></select>
+                    </span>
                     <label class="cs-follow cs-guitar-only">
                         <input type="checkbox" id="csLefty">
                         Left-handed
@@ -510,10 +520,11 @@
                 <div class="cs-stage" id="csStage"></div>
 
                 <div class="cs-legend">
-                    <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-r"></span>Root</span>
-                    <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-3"></span>3rd — the major/minor tone</span>
-                    <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-5"></span>5th</span>
-                    <span class="cs-legend-item"><span class="cs-legend-dot cs-lg-7"></span>7th &amp; extensions</span>
+                    <span class="cs-legend-item"><span class="cs-legend-mark cs-lg-sq cs-lg-r"></span>Root — the note it's named after</span>
+                    <span class="cs-legend-item"><span class="cs-legend-mark cs-lg-ci cs-lg-3"></span>3rd — major or minor lives here</span>
+                    <span class="cs-legend-item"><span class="cs-legend-mark cs-lg-ci cs-lg-5"></span>5th — fills it out</span>
+                    <span class="cs-legend-item"><span class="cs-legend-mark cs-lg-di cs-lg-7"></span>7th — the colour on top</span>
+                    <span class="cs-legend-item"><span class="cs-legend-mark cs-lg-open"></span>Hollow — an open string, don't finger it</span>
                 </div>
             </div>
         </div>
@@ -580,7 +591,7 @@
     </main>
   </div>
 
-    <script src="chord-shapes.js?v=1"></script>
+    <script src="chord-shapes.js?v=2"></script>
     <script>
         // Wrapped in an IIFE so none of this page's declarations land on the
         // global scope. scripts.js also declares top-level `const audio` /

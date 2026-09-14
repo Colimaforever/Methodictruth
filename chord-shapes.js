@@ -5,9 +5,11 @@
  * either as SVG. Shared by the Song Analyzer's "How To Play" panel and the
  * Chord Voicings page. No dependencies; exposes only window.ChordShapes.
  *
- * Dot colours follow the site-wide convention set on fretboard.html:
- * amber = root, purple = the quality tone (3rd, or the 2/4 of a sus chord),
- * green = 5th, cyan = 7th and upper extensions.
+ * Every mark is coded three ways at once — shape, colour and the degree in
+ * text — so none of them has to be read on its own. Square is the root, circle
+ * a triad tone, diamond a seventh or extension; the colours are the --role-*
+ * tokens in styles.css. Shape leads because it survives a small dot, a
+ * greyscale print and every form of colour blindness.
  */
 (function (global) {
   'use strict';
@@ -94,6 +96,9 @@
   // Which colour slot a degree occupies. 2/b3/3/4 all share the "quality" slot
   // because in a sus chord the 2 or 4 is doing the third's job.
   function roleOf(iv) {
+    // Intervals arrive unreduced, so anything past the octave is a genuine
+    // extension (9, 11, 13) rather than a 2nd or 4th doing the third's job.
+    if (iv >= 12) return 'x';
     const m = mod12(iv);
     if (m === 0) return 'r';
     if (m >= 2 && m <= 5) return '3';
@@ -388,6 +393,26 @@
 
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+  // Every mark carries three channels at once: shape, colour and the degree in
+  // text. Shape is the one that survives a small dot, a greyscale print and any
+  // form of colour blindness, so it does the heaviest lifting — a square root is
+  // findable without reading or comparing anything, which is the question a
+  // player asks first. Areas are matched across the three shapes so none of them
+  // reads as louder than the others.
+  function roleMark(role, cx, cy, r, cls) {
+    if (role === 'r') {
+      const s = r * 1.78;                       // square of equal area to the circle
+      return `<rect class="${cls}" x="${cx - s / 2}" y="${cy - s / 2}" ` +
+             `width="${s}" height="${s}" rx="1.5"/>`;
+    }
+    if (role === '7' || role === 'x') {
+      const d = r * 1.253;                      // diamond of equal area
+      return `<path class="${cls}" d="M${cx} ${cy - d}L${cx + d} ${cy}` +
+             `L${cx} ${cy + d}L${cx - d} ${cy}Z"/>`;
+    }
+    return `<circle class="${cls}" cx="${cx}" cy="${cy}" r="${r}"/>`;
+  }
+
   // Move a chord symbol by n semitones, keeping its quality and slash bass.
   // Returns null for anything that doesn't parse, so callers can fall back to
   // the original label rather than showing a wrong one.
@@ -403,7 +428,7 @@
   // opts.lefty mirrors the string order; opts.capo relabels the position so
   // fret numbers read from the capo rather than the nut.
   function renderChordBox(voicing, opts) {
-    const L = 26, R = 10, SP = 18, TOP = 30, FH = 20, FRETS = 5;
+    const L = 28, R = 12, SP = 21, TOP = 32, FH = 23, FRETS = 5;
     const W = L + SP * 5 + R, H = TOP + FH * FRETS + 20;
     const played = voicing.strings.filter(s => !s.muted && s.fret > 0).map(s => s.fret);
     const maxF = played.length ? Math.max.apply(null, played) : 0;
@@ -438,13 +463,17 @@
     voicing.strings.forEach(st => {
       const sx = x(st.string);
       if (st.muted) {
-        svg += `<text class="cs-mark cs-mark-x" x="${sx}" y="${TOP - 8}">×</text>`;
+        svg += `<text class="cs-mark cs-mark-x" x="${sx}" y="${TOP - 7}">×</text>`;
       } else if (st.fret === 0) {
-        svg += `<text class="cs-mark cs-mark-o" x="${sx}" y="${TOP - 8}">○</text>`;
-        svg += `<text class="cs-open-deg cs-deg-${st.role}" x="${sx}" y="${TOP + FH * FRETS + 13}">${esc(st.degree)}</text>`;
+        // An open string is a chord tone like any other — in Em (022000) four
+        // of the six notes are open. Giving them the same shape and colour as
+        // fretted notes, hollow to say "don't finger this", keeps the chord
+        // readable as one object instead of a board plus a separate key.
+        svg += roleMark(st.role, sx, TOP - 12, 7.5, 'cs-open cs-open-' + st.role);
+        svg += `<text class="cs-otxt cs-deg-${st.role}" x="${sx}" y="${TOP - 9.3}">${esc(st.degree)}</text>`;
       } else {
-        svg += `<circle class="cs-dot cs-dot-${st.role}" cx="${sx}" cy="${y(st.fret)}" r="7.5"/>`;
-        svg += `<text class="cs-dtxt" x="${sx}" y="${y(st.fret) + 2.7}">${esc(st.degree)}</text>`;
+        svg += roleMark(st.role, sx, y(st.fret), 9, 'cs-dot cs-dot-' + st.role);
+        svg += `<text class="cs-dtxt" x="${sx}" y="${y(st.fret) + 3.2}">${esc(st.degree)}</text>`;
       }
     });
 
@@ -454,7 +483,7 @@
   // Piano keyboard. The span is derived from the voicing, rounded out to whole
   // octaves, so any voicing — however wide — fits without clipping.
   function renderPiano(notes, chord) {
-    const WW = 17, WH = 80, BW = 11, BH = 50;
+    const WW = 21, WH = 96, BW = 13, BH = 60;
     const WHITE = [0, 2, 4, 5, 7, 9, 11];
     const lo = Math.floor(Math.min.apply(null, notes) / 12) * 12;
     let hi = Math.ceil((Math.max.apply(null, notes) + 1) / 12) * 12 - 1;
@@ -478,19 +507,31 @@
     let svg = `<svg class="cs-piano" viewBox="0 0 ${W} ${H}" role="img" ` +
               `aria-label="${esc(chord.symbol)} on a keyboard">`;
 
+    // The key face carries a wash of the role colour so the shape of the chord
+    // reads across the keyboard at a glance; the mark near the bottom is the
+    // same square/circle/diamond the guitar box uses, so the two instruments
+    // teach each other rather than having to be learned separately.
     keys.filter(k => !k.black).forEach(k => {
       const lit = on.has(k.m);
       const d = lit ? degOf(k.m) : null;
-      svg += `<rect class="cs-key cs-key-w${lit ? ' cs-lit cs-fill-' + d.role : ''}" ` +
+      svg += `<rect class="cs-key cs-key-w${lit ? ' cs-lit cs-wash-' + d.role : ''}" ` +
              `x="${k.x}" y="0" width="${WW}" height="${WH}" rx="2"/>`;
-      if (lit) svg += `<text class="cs-kdeg" x="${k.x + WW / 2}" y="${WH - 9}">${esc(d.label)}</text>`;
+      if (lit) {
+        const cy = WH - 15;
+        svg += roleMark(d.role, k.x + WW / 2, cy, 8.5, 'cs-dot cs-dot-' + d.role);
+        svg += `<text class="cs-kdeg" x="${k.x + WW / 2}" y="${cy + 3.1}">${esc(d.label)}</text>`;
+      }
     });
     keys.filter(k => k.black).forEach(k => {
       const lit = on.has(k.m);
       const d = lit ? degOf(k.m) : null;
-      svg += `<rect class="cs-key cs-key-b${lit ? ' cs-lit cs-fill-' + d.role : ''}" ` +
+      svg += `<rect class="cs-key cs-key-b${lit ? ' cs-lit cs-wash-' + d.role : ''}" ` +
              `x="${k.x}" y="0" width="${BW}" height="${BH}" rx="1.5"/>`;
-      if (lit) svg += `<text class="cs-kdeg cs-kdeg-b" x="${k.x + BW / 2}" y="${BH - 7}">${esc(d.label)}</text>`;
+      if (lit) {
+        const cy = BH - 11;
+        svg += roleMark(d.role, k.x + BW / 2, cy, 6.4, 'cs-dot cs-dot-' + d.role);
+        svg += `<text class="cs-kdeg cs-kdeg-b" x="${k.x + BW / 2}" y="${cy + 2.4}">${esc(d.label)}</text>`;
+      }
     });
 
     // Octave markers under every C, so the register is readable at a glance.
