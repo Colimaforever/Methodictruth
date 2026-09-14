@@ -892,6 +892,38 @@ def analyze_file(audio_path, emit):
     }
 
 
+# How far short of YouTube's stated length a download may fall before we call
+# it truncated. Encoders routinely drift a second or two; anything past this is
+# a download that stopped early.
+SHORT_DOWNLOAD_TOLERANCE_S = 12
+
+
+def _probe_duration(path):
+    # ffprobe ships with ffmpeg, which yt-dlp's extract-audio postprocessor
+    # already requires, so this adds no new dependency. Returns 0.0 when it
+    # can't tell — callers treat that as "no opinion", never as "truncated".
+    try:
+        out = subprocess.run(
+            ['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
+             '-of', 'default=noprint_wrappers=1:nokey=1', path],
+            capture_output=True, text=True, timeout=20)
+        return float(out.stdout.strip())
+    except Exception as exc:
+        _log(f'ffprobe duration probe failed: {exc}')
+        return 0.0
+
+
+def _is_truncated(audio_path, expected):
+    # Only YouTube gives us an independent expected length; uploads are their
+    # own source of truth, so there is nothing to compare and nothing to flag.
+    if not expected:
+        return False, 0.0
+    actual = _probe_duration(audio_path)
+    if not actual:
+        return False, 0.0
+    return actual < expected - SHORT_DOWNLOAD_TOLERANCE_S, actual
+
+
 def run_analysis(url, video_id, progress=None):
     def emit(ev):
         if progress:
@@ -903,16 +935,42 @@ def run_analysis(url, video_id, progress=None):
         emit({'stage': 'download', 'pct': 0})
         audio_path, title, duration = download_audio(url, workdir, video_id, progress=progress)
         _log(f'download_audio (yt-dlp download + ffmpeg->mp3): {time.monotonic() - t0:.1f}s')
+
+        # A throttled or stalled googlevideo connection can leave a short file
+        # that ffmpeg converts without complaint. Analysing it yields chords
+        # that simply stop partway through the song, and because the result is
+        # cached by video id that bad analysis would be served forever. Measure
+        # what actually landed, and give a partial download one more try.
+        truncated, actual = _is_truncated(audio_path, duration)
+        if truncated:
+            _log(f'truncated download: got {actual:.0f}s of {duration}s — retrying once')
+            emit({'stage': 'download', 'pct': 0})
+            try:
+                os.remove(audio_path)
+            except OSError:
+                pass
+            audio_path, title, duration = download_audio(url, workdir, video_id, progress=progress)
+            truncated, actual = _is_truncated(audio_path, duration)
+            if truncated:
+                _log(f'still truncated after retry: {actual:.0f}s of {duration}s')
+
         core = analyze_file(audio_path, emit)
         core['duration'] = duration or core['duration']
 
-        return {
+        result = {
             'success': True,
             'title': title,
             **core,
             'description': describe(core),
             'audio_url': f'/audio/{video_id}',
         }
+        if truncated:
+            # Surfaced so the page can say the analysis stops early rather than
+            # letting the chords just run out mid-song, and so produce_result
+            # knows not to cache this as a finished answer.
+            result['partial'] = True
+            result['analyzed_duration'] = int(actual)
+        return result
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
 
@@ -943,6 +1001,14 @@ def produce_result(url, video_id, progress=None):
             # Concurrency slot keeps overlapping analyses from thrashing the box.
             with analysis_slot():
                 result = run_analysis(url, video_id, progress=progress)
+            # Never cache an analysis built on a short download. The cache is
+            # keyed by video id and has no expiry, so writing one here would
+            # serve those truncated chords to everyone, forever. Leaving it
+            # uncached costs one repeat download and lets the next attempt —
+            # when the connection isn't being throttled — heal it.
+            if result.get('partial'):
+                _log(f'not caching partial analysis for {video_id}')
+                return result
             with open(cache_path, 'w') as f:
                 json.dump(result, f)
             prune_cache()
