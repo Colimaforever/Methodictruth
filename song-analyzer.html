@@ -262,6 +262,12 @@
 
         .sa-description { font-family: 'EB Garamond', Georgia, serif; color: var(--stone); line-height: 1.8; font-style: italic; }
 
+        .sa-coverage {
+            background: rgba(80, 60, 20, 0.25); border: 1px solid rgba(232, 168, 124, 0.45);
+            color: var(--glow-warm); padding: 0.8rem 1rem; margin-bottom: 1.2rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; line-height: 1.6;
+        }
+
         .sa-howto-intro {
             font-family: 'EB Garamond', Georgia, serif; color: var(--stone);
             line-height: 1.7; margin-bottom: 1.1rem;
@@ -388,6 +394,7 @@
 
       <div class="sa-results" id="results">
         <div class="sa-song-title" id="songTitle"></div>
+        <div class="sa-coverage" id="coverageNote" hidden></div>
 
         <div class="sa-share">
             <button class="sa-share-btn" id="shareBtn" type="button">🔗 Copy share link</button>
@@ -587,6 +594,8 @@
         let currentChords = [];
         let currentMeasures = [];
         let currentVideoId = null;
+        let reportedDuration = 0;   // the song's full length, per the analysis
+        let reportedPartial = false; // backend already knows the download was short
         let chordItems = [], measureCells = [];        // cached node lists — no querySelectorAll per frame
         let lastChordIdx = -1, lastMeasureIdx = -1, lastSecond = -1;
         let syncRAF = null;                            // smooth, frame-accurate play-along sync
@@ -930,6 +939,10 @@
             document.getElementById('description').textContent = data.description;
             renderDeepAnalysis(data);
 
+            reportedDuration = data.duration || 0;
+            reportedPartial = !!data.partial;
+            updateCoverageNote(data.analyzed_duration || 0);
+
             currentChords = data.chords;
             currentMeasures = data.measures || [];
             renderTimeline(currentChords);
@@ -1101,9 +1114,7 @@
                 measureCells[i].classList.toggle('sa-current', i === active);
             }
             const cur = measureCells[active];
-            // block:'nearest' scrolls within the chart's own scroll area, so the
-            // page itself doesn't jump.
-            if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (cur) centreInScroller(cur.parentNode, cur, 'y');
         }
 
         function resetNowPlaying() {
@@ -1122,7 +1133,11 @@
         audio.addEventListener('play', () => { setPlayIcon(true); startSync(); });
         audio.addEventListener('pause', () => { setPlayIcon(false); stopSync(); });
         audio.addEventListener('ended', () => { setPlayIcon(false); stopSync(); syncHighlights(Infinity); });
-        audio.addEventListener('loadedmetadata', () => { lastSecond = -1; syncHighlights(audio.currentTime || 0); });
+        audio.addEventListener('loadedmetadata', () => {
+            lastSecond = -1;
+            syncHighlights(audio.currentTime || 0);
+            updateCoverageNote(0);
+        });
         audio.addEventListener('loadstart', () => document.getElementById('audioArt').classList.add('sa-spinning'));
         audio.addEventListener('canplay', () => document.getElementById('audioArt').classList.remove('sa-spinning'));
         audio.addEventListener('error', () => {
@@ -1314,9 +1329,7 @@
             }
 
             const activeItem = chordItems[activeIdx];
-            if (activeItem) {
-                activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            }
+            if (activeItem) centreInScroller(activeItem.parentNode, activeItem, 'x');
         }
 
         // ─── How To Play ───
@@ -1676,10 +1689,60 @@
             }
         });
 
+        // Says so plainly when the analysis covers less of the song than the
+        // song itself. Without this the chords simply stop partway through and
+        // the page gives no reason why. The backend flags it when it can; we
+        // also compare the audio's own length, which catches the case where a
+        // truncated result was cached before the server learned to detect it.
+        function updateCoverageNote(backendActual) {
+            const el = document.getElementById('coverageNote');
+            if (!el) return;
+            const real = isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
+            const covered = backendActual || real;
+            const short = reportedDuration && covered && covered < reportedDuration - 12;
+            if (!short && !reportedPartial) { el.hidden = true; return; }
+            if (!covered || !reportedDuration) { el.hidden = true; return; }
+            el.textContent =
+                'Heads up — this analysis only covers the first ' + formatTime(covered) +
+                ' of a ' + formatTime(reportedDuration) + ' track. The audio download was cut ' +
+                'short, so the chords stop there rather than the song changing. Analyzing it ' +
+                'again usually gets the whole thing.';
+            el.hidden = false;
+        }
+
         function showError(message) {
             const errorEl = document.getElementById('error');
             errorEl.textContent = message;
             errorEl.classList.add('visible');
+        }
+
+        // Centre a child inside its own scroll box without scrollIntoView.
+        // scrollIntoView({block:'nearest'}) is supposed to move only the nearest
+        // scrollable ancestor, but iOS Safari also scrolls the document — so a
+        // chord change mid-song would yank the reader back down to the player
+        // while they were reading something else. Writing scrollLeft/scrollTop
+        // can only ever move the container itself. Rect maths rather than
+        // offsetLeft, which is relative to an offsetParent that may not be the
+        // container.
+        function centreInScroller(container, child, axis) {
+            if (!container || !child) return;
+            const cr = container.getBoundingClientRect();
+            const kr = child.getBoundingClientRect();
+            if (axis === 'x') {
+                const max = container.scrollWidth - container.clientWidth;
+                if (max <= 0) return;                       // nothing to scroll
+                const delta = (kr.left - cr.left) - (container.clientWidth - kr.width) / 2;
+                const to = Math.max(0, Math.min(max, container.scrollLeft + delta));
+                if (Math.abs(to - container.scrollLeft) < 2) return;
+                container.scrollTo({ left: to, behavior: 'smooth' });
+            } else {
+                const max = container.scrollHeight - container.clientHeight;
+                if (max <= 0) return;
+                const delta = (kr.top - cr.top) - (container.clientHeight - kr.height) / 2;
+                const to = Math.max(0, Math.min(max, container.scrollTop + delta));
+                if (Math.abs(to - container.scrollTop) < 2) return;
+                container.scrollTo({ top: to, behavior: 'smooth' });
+            }
         }
 
         function formatTime(seconds) {
