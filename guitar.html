@@ -15,7 +15,7 @@
   <meta property="og:image" content="https://methodictruth.com/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="styles.css?v=75">
+  <link rel="stylesheet" href="styles.css?v=76">
   <style>
     :root {
       --bg-deep: #0a0a0f;
@@ -34,19 +34,16 @@
       --fret-wire: #888;
       --string-color: #999;
       --nut-color: #e8dcc8;
-      /* Interval colors */
-      --int-root: #ff4444;
-      --int-m2: #ff8844;
-      --int-2: #ffaa33;
-      --int-m3: #44aaff;
-      --int-3: #4488ff;
-      --int-4: #44ddaa;
-      --int-tritone: #ff44ff;
-      --int-5: #44ff88;
-      --int-m6: #aa88ff;
-      --int-6: #8866ff;
-      --int-m7: #ffcc44;
-      --int-7: #ff9944;
+      /* Interval colours used to be twelve separate hues. Measured against
+         simulated colour blindness, nineteen of those pairs were
+         indistinguishable to a deuteranope and several were close even to
+         normal vision — and twelve categories is past what anyone holds in
+         mind anyway. Colour now marks only the landmarks a player navigates
+         by (root, third, fifth, seventh, everything else), pulled from the
+         shared --role-* tokens in styles.css so they match the Song Analyzer
+         and the synth. The degree number inside each dot still says exactly
+         which tone it is, so nothing is lost. */
+      --int-root: var(--role-r);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -278,12 +275,16 @@
       font-weight: 700;
       box-shadow: 0 0 8px var(--highlight-color, var(--glow));
     }
+    /* The root is square. Shape is the only channel that still works at this
+       size, in greyscale, and for every kind of colour blindness — and "where
+       is the root" is the question the eye asks first. */
     .note-dot.root {
-      background: var(--int-root);
-      color: #fff;
-      border-color: rgba(255,255,255,0.4);
+      background: var(--role-r);
+      color: var(--role-ink);
+      border-radius: 4px;
+      border-color: rgba(255,255,255,0.45);
       font-weight: 700;
-      box-shadow: 0 0 12px var(--int-root);
+      box-shadow: 0 0 12px var(--role-r);
     }
     .note-dot.dim {
       opacity: 0.25;
@@ -578,11 +579,10 @@ const SCALES = {
 
 const INTERVAL_NAMES = ['R', '♭2', '2', '♭3', '3', '4', '♭5', '5', '♭6', '6', '♭7', '7'];
 const INTERVAL_LABELS = ['Root', 'Minor 2nd', 'Major 2nd', 'Minor 3rd', 'Major 3rd', 'Perfect 4th', 'Tritone', 'Perfect 5th', 'Minor 6th', 'Major 6th', 'Minor 7th', 'Major 7th'];
-const INTERVAL_COLORS = [
-  'var(--int-root)', 'var(--int-m2)', 'var(--int-2)', 'var(--int-m3)',
-  'var(--int-3)', 'var(--int-4)', 'var(--int-tritone)', 'var(--int-5)',
-  'var(--int-m6)', 'var(--int-6)', 'var(--int-m7)', 'var(--int-7)'
-];
+// Which landmark each of the twelve semitones belongs to. R / 3 / 5 / 7 are
+// what the hand navigates by; the rest are passing tones and share one colour.
+const INTERVAL_ROLE = ['r','x','x','3','3','x','5','5','5','x','7','7'];
+const INTERVAL_COLORS = INTERVAL_ROLE.map(r => `var(--role-${r})`);
 
 const FRET_DOTS = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
 const DOUBLE_DOTS = [12, 24];

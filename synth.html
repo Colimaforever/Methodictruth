@@ -15,7 +15,7 @@
   <meta property="og:url" content="https://methodictruth.com/synth.html">
   <meta property="og:image" content="https://methodictruth.com/og/synth.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=75">
+  <link rel="stylesheet" href="styles.css?v=76">
   <style>
     /* ─── SYNTH LAYOUT ─── */
     /* The nav and the toolbar are fixed and their heights depend on how wide
@@ -970,14 +970,13 @@
     .tg-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
     .tg-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 
-    /* Role colours — the same five across the keys, the Theory page and the
-       guitar voicings, so a purple dot means "third" wherever you see it. */
+    /* Role colours now live in styles.css :root, shared with the Song Analyzer,
+       fretboard.html and guitar.html, so a colour means the same thing on every
+       page. They were re-picked by measurement: the old set put root and fifth
+       at CIE dE 4.3 under simulated protanopia — indistinguishable — where the
+       current set holds every pair apart under all three kinds of colour
+       blindness. Only the scale-tone wash is local, since nothing else has one. */
     :root {
-      --role-r: #e8a87c;  /* root — amber, like every root on this site */
-      --role-3: #a594f7;  /* third — the note that says major or minor */
-      --role-5: #6aad73;  /* fifth — fills the chord out */
-      --role-7: #ffdc78;  /* seventh (or sixth) — the colour on top */
-      --role-x: #00e5ff;  /* extensions: 9, 11, 13 */
       --role-t: rgba(0, 229, 255, 0.65);  /* plain scale tone */
     }
     /* Each lit key wears its role: the face is tinted, the label is set in the

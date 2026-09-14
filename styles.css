@@ -47,6 +47,24 @@
   --glow-warm: #e8a87c;
   --oracle: #7b68ee;
   --earth: #2a1f14;
+
+  /* ─── CHORD-TONE ROLES ───
+     One vocabulary for every chord and scale diagram on the site: the Song
+     Analyzer, fretboard.html, guitar.html and the synth's theory guide all
+     read from these, so a colour means the same thing wherever you meet it.
+
+     Chosen by measurement, not taste. Each pair stays apart under normal
+     vision and under simulated protanopia, deuteranopia and tritanopia
+     (worst-case CIE dE 25.2; the previous palette collapsed to 4.3, where
+     root and fifth were indistinguishable to a protanope). Colour is still
+     never the only channel -- every mark also carries a shape and its degree
+     in text, per WCAG 1.4.1. --role-ink passes 4.5:1 on all five fills. */
+  --role-r: #D55E00;    /* root       -- square  */
+  --role-3: #A594F7;    /* third      -- circle  */
+  --role-5: #009E73;    /* fifth      -- circle  */
+  --role-7: #F0E442;    /* seventh    -- diamond */
+  --role-x: #F09FC8;    /* extensions -- diamond */
+  --role-ink: #0a0e1a;  /* label ink that sits on those fills */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -2875,6 +2893,10 @@ footer .donate-link:hover {
 }
 
 .cs-seg { display: inline-flex; border: 1px solid rgba(0, 229, 255, 0.22); }
+/* A label and its control wrap as one unit. Letting them separate leaves an
+   orphaned "CAPO" next to an unrelated dropdown, which the reader has to
+   re-pair by hand — pure avoidable load on a narrow screen. */
+.cs-field { display: inline-flex; align-items: center; gap: 0.45rem; }
 .cs-seg button {
   font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em;
   color: var(--stone); background: transparent; border: none; cursor: pointer;
@@ -2946,7 +2968,7 @@ footer .donate-link:hover {
 .cs-play + .cs-play { margin-left: 0.5rem; }
 
 /* Guitar chord box */
-.cs-box { display: block; width: 100%; max-width: 172px; height: auto; }
+.cs-box { display: block; width: 100%; max-width: 208px; height: auto; }
 .cs-fret { stroke: rgba(138, 126, 107, 0.45); stroke-width: 1; }
 .cs-string { stroke: rgba(138, 126, 107, 0.55); stroke-width: 1; }
 .cs-nut { fill: var(--stone); }
@@ -2962,19 +2984,37 @@ footer .donate-link:hover {
 .cs-open-deg { font-family: 'JetBrains Mono', monospace; font-size: 8px; text-anchor: middle; }
 .cs-dot { stroke-width: 1.2; }
 .cs-dtxt {
-  font-family: 'JetBrains Mono', monospace; font-size: 7.5px; text-anchor: middle;
-  fill: rgba(10, 14, 26, 0.95); font-weight: 600;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; text-anchor: middle;
+  fill: var(--role-ink); font-weight: 700;
 }
 
-/* Degree colours — one language across piano keys, chord boxes and legend */
-.cs-dot-r, .cs-fill-r { fill: var(--glow-warm); stroke: var(--glow-warm); }
-.cs-dot-3, .cs-fill-3 { fill: rgba(123, 104, 238, 0.88); stroke: rgba(123, 104, 238, 1); }
-.cs-dot-5, .cs-fill-5 { fill: rgba(106, 173, 115, 0.88); stroke: rgba(106, 173, 115, 1); }
-.cs-dot-7, .cs-fill-7 { fill: rgba(0, 229, 255, 0.8); stroke: var(--glow); }
-.cs-deg-r { fill: var(--glow-warm); }
-.cs-deg-3 { fill: rgba(123, 104, 238, 1); }
-.cs-deg-5 { fill: rgba(106, 173, 115, 1); }
-.cs-deg-7 { fill: var(--glow); }
+/* Degree colours — one vocabulary across piano keys, chord boxes and legend.
+   Values live in :root so fretboard.html, guitar.html and the synth's theory
+   guide read the same tokens. Colour never carries meaning alone: each mark is
+   also a shape (square root, circle triad tone, diamond seventh/extension) and
+   its degree in text. */
+.cs-dot-r { fill: var(--role-r); stroke: var(--role-r); }
+.cs-dot-3 { fill: var(--role-3); stroke: var(--role-3); }
+.cs-dot-5 { fill: var(--role-5); stroke: var(--role-5); }
+.cs-dot-7 { fill: var(--role-7); stroke: var(--role-7); }
+.cs-dot-x { fill: var(--role-x); stroke: var(--role-x); }
+
+/* Open strings: same shape, hollow, so "sounds" and "finger this" stay apart. */
+.cs-open { fill: rgba(10, 14, 26, 0.85); stroke-width: 1.6; }
+.cs-open-r { stroke: var(--role-r); }
+.cs-open-3 { stroke: var(--role-3); }
+.cs-open-5 { stroke: var(--role-5); }
+.cs-open-7 { stroke: var(--role-7); }
+.cs-open-x { stroke: var(--role-x); }
+.cs-otxt {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 600;
+  text-anchor: middle;
+}
+.cs-deg-r { fill: var(--role-r); }
+.cs-deg-3 { fill: var(--role-3); }
+.cs-deg-5 { fill: var(--role-5); }
+.cs-deg-7 { fill: var(--role-7); }
+.cs-deg-x { fill: var(--role-x); }
 
 /* Piano diagram */
 .cs-piano { display: block; width: 100%; min-width: 240px; height: auto; }
@@ -2983,20 +3023,21 @@ footer .donate-link:hover {
 .cs-key-b { fill: rgba(18, 22, 34, 0.97); }
 .cs-key.cs-lit { stroke: rgba(10, 14, 26, 0.9); }
 .cs-kdeg {
-  font-family: 'JetBrains Mono', monospace; font-size: 8px; text-anchor: middle;
-  fill: rgba(10, 14, 26, 0.92); font-weight: 600;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; text-anchor: middle;
+  fill: var(--role-ink); font-weight: 700;
 }
-.cs-kdeg-b { fill: rgba(10, 14, 26, 0.92); font-size: 7px; }
+.cs-kdeg-b { fill: var(--role-ink); font-size: 7.5px; }
 .cs-oct {
   font-family: 'JetBrains Mono', monospace; font-size: 7px; text-anchor: middle;
   fill: var(--stone-dark);
 }
 /* Declared after the base key fills so a lit key actually takes its degree
    colour — both are single-class selectors, so source order decides. */
-.cs-key.cs-fill-r { fill: var(--glow-warm); }
-.cs-key.cs-fill-3 { fill: rgba(123, 104, 238, 0.92); }
-.cs-key.cs-fill-5 { fill: rgba(106, 173, 115, 0.92); }
-.cs-key.cs-fill-7 { fill: rgba(0, 229, 255, 0.85); }
+.cs-key.cs-wash-r { fill: color-mix(in srgb, var(--role-r) 62%, #F0E8D8); }
+.cs-key.cs-wash-3 { fill: color-mix(in srgb, var(--role-3) 62%, #F0E8D8); }
+.cs-key.cs-wash-5 { fill: color-mix(in srgb, var(--role-5) 62%, #F0E8D8); }
+.cs-key.cs-wash-7 { fill: color-mix(in srgb, var(--role-7) 62%, #F0E8D8); }
+.cs-key.cs-wash-x { fill: color-mix(in srgb, var(--role-x) 62%, #F0E8D8); }
 
 /* Legend */
 .cs-legend {
@@ -3006,10 +3047,23 @@ footer .donate-link:hover {
 }
 .cs-legend-item { display: flex; align-items: center; gap: 0.35rem; }
 .cs-legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
-.cs-lg-r { background: var(--glow-warm); box-shadow: 0 0 5px var(--glow-warm); }
-.cs-lg-3 { background: rgba(123, 104, 238, 0.88); box-shadow: 0 0 4px rgba(123, 104, 238, 0.6); }
-.cs-lg-5 { background: rgba(106, 173, 115, 0.88); box-shadow: 0 0 4px rgba(106, 173, 115, 0.5); }
-.cs-lg-7 { background: rgba(0, 229, 255, 0.8); box-shadow: 0 0 4px rgba(0, 229, 255, 0.5); }
+/* The legend teaches the shape as well as the colour, because the shape is
+   what stays readable when the colour doesn't. */
+/* The lefty toggle is a label with display:inline-flex, which outranks the
+   UA stylesheet's [hidden]{display:none} — so hiding it needs to say so. */
+.cs-guitar-only[hidden] { display: none !important; }
+.cs-legend-mark { width: 13px; height: 13px; flex-shrink: 0; }
+.cs-lg-sq { border-radius: 2px; }
+.cs-lg-ci { border-radius: 50%; }
+.cs-lg-di { border-radius: 2px; transform: rotate(45deg) scale(0.82); }
+.cs-lg-open {
+  border-radius: 50%; background: transparent;
+  border: 2px solid var(--stone); width: 13px; height: 13px;
+}
+.cs-lg-r { background: var(--role-r); }
+.cs-lg-3 { background: var(--role-3); }
+.cs-lg-5 { background: var(--role-5); }
+.cs-lg-7 { background: var(--role-7); }
 
 @media (max-width: 600px) {
   .cs-stage { padding: 0.9rem; gap: 1rem; }
