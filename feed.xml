@@ -136,6 +136,14 @@
   </item>
 
   <item>
+    <title>Same House, Better Box</title>
+    <link>https://methodictruth.com/chronicle-2026-09-24-analyzer-new-host.html</link>
+    <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-09-24-analyzer-new-host.html</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 GMT</pubDate>
+    <description>The July chronicle concluded that a residential IP is a functional capability and the analyzer should stay home. That got read as "leave it alone" — but the argument was about the address, not the machine, and it never said keep it on an Intel N100 running Linux inside Windows. Moving to a Dell XPS 8930 in the same house keeps every advantage and drops three hazards that turn out to be WSL2 artifacts. Also: a power estimate I overstated, a year-versus-month misread that reversed the decision outright, the hardcoded cache path an inventory turned up, why the new machine's GPU currently does nothing, and the loose version pin that resolved librosa 1.0 on a box with a newer Python.</description>
+  </item>
+
+  <item>
     <title>The Asset I Didn't Know I Had</title>
     <link>https://methodictruth.com/chronicle-2026-07-29-residential-ip.html</link>
     <guid isPermaLink="true">https://methodictruth.com/chronicle-2026-07-29-residential-ip.html</guid>

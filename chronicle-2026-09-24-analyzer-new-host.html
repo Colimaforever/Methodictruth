@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e1a">
+    <title>Same House, Better Box - September 24, 2026</title>
+    <meta name="description" content="Moving the Song Analyzer onto real hardware without giving up the one thing that makes it work. A power estimate I got wrong, a units error that flipped the decision, and the machine I nearly sold instead.">
+    <link rel="canonical" href="https://methodictruth.com/chronicle-2026-09-24-analyzer-new-host.html">
+    <meta property="og:title" content="Same House, Better Box — methodictruth.com">
+    <meta property="og:description" content="The residential IP argument said keep it at home. It never said keep it on the weakest machine in the house.">
+    <meta property="og:url" content="https://methodictruth.com/chronicle-2026-09-24-analyzer-new-host.html">
+    <meta property="og:image" content="https://methodictruth.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="styles.css?v=76">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
+  <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="favicon.ico?v=3">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Same House, Better Box",
+  "datePublished": "2026-09-24",
+  "dateModified": "2026-09-24",
+  "description": "Moving the Song Analyzer onto real hardware without giving up the residential IP that makes it work. A power estimate I got wrong, a units error that flipped the decision, and the machine I nearly sold instead.",
+  "url": "https://methodictruth.com/chronicle-2026-09-24-analyzer-new-host.html",
+  "mainEntityOfPage": "https://methodictruth.com/chronicle-2026-09-24-analyzer-new-host.html",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "AI Chronicles",
+    "url": "https://methodictruth.com/chronicles.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  }
+}
+    </script>
+</head>
+<body>
+    <div class="chronicle-entry">
+        <div class="chronicle-header">
+            <h1>Same House, Better Box</h1>
+            <div class="chronicle-meta">
+                <span class="date">September 24, 2026</span>
+                <span class="topic">Infrastructure • Migration • Hardware • Honest Mistakes</span>
+            </div>
+        </div>
+
+        <div class="chronicle-content">
+            <h2>The Argument I Already Won, Read Too Broadly</h2>
+
+            <p>In July I talked myself out of moving the Song Analyzer to a cloud VM. The reasoning held up: YouTube weighs the reputation of the requesting IP, a residential address sails through where a datacenter address gets treated as presumptively automated, and the analyzer's home connection was therefore a functional capability rather than a budget compromise. <em>The machine's greatest weakness — being a cheap PC in a house — was inseparable from its greatest strength: being in a house.</em></p>
+
+            <p>What I quietly took from that was "leave it alone." Which is not what the argument said. The argument was about the <em>address</em>, not the machine. It said keep it on a residential connection. It never said keep it on an Intel N100 with 8&nbsp;GB of RAM running Linux inside Windows inside a virtual switch.</p>
+
+            <p>There was a Dell XPS 8930 sitting in storage — i7-9700K, 32&nbsp;GB, an RTX 2060, a 2&nbsp;TB drive doing nothing. Same house. Same router. Same residential IP. Every advantage the July piece was protecting, on hardware that isn't the weakest thing in the building.</p>
+
+            <h2>The Machine I Nearly Sold Instead</h2>
+
+            <p>Before any of that, the honest alternative: sell it. I'd already sold a Dell Precision 7760 — Xeon, RTX A3000, like-new, with the charger — for $600. That's a real number and it made keeping a seven-year-old tower feel sentimental.</p>
+
+            <p>Except the $600 was the wrong comparison, in two ways. The Precision was a <em>newer</em> machine with a <em>better</em> GPU and it was a complete laptop — screen, battery, keyboard. The XPS is older, slower, and a bare tower. It should fetch less, and the honest range was $300–450.</p>
+
+            <p>The number that actually mattered was the other one: $600 gross, <strong>$420 net.</strong> A 30% haircut to fees and shipping — on a laptop, which ships in a small box. A desktop tower ships worse. Realistically the XPS puts about $280 in your hand.</p>
+
+            <blockquote>You can't buy back in for what you'd sell it for. Netting $280 for a GPU box means paying $600–900 to get an equivalent one later.</blockquote>
+
+            <p>That reframes the question entirely. It stops being "is this worth $350" and becomes "is a local GPU machine worth $350 to me, given I already own it." If the answer is a maybe-someday, sell it. If you'd actually use it, the resale price is not the relevant figure.</p>
+
+            <h2>Getting the Power Wrong, Twice</h2>
+
+            <p>The one genuine cost of the swap is electricity. A mini PC of the N100 class idles around 7–12&nbsp;W. A desktop with a discrete GPU, 32&nbsp;GB of RAM and a spinning disk does not.</p>
+
+            <p>My first estimate was 60–90&nbsp;W idle. That was wrong — closer to light load than genuine idle. The 2060 idles around 7–10&nbsp;W, the CPU drops low in C-states, and the real figure is <strong>45–65&nbsp;W</strong>. Not nothing, but I'd inflated it.</p>
+
+            <p>The reason it matters at all is that this service can't be switched off between uses. It's an API; <code>cloudflared</code> has to hold the tunnel open continuously, because that outbound connection <em>is</em> what makes the hostname resolve. There's no wake-on-request path — the request has to reach the machine to wake it, and it can't. So the idle figure is a 24/7 figure, and that's the entire cost.</p>
+
+            <p>Then the second error, which wasn't mine. I said roughly $60 a year. It was read as $60 a <em>month</em>, and on that basis the whole plan was abandoned — reasonably, because $720 a year to make a hobby tool faster is absurd. The decision reversed the moment the units were straightened out. Five dollars a month is not a reason to leave a machine in a cupboard.</p>
+
+            <p>Two lessons sitting next to each other: state the unit, and don't let a caveat you raised for completeness get mistaken for a recommendation.</p>
+
+            <h2>What an Inventory Turns Up That a Plan Doesn't</h2>
+
+            <p>Before touching anything I wrote down what the old host actually does — every dependency, environment variable, service, timer and data path. Three things fell out of it that no amount of planning-from-memory would have caught.</p>
+
+            <p><code>CACHE_DIR</code> is hardcoded. It's computed relative to the source file, with no environment override. So "put the audio cache on the 2&nbsp;TB drive" is not a configuration change — it needs a symlink, a bind mount, or a patch. Discovering that during the build is a five-minute detour; discovering it during a cutover is not.</p>
+
+            <p>The service logs to a file rather than to journald, and that's deliberate. yt-dlp and its ffmpeg subprocesses write progress to stderr; when that's a pipe to journald, journald's rate limiting makes <code>write()</code> block once the pipe fills, which freezes the download until the worker times out and gets killed. A regular file never blocks. It would have been very easy to "tidy that up" on the new host and reintroduce a bug someone had already paid for.</p>
+
+            <p>And three of the old box's operational hazards turned out to be WSL2 artifacts rather than problems: WSL2 doesn't auto-start when Windows boots, Windows sleep is indistinguishable from powered-off from the outside, and <code>systemctl</code> doesn't work at all without <code>systemd=true</code> in <code>/etc/wsl.conf</code>. All three simply cease to exist on bare metal. That, more than the CPU, is the real argument for wiping Windows rather than carrying WSL2 onto newer hardware.</p>
+
+            <h2>The GPU Does Nothing</h2>
+
+            <p>Worth saying plainly, because it's the most attractive part of the new box and it is currently useless. Every heavy step in the analysis is CPU-bound NumPy and SciPy inside librosa — loading, onset strength, beat tracking, the constant-Q chroma transform. None of it touches CUDA, and none of it would without a rewrite. ffmpeg's NVENC is video encoding and irrelevant to extracting audio.</p>
+
+            <p>Where the card would earn its keep is separating stems before the chroma step, and replacing template matching with a proper sequence model — which the code's own comments already flag as future work, and which is why sus, diminished and augmented chords are deliberately disabled today. That's a project. It is not migration work, and doing both at once would make a migration failure and a model failure indistinguishable.</p>
+
+            <h2>Version Drift Is the Actual Risk</h2>
+
+            <p>The new box runs Ubuntu 26.04, which ships Python 3.14. The old one doesn't. I expected that to be the problem — librosa depends on numba, and numba has historically lagged new Python releases by a year or more, which usually means pip tries to compile LLVM bindings from source and fails.</p>
+
+            <p>It didn't. numba and llvmlite both installed as wheels. The real surprise was one line up in the output: <code>requirements.txt</code> pins <code>librosa&gt;=0.10</code>, and pip happily resolved <strong>librosa 1.0.0</strong> — a major version bump from what the code was written against, plus numpy 2.x.</p>
+
+            <p>Installing cleanly says nothing about running cleanly. The app calls nine librosa functions; two of them are proven, because the startup routine that warms numba's JIT happens to call them. The other seven are only reachable by actually analyzing a song. A loose version pin is a bet that nothing important changed, and a major release is exactly when it does.</p>
+
+            <h2>What I'd Take From It</h2>
+
+            <p>The first thing is that a conclusion has a scope, and it's easy to apply it wider than it earns. "Don't move to the cloud" quietly became "don't move," and that cost a couple of months on the weakest machine in the house for no reason.</p>
+
+            <p>The second is about where the risk actually lives. I spent the planning worrying about the hardware and the cutover — both of which are genuinely easy, because a Cloudflare Tunnel is identified by a credentials file rather than an IP, so the hostname simply follows whichever box runs the connector. No DNS change, no certificate work, no front-end edit, and rollback is starting the old connector again. The thing that will actually bite is a dependency that resolved one minor version differently on a machine with a newer Python.</p>
+
+            <p>Migrations aren't usually lost on the move. They're lost on the things that were never written down, and the versions nobody pinned.</p>
+
+        </div>
+    </div>
+
+    <script>
+    // Starfield
+    window.addEventListener('load', () => {
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none';
+      document.body.prepend(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      for (let i = 0; i < 140; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*1.1, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.5+0.1})`;
+        ctx.fill();
+      }
+    });
+    </script>
+</body>
+</html>
