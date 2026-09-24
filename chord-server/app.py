@@ -47,6 +47,19 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 # personal/low-traffic tool; raise ANALYSIS_SLOTS on a beefier box.
 ANALYSIS_SLOTS = max(1, int(os.environ.get('ANALYSIS_SLOTS', '1')))
 
+# The lyrics sidecar (lyrics_service.py) runs as a separate process in its own
+# virtualenv, because a Whisper model imported here would be loaded once per
+# gunicorn worker -- 4 x ~3 GB on a 6 GB card. Talking to it over localhost
+# HTTP keeps exactly one copy resident and keeps torch/CUDA out of this
+# service's dependency tree. If it is down, lyrics degrade to unavailable and
+# chord analysis is completely unaffected.
+LYRICS_URL = os.environ.get('LYRICS_SERVICE_URL', 'http://127.0.0.1:5006')
+LYRICS_ENABLED = os.environ.get('LYRICS_ENABLED', '1') != '0'
+# Transcription runs ~25x realtime on the GPU, so a 4-minute song lands in
+# about 10 s. The ceiling is generous for long uploads, and still under
+# gunicorn's --timeout so the worker reports a clean error rather than dying.
+LYRICS_TIMEOUT = max(30, int(os.environ.get('LYRICS_TIMEOUT', '240')))
+
 # Keep the cache from growing without bound: each analyzed song leaves a few-MB
 # MP3 on disk forever. Once there are more than this many, drop the
 # least-recently-used ones (MP3 + its .json) so the disk can't silently fill.
@@ -161,7 +174,7 @@ def prune_cache():
         mp3s.sort(key=os.path.getmtime)  # oldest (least recently used) first
         for path in mp3s[:len(mp3s) - CACHE_MAX_SONGS]:
             vid = os.path.basename(path)[:-4]
-            for ext in ('.mp3', '.json'):
+            for ext in ('.mp3', '.json', '.lyrics.json'):
                 try:
                     os.remove(os.path.join(CACHE_DIR, vid + ext))
                 except OSError:
@@ -1063,6 +1076,17 @@ def health():
             pot_server = r.status == 200
     except Exception:  # noqa: BLE001
         pot_server = False
+    lyrics_up, lyrics_model = False, None
+    if LYRICS_ENABLED:
+        try:
+            import urllib.request
+            with urllib.request.urlopen(f'{LYRICS_URL}/health', timeout=1.5) as r:
+                info = json.load(r)
+            lyrics_up = bool(info.get('ok'))
+            lyrics_model = info.get('model')
+        except Exception:  # noqa: BLE001
+            lyrics_up = False
+
     return jsonify(
         ok=True,
         cached_songs=songs,
@@ -1083,6 +1107,9 @@ def health():
         ffmpeg=bool(shutil.which('ffmpeg')),
         pot_plugin_installed=pot_plugin,
         pot_server_up=pot_server,
+        lyrics_enabled=LYRICS_ENABLED,
+        lyrics_service_up=lyrics_up,
+        lyrics_model=lyrics_model,
     )
 
 
@@ -1093,7 +1120,10 @@ def library():
     items = []
     try:
         for name in os.listdir(CACHE_DIR):
-            if not name.endswith('.json'):
+            # Lyrics live beside their song as <id>.lyrics.json; they are not
+            # songs. They'd currently be dropped anyway (no matching .mp3),
+            # but relying on that is an accident waiting to break.
+            if not name.endswith('.json') or name.endswith('.lyrics.json'):
                 continue
             vid = name[:-5]
             mp3 = os.path.join(CACHE_DIR, f'{vid}.mp3')
@@ -1129,6 +1159,79 @@ def cached_result(video_id):
         abort(404)
     with open(path) as f:
         return jsonify(json.load(f))
+
+
+@app.route('/lyrics/<song_id>', methods=['GET', 'POST', 'OPTIONS'])
+def lyrics(song_id):
+    # GET  = fetch already-transcribed lyrics, never starts work (404 if none).
+    # POST = transcribe now, then cache. Mirrors the /result vs / split, so a
+    # page can show lyrics instantly when they exist and only spend GPU time
+    # when the user actually asks for them.
+    if request.method == 'OPTIONS':
+        return '', 204
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,20}', song_id):
+        abort(404)
+    if not LYRICS_ENABLED:
+        return jsonify(success=False, error='Lyrics are not enabled on this server'), 503
+
+    cache_path = os.path.join(CACHE_DIR, f'{song_id}.lyrics.json')
+    if os.path.exists(cache_path):
+        with open(cache_path) as f:
+            return jsonify(json.load(f))
+    if request.method == 'GET':
+        return jsonify(success=False, error='Not transcribed yet'), 404
+
+    audio_path = os.path.join(CACHE_DIR, f'{song_id}.mp3')
+    if not os.path.isfile(audio_path):
+        return jsonify(success=False, error='Analyze the song first'), 404
+
+    # Per-song lock so two tabs asking at once transcribe once and share the
+    # result, same discipline as produce_result.
+    lock_path = os.path.join(CACHE_DIR, f'{song_id}.lyrics.lock')
+    with open(lock_path, 'w') as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            if os.path.exists(cache_path):
+                with open(cache_path) as f:
+                    return jsonify(json.load(f))
+            import urllib.error
+            import urllib.request
+            payload = json.dumps({'path': audio_path}).encode()
+            req = urllib.request.Request(
+                f'{LYRICS_URL}/transcribe', data=payload,
+                headers={'Content-Type': 'application/json'})
+            try:
+                with urllib.request.urlopen(req, timeout=LYRICS_TIMEOUT) as r:
+                    data = json.load(r)
+            except urllib.error.URLError as exc:
+                _log(f'lyrics sidecar unreachable: {exc}')
+                return jsonify(success=False,
+                               error='Lyrics service is offline'), 503
+            except Exception as exc:  # noqa: BLE001
+                app.logger.exception('lyrics request failed')
+                return jsonify(success=False, error=f'Transcription failed: {exc}'), 500
+
+            if not data.get('ok'):
+                return jsonify(success=False,
+                               error=data.get('error') or 'Transcription failed'), 502
+
+            result = {
+                'success': True,
+                'id': song_id,
+                'segments': data.get('segments') or [],
+                'language': data.get('language'),
+                'language_probability': data.get('language_probability'),
+                'model': data.get('model'),
+                'elapsed': data.get('elapsed'),
+            }
+            # An empty transcript is a real answer -- the track is an
+            # instrumental -- so cache it too. Without this, every visit to a
+            # song with no vocals would re-run the GPU to learn the same thing.
+            with open(cache_path, 'w') as f:
+                json.dump(result, f)
+            return jsonify(result)
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
 
 
 def produce_upload_result(upload_id, src_path, title, emit):

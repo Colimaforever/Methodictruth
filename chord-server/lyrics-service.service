@@ -1,0 +1,28 @@
+[Unit]
+Description=Methodic Truth lyrics transcription sidecar (GPU)
+After=network.target
+
+[Service]
+Type=simple
+User=REPLACE_WITH_YOUR_USERNAME
+Group=REPLACE_WITH_YOUR_USERNAME
+Environment=HOME=/home/REPLACE_WITH_YOUR_USERNAME
+Environment=ML_VENV=/home/REPLACE_WITH_YOUR_USERNAME/ml-venv
+Environment=CACHE_DIR=/REPLACE/WITH/PATH/TO/chord-server/cache
+Environment=WHISPER_MODEL=large-v3
+Environment=WHISPER_COMPUTE=int8_float16
+WorkingDirectory=/REPLACE/WITH/PATH/TO/chord-server
+ExecStart=/REPLACE/WITH/PATH/TO/chord-server/lyrics-service-start.sh
+Restart=on-failure
+RestartSec=10
+
+# Model load is ~30 s for large-v3; don't let systemd give up during it.
+TimeoutStartSec=180
+
+# Same reasoning as chord-analyzer.service: log to a regular file rather than
+# journald, so a rate-limited journal can never block a write() mid-request.
+StandardOutput=append:/REPLACE/WITH/PATH/TO/chord-server/lyrics-service.log
+StandardError=append:/REPLACE/WITH/PATH/TO/chord-server/lyrics-service.log
+
+[Install]
+WantedBy=multi-user.target
