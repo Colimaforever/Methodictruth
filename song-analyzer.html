@@ -268,6 +268,69 @@
             font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; line-height: 1.6;
         }
 
+        /* ── Lyrics ──────────────────────────────────────────────────
+           The active line is marked three ways at once — a left bar, a
+           weight change, and colour — so it stays findable without relying
+           on colour vision, same principle as the chord diagrams. */
+        .sa-lyrics-bar {
+            display: flex; align-items: center; gap: 0.8rem;
+            flex-wrap: wrap; margin-bottom: 0.9rem;
+        }
+        .sa-lyrics-btn {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 0.6rem 1rem; min-height: 44px; cursor: pointer;
+            color: var(--glow); background: rgba(0, 229, 255, 0.06);
+            border: 1px solid rgba(0, 229, 255, 0.35); transition: all 0.2s;
+        }
+        .sa-lyrics-btn:hover:not(:disabled) {
+            background: rgba(0, 229, 255, 0.14); border-color: var(--glow);
+        }
+        .sa-lyrics-btn:disabled { opacity: 0.5; cursor: progress; }
+        .sa-lyrics-status {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            color: var(--stone-dark); line-height: 1.5;
+        }
+
+        .sa-lyrics {
+            max-height: 340px; overflow-y: auto; overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+        .sa-lyrics:empty { display: none; }
+        .sa-lyrics-empty {
+            font-family: 'EB Garamond', Georgia, serif; font-style: italic;
+            color: var(--stone-dark); padding: 0.6rem 0;
+        }
+        .sa-lyric-line {
+            display: flex; gap: 0.9rem; align-items: baseline;
+            padding: 0.5rem 0.7rem; cursor: pointer; min-height: 44px;
+            border-left: 3px solid transparent; transition: background 0.2s;
+        }
+        .sa-lyric-line:hover { background: rgba(0, 229, 255, 0.05); }
+        .sa-lyric-time {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+            color: var(--stone-dark); flex-shrink: 0; min-width: 2.6rem;
+        }
+        .sa-lyric-text {
+            font-family: 'EB Garamond', Georgia, serif; font-size: 1.05rem;
+            line-height: 1.6; color: var(--stone);
+        }
+        .sa-lyric-line.sa-played { opacity: 0.45; }
+        .sa-lyric-line.sa-active {
+            border-left-color: var(--glow); background: rgba(0, 229, 255, 0.08);
+            opacity: 1;
+        }
+        .sa-lyric-line.sa-active .sa-lyric-text {
+            color: var(--parchment); font-weight: 600;
+        }
+        /* Karaoke fill: words already sung in the current line. */
+        .sa-lyric-word { transition: color 0.12s; }
+        .sa-lyric-line.sa-active .sa-lyric-word.sa-sung { color: var(--glow); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sa-lyric-line, .sa-lyric-word { transition: none; }
+        }
+
         .sa-howto-intro {
             font-family: 'EB Garamond', Georgia, serif; color: var(--stone);
             line-height: 1.7; margin-bottom: 1.1rem;
@@ -460,8 +523,18 @@
             </div>
         </div>
 
+        <div class="sa-section" style="margin-bottom:1.5rem; display:none;" id="lyricsSection">
+            <div class="sa-section-label">④ Lyrics</div>
+            <div class="sa-lyrics-bar">
+                <button class="sa-lyrics-btn" id="lyricsBtn" type="button">Transcribe lyrics</button>
+                <span class="sa-lyrics-status" id="lyricsStatus" role="status" aria-live="polite"></span>
+            </div>
+            <div class="sa-lyrics" id="lyricsBody" tabindex="0"
+                 aria-label="Song lyrics, synchronised with playback"></div>
+        </div>
+
         <div class="sa-section" style="margin-bottom:1.5rem; display:none;" id="howToPlaySection">
-            <div class="sa-section-label">④ How To Play It</div>
+            <div class="sa-section-label">⑤ How To Play It</div>
             <p class="sa-howto-intro">
                 Every chord the analyzer found, as something you can put your hands on.
                 Pick one, pick an instrument, then work through the voicings — inversions
@@ -961,6 +1034,7 @@
             renderChart(currentMeasures);
             buildHowToPlay(currentChords);
             resetNowPlaying();
+            initLyrics(videoId);
             loadAudio(data.audio_url || ('/audio/' + videoId));
 
             document.getElementById('results').classList.add('visible');
@@ -1199,6 +1273,173 @@
             syncRAF = null;
         }
 
+        // ─── Lyrics ───
+        // Transcription costs real GPU time on the backend, so it is never
+        // automatic: on load we only ASK whether lyrics already exist (a plain
+        // GET, which never starts work), and the button is what spends the
+        // time. Once transcribed they are cached server-side, so every later
+        // visit to the same song is instant.
+        let currentLyrics = [], lyricLineEls = [], lastLyricIdx = -1, lastWordKey = '';
+        let lyricsSongId = null, lyricsBusy = false;
+
+        const lyricsSection = document.getElementById('lyricsSection');
+        const lyricsBody = document.getElementById('lyricsBody');
+        const lyricsBtn = document.getElementById('lyricsBtn');
+        const lyricsStatus = document.getElementById('lyricsStatus');
+
+        function setLyricsStatus(msg) { lyricsStatus.textContent = msg || ''; }
+
+        function initLyrics(songId) {
+            lyricsSongId = songId;
+            currentLyrics = []; lyricLineEls = []; lastLyricIdx = -1; lastWordKey = '';
+            lyricsBody.innerHTML = '';
+            lyricsBtn.disabled = false;
+            lyricsBtn.textContent = 'Transcribe lyrics';
+            setLyricsStatus('');
+            lyricsSection.style.display = '';
+            fetchLyrics(songId, false);
+        }
+
+        async function fetchLyrics(songId, generate) {
+            if (lyricsBusy) return;
+            lyricsBusy = true;
+            try {
+                const res = await fetch(`${API_URL}/lyrics/${encodeURIComponent(songId)}`,
+                                        { method: generate ? 'POST' : 'GET' });
+                // A 404 on the GET is the normal "not transcribed yet" answer,
+                // not an error worth showing anyone.
+                if (res.status === 404 && !generate) return;
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.success) {
+                    if (generate) {
+                        setLyricsStatus(res.status === 503
+                            ? 'Lyrics service is offline right now.'
+                            : (data.error || 'Transcription failed.'));
+                    }
+                    return;
+                }
+                // Guard against a slow response landing after the user has
+                // moved on to a different song.
+                if (songId !== lyricsSongId) return;
+                renderLyrics(data);
+            } catch (_) {
+                if (generate) setLyricsStatus('Could not reach the lyrics service.');
+            } finally {
+                lyricsBusy = false;
+                lyricsBtn.disabled = false;
+                if (!currentLyrics.length && !lyricsBody.dataset.done) {
+                    lyricsBtn.textContent = 'Transcribe lyrics';
+                }
+            }
+        }
+
+        function renderLyrics(data) {
+            const segs = data.segments || [];
+            currentLyrics = segs;
+            lyricLineEls = [];
+            lastLyricIdx = -1; lastWordKey = '';
+            lyricsBody.innerHTML = '';
+            lyricsBody.dataset.done = '1';
+            lyricsBtn.textContent = 'Re-transcribe';
+
+            if (!segs.length) {
+                // An empty transcript is a real result, not a failure — say so
+                // plainly rather than leaving an empty box that reads as broken.
+                lyricsBody.innerHTML = '<p class="sa-lyrics-empty">No vocals detected — ' +
+                    'this looks like an instrumental.</p>';
+                setLyricsStatus('');
+                return;
+            }
+
+            segs.forEach((seg, idx) => {
+                const line = document.createElement('div');
+                line.className = 'sa-lyric-line';
+                line.dataset.index = idx;
+
+                const time = document.createElement('span');
+                time.className = 'sa-lyric-time';
+                time.textContent = formatTime(Math.floor(seg.start));
+
+                const text = document.createElement('span');
+                text.className = 'sa-lyric-text';
+                if (seg.words && seg.words.length) {
+                    seg.words.forEach(w => {
+                        const span = document.createElement('span');
+                        span.className = 'sa-lyric-word';
+                        span.dataset.start = w.start;
+                        span.textContent = w.word + ' ';
+                        text.appendChild(span);
+                    });
+                } else {
+                    text.textContent = seg.text;
+                }
+
+                line.appendChild(time);
+                line.appendChild(text);
+                line.addEventListener('click', () => seekTo(seg.start));
+                lyricsBody.appendChild(line);
+            });
+            lyricLineEls = lyricsBody.querySelectorAll('.sa-lyric-line');
+
+            const lang = data.language ? data.language.toUpperCase() : '';
+            const conf = data.language_probability;
+            // Surface low language confidence: it is the single best predictor
+            // that the transcript below is going to be wrong.
+            setLyricsStatus(
+                `${segs.length} lines · ${lang}${conf != null && conf < 0.7 ? ' (low confidence)' : ''}` +
+                (data.elapsed ? ` · ${data.elapsed}s` : ''));
+        }
+
+        function highlightLyricAt(seconds) {
+            if (!currentLyrics.length || !lyricLineEls.length) return;
+
+            let activeIdx = -1;
+            for (let i = 0; i < currentLyrics.length; i++) {
+                if (currentLyrics[i].start <= seconds) activeIdx = i;
+                else break;
+            }
+            // Past the end of a line with nothing following yet: stop
+            // highlighting rather than leaving the last line lit forever.
+            if (activeIdx >= 0 && currentLyrics[activeIdx].end < seconds - 0.5) activeIdx = -1;
+
+            if (activeIdx !== lastLyricIdx) {
+                lastLyricIdx = activeIdx;
+                for (let i = 0; i < lyricLineEls.length; i++) {
+                    lyricLineEls[i].classList.toggle('sa-active', i === activeIdx);
+                    lyricLineEls[i].classList.toggle('sa-played', activeIdx >= 0 && i < activeIdx);
+                }
+                const el = lyricLineEls[activeIdx];
+                if (el) centreInScroller(lyricsBody, el, 'y');
+            }
+
+            if (activeIdx < 0) return;
+            // Word-level fill inside the active line. Keyed so the DOM is only
+            // touched when the current word actually changes, not every frame.
+            const el = lyricLineEls[activeIdx];
+            if (!el) return;
+            const words = el.querySelectorAll('.sa-lyric-word');
+            if (!words.length) return;
+            let wordIdx = -1;
+            for (let i = 0; i < words.length; i++) {
+                if (parseFloat(words[i].dataset.start) <= seconds) wordIdx = i;
+                else break;
+            }
+            const key = activeIdx + ':' + wordIdx;
+            if (key === lastWordKey) return;
+            lastWordKey = key;
+            for (let i = 0; i < words.length; i++) {
+                words[i].classList.toggle('sa-sung', i <= wordIdx);
+            }
+        }
+
+        lyricsBtn.addEventListener('click', () => {
+            if (!lyricsSongId || lyricsBusy) return;
+            lyricsBtn.disabled = true;
+            lyricsBtn.textContent = 'Transcribing…';
+            setLyricsStatus('Running on the GPU — usually about 10 seconds.');
+            fetchLyrics(lyricsSongId, true);
+        });
+
         function syncHighlights(t) {
             const dur = audio.duration || 0;
             const sec = Math.floor(Math.min(t, dur || t));
@@ -1209,6 +1450,7 @@
             }
             highlightChordAt(t);
             highlightMeasureAt(t);
+            highlightLyricAt(t);
         }
 
         // ─── Spectrum analyzer (Windows-Media-Player style) ───
