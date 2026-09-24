@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Reading the Meter — A Multimeter for Instrument Repair | Methodic Truth</title>
+  <meta name="description" content="How to use a digital multimeter to troubleshoot and repair guitars, pedals, amps and synths. What every symbol on the dial means, the theory behind voltage, current and resistance, and the measurements that actually find faults.">
+  <meta name="keywords" content="multimeter guitar repair, fluke 115, measure pickup resistance, pedal current draw, continuity test cable, multimeter symbols explained, ohms law musicians, amp safety capacitor discharge">
+  <link rel="canonical" href="https://methodictruth.com/multimeter.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Reading the Meter — A Multimeter for Instrument Repair">
+  <meta property="og:description" content="What every symbol on the dial means, the theory behind voltage, current and resistance, and the measurements that actually find faults in guitars, pedals and amps.">
+  <meta property="og:url" content="https://methodictruth.com/multimeter.html">
+  <meta property="og:site_name" content="Methodic Truth">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Reading the Meter — A Multimeter for Instrument Repair">
+  <meta name="twitter:description" content="Every symbol on the dial, the theory behind it, and the measurements that find faults in musical gear.">
+  <link rel="stylesheet" href="styles.css?v=76">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    .mm-wrap { max-width: 860px; margin: 0 auto; padding: 0 clamp(1rem, 3vw, 2rem) 4rem; position: relative; z-index: 1; }
+
+    .mm-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: clamp(1rem, 1.6vw, 1.15rem);
+      color: var(--stone); line-height: 1.8; margin-bottom: 1.2rem;
+    }
+    .mm-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .mm-lead em { color: var(--glow); font-style: italic; }
+
+    .mm-h2 {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+      color: var(--glow); letter-spacing: 0.04em; margin: 2.6rem 0 0.3rem;
+    }
+    .mm-h2-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-dark);
+      margin-bottom: 1rem;
+    }
+    .mm-h3 {
+      font-family: 'Cinzel', serif; font-size: 1rem; color: var(--glow-warm);
+      letter-spacing: 0.03em; margin: 1.6rem 0 0.5rem;
+    }
+    .mm-p {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; color: var(--stone);
+      line-height: 1.8; margin-bottom: 0.9rem;
+    }
+    .mm-p strong { color: var(--parchment); font-weight: 600; }
+    .mm-p em { color: var(--glow); font-style: italic; }
+    .mm-p code, .mm-code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85em; color: var(--glow);
+      background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.18);
+      padding: 0.05rem 0.35rem; border-radius: 2px; white-space: nowrap;
+    }
+
+    .mm-card {
+      border: 1px solid rgba(0, 229, 255, 0.14);
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.5), rgba(15, 20, 15, 0.4));
+      padding: 1.2rem 1.3rem; margin: 1.3rem 0;
+    }
+    .mm-card-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--glow);
+      margin-bottom: 0.6rem; opacity: 0.8;
+    }
+
+    .mm-danger {
+      border: 1px solid rgba(232, 92, 92, 0.5); background: rgba(80, 20, 20, 0.22);
+      padding: 1.2rem 1.3rem; margin: 1.4rem 0;
+    }
+    .mm-danger .mm-card-label { color: #ff9999; opacity: 1; }
+    .mm-danger .mm-p { color: #f0d0d0; }
+    .mm-danger .mm-p strong { color: #ffc9c9; }
+
+    .mm-figure { margin: 1.6rem 0; }
+    .mm-svg { display: block; width: 100%; height: auto; max-width: 520px; margin: 0 auto; }
+    .mm-cap {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.06em; color: var(--stone-dark); text-align: center;
+      margin-top: 0.7rem; line-height: 1.7;
+    }
+
+    /* Dial diagram */
+    .mm-dial-body { fill: rgba(18, 22, 34, 0.9); stroke: rgba(138, 126, 107, 0.4); stroke-width: 1.5; }
+    .mm-dial-knob { fill: rgba(40, 46, 60, 0.95); stroke: var(--glow-warm); stroke-width: 1.5; }
+    .mm-dial-ptr { stroke: var(--glow-warm); stroke-width: 3.5; stroke-linecap: round; }
+    .mm-tick { stroke: rgba(138, 126, 107, 0.55); stroke-width: 1.4; stroke-linecap: round; }
+    .mm-tick-on { stroke: var(--glow-warm); stroke-width: 2.4; }
+    .mm-dlabel {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+      fill: var(--parchment); text-anchor: middle;
+    }
+    .mm-dlabel-on { fill: var(--glow-warm); }
+    .mm-dsub {
+      font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+      fill: var(--stone-dark); text-anchor: middle; letter-spacing: 0.05em;
+    }
+    .mm-jack { fill: rgba(10, 14, 26, 0.9); stroke-width: 2; }
+    .mm-jack-red { stroke: #d55e00; }
+    .mm-jack-black { stroke: var(--stone); }
+    .mm-jtxt {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      fill: var(--stone); text-anchor: middle;
+    }
+
+    /* Connection diagram */
+    .mm-wire { stroke: var(--stone-dark); stroke-width: 2; fill: none; }
+    .mm-wire-live { stroke: var(--glow); stroke-width: 2.2; fill: none; }
+    .mm-block { fill: rgba(0, 229, 255, 0.07); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.4; }
+    .mm-meter { fill: rgba(232, 168, 124, 0.1); stroke: var(--glow-warm); stroke-width: 1.6; }
+    .mm-ctxt {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      fill: var(--stone); text-anchor: middle;
+    }
+    .mm-ctxt-w { fill: var(--glow-warm); font-weight: 700; }
+
+    /* Tables */
+    .mm-tablewrap { overflow-x: auto; margin: 1.2rem 0; }
+    .mm-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+    .mm-table th {
+      text-align: left; padding: 0.55rem 0.6rem; color: var(--glow-warm); font-weight: 400;
+      letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.58rem;
+      border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap;
+    }
+    .mm-table td {
+      padding: 0.55rem 0.6rem; color: var(--stone); vertical-align: top;
+      border-bottom: 1px solid rgba(138, 126, 107, 0.12); line-height: 1.6;
+    }
+    .mm-table td.mm-sym {
+      color: var(--glow); font-weight: 700; white-space: nowrap; font-size: 0.85rem;
+    }
+    .mm-table tr:hover td { background: rgba(0, 229, 255, 0.03); }
+
+    .mm-list { list-style: none; padding-left: 0; margin: 0.6rem 0 1rem; }
+    .mm-list li {
+      position: relative; padding-left: 1.5rem; margin-bottom: 0.6rem;
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.75;
+    }
+    .mm-list li::before {
+      content: '◆'; position: absolute; left: 0; top: 0.15em;
+      color: var(--glow); font-size: 0.62em; opacity: 0.75;
+    }
+    .mm-list strong { color: var(--parchment); font-weight: 600; }
+    .mm-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; color: var(--glow); }
+
+    .mm-steps { counter-reset: mmstep; list-style: none; padding-left: 0; margin: 0.8rem 0 1.2rem; }
+    .mm-steps li {
+      counter-increment: mmstep; position: relative; padding-left: 2.3rem;
+      margin-bottom: 0.85rem; font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1rem; color: var(--stone); line-height: 1.75;
+    }
+    .mm-steps li::before {
+      content: counter(mmstep); position: absolute; left: 0; top: 0.05em;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow);
+      border: 1px solid rgba(0, 229, 255, 0.35); width: 1.55rem; height: 1.55rem;
+      display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .mm-steps strong { color: var(--parchment); font-weight: 600; }
+
+    .mm-spec {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.8rem; margin: 1.2rem 0;
+    }
+    .mm-spec-item {
+      border: 1px solid rgba(0, 229, 255, 0.14); background: rgba(0, 229, 255, 0.03);
+      padding: 0.75rem 0.85rem;
+    }
+    .mm-spec-k {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.3rem;
+    }
+    .mm-spec-v { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--glow); }
+
+    .mm-toc {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1.5rem 0 2rem;
+    }
+    .mm-toc a {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em;
+      color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(138, 126, 107, 0.28); transition: all 0.2s;
+    }
+    .mm-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 600px) {
+      .mm-dlabel { font-size: 15px; }
+      .mm-dsub { font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="harmony.html">Harmony</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="multimeter.html" class="active">Reading the Meter</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Harmony &amp; Sound</div>
+          <a href="breaking-the-loop.html">Breaking the Loop</a>
+          <a href="harmony-guide.html">Writing Harmony</a>
+          <a href="4ad.html">The 4AD Sound</a>
+          <div class="nav-drop-label">DJing</div>
+          <a href="djing.html">Denon Prime GO+</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+
+  <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+    <h1>Reading the Meter</h1>
+    <div class="subtitle">A Multimeter for Instrument Repair</div>
+  </div>
+
+  <main class="mm-wrap">
+
+    <p class="mm-lead">
+      A multimeter turns an invisible problem into a number. The amp hums, the pedal is silent,
+      the guitar cuts out when you move — and none of that tells you <em>where</em>. The meter does.
+      It is the single tool that converts "it's broken" into "it's broken <strong>here</strong>,"
+      and almost everything else in repair follows from that one conversion.
+    </p>
+    <p class="mm-lead">
+      This is written around a <strong>Fluke 115</strong>, but the symbols are standard. Learn them on
+      this meter and you can pick up any meter in any shop and know what the dial is offering you.
+    </p>
+
+    <div class="mm-toc">
+      <a href="#theory">① The three quantities</a>
+      <a href="#rule">② The one rule</a>
+      <a href="#dial">③ The dial</a>
+      <a href="#jacks">④ The jacks</a>
+      <a href="#doing">⑤ What to measure</a>
+      <a href="#safety">⑥ Staying alive</a>
+      <a href="#method">⑦ Finding the fault</a>
+    </div>
+
+    <!-- ─────────── THEORY ─────────── -->
+    <h2 class="mm-h2" id="theory">The Three Quantities</h2>
+    <div class="mm-h2-sub">Voltage · Current · Resistance</div>
+
+    <p class="mm-p">
+      Electricity moving through a circuit is described by three numbers, and they are locked
+      together. Understand what each one <em>is</em> and the dial stops being a mystery, because
+      every position on it is just a different way of asking one of these three questions.
+    </p>
+
+    <h3 class="mm-h3">Voltage — the push</h3>
+    <p class="mm-p">
+      Voltage is <strong>potential difference</strong>: how hard the electricity is being pushed
+      from one point to another. Measured in <strong>volts (V)</strong>. The word
+      <em>difference</em> is the important part — voltage is never a property of one point, it
+      is always measured <em>between two</em>. Asking "what's the voltage here?" is incomplete in
+      the same way "how far is it?" is incomplete. Between here and what?
+    </p>
+    <p class="mm-p">
+      In practice one of those two points is nearly always ground — the chassis, the sleeve of the
+      jack, the black lead's home. A 9 V pedal supply means nine volts of push
+      <em>between</em> the barrel's tip and the sleeve.
+    </p>
+
+    <h3 class="mm-h3">Current — the flow</h3>
+    <p class="mm-p">
+      Current is <strong>rate of flow</strong>: how much charge is actually moving past a point
+      each second. Measured in <strong>amperes (A)</strong>, or for anything in a pedal, in
+      <strong>milliamps (mA)</strong> — thousandths of an amp.
+    </p>
+    <p class="mm-p">
+      Voltage can exist with nothing flowing at all. A 9 V battery sitting in a drawer has
+      the full push and zero current, because there is no path. Current only exists when
+      there's a complete loop. This is why <em>current is the awkward one to measure</em>, and
+      the reason is worth holding onto: to measure flow, you have to become part of the loop.
+    </p>
+
+    <h3 class="mm-h3">Resistance — the restriction</h3>
+    <p class="mm-p">
+      Resistance is <strong>opposition to flow</strong>, measured in <strong>ohms (Ω)</strong>.
+      A guitar cable has almost none. A pickup has several thousand ohms of fine wire. A broken
+      solder joint has effectively infinite resistance — which is exactly what "broken" means
+      electrically.
+    </p>
+
+    <div class="mm-card">
+      <div class="mm-card-label">Ohm's Law — the relationship</div>
+      <p class="mm-p" style="margin-bottom:0.5rem;">
+        <span class="mm-code">V = I × R</span> &nbsp;·&nbsp;
+        <span class="mm-code">I = V ÷ R</span> &nbsp;·&nbsp;
+        <span class="mm-code">R = V ÷ I</span>
+      </p>
+      <p class="mm-p" style="margin-bottom:0;">
+        Push equals flow times restriction. Know any two and the third is arithmetic. This is
+        the whole of basic circuit theory, and it is genuinely enough to diagnose most faults
+        in a passive instrument or a simple pedal.
+      </p>
+    </div>
+
+    <h3 class="mm-h3">The water analogy, and where it breaks</h3>
+    <p class="mm-p">
+      Voltage is water pressure, current is litres per second, resistance is how narrow the
+      pipe is. It's a good analogy and worth using. Two places it misleads, though:
+      water leaks out of a broken pipe, whereas current simply <em>stops</em> if the loop is
+      broken — nothing pours onto the floor. And pressure at a dead end is still pressure:
+      a live wire touching nothing has full voltage and no current, and it is still
+      perfectly capable of hurting you the moment you complete the loop.
+    </p>
+
+    <!-- ─────────── THE RULE ─────────── -->
+    <h2 class="mm-h2" id="rule">The One Rule That Matters</h2>
+    <div class="mm-h2-sub">Across, through, and never on a live circuit</div>
+
+    <p class="mm-p">
+      More meters are killed by this than by anything else, and it is a single idea:
+      <strong>each quantity requires a different kind of connection.</strong>
+    </p>
+
+    <div class="mm-figure">
+      <svg class="mm-svg" viewBox="0 0 520 250" role="img"
+           aria-label="Diagram comparing voltage measured in parallel across a component with current measured in series through the circuit">
+        <!-- VOLTAGE: parallel -->
+        <text class="mm-ctxt mm-ctxt-w" x="130" y="22">VOLTAGE — across</text>
+        <text class="mm-ctxt" x="130" y="38" style="font-size:8.5px">meter sits beside the part</text>
+        <path class="mm-wire-live" d="M30 90 L70 90"/>
+        <rect class="mm-block" x="70" y="72" width="60" height="36" rx="3"/>
+        <text class="mm-ctxt" x="100" y="94">part</text>
+        <path class="mm-wire-live" d="M130 90 L230 90 L230 130"/>
+        <path class="mm-wire-live" d="M30 90 L30 130"/>
+        <path class="mm-wire" d="M30 130 L230 130"/>
+        <!-- meter in parallel -->
+        <path class="mm-wire" d="M70 72 L70 50 L100 50"/>
+        <path class="mm-wire" d="M130 72 L130 50 L160 50"/>
+        <circle class="mm-meter" cx="130" cy="50" r="17"/>
+        <text class="mm-ctxt mm-ctxt-w" x="130" y="54">V</text>
+
+        <!-- divider -->
+        <line x1="260" y1="10" x2="260" y2="240" stroke="rgba(138,126,107,0.25)" stroke-width="1"/>
+
+        <!-- CURRENT: series -->
+        <text class="mm-ctxt mm-ctxt-w" x="390" y="22">CURRENT — through</text>
+        <text class="mm-ctxt" x="390" y="38" style="font-size:8.5px">meter becomes part of the loop</text>
+        <path class="mm-wire-live" d="M290 90 L330 90"/>
+        <circle class="mm-meter" cx="352" cy="90" r="17"/>
+        <text class="mm-ctxt mm-ctxt-w" x="352" y="94">A</text>
+        <path class="mm-wire-live" d="M374 90 L400 90"/>
+        <rect class="mm-block" x="400" y="72" width="60" height="36" rx="3"/>
+        <text class="mm-ctxt" x="430" y="94">part</text>
+        <path class="mm-wire-live" d="M460 90 L490 90 L490 130"/>
+        <path class="mm-wire-live" d="M290 90 L290 130"/>
+        <path class="mm-wire" d="M290 130 L490 130"/>
+
+        <!-- RESISTANCE -->
+        <text class="mm-ctxt mm-ctxt-w" x="260" y="180">RESISTANCE — power off, part isolated</text>
+        <path class="mm-wire" d="M150 210 L200 210"/>
+        <rect class="mm-block" x="200" y="192" width="60" height="36" rx="3"/>
+        <text class="mm-ctxt" x="230" y="214">part</text>
+        <path class="mm-wire" d="M260 210 L310 210"/>
+        <circle class="mm-meter" cx="120" cy="210" r="17"/>
+        <text class="mm-ctxt mm-ctxt-w" x="120" y="214">Ω</text>
+        <path class="mm-wire" d="M137 210 L150 210"/>
+        <path class="mm-wire" d="M310 210 L340 210 L340 175 L103 175 L103 195"/>
+        <text class="mm-ctxt" x="365" y="214" style="font-size:8.5px; text-anchor:start">no
+          <tspan x="365" dy="12">supply</tspan></text>
+      </svg>
+      <div class="mm-cap">
+        Voltage is measured <strong>across</strong> a part, with the circuit live — the meter sits
+        alongside and barely disturbs anything. Current is measured <strong>through</strong> — you
+        break the circuit and insert the meter into the gap. Resistance is measured with the power
+        <strong>off</strong> and at least one leg of the part lifted.
+      </div>
+    </div>
+
+    <ul class="mm-list">
+      <li><strong>Voltage — in parallel, circuit live.</strong> Touch the probes either side of
+        whatever you're interested in. The meter has enormous internal resistance on this setting,
+        so almost no current detours through it and the circuit carries on as if you weren't there.</li>
+      <li><strong>Current — in series, circuit live.</strong> You must <em>break</em> the circuit
+        and put the meter in the gap, so all the flow goes through it. On this setting the meter
+        is nearly a plain piece of wire — almost zero resistance.</li>
+      <li><strong>Resistance and continuity — power off, always.</strong> The meter supplies its
+        own small test current. Any voltage still present in the circuit fights that and gives a
+        meaningless reading, and can damage the meter. Lift one leg of the component too, or
+        you'll be reading everything else in parallel with it.</li>
+    </ul>
+
+    <div class="mm-danger">
+      <div class="mm-card-label">The expensive mistake</div>
+      <p class="mm-p">
+        Because the meter is near-zero resistance in current mode, putting the leads
+        <strong>across a voltage source while still set to amps</strong> creates a dead short
+        through the meter. On a 9 V supply you'll blow the fuse. On mains you'll get a flash,
+        a bang, and possibly an injury.
+      </p>
+      <p class="mm-p" style="margin-bottom:0;">
+        <strong>The habit that prevents it:</strong> when you finish a current measurement, move
+        the red lead back to the volts jack immediately — before you put the meter down. The
+        physical position of the lead becomes the safety interlock, so you can never
+        absent-mindedly probe a voltage in amps mode.
+      </p>
+    </div>
+
+    <!-- ─────────── THE DIAL ─────────── -->
+    <h2 class="mm-h2" id="dial">The Dial</h2>
+    <div class="mm-h2-sub">Every symbol, and what it's asking</div>
+
+    <p class="mm-p">
+      Two marks do most of the work. A <strong>straight line</strong> (or a line over dots)
+      means <strong>DC</strong> — direct current, the steady one-direction supply from a battery
+      or a pedal adapter. A <strong>wave</strong> means <strong>AC</strong> — alternating current,
+      the back-and-forth of mains power, and of audio signal itself. Put either next to a V
+      and you have "DC volts" or "AC volts." That one rule decodes most of the dial.
+    </p>
+
+    <div class="mm-figure">
+      <svg class="mm-svg" viewBox="0 0 420 430" style="max-width:440px" role="img"
+           aria-label="Diagram of a multimeter rotary dial showing AC volts, DC volts, DC millivolts, ohms with continuity and diode and capacitance, and AC and DC amps positions, with the input jacks below">
+        <!-- dial body -->
+        <circle class="mm-dial-body" cx="210" cy="190" r="112"/>
+        <circle class="mm-dial-knob" cx="210" cy="190" r="42"/>
+        <line class="mm-dial-ptr" x1="210" y1="190" x2="244" y2="190"/>
+        <text class="mm-dsub" x="210" y="205" style="font-size:9px">turn</text>
+
+        <!-- OFF : -90deg -->
+        <line class="mm-tick" x1="210" y1="78" x2="210" y2="62"/>
+        <text class="mm-dlabel" x="210" y="44">OFF</text>
+
+        <!-- V~ : -40deg -->
+        <line class="mm-tick mm-tick-on" x1="296" y1="118" x2="308" y2="108"/>
+        <text class="mm-dlabel mm-dlabel-on" x="345" y="92">V∼</text>
+        <text class="mm-dsub" x="345" y="105">AC volts</text>
+
+        <!-- V= : 0deg -->
+        <line class="mm-tick mm-tick-on" x1="322" y1="190" x2="338" y2="190"/>
+        <text class="mm-dlabel mm-dlabel-on" x="372" y="186">V⎓</text>
+        <text class="mm-dsub" x="372" y="199">DC volts</text>
+
+        <!-- mV= : 40deg -->
+        <line class="mm-tick" x1="296" y1="262" x2="308" y2="272"/>
+        <text class="mm-dlabel" x="349" y="285">mV⎓</text>
+        <text class="mm-dsub" x="349" y="298">DC millivolts</text>
+
+        <!-- ohms family : 90deg -->
+        <line class="mm-tick mm-tick-on" x1="210" y1="302" x2="210" y2="318"/>
+        <text class="mm-dlabel mm-dlabel-on" x="210" y="342">Ω &nbsp;·)))&nbsp; ⊣⊢</text>
+        <text class="mm-dsub" x="210" y="356">ohms · continuity · diode · capacitance</text>
+        <text class="mm-dsub" x="210" y="368" style="fill:var(--glow-warm)">press the yellow button to cycle</text>
+
+        <!-- A= : 140deg -->
+        <line class="mm-tick" x1="124" y1="262" x2="112" y2="272"/>
+        <text class="mm-dlabel" x="70" y="285">A⎓</text>
+        <text class="mm-dsub" x="70" y="298">DC amps</text>
+
+        <!-- A~ : 180deg -->
+        <line class="mm-tick" x1="98" y1="190" x2="82" y2="190"/>
+        <text class="mm-dlabel" x="48" y="186">A∼</text>
+        <text class="mm-dsub" x="48" y="199">AC amps</text>
+
+        <!-- Hz : -140deg -->
+        <line class="mm-tick" x1="124" y1="118" x2="112" y2="108"/>
+        <text class="mm-dlabel" x="72" y="92">Hz</text>
+        <text class="mm-dsub" x="72" y="105">frequency</text>
+
+        <!-- jacks -->
+        <circle class="mm-jack mm-jack-red" cx="128" cy="392" r="15"/>
+        <text class="mm-jtxt" x="128" y="396" style="fill:#d55e00; font-weight:700">A</text>
+        <text class="mm-jtxt" x="128" y="419" style="font-size:8.5px">amps only</text>
+
+        <circle class="mm-jack mm-jack-black" cx="210" cy="392" r="15"/>
+        <text class="mm-jtxt" x="210" y="397" style="font-size:13px">COM</text>
+        <text class="mm-jtxt" x="210" y="419" style="font-size:8.5px">black lead</text>
+
+        <circle class="mm-jack mm-jack-red" cx="292" cy="392" r="15"/>
+        <text class="mm-jtxt" x="292" y="397" style="fill:#d55e00; font-weight:700; font-size:11px">VΩ</text>
+        <text class="mm-jtxt" x="292" y="419" style="font-size:8.5px">all else</text>
+      </svg>
+      <div class="mm-cap">
+        The functions and their symbols. <strong>Detent order varies between models</strong> — check
+        yours against the manual — but the symbols are standard, and the highlighted three are the
+        ones you'll live in.
+      </div>
+    </div>
+
+    <div class="mm-tablewrap">
+      <table class="mm-table">
+        <thead>
+          <tr><th>Symbol</th><th>Measures</th><th>Power</th><th>What you'd use it for</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mm-sym">V⎓</td><td>DC volts</td><td>Live</td>
+            <td>Pedal supplies, battery health, bias points, synth PSU rails. <strong>The one you reach for most.</strong></td>
+          </tr>
+          <tr>
+            <td class="mm-sym">V∼</td><td>AC volts</td><td>Live</td>
+            <td>Mains at the wall, transformer secondaries, heater windings. Audio signal, roughly.</td>
+          </tr>
+          <tr>
+            <td class="mm-sym">mV⎓</td><td>DC millivolts</td><td>Live</td>
+            <td>Small DC offsets — a hint that an op-amp or a coupling cap is leaking DC into your signal.</td>
+          </tr>
+          <tr>
+            <td class="mm-sym">Ω</td><td>Resistance</td><td><strong>OFF</strong></td>
+            <td>Pickup DC resistance, pot values, checking a resistor hasn't drifted or cooked.</td>
+          </tr>
+          <tr>
+            <td class="mm-sym">·)))</td><td>Continuity</td><td><strong>OFF</strong></td>
+            <td>Beeps when a path is unbroken. Cables, switches, solder joints, ground connections. <strong>The fastest fault-finder you own.</strong></td>
+          </tr>
+          <tr>
+            <td class="mm-sym">⊣⊢</td><td>Capacitance</td><td><strong>OFF</strong></td>
+            <td>Checking tone caps and, more usefully, whether an old electrolytic has died.</td>
+          </tr>
+          <tr>
+            <td class="mm-sym">→|—</td><td>Diode test</td><td><strong>OFF</strong></td>
+            <td>Diodes and LEDs — including the clipping diodes that give a drive pedal its character.</td>
+          </tr>
+          <tr>
+            <td class="mm-sym">A⎓ / A∼</td><td>Current</td><td>Live, in series</td>
+            <td>What a pedal actually draws, so you can size a supply. <strong>Requires moving the red lead.</strong></td>
+          </tr>
+          <tr>
+            <td class="mm-sym">Hz</td><td>Frequency</td><td>Live</td>
+            <td>Confirming an LFO rate or an oscillator is running. Also tells you mains is 50 or 60 Hz.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="mm-h3">The buttons</h3>
+    <ul class="mm-list">
+      <li><strong>Yellow (Function).</strong> Cycles the shared positions — on the ohms detent it
+        steps between resistance, continuity, diode and capacitance. If the meter seems to be
+        on the right setting but reading nonsense, this is usually why.</li>
+      <li><strong>HOLD.</strong> Freezes the reading. Genuinely useful when both hands and both
+        eyes are committed to holding probes somewhere awkward inside a chassis.</li>
+      <li><strong>MIN/MAX.</strong> Records extremes over time. This is how you catch an
+        <em>intermittent</em> — the fault that behaves perfectly while you're looking at it.</li>
+      <li><strong>RANGE.</strong> The 115 autoranges by default, which is almost always what you
+        want. Manual range is for when a reading hovers between two ranges and keeps flickering.</li>
+    </ul>
+
+    <div class="mm-card">
+      <div class="mm-card-label">Reading the display</div>
+      <p class="mm-p" style="margin-bottom:0;">
+        Watch the unit prefix, because autoranging changes it without warning.
+        <span class="mm-code">m</span> = thousandths, <span class="mm-code">k</span> = thousands,
+        <span class="mm-code">M</span> = millions. A pickup reading <span class="mm-code">8.02 kΩ</span>
+        is eight thousand ohms; the same display showing <span class="mm-code">8.02 Ω</span> would
+        mean a catastrophically shorted coil. <strong>OL</strong> is not an error — it means
+        <em>over limit</em>, the resistance is beyond what the meter can read. On continuity, OL
+        simply means <strong>open</strong>: no path. That's often exactly the answer you wanted.
+      </p>
+    </div>
+
+    <!-- ─────────── JACKS ─────────── -->
+    <h2 class="mm-h2" id="jacks">The Jacks</h2>
+    <div class="mm-h2-sub">Three holes, one of which bites</div>
+
+    <p class="mm-p">
+      The black lead lives in <strong>COM</strong> and never moves. The red lead lives in
+      <strong>VΩ</strong> for everything except current. Moving the red lead into the
+      <strong>A</strong> jack is a deliberate act, and it should feel like one.
+    </p>
+    <p class="mm-p">
+      That jack connects through a very low resistance shunt, protected by a fuse — on the
+      115, an <strong>11 A, 1000 V fast-blow</strong> (Fluke part 803293). The fuse is the only
+      thing standing between a mis-set meter and a genuinely dangerous fault current, which is
+      why replacing it with a hardware-store fuse of the same amp rating is a bad idea: the
+      <em>interrupt rating</em>, not the amp rating, is what does the protecting.
+    </p>
+
+    <div class="mm-spec">
+      <div class="mm-spec-item"><div class="mm-spec-k">Safety rating</div><div class="mm-spec-v">CAT III 600 V</div></div>
+      <div class="mm-spec-item"><div class="mm-spec-k">Display</div><div class="mm-spec-v">6000 counts</div></div>
+      <div class="mm-spec-item"><div class="mm-spec-k">Current max</div><div class="mm-spec-v">10 A</div></div>
+      <div class="mm-spec-item"><div class="mm-spec-k">Resistance</div><div class="mm-spec-v">0.1 Ω – 40 MΩ</div></div>
+      <div class="mm-spec-item"><div class="mm-spec-k">Capacitance</div><div class="mm-spec-v">1 nF – 9999 µF</div></div>
+      <div class="mm-spec-item"><div class="mm-spec-k">Continuity beeps</div><div class="mm-spec-v">under ~20 Ω</div></div>
+    </div>
+
+    <p class="mm-p">
+      One honest limitation worth knowing before it confuses you: the 115 has
+      <strong>no separate milliamp jack</strong>. Everything goes through the 10 A range, and with
+      a 6000-count display that lands you at roughly 1 mA of resolution. A pedal drawing 8 mA
+      reads as <span class="mm-code">0.008 A</span> — technically correct, practically one
+      significant figure. If you need real precision on small currents, measure the voltage
+      across a known 1 Ω resistor in the supply line instead and let Ohm's law do the rest;
+      <span class="mm-code">10 mV across 1 Ω = 10 mA</span>.
+    </p>
+
+    <!-- ─────────── APPLICATION ─────────── -->
+    <h2 class="mm-h2" id="doing">What To Actually Measure</h2>
+    <div class="mm-h2-sub">The measurements that find real faults</div>
+
+    <h3 class="mm-h3">Cables — start here, always</h3>
+    <p class="mm-p">
+      Set continuity. Probe tip to tip: it should beep. Sleeve to sleeve: beep. Tip to sleeve:
+      <strong>silence</strong> — if that beeps, the cable is shorted and your signal is going
+      to ground. Then the part most people skip: leave the probes on and
+      <strong>flex the cable at both plugs</strong> while you listen. An intermittent that only
+      appears under movement is the single most common fault in a working musician's rig, and
+      it is invisible to a static test.
+    </p>
+
+    <h3 class="mm-h3">Pickups</h3>
+    <p class="mm-p">
+      Ohms, across the pickup's two leads with it disconnected from the pots. A humbucker
+      typically reads somewhere around <span class="mm-code">7–16 kΩ</span>, a single coil around
+      <span class="mm-code">5–8 kΩ</span>. The absolute number matters less than what it isn't:
+      <strong>OL means a broken coil</strong> — the winding has gone open somewhere and the pickup
+      is dead. A reading near zero means it's shorted. Either way you've answered the question in
+      about four seconds.
+    </p>
+    <p class="mm-p">
+      Worth knowing this is <em>DC resistance</em>, not impedance, and it is not a measure of
+      output or of tone — it's a coarse indicator of how much wire is on the bobbin, and a
+      reliable test of whether that wire is intact.
+    </p>
+
+    <h3 class="mm-h3">Pots and switches</h3>
+    <p class="mm-p">
+      Ohms across the outer two lugs gives the pot's value — a 250 k pot reads near
+      <span class="mm-code">250 kΩ</span> and shouldn't change as you turn it. Now put one probe
+      on an outer lug and one on the <strong>wiper</strong> (middle) and sweep the control slowly.
+      The reading should climb smoothly. If it jumps, drops out, or flickers, that's a
+      <strong>scratchy pot</strong> shown as a number — dirt or wear on the track. For switches,
+      continuity between the common and each position tells you immediately whether the switch is
+      actually switching.
+    </p>
+
+    <h3 class="mm-h3">Pedals and power</h3>
+    <ul class="mm-list">
+      <li><strong>Check the supply first.</strong> DC volts, probe into the barrel: centre pin to
+        sleeve. Most pedals want centre-negative, so expect to read <span class="mm-code">−9 V</span>
+        — the minus sign is information, not an error. A supply reading 9 V on the wrong polarity
+        will kill a pedal that lacks protection.</li>
+      <li><strong>Test batteries under load.</strong> A 9 V battery out of the drawer reads 9 V and
+        tells you nothing. Measure it <em>while the pedal is on</em>. A tired battery holds its
+        voltage until asked for current, then sags — under load, anything below about 7.5 V is
+        finished.</li>
+      <li><strong>Measure draw before you build a board.</strong> Amps, in series with the supply
+        line. Add up what your pedals actually take rather than what the enclosures claim, then
+        buy a supply with headroom. Digital delays and reverbs draw far more than analogue
+        boxes and are what usually overrun a supply.</li>
+      <li><strong>Trace a dead pedal by voltage.</strong> With power on, check you have supply
+        voltage at the board, then at the IC's power pin. Voltage present at the jack but absent
+        at the chip means the fault is between them — a broken trace, a dry joint, a failed
+        protection diode.</li>
+    </ul>
+
+    <h3 class="mm-h3">Instrument wiring</h3>
+    <p class="mm-p">
+      Continuity from the output jack sleeve to the back of every pot, to the bridge, and to the
+      control cavity shielding. All of it should be one connected ground. A hum that changes when
+      you touch the strings, and a bridge that <em>doesn't</em> beep to the jack sleeve, is a
+      diagnosis rather than a mystery.
+    </p>
+
+    <!-- ─────────── SAFETY ─────────── -->
+    <h2 class="mm-h2" id="safety">Staying Alive Around Amplifiers</h2>
+    <div class="mm-h2-sub">Read this before opening anything that plugs into a wall</div>
+
+    <div class="mm-danger">
+      <div class="mm-card-label">Tube amps can kill you after they are unplugged</div>
+      <p class="mm-p">
+        A valve amp runs plate voltages of <strong>300–500 V DC and upward</strong>, and its filter
+        capacitors <strong>store that charge for a long time after the amp is switched off and
+        unplugged</strong>. There is no hum, no glow, and no warning. People have been killed by
+        amplifiers that had been sitting unplugged for days.
+      </p>
+      <p class="mm-p">
+        Solid-state amps, powered speakers and anything with a mains transformer deserve the same
+        caution. The danger is not the loudness of the thing, it's the wall.
+      </p>
+      <p class="mm-p" style="margin-bottom:0;">
+        If you are learning, <strong>learn on passive instruments, cables and 9 V pedals.</strong>
+        There is a great deal to master there and none of it can stop your heart. Move to
+        mains-powered gear deliberately, with proper guidance — one hand behind your back, never
+        working alone, and only after you know how to discharge filter caps safely and have
+        verified with your own meter that they are at zero.
+      </p>
+    </div>
+
+    <ul class="mm-list">
+      <li><strong>Respect the CAT rating.</strong> The 115's <span class="mm-code">CAT III 600 V</span>
+        is about how much transient energy the meter can survive, not just steady voltage. It is
+        fine for everything in a studio or on a stage.</li>
+      <li><strong>Inspect the leads.</strong> Cracked insulation near the probe tip is the most
+        common way a safe measurement turns into a shock. Check them before you trust them.</li>
+      <li><strong>Connect black first, remove red first.</strong> A habit borrowed from
+        high-voltage work, and free to adopt.</li>
+      <li><strong>Assume it is live until your own meter says otherwise.</strong> Not the switch,
+        not the plug being on the bench, not somebody's word. Measure it.</li>
+    </ul>
+
+    <!-- ─────────── METHOD ─────────── -->
+    <h2 class="mm-h2" id="method">Finding The Fault</h2>
+    <div class="mm-h2-sub">Bisection — the method behind the measurements</div>
+
+    <p class="mm-p">
+      Knowing what the dial does isn't the same as knowing where to point it. The method that
+      works is the same one used to find a bug in code: <strong>cut the problem in half,
+      test, discard the half that's fine, repeat.</strong> A signal path from guitar to speaker
+      might have fifteen stages; bisection finds the broken one in about four measurements
+      instead of fifteen.
+    </p>
+
+    <ol class="mm-steps">
+      <li><strong>Describe the fault precisely.</strong> Dead silent, or weak? Always, or only
+        when something moves? On every setting, or one? "Intermittent when the cable is wiggled"
+        and "silent always" lead to completely different hunts.</li>
+      <li><strong>Halve the path.</strong> Don't start at the guitar. Start in the middle — plug
+        straight into the amp, bypassing the board. Working or not, you've just eliminated half
+        the rig.</li>
+      <li><strong>Substitute what's cheap to substitute.</strong> A known-good cable takes ten
+        seconds and settles the most likely cause outright.</li>
+      <li><strong>Now reach for the meter</strong>, on the half you've narrowed to. Continuity
+        for paths, DC volts for supplies, ohms for components.</li>
+      <li><strong>Compare against a known-good example.</strong> A meter gives numbers, not
+        verdicts. The fastest way to know whether 6.1 kΩ is right is to measure the working
+        pickup next to it. Where you can, <strong>write down the readings from your gear while
+        it's healthy</strong> — a pedal's supply voltage, each pickup's resistance. Diagnosis
+        stops being guesswork the moment you have a baseline.</li>
+    </ol>
+
+    <div class="mm-card">
+      <div class="mm-card-label">The habit worth building</div>
+      <p class="mm-p" style="margin-bottom:0;">
+        Measure things that <em>aren't</em> broken. Take readings across your working rig now,
+        while everything is fine, and keep them somewhere. It costs an afternoon, teaches you
+        what the meter's numbers feel like when nothing is wrong, and turns every future repair
+        from an investigation into a comparison.
+      </p>
+    </div>
+
+    <p class="mm-p" style="margin-top:2rem; font-style:italic; color:var(--stone-dark);">
+      Specifications quoted for the Fluke 115 come from Fluke's published documentation; confirm
+      anything safety-critical against the manual for your own unit, since model revisions differ.
+    </p>
+
+    <footer>
+      <p class="roots">⌿ ⌿ ⌿</p>
+      <p>Methodic Truth · a logical pursuit of music, AI, and knowledge · 2026</p>
+      <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+    </footer>
+  </main>
+
+  <script src="scripts.js?v=69"></script>
+  <script src="stars.js?v=1"></script>
+</body>
+</html>
