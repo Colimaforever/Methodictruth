@@ -26,7 +26,7 @@ from contextlib import contextmanager
 import librosa
 import numpy as np
 import yt_dlp
-from flask import (Flask, abort, jsonify, request, send_file,
+from flask import (Flask, Response, abort, jsonify, request, send_file,
                    stream_with_context)
 
 app = Flask(__name__)
@@ -1161,6 +1161,74 @@ def cached_result(video_id):
         return jsonify(json.load(f))
 
 
+def _lyrics_stream(song_id, audio_path, cache_path):
+    # Relays the sidecar's newline-delimited JSON straight through to the
+    # browser, then caches the final transcript.
+    #
+    # The per-song lock is taken INSIDE this generator on purpose: Flask runs a
+    # streaming response's generator after the view function has returned, so a
+    # `with` block in the view would have released before any work started.
+    #
+    # Streaming rather than buffering is what makes lyrics work through the
+    # tunnel at all. Cloudflare cuts an idle proxied request at 100 s, and a
+    # hard song can take several minutes; emitting a segment at a time keeps
+    # bytes flowing and shows progress instead of a spinner.
+    import urllib.error
+    import urllib.request
+
+    lock_path = os.path.join(CACHE_DIR, f'{song_id}.lyrics.lock')
+    with open(lock_path, 'w') as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            if os.path.exists(cache_path):
+                with open(cache_path) as f:
+                    yield _ndjson({'type': 'done', **json.load(f)})
+                return
+            payload = json.dumps({'path': audio_path}).encode()
+            req = urllib.request.Request(
+                f'{LYRICS_URL}/transcribe-stream', data=payload,
+                headers={'Content-Type': 'application/json'})
+            try:
+                with urllib.request.urlopen(req, timeout=LYRICS_TIMEOUT) as r:
+                    for raw in r:
+                        line = raw.decode('utf-8', 'replace').strip()
+                        if not line:
+                            continue
+                        try:
+                            ev = json.loads(line)
+                        except ValueError:
+                            continue
+                        if ev.get('type') == 'done':
+                            result = {
+                                'success': True,
+                                'id': song_id,
+                                'segments': ev.get('segments') or [],
+                                'language': ev.get('language'),
+                                'language_probability': ev.get('language_probability'),
+                                'model': ev.get('model'),
+                                'elapsed': ev.get('elapsed'),
+                            }
+                            # An empty transcript is a real answer (the track is
+                            # an instrumental), so cache it too -- otherwise
+                            # every visit re-runs the GPU to learn the same thing.
+                            try:
+                                with open(cache_path, 'w') as f:
+                                    json.dump(result, f)
+                            except OSError as exc:
+                                _log(f'could not cache lyrics for {song_id}: {exc}')
+                            yield _ndjson({'type': 'done', **result})
+                        else:
+                            yield _ndjson(ev)
+            except urllib.error.URLError as exc:
+                _log(f'lyrics sidecar unreachable: {exc}')
+                yield _ndjson({'type': 'error', 'error': 'Lyrics service is offline'})
+            except Exception as exc:  # noqa: BLE001
+                app.logger.exception('lyrics stream failed')
+                yield _ndjson({'type': 'error', 'error': f'Transcription failed: {exc}'})
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
 @app.route('/lyrics/<song_id>', methods=['GET', 'POST', 'OPTIONS'])
 def lyrics(song_id):
     # GET  = fetch already-transcribed lyrics, never starts work (404 if none).
@@ -1184,6 +1252,13 @@ def lyrics(song_id):
     audio_path = os.path.join(CACHE_DIR, f'{song_id}.mp3')
     if not os.path.isfile(audio_path):
         return jsonify(success=False, error='Analyze the song first'), 404
+
+    # Content negotiation, same convention as `/`: stream progress only when
+    # the client asks for it, so older frontends keep working unchanged.
+    if 'application/x-ndjson' in (request.headers.get('Accept') or ''):
+        return Response(stream_with_context(
+            _lyrics_stream(song_id, audio_path, cache_path)),
+            mimetype='application/x-ndjson')
 
     # Per-song lock so two tabs asking at once transcribe once and share the
     # result, same discipline as produce_result.

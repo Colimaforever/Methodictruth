@@ -1297,40 +1297,118 @@
             lyricsBtn.textContent = 'Transcribe lyrics';
             setLyricsStatus('');
             lyricsSection.style.display = '';
-            fetchLyrics(songId, false);
+            fetchLyrics(songId);
         }
 
-        async function fetchLyrics(songId, generate) {
+        async function fetchLyrics(songId) {
+            // Cached lookup only -- a GET never starts GPU work.
             if (lyricsBusy) return;
             lyricsBusy = true;
             try {
-                const res = await fetch(`${API_URL}/lyrics/${encodeURIComponent(songId)}`,
-                                        { method: generate ? 'POST' : 'GET' });
-                // A 404 on the GET is the normal "not transcribed yet" answer,
-                // not an error worth showing anyone.
-                if (res.status === 404 && !generate) return;
+                const res = await fetch(`${API_URL}/lyrics/${encodeURIComponent(songId)}`);
+                if (res.status === 404) return;       // normal "not transcribed yet"
                 const data = await res.json().catch(() => ({}));
-                if (!res.ok || !data.success) {
-                    if (generate) {
-                        setLyricsStatus(res.status === 503
-                            ? 'Lyrics service is offline right now.'
-                            : (data.error || 'Transcription failed.'));
-                    }
-                    return;
-                }
-                // Guard against a slow response landing after the user has
-                // moved on to a different song.
-                if (songId !== lyricsSongId) return;
+                if (!res.ok || !data.success) return;
+                if (songId !== lyricsSongId) return;  // user moved on
                 renderLyrics(data);
             } catch (_) {
-                if (generate) setLyricsStatus('Could not reach the lyrics service.');
+                /* silent: this is a speculative lookup, not a user action */
             } finally {
                 lyricsBusy = false;
-                lyricsBtn.disabled = false;
-                if (!currentLyrics.length && !lyricsBody.dataset.done) {
-                    lyricsBtn.textContent = 'Transcribe lyrics';
-                }
             }
+        }
+
+        // Streaming transcription. Lines are rendered as the model produces
+        // them, which is both better feedback and a hard requirement: a
+        // silent request would be cut by Cloudflare's 100 s proxy timeout,
+        // and a difficult track can take several minutes.
+        async function streamLyrics(songId) {
+            if (lyricsBusy) return;
+            lyricsBusy = true;
+            const started = Date.now();
+            const tick = setInterval(() => {
+                const s = Math.round((Date.now() - started) / 1000);
+                setLyricsStatus(`Transcribing on the GPU — ${s}s, ${currentLyrics.length} lines so far…`);
+            }, 1000);
+
+            currentLyrics = []; lyricLineEls = []; lastLyricIdx = -1; lastWordKey = '';
+            lyricsBody.innerHTML = '';
+
+            try {
+                const res = await fetch(`${API_URL}/lyrics/${encodeURIComponent(songId)}`, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/x-ndjson' },
+                });
+                if (!res.ok || !res.body) {
+                    const d = await res.json().catch(() => ({}));
+                    setLyricsStatus(d.error || 'Could not start transcription.');
+                    return;
+                }
+
+                const reader = res.body.getReader();
+                const dec = new TextDecoder();
+                let buf = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buf += dec.decode(value, { stream: true });
+                    // NDJSON: a chunk can split a line, so keep the remainder.
+                    const lines = buf.split('\n');
+                    buf = lines.pop();
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        let ev;
+                        try { ev = JSON.parse(line); } catch (_) { continue; }
+                        if (songId !== lyricsSongId) return;
+
+                        if (ev.type === 'segment') {
+                            currentLyrics.push(ev.segment);
+                            lyricsBody.appendChild(
+                                makeLyricLine(ev.segment, currentLyrics.length - 1));
+                        } else if (ev.type === 'done') {
+                            renderLyrics(ev);
+                        } else if (ev.type === 'error') {
+                            setLyricsStatus(ev.error || 'Transcription failed.');
+                        }
+                    }
+                }
+            } catch (_) {
+                setLyricsStatus('Lost connection to the lyrics service.');
+            } finally {
+                clearInterval(tick);
+                lyricsBusy = false;
+                lyricsBtn.disabled = false;
+                lyricsBtn.textContent = currentLyrics.length ? 'Re-transcribe' : 'Transcribe lyrics';
+            }
+        }
+
+        function makeLyricLine(seg, idx) {
+            const line = document.createElement('div');
+            line.className = 'sa-lyric-line';
+            line.dataset.index = idx;
+
+            const time = document.createElement('span');
+            time.className = 'sa-lyric-time';
+            time.textContent = formatTime(Math.floor(seg.start));
+
+            const text = document.createElement('span');
+            text.className = 'sa-lyric-text';
+            if (seg.words && seg.words.length) {
+                seg.words.forEach(w => {
+                    const span = document.createElement('span');
+                    span.className = 'sa-lyric-word';
+                    span.dataset.start = w.start;
+                    span.textContent = w.word + ' ';
+                    text.appendChild(span);
+                });
+            } else {
+                text.textContent = seg.text;
+            }
+
+            line.appendChild(time);
+            line.appendChild(text);
+            line.addEventListener('click', () => seekTo(seg.start));
+            return line;
         }
 
         function renderLyrics(data) {
@@ -1351,34 +1429,7 @@
                 return;
             }
 
-            segs.forEach((seg, idx) => {
-                const line = document.createElement('div');
-                line.className = 'sa-lyric-line';
-                line.dataset.index = idx;
-
-                const time = document.createElement('span');
-                time.className = 'sa-lyric-time';
-                time.textContent = formatTime(Math.floor(seg.start));
-
-                const text = document.createElement('span');
-                text.className = 'sa-lyric-text';
-                if (seg.words && seg.words.length) {
-                    seg.words.forEach(w => {
-                        const span = document.createElement('span');
-                        span.className = 'sa-lyric-word';
-                        span.dataset.start = w.start;
-                        span.textContent = w.word + ' ';
-                        text.appendChild(span);
-                    });
-                } else {
-                    text.textContent = seg.text;
-                }
-
-                line.appendChild(time);
-                line.appendChild(text);
-                line.addEventListener('click', () => seekTo(seg.start));
-                lyricsBody.appendChild(line);
-            });
+            segs.forEach((seg, idx) => lyricsBody.appendChild(makeLyricLine(seg, idx)));
             lyricLineEls = lyricsBody.querySelectorAll('.sa-lyric-line');
 
             const lang = data.language ? data.language.toUpperCase() : '';
@@ -1436,8 +1487,8 @@
             if (!lyricsSongId || lyricsBusy) return;
             lyricsBtn.disabled = true;
             lyricsBtn.textContent = 'Transcribing…';
-            setLyricsStatus('Running on the GPU — usually about 10 seconds.');
-            fetchLyrics(lyricsSongId, true);
+            setLyricsStatus('Starting…');
+            streamLyrics(lyricsSongId);
         });
 
         function syncHighlights(t) {
