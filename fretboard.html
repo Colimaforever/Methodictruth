@@ -14,7 +14,7 @@
   <meta property="og:url" content="https://methodictruth.com/fretboard.html">
   <meta property="og:image" content="https://methodictruth.com/og/fretboard.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="styles.css?v=75">
+  <link rel="stylesheet" href="styles.css?v=76">
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
   <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="favicon.ico?v=3">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
@@ -142,10 +142,10 @@
     .fb-inlay { fill: rgba(138, 126, 107, 0.22); }
     .fb-lbl { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--stone-dark); }
     .fb-dot { stroke-width: 1.2; }
-    .fb-dot-r { fill: var(--glow-warm); stroke: var(--glow-warm); }
-    .fb-dot-t { fill: rgba(0,229,255,0.75); stroke: var(--glow); }
-    .fb-dot-3 { fill: rgba(123,104,238,0.88); stroke: rgba(123,104,238,1); }
-    .fb-dot-5 { fill: rgba(106,173,115,0.88); stroke: rgba(106,173,115,1); }
+    .fb-dot-r { fill: var(--role-r); stroke: var(--role-r); }
+    .fb-dot-t { fill: var(--role-x); stroke: var(--role-x); }
+    .fb-dot-3 { fill: var(--role-3); stroke: var(--role-3); }
+    .fb-dot-5 { fill: var(--role-5); stroke: var(--role-5); }
     .fb-dot-g { fill: rgba(10,14,26,0.6); stroke: rgba(138,126,107,0.5); }
     .fb-dot-x { fill: rgba(232,92,92,0.55); stroke: rgba(232,92,92,0.8); }
 
@@ -158,10 +158,10 @@
     }
     .fb-legend-item { display: flex; align-items: center; gap: 0.35rem; }
     .fb-legend-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
-    .fb-legend-r { background: var(--glow-warm); box-shadow: 0 0 5px var(--glow-warm); }
-    .fb-legend-3 { background: rgba(123,104,238,0.88); box-shadow: 0 0 4px rgba(123,104,238,0.6); }
-    .fb-legend-5 { background: rgba(106,173,115,0.88); box-shadow: 0 0 4px rgba(106,173,115,0.5); }
-    .fb-dtxt { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; text-anchor: middle; fill: rgba(10,14,26,0.95); font-weight: 600; }
+    .fb-legend-r { background: var(--role-r); border-radius: 2px; }
+    .fb-legend-3 { background: var(--role-3); }
+    .fb-legend-5 { background: var(--role-5); }
+    .fb-dtxt { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; text-anchor: middle; fill: var(--role-ink); font-weight: 700; }
     .fb-dtxt-g { fill: var(--stone-dark); }
 
     /* ─── CHORD BOXES ───
@@ -897,6 +897,23 @@
     var circle = txt.previousElementSibling;
     if (circle && circle.classList.contains('fb-dot-t'))
       circle.classList.replace('fb-dot-t', lbl === '3' ? 'fb-dot-3' : 'fb-dot-5');
+  });
+
+  // Roots are drawn as circles in the source SVG; swap each for a square of
+  // the same area. Shape is the channel that still works in greyscale and for
+  // every kind of colour blindness, and "where is the root" is the first
+  // question anyone asks of a chord box — so it should not depend on a hue.
+  document.querySelectorAll('circle.fb-dot-r').forEach(function(c) {
+    var cx = +c.getAttribute('cx'), cy = +c.getAttribute('cy'), r = +c.getAttribute('r');
+    var side = r * 1.78;
+    var sq = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    sq.setAttribute('class', c.getAttribute('class'));
+    sq.setAttribute('x', cx - side / 2);
+    sq.setAttribute('y', cy - side / 2);
+    sq.setAttribute('width', side);
+    sq.setAttribute('height', side);
+    sq.setAttribute('rx', 1.5);
+    c.parentNode.replaceChild(sq, c);
   });
   </script>
 
