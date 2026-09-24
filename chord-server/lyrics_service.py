@@ -203,6 +203,12 @@ def transcribe_stream():
                                       'language_probability': round(inf.language_probability, 3)}) + '\n'
                     continue
                 collected.append(seg)
+                # Caption filler is recognisable from the segment alone, so
+                # drop it before it is shown rather than letting it appear and
+                # then vanish when the final list replaces it. Repetition-loop
+                # detection still has to wait for the whole transcript.
+                if _norm(seg['text']) in _CAPTION_FILLER:
+                    continue
                 yield json.dumps({'type': 'segment', 'segment': seg}) + '\n'
         except Exception as exc:  # noqa: BLE001
             app.logger.exception('streaming transcription failed')
