@@ -260,6 +260,27 @@
         }
         .sa-chord-item.sa-active .sa-chord-name { color: var(--glow); }
 
+        /* Practice controls: slow a passage down without the pitch dropping,
+           or move the whole song to a key that suits your tuning or voice. */
+        .sa-practice { margin-top: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .sa-practice-row {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+            letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone-dark);
+        }
+        .sa-practice-row span { min-width: 3.1rem; }
+        .sa-practice-row input[type=range] {
+            flex: 1; accent-color: var(--glow); min-height: 28px; cursor: pointer;
+        }
+        .sa-practice-row output {
+            min-width: 3rem; text-align: right; color: var(--parchment);
+            font-size: 0.68rem;
+        }
+        .sa-practice-note {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.58rem;
+            color: var(--glow-warm); line-height: 1.5; min-height: 1em;
+        }
+
         .sa-description { font-family: 'EB Garamond', Georgia, serif; color: var(--stone); line-height: 1.8; font-style: italic; }
 
         .sa-coverage {
@@ -526,6 +547,19 @@
                     <div class="sa-transport">
                         <button class="sa-play-btn" id="saPlayBtn" aria-label="Play">▶</button>
                         <div class="sa-time" id="playerTime">0:00 / 0:00</div>
+                    </div>
+                    <div class="sa-practice">
+                        <label class="sa-practice-row">
+                            <span>Speed</span>
+                            <input type="range" id="saSpeed" min="50" max="150" step="5" value="100">
+                            <output id="saSpeedOut">100%</output>
+                        </label>
+                        <label class="sa-practice-row">
+                            <span>Key</span>
+                            <input type="range" id="saPitch" min="-6" max="6" step="1" value="0">
+                            <output id="saPitchOut">0</output>
+                        </label>
+                        <div class="sa-practice-note" id="saPitchNote"></div>
                     </div>
                 </div>
             </div>
@@ -1262,10 +1296,75 @@
             document.getElementById('audioArt').classList.remove('sa-spinning');
         });
 
+        // Practice playback. Speed is handled entirely in the browser:
+        // preservesPitch keeps the pitch where it was while the tempo changes,
+        // which is exactly the "slow the solo down" behaviour and costs the
+        // server nothing. Transposing is the opposite -- it needs the audio
+        // resampled, so the backend renders and caches a shifted copy.
+        let currentAudioUrl = null, currentSemitones = 0;
+
+        const speedEl = document.getElementById('saSpeed');
+        const speedOut = document.getElementById('saSpeedOut');
+        const pitchEl = document.getElementById('saPitch');
+        const pitchOut = document.getElementById('saPitchOut');
+        const pitchNote = document.getElementById('saPitchNote');
+
         function loadAudio(audioUrl) {
-            audio.src = API_URL + audioUrl;
-            audio.load();
+            currentAudioUrl = audioUrl;
+            currentSemitones = 0;
+            pitchEl.value = 0;
+            pitchOut.textContent = '0';
+            pitchNote.textContent = '';
+            applyAudioSrc(0, 0, false);
         }
+
+        function applyAudioSrc(semitones, resumeAt, wasPlaying) {
+            if (!currentAudioUrl) return;
+            const qs = semitones ? `?st=${semitones}` : '';
+            audio.src = API_URL + currentAudioUrl + qs;
+            audio.load();
+            if (resumeAt > 0 || wasPlaying) {
+                const onReady = () => {
+                    audio.removeEventListener('loadedmetadata', onReady);
+                    try { audio.currentTime = resumeAt; } catch (_) {}
+                    if (wasPlaying) { ensureGraphAndResume(); audio.play(); }
+                };
+                audio.addEventListener('loadedmetadata', onReady);
+            }
+            audio.playbackRate = speedEl.value / 100;
+        }
+
+        speedEl.addEventListener('input', () => {
+            const pct = parseInt(speedEl.value, 10);
+            speedOut.textContent = pct + '%';
+            // preservesPitch is the default in current browsers, but set it
+            // explicitly: without it this becomes a pitch control by accident.
+            audio.preservesPitch = true;
+            audio.mozPreservesPitch = true;
+            audio.webkitPreservesPitch = true;
+            audio.playbackRate = pct / 100;
+        });
+
+        pitchEl.addEventListener('change', () => {
+            const st = parseInt(pitchEl.value, 10);
+            pitchOut.textContent = st > 0 ? `+${st}` : `${st}`;
+            if (st === currentSemitones) return;
+            currentSemitones = st;
+            // The first request for a given shift renders on the server, so
+            // say so rather than letting the player look stalled.
+            pitchNote.textContent = st
+                ? 'Rendering the transposed audio — first time only, a few seconds.'
+                : '';
+            const at = audio.currentTime || 0;
+            const playing = !audio.paused;
+            applyAudioSrc(st, at, playing);
+            audio.addEventListener('canplay', function done() {
+                audio.removeEventListener('canplay', done);
+                pitchNote.textContent = st
+                    ? `Playing ${st > 0 ? st + ' semitones up' : Math.abs(st) + ' semitones down'}. Chord names above are unchanged.`
+                    : '';
+            });
+        });
 
         function togglePlay() {
             if (!audio.src) return;

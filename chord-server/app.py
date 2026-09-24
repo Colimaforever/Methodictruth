@@ -39,6 +39,18 @@ faulthandler.register(signal.SIGUSR2, all_threads=True, chain=False)
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
 
+# Pitch-shifted renders live in a subdirectory rather than beside the originals.
+# Everything else here counts songs by globbing '*.mp3' in the cache root, so a
+# sibling 'song.st3.mp3' would inflate cached_songs and confuse the LRU trim.
+PITCH_DIR = os.path.join(CACHE_DIR, 'pitch')
+os.makedirs(PITCH_DIR, exist_ok=True)
+
+# How far the transpose control may reach, in semitones. +/-6 covers every
+# practical case -- dropped tunings, capo equivalents, moving a song into a
+# comfortable vocal range -- and keeps atempo inside its supported 0.5-2.0
+# range, so one filter chain handles the whole span.
+MAX_SEMITONES = 6
+
 # Cap how many analyses run concurrently across ALL gunicorn workers. A single
 # download+librosa analysis is CPU-heavy; letting every worker run one at once
 # thrashes the box so badly that requests stall and time out (each one runs
@@ -177,6 +189,12 @@ def prune_cache():
             for ext in ('.mp3', '.json', '.lyrics.json'):
                 try:
                     os.remove(os.path.join(CACHE_DIR, vid + ext))
+                except OSError:
+                    pass
+            # Transposed renders are derived from the song, so they go with it.
+            for st in range(-MAX_SEMITONES, MAX_SEMITONES + 1):
+                try:
+                    os.remove(os.path.join(PITCH_DIR, f'{vid}.st{st}.mp3'))
                 except OSError:
                     pass
     except OSError:
@@ -896,6 +914,51 @@ def add_cors_headers(response):
     return response
 
 
+def _pitch_render(video_id, semitones):
+    # Renders a transposed copy on demand and caches it. Returns its path, or
+    # None if the source is missing or ffmpeg fails.
+    #
+    # Deliberately NOT using the rubberband filter: it gives better quality but
+    # needs ffmpeg built with --enable-librubberband, which is not guaranteed.
+    # asetrate/aresample/atempo is in every ffmpeg build -- resample to shift
+    # pitch and speed together, then undo the speed change -- and is more than
+    # good enough for practice playback.
+    src_path = os.path.join(CACHE_DIR, f'{video_id}.mp3')
+    if not os.path.isfile(src_path):
+        return None
+    out_path = os.path.join(PITCH_DIR, f'{video_id}.st{semitones}.mp3')
+    if os.path.isfile(out_path):
+        os.utime(out_path, None)
+        return out_path
+
+    ratio = 2.0 ** (semitones / 12.0)
+    chain = (f'aresample=44100,asetrate={int(round(44100 * ratio))},'
+             f'aresample=44100,atempo={1.0 / ratio:.6f}')
+    lock_path = os.path.join(PITCH_DIR, f'{video_id}.st{semitones}.lock')
+    with open(lock_path, 'w') as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            if os.path.isfile(out_path):
+                return out_path
+            proc = subprocess.run(
+                ['ffmpeg', '-y', '-i', src_path, '-af', chain,
+                 '-b:a', '128k', out_path],
+                capture_output=True, timeout=180)
+            if proc.returncode != 0 or not os.path.isfile(out_path):
+                _log(f'pitch render failed for {video_id} st{semitones}')
+                try:
+                    os.remove(out_path)
+                except OSError:
+                    pass
+                return None
+            return out_path
+        except (subprocess.TimeoutExpired, OSError) as exc:
+            _log(f'pitch render error for {video_id}: {exc}')
+            return None
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
 @app.route('/audio/<video_id>', methods=['GET'])
 def serve_audio(video_id):
     # Serves the downloaded MP3 for in-page playback. conditional=True enables
@@ -906,12 +969,29 @@ def serve_audio(video_id):
     path = os.path.join(CACHE_DIR, f'{video_id}.mp3')
     if not os.path.isfile(path):
         abort(404)
+
+    # ?st=N serves a transposed render instead. Out-of-range or unparseable
+    # values fall back to the original rather than erroring -- a bad transpose
+    # should never cost you playback.
+    try:
+        semitones = int(request.args.get('st', '0'))
+    except ValueError:
+        semitones = 0
     # Bump mtime so prune_cache()'s LRU keeps songs people actually replay,
-    # not just the most recently analyzed ones.
+    # not just the most recently analyzed ones. This is done on the ORIGINAL
+    # before any transpose swap: the LRU is keyed on the source file, so
+    # playing a transposed version has to count as playing the song, or a
+    # song you only ever practise in a different key would age out and take
+    # its own renders with it.
     try:
         os.utime(path, None)
     except OSError:
         pass
+
+    if semitones and abs(semitones) <= MAX_SEMITONES:
+        shifted = _pitch_render(video_id, semitones)
+        if shifted:
+            path = shifted
     resp = send_file(path, mimetype='audio/mpeg', conditional=True)
     # A given video's audio never changes, so let Cloudflare (and the browser)
     # cache it hard — repeat plays of a popular song are then served from the
