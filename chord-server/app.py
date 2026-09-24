@@ -228,6 +228,34 @@ TRIAD_QUALITIES = {
     # robust core; richer/ambiguous qualities need a sequence model (HMM/Viterbi
     # or madmom), noted as a future upgrade.
 }
+# Richer qualities, usable now that decoding is sequence-aware (see
+# _viterbi_labels). Per-frame matching could never carry these: sus2/sus4 sit
+# one semitone from major, dim one semitone from minor, so a single noisy frame
+# flips the label and the chart fills with phantom chords. A sequence model
+# makes that flip cost something, so a chord has to be genuinely better for
+# several frames running before it wins.
+EXTRA_QUALITIES = {
+    'sus2': (0, 2, 7),
+    'sus4': (0, 5, 7),
+    'dim':  (0, 3, 6),
+    'aug':  (0, 4, 8),
+}
+
+# Small prior against the rarer qualities. Major and minor dominate real music
+# by a wide margin, so an ambiguous frame should fall back to them rather than
+# split the difference. This is a thumb on the scale, not a veto -- a clearly
+# sustained sus4 still wins easily.
+QUALITY_BIAS = {'': 0.0, 'm': 0.0, 'sus2': -0.03, 'sus4': -0.03,
+                'dim': -0.05, 'aug': -0.05}
+
+# What a chord change costs in the Viterbi path, in the same units as the
+# cosine similarity it is traded against. Too low and the chart flickers; too
+# high and genuine quick changes get smoothed away. 0.2 was chosen to sit well
+# above frame-to-frame noise (~0.05) and well below a real chord change (~0.3+).
+CHORD_CHANGE_PENALTY = float(os.environ.get('CHORD_CHANGE_PENALTY', '0.2'))
+
+ALL_QUALITIES = {**TRIAD_QUALITIES, **EXTRA_QUALITIES}
+
 _TRIAD_VECS, _TRIAD_ROOT, _TRIAD_QUAL = [], [], []
 for _i in range(12):
     for _suffix, _intervals in TRIAD_QUALITIES.items():
@@ -238,6 +266,19 @@ for _i in range(12):
         _TRIAD_ROOT.append(_i)
         _TRIAD_QUAL.append(_suffix)
 _TRIAD_MATRIX = np.array(_TRIAD_VECS)
+
+_CHORD_VECS, _CHORD_ROOT, _CHORD_QUAL, _CHORD_BIAS = [], [], [], []
+for _i in range(12):
+    for _suffix, _intervals in ALL_QUALITIES.items():
+        _vec = np.zeros(12)
+        for _iv in _intervals:
+            _vec[(_i + _iv) % 12] = 1.0
+        _CHORD_VECS.append(_vec / np.linalg.norm(_vec))
+        _CHORD_ROOT.append(_i)
+        _CHORD_QUAL.append(_suffix)
+        _CHORD_BIAS.append(QUALITY_BIAS.get(_suffix, 0.0))
+_CHORD_MATRIX = np.array(_CHORD_VECS)
+_CHORD_BIAS_VEC = np.array(_CHORD_BIAS)
 
 # How strong the 7th must be, relative to the average triad-tone energy, before
 # we promote a chord to a seventh. Conservative, so we don't hallucinate them.
@@ -306,6 +347,69 @@ def _classify_column(col):
     return name
 
 
+def _add_seventh(col, root, qual):
+    # Unchanged from the per-frame version: promote to a 7th only when that
+    # degree genuinely carries energy, and only the flat 7th. The major 7th is
+    # the leading tone and appears in nearly every major-key melody, so
+    # detecting it would tag almost every tonic chord as maj7.
+    if qual not in ('', 'm'):
+        return ''
+    triad_mean = np.mean([col[(root + t) % 12] for t in ALL_QUALITIES[qual]])
+    if triad_mean > 0 and col[(root + 10) % 12] >= SEVENTH_RATIO * triad_mean:
+        return '7'
+    return ''
+
+
+def _viterbi_labels(cols):
+    # Decode the whole song as one path rather than labelling each frame alone.
+    #
+    # Per-frame matching has no memory, so it pays nothing to disagree with its
+    # neighbours -- which is why sus/dim/aug had to stay switched off: they sit
+    # one semitone from major/minor and win on noise. Here a change costs
+    # CHORD_CHANGE_PENALTY, so a one-frame flip has to pay that twice (out and
+    # back) and is only worth it if the evidence is real.
+    #
+    # The transition cost is uniform -- every change costs the same -- which
+    # collapses the usual O(K^2) step to O(K): the best predecessor for any
+    # chord is either itself (no penalty) or whatever the best chord was
+    # (minus the penalty). That keeps a 72-state decode cheap.
+    n = cols.shape[1]
+    if n == 0:
+        return []
+
+    norms = np.linalg.norm(cols, axis=0)
+    safe = np.where(norms == 0, 1.0, norms)
+    emissions = (_CHORD_MATRIX @ (cols / safe)).T + _CHORD_BIAS_VEC   # (n, K)
+    silent = norms == 0
+
+    K = emissions.shape[1]
+    score = emissions[0].copy()
+    back = np.zeros((n, K), dtype=np.int32)
+
+    for t in range(1, n):
+        best_prev = int(np.argmax(score))
+        best_val = score[best_prev] - CHORD_CHANGE_PENALTY
+        stay = score                      # same chord, no penalty
+        take_switch = best_val > stay
+        back[t] = np.where(take_switch, best_prev, np.arange(K))
+        score = emissions[t] + np.where(take_switch, best_val, stay)
+
+    path = np.zeros(n, dtype=np.int32)
+    path[-1] = int(np.argmax(score))
+    for t in range(n - 1, 0, -1):
+        path[t - 1] = back[t][path[t]]
+
+    out = []
+    for t in range(n):
+        if silent[t]:
+            out.append(None)
+            continue
+        k = int(path[t])
+        root, qual = _CHORD_ROOT[k], _CHORD_QUAL[k]
+        out.append(f'{NOTES[root]}{qual}{_add_seventh(cols[:, t], root, qual)}')
+    return out
+
+
 def _classify_columns(cols):
     return [_classify_column(cols[:, j]) for j in range(cols.shape[1])]
 
@@ -343,9 +447,10 @@ def detect_chords(chroma, sr, beat_frames=None, hop_length=512):
         cols = np.stack([chroma[:, s:s + fps].mean(axis=1) for s in starts], axis=1)
         times = librosa.frames_to_time(np.array(starts), sr=sr, hop_length=hop_length)
 
-    # window=2 (a 5-segment mode filter) leans on chords persisting across a bar
-    # or so, absorbing isolated noisy segments into their neighbours.
-    labels = _smooth_labels(_classify_columns(cols), window=2)
+    # Viterbi decodes the whole sequence at once, so the old mode filter is
+    # redundant -- it was approximating "chords persist" with a local vote,
+    # which the transition penalty now expresses directly and globally.
+    labels = _viterbi_labels(cols)
 
     chords, last = [], None
     for j in range(min(len(labels), len(times))):
