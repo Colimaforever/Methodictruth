@@ -110,13 +110,31 @@
 
             <p>Installing cleanly says nothing about running cleanly. The app calls nine librosa functions; two of them are proven, because the startup routine that warms numba's JIT happens to call them. The other seven are only reachable by actually analyzing a song. A loose version pin is a bet that nothing important changed, and a major release is exactly when it does.</p>
 
+            <h2>What Actually Broke</h2>
+
+            <p>Not the things I planned for. Two failures ate most of the build, and both were environmental rather than anything to do with the analyzer.</p>
+
+            <p>The first looked like a hang. Every attempt to analyze a file sat there forever — TCP connection established, no CPU, nothing in the log. A stack dump showed the server idle in <code>serve_forever</code>, as if the request had never arrived. It had; there was simply nobody left to handle it. Gunicorn uses <code>SIGTTIN</code> and <code>SIGTTOU</code> as its worker-scaling signals, and the kernel sends <code>SIGTTOU</code> to a background process that touches its controlling terminal. Started with a trailing <code>&amp;</code> from an interactive shell, gunicorn was quietly being told to shed a worker, over and over, until none were left. Running it under systemd — where there is no controlling terminal — made the problem cease to exist. Which is the general lesson: testing a service in a way the service will never actually run is its own source of bugs.</p>
+
+            <p>The second was a static IP that wouldn't stay static. Setting it through NetworkManager appeared to work, then reverted to DHCP on every boot, leaving the box holding two addresses at once. The cause was three netplan files being merged: the installer's config said <code>dhcp4: true</code>, and the NetworkManager-generated file added a static address without ever turning DHCP off. Both were applied. Editing the source rather than the symptom fixed it in one line.</p>
+
+            <h2>The Cutover That Wasn't</h2>
+
+            <p>I had written a careful cutover plan — bring the new host up in parallel, test it in isolation, stop the old connector, start the new one, keep the old box as rollback for a few days. Sensible, and entirely unnecessary, because the old machine was already switched off in another building. A request to the API returned Cloudflare's <code>530</code>: the hostname resolved to a tunnel with no connector behind it. The feature had been dark and nobody had noticed.</p>
+
+            <p>So it stopped being a migration and became a restoration, which is strictly easier — nothing to coordinate, no rollback to preserve, no window to keep short. The tunnel itself turned out to be even more portable than advertised: the old credentials were stranded on the offline box, but a tunnel's credentials can be reissued from the account, so the existing tunnel simply reattached to the new host. <strong>No DNS record was touched. No certificate was reissued. The front end never knew.</strong></p>
+
+            <p>The numbers, finally, on the machine rather than in an estimate: <strong>9.3 seconds</strong> to analyze a 3:47 track, against 15–25 on the N100. Almost exactly 2×, not the 3–5× I had guessed — worth writing down, because the guess was the optimistic one and the measurement is the honest one. And the health endpoint reports <code>"youtube":"ok"</code>, which is the sentence the whole July argument was about: the residential address came with the house, not with the machine.</p>
+
             <h2>What I'd Take From It</h2>
 
             <p>The first thing is that a conclusion has a scope, and it's easy to apply it wider than it earns. "Don't move to the cloud" quietly became "don't move," and that cost a couple of months on the weakest machine in the house for no reason.</p>
 
             <p>The second is about where the risk actually lives. I spent the planning worrying about the hardware and the cutover — both of which are genuinely easy, because a Cloudflare Tunnel is identified by a credentials file rather than an IP, so the hostname simply follows whichever box runs the connector. No DNS change, no certificate work, no front-end edit, and rollback is starting the old connector again. The thing that will actually bite is a dependency that resolved one minor version differently on a machine with a newer Python.</p>
 
-            <p>Migrations aren't usually lost on the move. They're lost on the things that were never written down, and the versions nobody pinned.</p>
+            <p>And the third, learned the hard way twice in one evening: test a service the way it will actually run. Both real failures came from running things in a shell — a background job catching terminal signals, a network setting applied through the wrong layer. Neither could have happened under systemd and netplan, which is where the service lives.</p>
+
+            <p>Migrations aren't usually lost on the move. They're lost on the things that were never written down, the versions nobody pinned, and the difference between how you tested it and how it runs.</p>
 
         </div>
     </div>

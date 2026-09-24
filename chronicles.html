@@ -559,7 +559,7 @@
       <h2><a href="chronicle-2026-09-24-analyzer-new-host.html">Same House, Better Box</a></h2>
       <p>The July piece concluded that a residential IP is a functional capability, so the analyzer should stay home. That got quietly read as "leave it alone" — but the argument was about the address, not the machine. It never said keep it on the weakest box in the building.</p>
       <blockquote>"You can't buy back in for what you'd sell it for. Netting $280 for a GPU box means paying $600–900 to get an equivalent one later."</blockquote>
-      <p>A power estimate I got wrong, a year-versus-month misread that reversed the decision outright, the hardcoded cache path an inventory turned up, and why the GPU in the new machine currently does nothing at all.</p>
+      <p>A power estimate I got wrong, a year-versus-month misread that reversed the decision outright, and why the GPU in the new machine currently does nothing. Plus the two failures that ate the build — gunicorn quietly shedding workers because a background shell job catches SIGTTOU, and a static IP that would not stay static — and a cutover that turned out to be a restoration, because the old box had been dark for a while and nobody noticed.</p>
       <div class="tags">
         <span class="tag glow">infrastructure</span>
         <span class="tag warm">migration</span>
