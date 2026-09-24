@@ -287,6 +287,18 @@
             background: rgba(0, 229, 255, 0.14); border-color: var(--glow);
         }
         .sa-lyrics-btn:disabled { opacity: 0.5; cursor: progress; }
+        .sa-lyrics-lang {
+            display: inline-flex; align-items: center; gap: 0.45rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--stone-dark);
+        }
+        .sa-lyrics-lang select {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            background: rgba(0, 229, 255, 0.04); color: var(--parchment);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            padding: 0.45rem 0.5rem; min-height: 38px; cursor: pointer;
+        }
         .sa-lyrics-status {
             font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
             color: var(--stone-dark); line-height: 1.5;
@@ -527,6 +539,24 @@
             <div class="sa-section-label">④ Lyrics</div>
             <div class="sa-lyrics-bar">
                 <button class="sa-lyrics-btn" id="lyricsBtn" type="button">Transcribe lyrics</button>
+                <label class="sa-lyrics-lang">
+                    <span>Language</span>
+                    <select id="lyricsLang">
+                        <option value="">Auto-detect</option>
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="hi">Hindi</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="it">Italian</option>
+                        <option value="ja">Japanese</option>
+                        <option value="ko">Korean</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ar">Arabic</option>
+                        <option value="ru">Russian</option>
+                    </select>
+                </label>
                 <span class="sa-lyrics-status" id="lyricsStatus" role="status" aria-live="polite"></span>
             </div>
             <div class="sa-lyrics" id="lyricsBody" tabindex="0"
@@ -1286,6 +1316,7 @@
         const lyricsBody = document.getElementById('lyricsBody');
         const lyricsBtn = document.getElementById('lyricsBtn');
         const lyricsStatus = document.getElementById('lyricsStatus');
+        const lyricsLang = document.getElementById('lyricsLang');
 
         function setLyricsStatus(msg) { lyricsStatus.textContent = msg || ''; }
 
@@ -1335,7 +1366,9 @@
             lyricsBody.innerHTML = '';
 
             try {
-                const res = await fetch(`${API_URL}/lyrics/${encodeURIComponent(songId)}`, {
+                const lang = lyricsLang.value;
+                const qs = lang ? `?lang=${encodeURIComponent(lang)}` : '';
+                const res = await fetch(`${API_URL}/lyrics/${encodeURIComponent(songId)}${qs}`, {
                     method: 'POST',
                     headers: { 'Accept': 'application/x-ndjson' },
                 });
