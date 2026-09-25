@@ -281,6 +281,24 @@
             color: var(--glow-warm); line-height: 1.5; min-height: 1em;
         }
 
+        .sa-loop { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.2rem; }
+        .sa-loop-btn {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.58rem;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            padding: 0.5rem 0.6rem; min-height: 38px; cursor: pointer;
+            color: var(--stone); background: rgba(0, 229, 255, 0.04);
+            border: 1px solid rgba(0, 229, 255, 0.22); transition: all 0.15s;
+        }
+        .sa-loop-btn:hover { border-color: rgba(0, 229, 255, 0.5); color: var(--parchment); }
+        /* Active loop is marked by colour AND the label flipping to "Loop on",
+           so the state is readable without relying on colour perception. */
+        .sa-loop-btn.sa-loop-active {
+            background: rgba(0, 229, 255, 0.16); border-color: var(--glow); color: var(--glow);
+        }
+        /* Section blocks inside the active loop, so the region is visible on
+           the structure strip rather than only stated in text. */
+        .sa-section-block.sa-in-loop { outline: 2px solid var(--glow); outline-offset: -2px; }
+
         .sa-description { font-family: 'EB Garamond', Georgia, serif; color: var(--stone); line-height: 1.8; font-style: italic; }
 
         .sa-coverage {
@@ -560,6 +578,15 @@
                             <output id="saPitchOut">0</output>
                         </label>
                         <div class="sa-practice-note" id="saPitchNote"></div>
+                        <div class="sa-loop">
+                            <button type="button" class="sa-loop-btn" id="saLoopA">Set A</button>
+                            <button type="button" class="sa-loop-btn" id="saLoopB">Set B</button>
+                            <button type="button" class="sa-loop-btn" id="saLoopToggle"
+                                    aria-pressed="false">Loop off</button>
+                            <button type="button" class="sa-loop-btn" id="saLoopSection">This section</button>
+                            <button type="button" class="sa-loop-btn" id="saLoopClear" aria-label="Clear loop">&times;</button>
+                        </div>
+                        <div class="sa-practice-note" id="saLoopNote">No loop set.</div>
                     </div>
                 </div>
             </div>
@@ -1140,6 +1167,7 @@
             const strip = document.getElementById('sectionsStrip');
             const canvas = document.getElementById('energyCanvas');
             const hasSections = Array.isArray(data.sections) && data.sections.length > 0;
+            currentSections = hasSections ? data.sections : [];
             const hasEnergy = Array.isArray(data.energy_curve) && data.energy_curve.length > 4;
             structure.style.display = (hasSections || hasEnergy) ? '' : 'none';
 
@@ -1157,6 +1185,8 @@
                     t.className = 'sa-sb-time';
                     t.textContent = formatTime(s.start);
                     block.appendChild(t);
+                    block.dataset.start = s.start;
+                    block.dataset.end = s.end;
                     block.addEventListener('click', () => seekTo(s.start));
                     strip.appendChild(block);
                 });
@@ -1310,6 +1340,8 @@
         const pitchNote = document.getElementById('saPitchNote');
 
         function loadAudio(audioUrl) {
+            loopA = loopB = null; loopOn = false;
+            updateLoopUI();
             currentAudioUrl = audioUrl;
             currentSemitones = 0;
             pitchEl.value = 0;
@@ -1332,6 +1364,95 @@
                 audio.addEventListener('loadedmetadata', onReady);
             }
             audio.playbackRate = speedEl.value / 100;
+        }
+
+        // ─── A/B loop ───
+        // The practice loop: pick two points and repeat what is between them,
+        // usually with the speed slider pulled down. Section data the analyzer
+        // already produces makes "loop this chorus" a single button rather
+        // than hunting for the boundaries by ear.
+        let loopA = null, loopB = null, loopOn = false, currentSections = [];
+
+        const loopAEl = document.getElementById('saLoopA');
+        const loopBEl = document.getElementById('saLoopB');
+        const loopToggleEl = document.getElementById('saLoopToggle');
+        const loopSectionEl = document.getElementById('saLoopSection');
+        const loopClearEl = document.getElementById('saLoopClear');
+        const loopNote = document.getElementById('saLoopNote');
+
+        function updateLoopUI() {
+            loopAEl.textContent = loopA == null ? 'Set A' : `A ${formatTime(Math.floor(loopA))}`;
+            loopBEl.textContent = loopB == null ? 'Set B' : `B ${formatTime(Math.floor(loopB))}`;
+            const ready = loopA != null && loopB != null && loopB > loopA;
+            loopToggleEl.textContent = loopOn && ready ? 'Loop on' : 'Loop off';
+            loopToggleEl.setAttribute('aria-pressed', String(loopOn && ready));
+            loopToggleEl.classList.toggle('sa-loop-active', loopOn && ready);
+
+            if (!ready) {
+                loopNote.textContent = loopA == null && loopB == null
+                    ? 'No loop set. Play to a point and press A, then B.'
+                    : 'Set both points — B must come after A.';
+            } else {
+                const len = loopB - loopA;
+                loopNote.textContent =
+                    `${formatTime(Math.floor(loopA))} → ${formatTime(Math.floor(loopB))} ` +
+                    `(${len.toFixed(1)}s)${loopOn ? ' — repeating' : ' — press Loop to start'}`;
+            }
+            // Mark the looped span on the structure strip.
+            document.querySelectorAll('.sa-section-block').forEach(el => {
+                const s = parseFloat(el.dataset.start), e = parseFloat(el.dataset.end);
+                el.classList.toggle('sa-in-loop',
+                    ready && loopOn && !(e <= loopA || s >= loopB));
+            });
+        }
+
+        function setLoopRange(a, b) {
+            loopA = a; loopB = b; loopOn = true;
+            updateLoopUI();
+        }
+
+        loopAEl.addEventListener('click', () => {
+            loopA = audio.currentTime || 0;
+            if (loopB != null && loopB <= loopA) loopB = null;
+            updateLoopUI();
+        });
+        loopBEl.addEventListener('click', () => {
+            loopB = audio.currentTime || 0;
+            if (loopA != null && loopB <= loopA) loopA = null;
+            updateLoopUI();
+        });
+        loopToggleEl.addEventListener('click', () => {
+            if (loopA == null || loopB == null || loopB <= loopA) return;
+            loopOn = !loopOn;
+            updateLoopUI();
+        });
+        loopClearEl.addEventListener('click', () => {
+            loopA = loopB = null; loopOn = false;
+            updateLoopUI();
+        });
+        loopSectionEl.addEventListener('click', () => {
+            const t = audio.currentTime || 0;
+            const s = currentSections.find(x => t >= x.start && t < x.end)
+                   || currentSections[0];
+            if (!s) { loopNote.textContent = 'No sections were detected for this song.'; return; }
+            setLoopRange(s.start, s.end);
+            seekTo(s.start);
+        });
+
+        // Called from the playback tick. Returns true if it moved the
+        // playhead, so the caller can skip the rest of that frame's work.
+        function enforceLoop(t) {
+            if (!loopOn || loopA == null || loopB == null || loopB <= loopA) return false;
+            // Only the end boundary is enforced. Snapping back when the
+            // playhead is before A would fight the user every time they
+            // clicked an earlier chord to hear the run-up; letting playback
+            // fall into the loop naturally is less surprising and still ends
+            // up repeating the passage.
+            if (t >= loopB) {
+                try { audio.currentTime = loopA; } catch (_) {}
+                return true;
+            }
+            return false;
         }
 
         speedEl.addEventListener('input', () => {
@@ -1624,6 +1745,7 @@
         });
 
         function syncHighlights(t) {
+            if (enforceLoop(t)) return;    // playhead jumped; next frame handles it
             const dur = audio.duration || 0;
             const sec = Math.floor(Math.min(t, dur || t));
             if (sec !== lastSecond) {
