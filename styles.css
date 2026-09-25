@@ -1306,6 +1306,9 @@ footer .donate-link:hover {
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem 0 0.5rem;
+    /* Clear the home indicator, so the last item is reachable rather than
+       sitting underneath it. */
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
   .nav-links.open {
     display: flex;
@@ -1313,6 +1316,22 @@ footer .donate-link:hover {
   .site-nav {
     font-size: 0.6rem;
     letter-spacing: 0.2em;
+    /* The nav is position:fixed, so anything taller than the viewport used to
+       fall off the bottom of the screen with no way to reach it -- the page
+       behind scrolls, but a fixed element does not. Bounding its height and
+       letting it scroll itself is what makes the whole menu reachable.
+
+       100dvh rather than 100vh because on iOS Safari 100vh counts the browser
+       chrome that is covering the page, so the last menu items were laid out
+       in space the user cannot see. 100vh stays as the fallback for anything
+       that does not know dvh. */
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow-y: auto;
+    /* Stop the scroll chaining into the page underneath once the menu hits
+       its end, which on iOS otherwise drags the whole document. */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
   .nav-drop-menu {
     position: static;
