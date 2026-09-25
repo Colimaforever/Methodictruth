@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Four Tracks — Recording on the Tascam 424 mkIII Portastudio | Methodic Truth</title>
+  <meta name="description" content="How a cassette Portastudio actually works and how to record on one: the signal path, the RECORD FUNCTION switch, tape speed and dbx, bouncing tracks to get more than four parts, and why the limit makes better records.">
+  <meta name="keywords" content="tascam 424 mkiii, portastudio guide, 4 track cassette recording, bouncing tracks ping pong, dbx noise reduction, tape multitrack, home recording cassette, record function direct bus">
+  <link rel="canonical" href="https://methodictruth.com/portastudio.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Four Tracks — Recording on the Tascam 424 mkIII Portastudio">
+  <meta property="og:description" content="The signal path, the switch that matters most, how to bounce, and how to approach a machine whose limits are the point.">
+  <meta property="og:url" content="https://methodictruth.com/portastudio.html">
+  <meta property="og:site_name" content="Methodic Truth">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Four Tracks — Recording on the Tascam 424 mkIII Portastudio">
+  <meta name="twitter:description" content="How a cassette Portastudio works, how to record on one, and why four tracks is a feature.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Four Tracks — Recording on the Tascam 424 mkIII Portastudio",
+    "url": "https://methodictruth.com/portastudio.html",
+    "datePublished": "2026-09-25",
+    "dateModified": "2026-09-25",
+    "description": "How a cassette Portastudio works and how to record on one: the signal path, the RECORD FUNCTION switch, tape speed and dbx noise reduction, bouncing tracks to get more than four parts, and how to approach a machine whose limits are the point.",
+    "about": {
+      "@type": "Product",
+      "name": "Tascam Portastudio 424 mkIII",
+      "category": "4-track cassette multitrack recorder"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Sergio Macedo"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Methodic Truth",
+      "url": "https://methodictruth.com"
+    },
+    "proficiencyLevel": "Beginner"
+  }
+  </script>
+  <link rel="stylesheet" href="styles.css?v=76">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    .ps-wrap { max-width: 860px; margin: 0 auto; padding: 0 clamp(1rem, 3vw, 2rem) 4rem; position: relative; z-index: 1; }
+
+    .ps-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: clamp(1rem, 1.6vw, 1.15rem);
+      color: var(--stone); line-height: 1.8; margin-bottom: 1.2rem;
+    }
+    .ps-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ps-lead em { color: var(--glow); font-style: italic; }
+
+    .ps-h2 {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+      color: var(--glow); letter-spacing: 0.04em; margin: 2.6rem 0 0.3rem;
+    }
+    .ps-h2-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-dark);
+      margin-bottom: 1rem;
+    }
+    .ps-h3 {
+      font-family: 'Cinzel', serif; font-size: 1rem; color: var(--glow-warm);
+      letter-spacing: 0.03em; margin: 1.6rem 0 0.5rem;
+    }
+    .ps-p {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; color: var(--stone);
+      line-height: 1.8; margin-bottom: 0.9rem;
+    }
+    .ps-p strong { color: var(--parchment); font-weight: 600; }
+    .ps-p em { color: var(--glow); font-style: italic; }
+    .ps-p code, .ps-code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85em; color: var(--glow);
+      background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.18);
+      padding: 0.05rem 0.35rem; border-radius: 2px; white-space: nowrap;
+    }
+
+    .ps-card {
+      border: 1px solid rgba(0, 229, 255, 0.14);
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.5), rgba(15, 20, 15, 0.4));
+      padding: 1.2rem 1.3rem; margin: 1.3rem 0;
+    }
+    .ps-card-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--glow);
+      margin-bottom: 0.6rem; opacity: 0.8;
+    }
+
+    .ps-svg-wide { max-width: 720px; }
+    .ps-note {
+      border-left: 3px solid var(--glow-warm);
+      background: rgba(80, 60, 20, 0.18);
+      padding: 1rem 1.2rem; margin: 1.4rem 0;
+      font-family: 'EB Garamond', Georgia, serif; color: var(--stone);
+      line-height: 1.75;
+    }
+    .ps-note em { color: var(--glow); font-style: italic; }
+    .ps-note strong { color: var(--parchment); font-weight: 600; }
+    .ps-note a { color: var(--glow); }
+
+    .ps-danger {
+      border: 1px solid rgba(232, 92, 92, 0.5); background: rgba(80, 20, 20, 0.22);
+      padding: 1.2rem 1.3rem; margin: 1.4rem 0;
+    }
+    .ps-danger .ps-card-label { color: #ff9999; opacity: 1; }
+    .ps-danger .ps-p { color: #f0d0d0; }
+    .ps-danger .ps-p strong { color: #ffc9c9; }
+
+    .ps-figure { margin: 1.6rem 0; }
+    .ps-svg { display: block; width: 100%; height: auto; max-width: 520px; margin: 0 auto; }
+    .ps-cap {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.06em; color: var(--stone-dark); text-align: center;
+      margin-top: 0.7rem; line-height: 1.7;
+    }
+
+    /* Dial diagram */
+    .ps-dial-body { fill: rgba(18, 22, 34, 0.9); stroke: rgba(138, 126, 107, 0.4); stroke-width: 1.5; }
+    .ps-dial-knob { fill: rgba(40, 46, 60, 0.95); stroke: var(--glow-warm); stroke-width: 1.5; }
+    .ps-dial-ptr { stroke: var(--glow-warm); stroke-width: 3.5; stroke-linecap: round; }
+    .ps-tick { stroke: rgba(138, 126, 107, 0.55); stroke-width: 1.4; stroke-linecap: round; }
+    .ps-tick-on { stroke: var(--glow-warm); stroke-width: 2.4; }
+    .ps-dlabel {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+      fill: var(--parchment); text-anchor: middle;
+    }
+    .ps-dlabel-on { fill: var(--glow-warm); }
+    .ps-dsub {
+      font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+      fill: var(--stone-dark); text-anchor: middle; letter-spacing: 0.05em;
+    }
+    .ps-jack { fill: rgba(10, 14, 26, 0.9); stroke-width: 2; }
+    .ps-jack-red { stroke: #d55e00; }
+    .ps-jack-black { stroke: var(--stone); }
+    .ps-jtxt {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      fill: var(--stone); text-anchor: middle;
+    }
+
+    /* Connection diagram */
+    .ps-wire { stroke: var(--stone-dark); stroke-width: 2; fill: none; }
+    .ps-wire-live { stroke: var(--glow); stroke-width: 2.2; fill: none; }
+    .ps-block { fill: rgba(0, 229, 255, 0.07); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.4; }
+    .ps-meter { fill: rgba(232, 168, 124, 0.1); stroke: var(--glow-warm); stroke-width: 1.6; }
+    .ps-ctxt {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      fill: var(--stone); text-anchor: middle;
+    }
+    .ps-ctxt-w { fill: var(--glow-warm); font-weight: 700; }
+
+    /* Tables */
+    .ps-tablewrap { overflow-x: auto; margin: 1.2rem 0; }
+    .ps-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+    .ps-table th {
+      text-align: left; padding: 0.55rem 0.6rem; color: var(--glow-warm); font-weight: 400;
+      letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.58rem;
+      border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap;
+    }
+    .ps-table td {
+      padding: 0.55rem 0.6rem; color: var(--stone); vertical-align: top;
+      border-bottom: 1px solid rgba(138, 126, 107, 0.12); line-height: 1.6;
+    }
+    .ps-table td.ps-sym {
+      color: var(--glow); font-weight: 700; white-space: nowrap; font-size: 0.85rem;
+    }
+    .ps-table tr:hover td { background: rgba(0, 229, 255, 0.03); }
+
+    .ps-list { list-style: none; padding-left: 0; margin: 0.6rem 0 1rem; }
+    .ps-list li {
+      position: relative; padding-left: 1.5rem; margin-bottom: 0.6rem;
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.75;
+    }
+    .ps-list li::before {
+      content: '◆'; position: absolute; left: 0; top: 0.15em;
+      color: var(--glow); font-size: 0.62em; opacity: 0.75;
+    }
+    .ps-list strong { color: var(--parchment); font-weight: 600; }
+    .ps-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; color: var(--glow); }
+
+    .ps-steps { counter-reset: mmstep; list-style: none; padding-left: 0; margin: 0.8rem 0 1.2rem; }
+    .ps-steps li {
+      counter-increment: mmstep; position: relative; padding-left: 2.3rem;
+      margin-bottom: 0.85rem; font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1rem; color: var(--stone); line-height: 1.75;
+    }
+    .ps-steps li::before {
+      content: counter(mmstep); position: absolute; left: 0; top: 0.05em;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow);
+      border: 1px solid rgba(0, 229, 255, 0.35); width: 1.55rem; height: 1.55rem;
+      display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .ps-steps strong { color: var(--parchment); font-weight: 600; }
+
+    .ps-spec {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.8rem; margin: 1.2rem 0;
+    }
+    .ps-spec-item {
+      border: 1px solid rgba(0, 229, 255, 0.14); background: rgba(0, 229, 255, 0.03);
+      padding: 0.75rem 0.85rem;
+    }
+    .ps-spec-k {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.3rem;
+    }
+    .ps-spec-v { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--glow); }
+
+    .ps-toc {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1.5rem 0 2rem;
+    }
+    .ps-toc a {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em;
+      color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(138, 126, 107, 0.28); transition: all 0.2s;
+    }
+    .ps-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 600px) {
+      .ps-dlabel { font-size: 15px; }
+      .ps-dsub { font-size: 10px; }
+    }
+  </style>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="harmony.html">Harmony</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="multimeter.html">Reading the Meter</a>
+          <a href="portastudio.html" class="active">Four Tracks</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Harmony &amp; Sound</div>
+          <a href="breaking-the-loop.html">Breaking the Loop</a>
+          <a href="harmony-guide.html">Writing Harmony</a>
+          <a href="4ad.html">The 4AD Sound</a>
+          <div class="nav-drop-label">DJing</div>
+          <a href="djing.html">Denon Prime GO+</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+  <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+    <h1>Four Tracks</h1>
+    <div class="subtitle">Recording on the Tascam 424 mkIII Portastudio</div>
+  </div>
+
+  <main class="ps-wrap">
+
+    <p class="ps-lead">
+      A Portastudio is a <strong>mixer and a tape machine welded together</strong>. That is the
+      whole idea, and once it clicks the rest of the front panel stops looking like an
+      aircraft cockpit. The mixer decides what goes where and how loud; the recorder puts
+      four of those decisions onto a cassette; and a handful of switches control which of
+      those two halves you are listening to at any moment.
+    </p>
+
+    <p class="ps-lead">
+      The 424 mkIII is the last and best of Tascam's cassette four-tracks. Six channel
+      strips, four mic preamps, a three-band EQ with a sweepable middle, two effect sends,
+      two tape speeds and <em>dbx</em> noise reduction. It is also, deliberately, a machine
+      with only four places to put things — and that limit is the most useful thing about it.
+    </p>
+
+    <div class="ps-toc">
+      <a href="#model">Which machine this is</a>
+      <a href="#flow">The signal path</a>
+      <a href="#strip">The channel strip</a>
+      <a href="#switch">The switch that matters most</a>
+      <a href="#tape">Tape speed and dbx</a>
+      <a href="#first">Recording your first track</a>
+      <a href="#overdub">Overdubbing</a>
+      <a href="#bounce">Bouncing</a>
+      <a href="#punch">Punching in</a>
+      <a href="#mix">Mixdown</a>
+      <a href="#approach">How to approach it</a>
+      <a href="#care">Tape and upkeep</a>
+    </div>
+
+    <h2 class="ps-h2" id="model">Which Machine This Is</h2>
+    <div class="ps-h2-sub">424 mkIII · the only Portastudio with a mkIII</div>
+
+    <p class="ps-p">
+      Tascam made a lot of Portastudios and the names blur together, so it is worth being
+      precise: the <strong>424 mkIII</strong> is the only one that carries a "mkIII". The
+      414 stopped at mkII, and the 488 — the eight-track — is a different machine with a
+      different routing chapter. If your lid says mkIII, this is the one.
+    </p>
+
+    <p class="ps-p">
+      What it gives you: <strong>four tape tracks</strong>, <strong>six mono channel
+      strips plus a stereo input</strong> (eight inputs in total), four XLR mic preamps,
+      three-band EQ on every strip with a sweepable mid, <strong>two effect sends</strong>,
+      two tape speeds, and built-in dbx Type II noise reduction. The mkIII's improvement
+      over the mkII was giving channels five and six the same EQ and send options as the
+      first four, so there are no second-class strips.
+    </p>
+
+    <h2 class="ps-h2" id="flow">The Signal Path</h2>
+    <div class="ps-h2-sub">Everything downstream of "where does this go?"</div>
+
+    <p class="ps-p">
+      Almost every confusion with a Portastudio is really a signal-path question. Sound
+      enters a channel, gets shaped, gets pointed somewhere, and either lands on tape or
+      goes straight out to your speakers. Hold this picture and the panel becomes readable:
+    </p>
+
+    <div class="ps-figure">
+      <svg class="ps-svg ps-svg-wide" viewBox="0 0 720 300" role="img" aria-label="Signal path diagram: input through channel strip to the record function switch, then to tape tracks and the monitor section">
+        <defs>
+          <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L7,3 L0,6 Z" fill="#00e5ff"/>
+          </marker>
+          <style>
+            .bx { fill: rgba(0,229,255,0.06); stroke: rgba(0,229,255,0.45); stroke-width: 1.2; }
+            .bx2 { fill: rgba(232,168,124,0.07); stroke: rgba(232,168,124,0.5); stroke-width: 1.2; }
+            .lb { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: #e8e0d0; }
+            .sm { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: #9aa4b2; }
+            .ln { stroke: #00e5ff; stroke-width: 1.3; fill: none; marker-end: url(#ar); }
+          </style>
+        </defs>
+
+        <rect class="bx" x="8" y="118" width="96" height="52" rx="3"/>
+        <text class="lb" x="56" y="140" text-anchor="middle">INPUT</text>
+        <text class="sm" x="56" y="156" text-anchor="middle">mic / line</text>
+
+        <rect class="bx" x="140" y="90" width="150" height="108" rx="3"/>
+        <text class="lb" x="215" y="110" text-anchor="middle">CHANNEL STRIP</text>
+        <text class="sm" x="215" y="128" text-anchor="middle">trim → EQ → sends</text>
+        <text class="sm" x="215" y="143" text-anchor="middle">→ pan → fader</text>
+        <text class="sm" x="215" y="166" text-anchor="middle">shapes it and</text>
+        <text class="sm" x="215" y="180" text-anchor="middle">points it somewhere</text>
+
+        <rect class="bx2" x="326" y="100" width="128" height="88" rx="3"/>
+        <text class="lb" x="390" y="122" text-anchor="middle">RECORD</text>
+        <text class="lb" x="390" y="138" text-anchor="middle">FUNCTION</text>
+        <text class="sm" x="390" y="158" text-anchor="middle">SAFE · DIRECT</text>
+        <text class="sm" x="390" y="172" text-anchor="middle">· BUS</text>
+
+        <rect class="bx" x="492" y="40" width="130" height="86" rx="3"/>
+        <text class="lb" x="557" y="62" text-anchor="middle">TAPE</text>
+        <text class="sm" x="557" y="80" text-anchor="middle">tracks 1 2 3 4</text>
+        <text class="sm" x="557" y="98" text-anchor="middle">four places to</text>
+        <text class="sm" x="557" y="112" text-anchor="middle">put things</text>
+
+        <rect class="bx" x="492" y="168" width="130" height="86" rx="3"/>
+        <text class="lb" x="557" y="190" text-anchor="middle">MONITOR</text>
+        <text class="sm" x="557" y="208" text-anchor="middle">what you hear</text>
+        <text class="sm" x="557" y="226" text-anchor="middle">— not always</text>
+        <text class="sm" x="557" y="240" text-anchor="middle">what you record</text>
+
+        <path class="ln" d="M104 144 L136 144"/>
+        <path class="ln" d="M290 144 L322 144"/>
+        <path class="ln" d="M454 130 L470 130 L470 83 L488 83"/>
+        <path class="ln" d="M454 158 L470 158 L470 211 L488 211"/>
+        <path class="ln" d="M622 83 L660 83 L660 211 L626 211"/>
+        <text class="sm" x="668" y="150">tape</text>
+        <text class="sm" x="668" y="163">return</text>
+      </svg>
+      <div class="ps-cap">
+        The loop at the right is the part people miss: tape plays back <em>into</em> the
+        monitor section, so what you hear while overdubbing is a mix of live signal and
+        what is already on tape. Changing the monitor changes nothing about what gets recorded.
+      </div>
+    </div>
+
+    <h2 class="ps-h2" id="strip">The Channel Strip</h2>
+    <div class="ps-h2-sub">Top to bottom, in the order the signal meets it</div>
+
+    <p class="ps-p">
+      <strong>TRIM</strong> sets how hard the preamp is driven. This is the single most
+      important level on the machine and the one beginners leave alone. Set it so the
+      loudest part of the performance reads healthy on the meters without pinning; too low
+      and you will hear tape hiss, too high and you get a kind of distortion that is not
+      the flattering kind.
+    </p>
+
+    <p class="ps-p">
+      <strong>EQ</strong> is three bands. <span class="ps-code">LOW</span> is a shelf at
+      100&nbsp;Hz, <span class="ps-code">HIGH</span> is a shelf at 10&nbsp;kHz, and the
+      <span class="ps-code">MID</span> has two knobs — one sets how much, the other sweeps
+      the centre frequency anywhere from <strong>250&nbsp;Hz to 5&nbsp;kHz</strong>. That
+      sweep is the useful one. Boost it hard, sweep until the thing you dislike jumps out,
+      then cut instead of boosting.
+    </p>
+
+    <p class="ps-p">
+      <strong>EFFECT SEND 1 and 2</strong> tap the channel and feed the send outputs on the
+      top panel, for an outboard reverb or delay. Send 2 is dual-purpose — it is also the
+      <span class="ps-code">TAPE CUE</span> bus — which matters more than it sounds and
+      comes up under overdubbing below.
+    </p>
+
+    <p class="ps-p">
+      <strong>PAN</strong> and <strong>FADER</strong> finish the job. On a normal mixer pan
+      places a sound in the stereo image. Here it does that <em>and</em> selects which tape
+      track the signal records to, which is the trick the next section is about.
+    </p>
+
+    <h2 class="ps-h2" id="switch">The Switch That Matters Most</h2>
+    <div class="ps-h2-sub">RECORD FUNCTION · safe, direct, bus</div>
+
+    <p class="ps-p">
+      Each track has a <strong>RECORD FUNCTION</strong> switch with three positions, and
+      nearly every "why isn't it recording" moment traces back to this one control.
+    </p>
+
+    <div class="ps-card">
+      <h3 class="ps-h3">SAFE</h3>
+      <p class="ps-p">Playback only. The track cannot be recorded on, no matter what else you
+      do. Put finished tracks here — it is the seatbelt that stops you erasing the take you
+      spent an hour on.</p>
+
+      <h3 class="ps-h3">DIRECT</h3>
+      <p class="ps-p">Channel <em>n</em> goes straight to tape track <em>n</em>. Channel 1 to
+      track 1, channel 2 to track 2, and so on. No bus, no panning decisions. This is how you
+      record <strong>up to four separate sources at once</strong> — a band playing live, or a
+      drum kit across several mics.</p>
+
+      <h3 class="ps-h3">BUS</h3>
+      <p class="ps-p">The signal goes through the stereo bus first, so <em>any</em> input can
+      reach <em>any</em> track, and several inputs can be mixed down to one. Because the bus
+      is only left and right, you can record <strong>two tracks at a time</strong> this way.
+      Pan decides the destination: <strong>hard left feeds tracks 1 and 3, hard right feeds
+      tracks 2 and 4.</strong> This is also the position you use for bouncing.</p>
+    </div>
+
+    <p class="ps-p">
+      The rule of thumb: <strong>DIRECT when you have as many sources as tracks, BUS when
+      you need to combine.</strong>
+    </p>
+
+    <h2 class="ps-h2" id="tape">Tape Speed and dbx</h2>
+    <div class="ps-h2-sub">Two switches that decide how it sounds</div>
+
+    <p class="ps-p">
+      The 424 mkIII runs at <strong>3¾ ips</strong> (high) or <strong>1⅞ ips</strong>
+      (normal cassette speed). High speed pulls more tape past the head each second, which
+      buys headroom and high-frequency response at the cost of half your recording time.
+      Use it. A C60 at high speed gives you about fifteen minutes a side, which is more song
+      than most songs.
+    </p>
+
+    <p class="ps-p">
+      <strong>dbx Type II</strong> is the noise reduction, and on cassette multitrack it is
+      not optional — four narrow tracks on slow-moving tape is a noisy proposition, and dbx
+      removes most of it. One thing to know: there is a <strong>SYNC</strong> function that
+      defeats dbx on <strong>track 4 alone</strong>, so that track can carry a MIDI sync tone
+      or timecode. Sync tones are not music and dbx mangles them. If track 4 sounds wrong
+      and nothing else does, check whether SYNC is engaged.
+    </p>
+
+    <div class="ps-note">
+      A tape recorded with dbx must be played back with dbx. If a tape sounds like it is
+      breathing or pumping, the decode setting probably does not match how it was recorded —
+      the tape is fine, the switch is wrong.
+    </div>
+
+    <h2 class="ps-h2" id="first">Recording Your First Track</h2>
+    <div class="ps-h2-sub">The short version</div>
+
+    <p class="ps-p">
+      1. Plug the source into channel 1. 2. Set the <strong>RECORD FUNCTION</strong> for
+      track 1 to <strong>DIRECT</strong>. 3. Arm track 1. 4. Play at performance volume and
+      set <strong>TRIM</strong> until the meter sits healthy on the loudest hits. 5. EQ only
+      if something is wrong — it is not a flavour stage here, it is a repair stage.
+      6. Rewind, press record and play together, perform.
+    </p>
+
+    <p class="ps-p">
+      Two things that catch everyone the first time. <strong>Levels are set with TRIM, not
+      the fader</strong> — the fader controls what you hear, the trim controls what goes to
+      tape. And <strong>the tape counter is your only map</strong>; write down where things
+      start, because nothing on a cassette tells you where you are.
+    </p>
+
+    <h2 class="ps-h2" id="overdub">Overdubbing</h2>
+    <div class="ps-h2-sub">Playing along with what is already there</div>
+
+    <p class="ps-p">
+      Overdubbing is where the monitor section earns its keep. Set the finished track to
+      <strong>SAFE</strong>, arm the new one, and set up a <strong>cue mix</strong> — a blend
+      of tape playback and your live signal, sent to headphones, that exists purely so you can
+      play in time. This is what <span class="ps-code">EFF 2 / TAPE CUE</span> is for when it
+      is in cue mode.
+    </p>
+
+    <p class="ps-p">
+      The important idea: <strong>the cue mix is not the recording.</strong> You can make the
+      click painfully loud and your guitar quiet in the headphones and none of it reaches
+      tape. Beginners often fight their monitor mix thinking they are fixing the take.
+    </p>
+
+    <h2 class="ps-h2" id="bounce">Bouncing</h2>
+    <div class="ps-h2-sub">How four tracks becomes ten parts</div>
+
+    <p class="ps-p">
+      Bouncing — "ping-ponging" — is the technique the whole format is built around. You mix
+      several recorded tracks together onto one free track, then erase the originals and reuse
+      them. Three tracks become one, and you have two free again.
+    </p>
+
+    <p class="ps-p">
+      The move that surprises people: <strong>you can play a live part while bouncing.</strong>
+      Bounce tracks 1, 2 and 3 onto track 4 while adding a new vocal through a spare channel,
+      and track 4 now holds four parts. Do this once or twice and a four-track machine is
+      carrying ten individual performances.
+    </p>
+
+    <p class="ps-p">
+      Set the source tracks to <strong>SAFE</strong>, the destination to <strong>BUS</strong>,
+      pan everything to the destination's side, and treat it exactly like a mixdown — because
+      it is one, just aimed at your own tape instead of an external recorder.
+    </p>
+
+    <div class="ps-note">
+      Bouncing is irreversible and cumulative. A single generation holds up well; the balance
+      you commit to is the balance you keep, and every pass adds a little noise and takes a
+      little top end. Plan the bounce before you need it rather than reaching for it when you
+      run out of tracks — an over-bounced mix is a common way to lose an otherwise good song.
+    </div>
+
+    <h2 class="ps-h2" id="punch">Punching In</h2>
+    <div class="ps-h2-sub">Fixing one bar without redoing the take</div>
+
+    <p class="ps-p">
+      Punching in drops the machine into record on an armed track mid-playback, replaces the
+      section, and drops out again. The 424 mkIII takes a <strong>footswitch on the rear
+      panel</strong> for exactly this, which is the difference between punching your own
+      guitar part and needing a second person.
+    </p>
+
+    <p class="ps-p">
+      Rehearse the punch before committing. Tape has no undo — the moment you punch, what was
+      there is gone.
+    </p>
+
+    <h2 class="ps-h2" id="mix">Mixdown</h2>
+    <div class="ps-h2-sub">Four tracks to two</div>
+
+    <p class="ps-p">
+      All four RECORD FUNCTION switches to <strong>SAFE</strong>, all four tape returns up on
+      their channels, balance with faders, place with pan, EQ where needed, effects via the
+      sends — then record the stereo output to whatever you have: an interface, a phone, a
+      DAT machine, another cassette deck.
+    </p>
+
+    <p class="ps-p">
+      Mix in one sitting if you can. The machine has no recall — no saved settings, no undo —
+      so a mix exists only as long as the knobs stay where they are. Photograph the panel
+      before you walk away. People have lost mixes to a cleaner.
+    </p>
+
+    <h2 class="ps-h2" id="approach">How to Approach It</h2>
+    <div class="ps-h2-sub">The part that is not in the manual</div>
+
+    <p class="ps-p">
+      The temptation is to treat a Portastudio as a worse DAW — same workflow, fewer tracks,
+      more hiss. Approached that way it is genuinely frustrating. Approached on its own terms
+      it does something a DAW structurally cannot, and the difference is
+      <strong>commitment</strong>.
+    </p>
+
+    <p class="ps-p">
+      <strong>Arrange before you record.</strong> With four tracks you cannot defer decisions,
+      so you make them while the song is still an idea rather than after it has become a
+      hundred takes. Know what goes where before you press record. This is not a limitation
+      to work around — it is the machine forcing the thinking that unlimited tracks let you
+      postpone forever.
+    </p>
+
+    <p class="ps-p">
+      <strong>Commit your sounds.</strong> EQ and effects go to tape. There is no going back
+      and un-reverbing something. That sounds terrifying and turns out to be liberating: you
+      stop auditioning and start deciding, and a record made of decisions sounds different
+      from one made of options.
+    </p>
+
+    <p class="ps-p">
+      <strong>Let the medium be audible.</strong> Tape compresses transients, rolls off the
+      extreme top, adds a noise floor, and drifts very slightly in pitch. Those are not faults
+      to be minimised — they are most of why people still want these machines. Do not spend
+      your time fighting toward a cleanliness the format is not for.
+    </p>
+
+    <p class="ps-p">
+      <strong>Finish things.</strong> The strongest argument for four tracks is that songs
+      get finished. A project that cannot expand forever reaches an end, and a finished
+      imperfect song teaches more than a perfect unfinished one.
+    </p>
+
+    <h2 class="ps-h2" id="care">Tape and Upkeep</h2>
+    <div class="ps-h2-sub">Small habits, large difference</div>
+
+    <p class="ps-p">
+      Use <strong>Type I normal-bias</strong> cassettes — multitrack Portastudios are designed
+      around them, and chrome or metal tape is not an upgrade here. Avoid anything longer than
+      a C60: thinner, longer tape stretches and is more prone to dropouts, and at high speed
+      you are not getting the extra time anyway.
+    </p>
+
+    <p class="ps-p">
+      <strong>Clean the heads</strong> with isopropyl alcohol on a cotton swab every few
+      hours of use. Oxide builds up, and the first symptom is a dull top end that you will
+      otherwise waste an evening trying to EQ back. Demagnetising occasionally is worth it too.
+    </p>
+
+    <p class="ps-p">
+      Rewind fully before storing, keep tapes away from speakers and anything else magnetic,
+      and label the shell rather than trusting memory. The tape counter resets; your
+      handwriting does not.
+    </p>
+
+    <div class="ps-note">
+      This page covers the shape of the machine and how to work with it. For exact panel
+      references, connector pinouts and specifications, the factory manual is the authority —
+      Tascam still hosts the
+      <a href="https://www.tascam.eu/en/docs/424mkIII_manual.pdf">424 mkIII owner's manual</a>
+      as a free PDF, and it is worth having open the first few times.
+    </div>
+
+  </main>
+
+  <script src="scripts.js?v=69"></script>
+  <script src="stars.js?v=1"></script>
+</body>
+</html>
