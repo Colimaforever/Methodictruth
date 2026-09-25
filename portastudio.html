@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0e1a">
   <title>Four Tracks — Recording on the Tascam 424 mkIII Portastudio | Methodic Truth</title>
-  <meta name="description" content="How a cassette Portastudio actually works and how to record on one: the signal path, the RECORD FUNCTION switch, tape speed and dbx, bouncing tracks to get more than four parts, and why the limit makes better records.">
+  <meta name="description" content="How a cassette Portastudio actually works and how to record on one: the signal path, the RECORD FUNCTION switch, tape speed and dbx, bouncing tracks to get more than four parts, how it fits alongside a patchbay and an interface, and why the limit makes better records.">
   <meta name="keywords" content="tascam 424 mkiii, portastudio guide, 4 track cassette recording, bouncing tracks ping pong, dbx noise reduction, tape multitrack, home recording cassette, record function direct bus">
   <link rel="canonical" href="https://methodictruth.com/portastudio.html">
   <meta property="og:type" content="article">
@@ -329,6 +329,7 @@
       <a href="#punch">Punching in</a>
       <a href="#mix">Mixdown</a>
       <a href="#approach">How to approach it</a>
+      <a href="#studio">Fitting it into a studio</a>
       <a href="#care">Tape and upkeep</a>
     </div>
 
@@ -643,6 +644,96 @@
       get finished. A project that cannot expand forever reaches an end, and a finished
       imperfect song teaches more than a perfect unfinished one.
     </p>
+
+    <h2 class="ps-h2" id="studio">Fitting It Into a Studio</h2>
+    <div class="ps-h2-sub">Where a four-track earns its place next to everything else</div>
+
+    <p class="ps-p">
+      A Portastudio arriving in a room that already has a mixer, an interface and a patchbay
+      raises an obvious question: what is it <em>for</em> now? It is not going to be the
+      centre of the signal path, and trying to make it one fights everything else. But it
+      does three jobs nothing else in a modern rig does, and they are worth separating.
+    </p>
+
+    <h3 class="ps-h3">1 · Real tape, as a colour</h3>
+
+    <p class="ps-p">
+      Most studios have tape <em>emulation</em> — a Space Echo reissue, a saturation plugin,
+      a tape-style delay. Almost none have tape. Printing a stem to the 424 and capturing
+      the playback gives you saturation, head bump, gentle transient softening and wow and
+      flutter, none of which a model of a tape <em>echo</em> produces, because that models
+      the effect rather than the medium.
+    </p>
+
+    <div class="ps-card">
+      <div class="ps-card-label">Patch</div>
+      <p class="ps-p">
+        <span class="ps-code">patchbay send → 424 channel in → record to a track</span>, then
+        <span class="ps-code">424 stereo out → patchbay → interface</span>. High speed for
+        headroom.
+      </p>
+      <p class="ps-p">
+        Try it with <strong>dbx switched off</strong>. Noise reduction exists to remove tape
+        character, which is the opposite of the reason you are doing this. You get more hiss
+        and more of what you came for.
+      </p>
+    </div>
+
+    <p class="ps-p">
+      The obvious candidates are drum machines — an 808 through tape is close to the
+      canonical use of both — string machines and vocoders, and guitar that has already been
+      through pedals. Anything where you want glue and weight rather than detail.
+    </p>
+
+    <h3 class="ps-h3">2 · Extra analog channels</h3>
+
+    <p class="ps-p">
+      This one is easy to overlook: a 424 mkIII is <strong>six channel strips with real EQ
+      and two sends</strong>, and the tape transport does not have to be running. Desktop
+      mixers are often short on channels — an SSL SiX gives you two strips — and audio
+      interfaces run out of inputs long before a studio runs out of instruments.
+    </p>
+
+    <p class="ps-p">
+      Submixing three or four instruments through the Portastudio and taking its stereo out
+      into a single pair of interface inputs converts a channel-count problem into a mixing
+      decision, which is the better problem to have. The semi-modular and sequencer boxes
+      that get patched in ad hoc are the natural candidates — they stop competing for inputs.
+    </p>
+
+    <h3 class="ps-h3">3 · A sketchpad with no boot time</h3>
+
+    <p class="ps-p">
+      Its original job, and still the one it does best. No computer, no interface, no
+      latency, no session to open. If your instinct is to commit rather than to keep
+      options open, an idea captured on tape is already further along than a DAW scratch
+      track, because the decisions are in it.
+    </p>
+
+    <h3 class="ps-h3">The thing that will go wrong first</h3>
+
+    <p class="ps-p">
+      <strong>Levels.</strong> Portastudios are consumer-level gear; desktop mixers and
+      interfaces are usually pro-level. Coming out of the 424 into either, expect it to
+      arrive quiet and need making up. Going in, expect to need to back off or you will hit
+      the input harder than you meant to. Nothing is broken — but it is the reason the first
+      attempt sounds wrong in a way that is not obvious from the front panel.
+    </p>
+
+    <div class="ps-note">
+      <strong>What not to do:</strong> striping a sync tone onto track 4 to lock the tape to
+      a DAW. It is the classic 1980s move, the machine supports it, and it costs a quarter of
+      your tracks and a lot of patience to keep stable. Unless the tape is genuinely the
+      multitrack, keep the computer as the master clock and use the Portastudio for colour
+      and for sketching.
+    </div>
+
+    <div class="ps-note">
+      <strong>Tape drift and pitch correction fight each other.</strong> Anything printed to
+      tape comes back slightly unstable in pitch. Software that fixes that will happily
+      remove it — at which point you have paid for tape and then taken the tape back out.
+      Decide which one you want before reaching for the correction.
+    </div>
 
     <h2 class="ps-h2" id="care">Tape and Upkeep</h2>
     <div class="ps-h2-sub">Small habits, large difference</div>
