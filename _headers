@@ -47,8 +47,23 @@
   Cache-Control: public, max-age=31536000, immutable
 /stars.js
   Cache-Control: public, max-age=31536000, immutable
+/chord-shapes.js
+  Cache-Control: public, max-age=31536000, immutable
 /analytics.js
   Cache-Control: public, max-age=31536000, immutable
+
+# Audio demos (/audio) are the heaviest thing served -- 24 MB of scale, maqam
+# and reference clips. Their filenames are stable, so a change would be a new
+# file: cache a month. Without a rule these fall through to the default and
+# get re-fetched, which is the single biggest avoidable slice of bandwidth.
+/audio/*
+  Cache-Control: public, max-age=2592000
+/*.mp3
+  Cache-Control: public, max-age=2592000
+/*.ogg
+  Cache-Control: public, max-age=2592000
+/*.wav
+  Cache-Control: public, max-age=2592000
 
 # Vendored libraries (pinned versions in /lib — Tone.js, Firebase, PeerJS).
 # They rarely change, and a swap would be a new file, so cache a month.
