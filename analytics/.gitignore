@@ -1,0 +1,3 @@
+# latest.json is the raw last-run payload and can carry more detail than the
+# committed aggregates. Kept local; REPORT.md and history.json are the record.
+latest.json

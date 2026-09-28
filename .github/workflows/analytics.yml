@@ -1,0 +1,54 @@
+name: Collect Analytics
+
+# Daily snapshot of site traffic, committed into the repository.
+#
+# The point is visibility: the agent that works on this site runs in a sandbox
+# whose egress policy reaches GitHub and nothing else -- not the site, not the
+# API, not Firebase, not Cloudflare. Numbers that live only in a dashboard are
+# invisible to it. Numbers committed here are not.
+#
+# It also builds the thing a dashboard cannot: an append-only daily history, so
+# "is it growing?" stops being a question about one screenshot.
+
+on:
+  schedule:
+    # 07:10 UTC. Not on the hour -- scheduled runs cluster there and get delayed.
+    - cron: '10 7 * * *'
+  workflow_dispatch:        # so it can be run on demand without waiting a day
+
+permissions:
+  contents: write           # needs to commit the snapshot back
+
+concurrency:
+  group: analytics
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Collect
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          FIREBASE_DB_URL: ${{ vars.FIREBASE_DB_URL }}
+          FIREBASE_AUTH: ${{ secrets.FIREBASE_AUTH }}
+        run: node .github/scripts/collect-analytics.js
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analytics/
+          if git diff --staged --quiet; then
+            echo "no change"
+          else
+            git commit -m "Analytics: snapshot $(date -u +%Y-%m-%d)"
+            git push
+          fi
