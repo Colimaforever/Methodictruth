@@ -932,6 +932,36 @@
     .tg-link:hover { color: var(--glow); border-color: rgba(0, 229, 255, 0.4); }
     .tg-link[hidden] { display: none; }
     .tg-close { margin-left: auto; }
+    .tg-runner { margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; }
+    .tg-run-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+    .tg-run-f { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.58rem;
+                letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone-dark); }
+    .tg-run-f input[type=range] { accent-color: var(--glow); width: 110px; min-height: 26px; }
+    .tg-run-wide output { min-width: 3.4rem; color: var(--parchment); font-size: 0.6rem; }
+    .tg-run-seq { flex: 1 1 190px; }
+    .tg-run-seq input[type=text] {
+      flex: 1; min-width: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+      background: rgba(0, 229, 255, 0.05); color: var(--parchment);
+      border: 1px solid rgba(0, 229, 255, 0.22); padding: 0.3rem 0.4rem; min-height: 32px;
+    }
+    .tg-run-seq input[type=text]:focus { outline: none; border-color: var(--glow); }
+    .tg-run-seq input.tg-bad { border-color: rgba(232, 92, 92, 0.75); }
+    .tg-run-chk { display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer;
+                  font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+                  color: var(--stone-dark); }
+    .tg-run-chk input { accent-color: var(--glow); width: 14px; height: 14px; }
+    .tg-run-steps { display: flex; flex-wrap: wrap; gap: 0.2rem; min-height: 1.4rem; }
+    .tg-step {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; line-height: 1;
+      padding: 0.25rem 0.35rem; border: 1px solid rgba(0, 229, 255, 0.18);
+      color: var(--stone-dark); border-radius: 2px;
+    }
+    /* The sounding step is marked by weight and a border as well as colour,
+       so it stays findable without relying on colour vision. */
+    .tg-step.on { color: var(--glow); border-color: var(--glow);
+                  background: rgba(0, 229, 255, 0.14); font-weight: 700; }
+    .tg-step.micro::after { content: '~'; opacity: 0.85; }
+
     .tg-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
     .tg-chips:empty { display: none; }
     .tg-chip {
@@ -1330,6 +1360,47 @@
         <button class="piano-oct-btn tg-close" id="guideClose" title="Hide the guide">✕</button>
       </div>
       <div class="tg-chips" id="guideChips"></div>
+
+      <!-- Scale runner: walks the scale so you can hear and watch its shape.
+           Ascent and descent are separate fields because plenty of scales are
+           not symmetrical -- melodic minor comes back down as natural minor,
+           and maqam descents vary by performer. -->
+      <div class="tg-runner" id="guideRunner">
+        <div class="tg-run-row">
+          <button class="piano-oct-btn" id="runPlay" title="Run the scale up and down">▶ Run</button>
+          <label class="tg-run-f"><span>Dir</span>
+            <select class="tp-select" id="runDir" title="Which way to walk the scale">
+              <option value="updown">Up · Down</option>
+              <option value="up">Up only</option>
+              <option value="down">Down only</option>
+              <option value="downup">Down · Up</option>
+            </select>
+          </label>
+          <label class="tg-run-f"><span>Oct</span>
+            <select class="tp-select" id="runOct" title="How many octaves to cover">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            </select>
+          </label>
+          <label class="tg-run-f tg-run-wide"><span>Speed</span>
+            <input type="range" id="runTempo" min="70" max="600" step="10" value="200"
+                   title="Time per note">
+            <output id="runTempoOut">200ms</output>
+          </label>
+          <label class="tg-run-chk"><input type="checkbox" id="runLoop"><span>Loop</span></label>
+        </div>
+        <div class="tg-run-row">
+          <label class="tg-run-f tg-run-seq"><span>Up</span>
+            <input type="text" id="runAsc" spellcheck="false"
+                   title="Scale degrees on the way up. 1 is the root, 8 the octave. Repeat and reorder freely.">
+          </label>
+          <label class="tg-run-f tg-run-seq"><span>Down</span>
+            <input type="text" id="runDesc" spellcheck="false"
+                   title="Scale degrees on the way down — set this differently when the scale is not symmetrical.">
+          </label>
+          <button class="piano-oct-btn" id="runReset" title="Back to a plain run up and down">Reset</button>
+        </div>
+        <div class="tg-run-steps" id="runSteps" aria-live="off"></div>
+      </div>
       <div class="tg-readout">
         <span class="tg-title" id="guideTitle"></span>
         <span class="tg-notes" id="guideNotes"></span>
@@ -5102,13 +5173,31 @@
     'Natural Minor':    { iv: [0, 2, 3, 5, 7, 8, 10], group: 'Modes of the major scale', mood: 'Melancholic. The shadow side of major.', theory: 'Natural Minor (Aeolian)' },
     'Locrian':          { iv: [0, 1, 3, 5, 6, 8, 10], group: 'Modes of the major scale', mood: 'Unstable — a diminished home chord. Tension, not a home key.', theory: 'Locrian' },
     'Harmonic Minor':   { iv: [0, 2, 3, 5, 7, 8, 11], group: 'Other minors', mood: 'Classical drama — the raised 7th pulls home hard.', theory: 'Harmonic Minor' },
-    'Melodic Minor':    { iv: [0, 2, 3, 5, 7, 9, 11], group: 'Other minors', mood: 'Jazz’s secret weapon. Between major and minor.', theory: 'Melodic Minor' },
+    'Melodic Minor':    { iv: [0, 2, 3, 5, 7, 9, 11], desc: [0, 2, 3, 5, 7, 8, 10], group: 'Other minors', mood: 'Jazz’s secret weapon. Between major and minor — and it comes back down as natural minor.', theory: 'Melodic Minor' },
     'Major Pentatonic': { iv: [0, 2, 4, 7, 9],        group: 'Pentatonic & blues', mood: 'Five notes, no wrong choices.', theory: 'Pentatonic Major', parent: 'Major' },
     'Minor Pentatonic': { iv: [0, 3, 5, 7, 10],       group: 'Pentatonic & blues', mood: 'The rock and blues backbone.', theory: 'Pentatonic Minor', parent: 'Natural Minor' },
     'Blues':            { iv: [0, 3, 5, 6, 7, 10],    group: 'Pentatonic & blues', mood: 'Minor pentatonic plus the blue note.', theory: 'Blues', parent: 'Natural Minor' },
     'Phrygian Dominant':{ iv: [0, 1, 4, 5, 7, 8, 10], group: 'Exotic', mood: 'Flamenco’s heart — the ♭2 to 3 leap.', theory: 'Phrygian Dominant' },
     'Double Harmonic':  { iv: [0, 1, 4, 5, 7, 8, 11], group: 'Exotic', mood: 'Byzantine grandeur. Two augmented seconds.', theory: 'Double Harmonic Major' },
     'Hungarian Minor':  { iv: [0, 2, 3, 6, 7, 8, 11], group: 'Exotic', mood: 'Dark and ornate — harmonic minor with a ♯4.', theory: 'Hungarian Minor' },
+
+    // Maqamat. `cents` offsets each degree away from 12-TET, which is not
+    // decoration -- the half-flat third of Rast and the half-flat second of
+    // Bayati are the notes that make them those maqamat rather than nearby
+    // Western scales. midiToFreq takes fractional note numbers, so these
+    // sound at their true pitch rather than being rounded to a piano key.
+    //
+    // Tunings are the ones already shipping in scripts.js for the generative
+    // engine, so the site says the same thing about a maqam in both places.
+    //
+    // No `desc` is given: Arabic and Persian practice vary the descent by
+    // performer and by phrase (the sayr), so committing one here would be
+    // inventing an authority that does not exist. The runner's editable
+    // descent is the honest answer -- put in the one you were taught.
+    'Rast':             { iv: [0, 2, 3, 5, 7, 9, 10], cents: [0, 0, 50, 0, 0, 0, 50], group: 'Maqam', mood: 'The root maqam. Major-ish, but the 3rd and 7th sit half-flat — between the keys of a piano.', theory: 'Maqam Rast' },
+    'Bayati':           { iv: [0, 1, 3, 5, 7, 8, 10], cents: [0, 50, 0, 0, 0, 0, 0], group: 'Maqam', mood: 'The most common maqam in Arabic music. Its half-flat 2nd is the whole character.', theory: 'Maqam Bayati' },
+    'Hijaz':            { iv: [0, 1, 4, 5, 7, 8, 10], group: 'Maqam', mood: 'The augmented 2nd between ♭2 and 3 — the sound most Western ears call "Middle Eastern".', theory: 'Maqam Hijaz' },
+    'Chahargah':        { iv: [0, 2, 3, 6, 7, 8, 11], group: 'Maqam', mood: 'Persian dastgah. Two augmented seconds, bold and ceremonial.', theory: 'Chahargah' },
   };
   // Chord qualities, keyed by the suffix a chart would print. The same keys
   // are what the Chord Voicings page understands, so a chord here links to
@@ -5263,6 +5352,9 @@
 
   const ROLE_NAMES = { r: 'Root', 3: 'Third', 5: 'Fifth', 7: 'Seventh', x: 'Extension', t: 'Scale tone' };
   function guideApply() {
+    // A new scale means new degrees, so reset the runner's patterns unless the
+    // user has edited them away from the defaults for the previous scale.
+    if (typeof runSyncScale === 'function') runSyncScale();
     if (!pianoKeysEl) return;
     pianoKeysEl.classList.toggle('guide-on', guide.on);
     pianoKeysEl.querySelectorAll('.piano-key').forEach(el => {
@@ -5358,6 +5450,204 @@
 
   // Hear what you see, through whatever is patched. A scale runs up and back;
   // a chord is strummed and held. Any earlier audition is cut short first.
+  // ─── Scale runner ───────────────────────────────────────────────────
+  // Walks the scale so its shape can be heard and watched rather than read.
+  //
+  // Ascent and descent are separate sequences on purpose. A symmetrical runner
+  // — up, then the same notes mirrored — quietly misrepresents a large part of
+  // the world's music: melodic minor descends as natural minor, and maqam
+  // descents vary by performer and phrase. Making the two editable is the
+  // difference between a toy and something you can check a lesson against.
+  var runReady = false;                 // see runSyncScale
+  var runLastDefaults = null;
+  const run = { playing: false, timers: [], sounding: [], idx: -1, seq: [] };
+
+  const runEl = {
+    play: document.getElementById('runPlay'),
+    dir: document.getElementById('runDir'),
+    oct: document.getElementById('runOct'),
+    tempo: document.getElementById('runTempo'),
+    tempoOut: document.getElementById('runTempoOut'),
+    loop: document.getElementById('runLoop'),
+    asc: document.getElementById('runAsc'),
+    desc: document.getElementById('runDesc'),
+    reset: document.getElementById('runReset'),
+    steps: document.getElementById('runSteps'),
+    wrap: document.getElementById('guideRunner'),
+  };
+
+  function runScale() { return GUIDE_SCALES[guide.scale] || GUIDE_SCALES['Major']; }
+
+  // Degrees are 1-based and keep counting past the octave: for a 7-note scale
+  // 8 is the octave, 9 the ninth. That also works for pentatonics, where 6 is
+  // the octave -- the wrap follows the scale's own length rather than assuming
+  // seven notes.
+  function runDegreeSemis(degree, descending) {
+    const sc = runScale();
+    const iv = (descending && sc.desc) ? sc.desc : sc.iv;
+    const cents = (descending && sc.desc) ? (sc.descCents || null) : (sc.cents || null);
+    const n = iv.length;
+    const idx = degree - 1;
+    const oct = Math.floor(idx / n);
+    const k = ((idx % n) + n) % n;
+    // Fractional semitones are the point: midiToFreq takes a real number, so a
+    // half-flat third sounds at 350 cents instead of being rounded to a key.
+    return iv[k] + oct * 12 + (cents ? (cents[k] || 0) / 100 : 0);
+  }
+
+  function runIsMicro(degree, descending) {
+    return Math.abs(runDegreeSemis(degree, descending) % 1) > 0.001;
+  }
+
+  function runParse(text) {
+    const parts = String(text).trim().split(/[^0-9-]+/).filter(Boolean);
+    if (!parts.length) return null;
+    const out = [];
+    for (const p of parts) {
+      const v = parseInt(p, 10);
+      if (!Number.isFinite(v) || v < 1 || v > 40) return null;
+      out.push(v);
+    }
+    return out;
+  }
+
+  function runDefaultSeqs() {
+    const n = runScale().iv.length;
+    const up = [];
+    for (let d = 1; d <= n + 1; d++) up.push(d);
+    return { asc: up.join(' '), desc: up.slice().reverse().join(' ') };
+  }
+
+  function runSyncDefaults() {
+    const d = runDefaultSeqs();
+    runEl.asc.value = d.asc;
+    runEl.desc.value = d.desc;
+    runLastDefaults = d;
+    runEl.asc.classList.remove('tg-bad');
+    runEl.desc.classList.remove('tg-bad');
+    runRenderSteps();
+  }
+
+  // Called whenever the selected scale changes. A different scale has
+  // different degrees, so the patterns need to follow -- but only if they are
+  // still the previous scale's defaults. Someone who typed their own descent
+  // should not lose it because they compared two maqamat.
+  function runSyncScale() {
+    if (!runReady) return;
+    const d = runDefaultSeqs();
+    const untouched = !runLastDefaults ||
+      (runEl.asc.value.trim() === runLastDefaults.asc &&
+       runEl.desc.value.trim() === runLastDefaults.desc);
+    if (untouched) { runEl.asc.value = d.asc; runEl.desc.value = d.desc; }
+    runLastDefaults = d;
+    runRenderSteps();
+  }
+
+  // Repeat the pattern an octave higher each time round. Ascending runs
+  // octaves low to high, descending high to low, so "down" starts at the top
+  // where it should.
+  function runExpand(pattern, descending, octaves) {
+    const n = runScale().iv.length;
+    const out = [];
+    const range = [];
+    for (let o = 0; o < octaves; o++) range.push(o);
+    if (descending) range.reverse();
+    for (const o of range) for (const d of pattern) out.push(d + o * n);
+    return out;
+  }
+
+  function runBuild() {
+    const a = runParse(runEl.asc.value), d = runParse(runEl.desc.value);
+    runEl.asc.classList.toggle('tg-bad', !a);
+    runEl.desc.classList.toggle('tg-bad', !d);
+    if (!a || !d) return [];
+    const octs = parseInt(runEl.oct.value, 10) || 1;
+    const dir = runEl.dir.value;
+    let seq = [];
+    const up = () => runExpand(a, false, octs).map(deg => ({ deg, desc: false }));
+    const dn = () => runExpand(d, true, octs).map(deg => ({ deg, desc: true }));
+    if (dir === 'up') seq = up();
+    else if (dir === 'down') seq = dn();
+    else if (dir === 'downup') seq = dn().concat(up());
+    else seq = up().concat(dn());
+    // Collapse a repeated note where the two halves meet -- the octave
+    // otherwise sounds twice at the turn, which reads as a stutter.
+    return seq.filter((x, i) =>
+      i === 0 || !(seq[i - 1].deg === x.deg && seq[i - 1].desc === x.desc));
+  }
+
+  function runRenderSteps() {
+    if (!runEl.steps) return;
+    const seq = run.playing ? run.seq : runBuild();
+    runEl.steps.innerHTML = '';
+    seq.forEach((st, i) => {
+      const b = document.createElement('span');
+      b.className = 'tg-step' + (i === run.idx ? ' on' : '') +
+                    (runIsMicro(st.deg, st.desc) ? ' micro' : '');
+      b.textContent = st.deg;
+      runEl.steps.appendChild(b);
+    });
+  }
+
+  function runStop() {
+    run.playing = false;
+    run.timers.forEach(clearTimeout); run.timers = [];
+    run.sounding.forEach(n => noteOff(n)); run.sounding = [];
+    run.idx = -1;
+    if (runEl.play) runEl.play.textContent = '▶ Run';
+    runRenderSteps();
+  }
+
+  function runStart() {
+    guideStopAudition();
+    runStop();
+    const seq = runBuild();
+    if (!seq.length) return;
+    if (Tone.context.state !== 'running') Tone.start().catch(() => {});
+
+    run.playing = true;
+    run.seq = seq;
+    runEl.play.textContent = '■ Stop';
+
+    const step = parseInt(runEl.tempo.value, 10) || 200;
+    const base = (keyboardOctave + 1) * 12 + guide.root;
+    const vel = keyboardVelocity;
+    const at = (ms, fn) => run.timers.push(setTimeout(fn, ms));
+
+    seq.forEach((st, i) => {
+      const note = base + runDegreeSemis(st.deg, st.desc);
+      at(i * step, () => {
+        run.idx = i;
+        runRenderSteps();
+        noteOn(note, vel, 'guide');
+        run.sounding.push(note);
+      });
+      at(i * step + step * 0.85, () => {
+        noteOff(note);
+        run.sounding = run.sounding.filter(x => x !== note);
+      });
+    });
+    at(seq.length * step + 40, () => {
+      if (runEl.loop.checked && run.playing) runStart();
+      else runStop();
+    });
+  }
+
+  if (runEl.play) {
+    tapHandler(runEl.play, () => (run.playing ? runStop() : runStart()));
+    tapHandler(runEl.reset, () => { runSyncDefaults(); });
+    runEl.tempo.addEventListener('input', () => {
+      runEl.tempoOut.textContent = runEl.tempo.value + 'ms';
+    });
+    [runEl.dir, runEl.oct].forEach(el =>
+      el.addEventListener('change', () => { if (run.playing) runStart(); else runRenderSteps(); }));
+    [runEl.asc, runEl.desc].forEach(el =>
+      el.addEventListener('input', () => { if (!run.playing) runRenderSteps(); }));
+    runEl.tempoOut.textContent = runEl.tempo.value + 'ms';
+    runReady = true;
+    runSyncDefaults();
+  }
+
   let guideTimers = [];
   let guideSounding = [];
   function guideStopAudition() {
