@@ -1,0 +1,27 @@
+# Install to /etc/logrotate.d/chord-analyzer (edit the paths first).
+#
+# Access logging makes this file grow far faster than before, and every line
+# carries a visitor IP address. Two weeks is a deliberate retention choice
+# rather than a disk-space one: long enough to investigate a problem, short
+# enough that personal data is not accumulating on the machine forever.
+
+/REPLACE/WITH/PATH/TO/chord-server/chord-analyzer.log
+/REPLACE/WITH/PATH/TO/chord-server/lyrics-service.log
+{
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    su REPLACE_WITH_YOUR_USERNAME REPLACE_WITH_YOUR_USERNAME
+    create 0640 REPLACE_WITH_YOUR_USERNAME REPLACE_WITH_YOUR_USERNAME
+
+    # copytruncate, NOT a postrotate restart. Both services hold the file open
+    # in append mode; a plain rotate would leave them writing to the rotated
+    # inode and the live log would stay empty until the next restart. The
+    # alternative -- restarting on rotation -- would kill an in-flight analysis
+    # and force the lyrics sidecar to reload a 3 GB model. copytruncate costs a
+    # theoretical few lines written during the copy, which is the cheaper loss.
+    copytruncate
+}

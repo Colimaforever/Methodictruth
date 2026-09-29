@@ -8,9 +8,23 @@ User=REPLACE_WITH_YOUR_USERNAME
 Group=REPLACE_WITH_YOUR_USERNAME
 Environment=HOME=/home/REPLACE_WITH_YOUR_USERNAME
 WorkingDirectory=/REPLACE/WITH/PATH/TO/chord-server
-ExecStart=/REPLACE/WITH/PATH/TO/chord-server/venv/bin/gunicorn -w 4 --timeout 300 -b 127.0.0.1:5005 app:app
+ExecStart=/REPLACE/WITH/PATH/TO/chord-server/venv/bin/gunicorn -w 4 --timeout 300 -b 127.0.0.1:5005 --access-logfile - --access-logformat '%(t)s ip=%({cf-connecting-ip}i)s cc=%({cf-ipcountry}i)s "%(r)s" %(s)s %(b)sb %(M)sms ref="%(f)s" ua="%(a)s"' app:app
 Restart=on-failure
 RestartSec=5
+
+# Access logging goes to stdout (-), which the StandardOutput line below sends
+# to the same regular file as everything else -- so it inherits the
+# never-block-on-write property and adds no new journald exposure.
+#
+# The format is not gunicorn's default, for one reason: every request arrives
+# through the Cloudflare tunnel, so %(h)s is always 127.0.0.1 and tells you
+# nothing. CF-Connecting-IP carries the real client address and CF-IPCountry
+# its country. %(M)s is request duration in ms, which is what shows an analysis
+# starting to struggle before anyone complains.
+#
+# Note this writes visitor IP addresses to disk. That is personal data: keep the
+# log local, and keep the logrotate policy short rather than accumulating it
+# forever.
 
 # CRITICAL: send worker output to a regular file, NOT journald. yt-dlp and
 # its ffmpeg/node subprocesses write progress/diagnostic output to stderr;
