@@ -1174,6 +1174,7 @@
           <a href="finishing.html">Finishing</a>
           <div class="nav-drop-label">Reference</div>
           <a href="theory.html">Theory</a>
+          <a href="melody.html">Writing Melody</a>
           <a href="fretboard.html">Seeing the Fretboard</a>
           <a href="multimeter.html">Reading the Meter</a>
           <a href="portastudio.html">Four Tracks</a>
@@ -5458,6 +5459,7 @@
   // the world's music: melodic minor descends as natural minor, and maqam
   // descents vary by performer and phrase. Making the two editable is the
   // difference between a toy and something you can check a lesson against.
+  var guideAutoRun = false;             // set by ?run=1 during guide init
   var runReady = false;                 // see runSyncScale
   var runLastDefaults = null;
   const run = { playing: false, timers: [], sounding: [], idx: -1, seq: [] };
@@ -5646,6 +5648,17 @@
     runEl.tempoOut.textContent = runEl.tempo.value + 'ms';
     runReady = true;
     runSyncDefaults();
+    // Browsers block audio until a gesture, so an autorun arriving cold would
+    // silently do nothing. Wait for the first interaction, then go once.
+    if (guideAutoRun) {
+      const kick = () => {
+        document.removeEventListener('pointerdown', kick);
+        document.removeEventListener('keydown', kick);
+        if (guideAutoRun) { guideAutoRun = false; runStart(); }
+      };
+      document.addEventListener('pointerdown', kick, { once: false });
+      document.addEventListener('keydown', kick, { once: false });
+    }
   }
 
   let guideTimers = [];
@@ -5759,6 +5772,9 @@
         const byName = GUIDE_SCALES[scaleQ] ? scaleQ : Object.keys(GUIDE_SCALES).find(k => GUIDE_SCALES[k].theory === scaleQ);
         if (byName) { guide.scale = byName; guide.view = 'scale'; guide.on = true; }
       }
+      // ?run=1 — arrive with the runner already going. Pages that explain a
+      // mode link here so "hear it" is one click rather than a tour of the UI.
+      if (q.get('run') === '1') { guide.on = true; guide.view = 'scale'; guideAutoRun = true; }
       const chordQ = q.get('chord');
       if (chordQ !== null && GUIDE_CHORDS[chordQ]) { guide.quality = chordQ; guide.view = 'chord'; guide.on = true; }
     } catch (e) {}

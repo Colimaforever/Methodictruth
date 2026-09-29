@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Writing Melody — Contour, Motif, Tension and Space | Methodic Truth</title>
+  <meta name="description" content="How melody actually works: contour and the shape of a line, steps against leaps, motif and development, question-and-answer phrasing, chord tones versus tension notes, why rhythm is half of melody, and how the mode you choose colours all of it.">
+  <meta name="keywords" content="how to write melody, melodic contour, motif development, antecedent consequent phrase, chord tones non-chord tones, passing tone neighbour tone, melodic rhythm, modal melody, maqam melody, melody writing guide">
+  <link rel="canonical" href="https://methodictruth.com/melody.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Writing Melody — Contour, Motif, Tension and Space">
+  <meta property="og:description" content="A melody is not a scale. What it is actually made of, and how to write one that someone can sing back.">
+  <meta property="og:url" content="https://methodictruth.com/melody.html">
+  <meta property="og:site_name" content="Methodic Truth">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Writing Melody — Contour, Motif, Tension and Space">
+  <meta name="twitter:description" content="Contour, motif, phrasing, tension and space — and how the mode colours all of it.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Writing Melody — Contour, Motif, Tension and Space",
+    "url": "https://methodictruth.com/melody.html",
+    "datePublished": "2026-09-29",
+    "dateModified": "2026-09-29",
+    "description": "How melody works: contour, steps against leaps, motif development, question-and-answer phrasing, chord tones versus tension notes, melodic rhythm, and how mode colours a line.",
+    "author": { "@type": "Person", "name": "Sergio Macedo" },
+    "publisher": { "@type": "Organization", "name": "Methodic Truth", "url": "https://methodictruth.com" },
+    "proficiencyLevel": "Beginner"
+  }
+  </script>
+  <link rel="stylesheet" href="styles.css?v=77">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    .ml-wrap { max-width: 860px; margin: 0 auto; padding: 0 clamp(1rem, 3vw, 2rem) 4rem; position: relative; z-index: 1; }
+
+    .ml-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: clamp(1rem, 1.6vw, 1.15rem);
+      color: var(--stone); line-height: 1.8; margin-bottom: 1.2rem;
+    }
+    .ml-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .ml-lead em { color: var(--glow); font-style: italic; }
+
+    .ml-h2 {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+      color: var(--glow); letter-spacing: 0.04em; margin: 2.6rem 0 0.3rem;
+    }
+    .ml-h2-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-dark);
+      margin-bottom: 1rem;
+    }
+    .ml-h3 {
+      font-family: 'Cinzel', serif; font-size: 1rem; color: var(--glow-warm);
+      letter-spacing: 0.03em; margin: 1.6rem 0 0.5rem;
+    }
+    .ml-p {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; color: var(--stone);
+      line-height: 1.8; margin-bottom: 0.9rem;
+    }
+    .ml-p strong { color: var(--parchment); font-weight: 600; }
+    .ml-p em { color: var(--glow); font-style: italic; }
+    .ml-p code, .ml-code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85em; color: var(--glow);
+      background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.18);
+      padding: 0.05rem 0.35rem; border-radius: 2px; white-space: nowrap;
+    }
+
+    .ml-card {
+      border: 1px solid rgba(0, 229, 255, 0.14);
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.5), rgba(15, 20, 15, 0.4));
+      padding: 1.2rem 1.3rem; margin: 1.3rem 0;
+    }
+    .ml-card-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--glow);
+      margin-bottom: 0.6rem; opacity: 0.8;
+    }
+
+    .ml-svg-wide { max-width: 720px; }
+    .ml-note {
+      border-left: 3px solid var(--glow-warm);
+      background: rgba(80, 60, 20, 0.18);
+      padding: 1rem 1.2rem; margin: 1.4rem 0;
+      font-family: 'EB Garamond', Georgia, serif; color: var(--stone);
+      line-height: 1.75;
+    }
+    .ml-note em { color: var(--glow); font-style: italic; }
+    .ml-note strong { color: var(--parchment); font-weight: 600; }
+    .ml-note a { color: var(--glow); }
+
+    .ml-danger {
+      border: 1px solid rgba(232, 92, 92, 0.5); background: rgba(80, 20, 20, 0.22);
+      padding: 1.2rem 1.3rem; margin: 1.4rem 0;
+    }
+    .ml-danger .ml-card-label { color: #ff9999; opacity: 1; }
+    .ml-danger .ml-p { color: #f0d0d0; }
+    .ml-danger .ml-p strong { color: #ffc9c9; }
+
+    .ml-figure { margin: 1.6rem 0; }
+    .ml-svg { display: block; width: 100%; height: auto; max-width: 520px; margin: 0 auto; }
+    .ml-cap {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.06em; color: var(--stone-dark); text-align: center;
+      margin-top: 0.7rem; line-height: 1.7;
+    }
+
+    /* Dial diagram */
+    .ml-dial-body { fill: rgba(18, 22, 34, 0.9); stroke: rgba(138, 126, 107, 0.4); stroke-width: 1.5; }
+    .ml-dial-knob { fill: rgba(40, 46, 60, 0.95); stroke: var(--glow-warm); stroke-width: 1.5; }
+    .ml-dial-ptr { stroke: var(--glow-warm); stroke-width: 3.5; stroke-linecap: round; }
+    .ml-tick { stroke: rgba(138, 126, 107, 0.55); stroke-width: 1.4; stroke-linecap: round; }
+    .ml-tick-on { stroke: var(--glow-warm); stroke-width: 2.4; }
+    .ml-dlabel {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+      fill: var(--parchment); text-anchor: middle;
+    }
+    .ml-dlabel-on { fill: var(--glow-warm); }
+    .ml-dsub {
+      font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+      fill: var(--stone-dark); text-anchor: middle; letter-spacing: 0.05em;
+    }
+    .ml-jack { fill: rgba(10, 14, 26, 0.9); stroke-width: 2; }
+    .ml-jack-red { stroke: #d55e00; }
+    .ml-jack-black { stroke: var(--stone); }
+    .ml-jtxt {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      fill: var(--stone); text-anchor: middle;
+    }
+
+    /* Connection diagram */
+    .ml-wire { stroke: var(--stone-dark); stroke-width: 2; fill: none; }
+    .ml-wire-live { stroke: var(--glow); stroke-width: 2.2; fill: none; }
+    .ml-block { fill: rgba(0, 229, 255, 0.07); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.4; }
+    .ml-meter { fill: rgba(232, 168, 124, 0.1); stroke: var(--glow-warm); stroke-width: 1.6; }
+    .ml-ctxt {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      fill: var(--stone); text-anchor: middle;
+    }
+    .ml-ctxt-w { fill: var(--glow-warm); font-weight: 700; }
+
+    /* Tables */
+    .ml-tablewrap { overflow-x: auto; margin: 1.2rem 0; }
+    .ml-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+    .ml-table th {
+      text-align: left; padding: 0.55rem 0.6rem; color: var(--glow-warm); font-weight: 400;
+      letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.58rem;
+      border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap;
+    }
+    .ml-table td {
+      padding: 0.55rem 0.6rem; color: var(--stone); vertical-align: top;
+      border-bottom: 1px solid rgba(138, 126, 107, 0.12); line-height: 1.6;
+    }
+    .ml-table td.ml-sym {
+      color: var(--glow); font-weight: 700; white-space: nowrap; font-size: 0.85rem;
+    }
+    .ml-table tr:hover td { background: rgba(0, 229, 255, 0.03); }
+
+    .ml-list { list-style: none; padding-left: 0; margin: 0.6rem 0 1rem; }
+    .ml-list li {
+      position: relative; padding-left: 1.5rem; margin-bottom: 0.6rem;
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.75;
+    }
+    .ml-list li::before {
+      content: '◆'; position: absolute; left: 0; top: 0.15em;
+      color: var(--glow); font-size: 0.62em; opacity: 0.75;
+    }
+    .ml-list strong { color: var(--parchment); font-weight: 600; }
+    .ml-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; color: var(--glow); }
+
+    .ml-steps { counter-reset: mmstep; list-style: none; padding-left: 0; margin: 0.8rem 0 1.2rem; }
+    .ml-steps li {
+      counter-increment: mmstep; position: relative; padding-left: 2.3rem;
+      margin-bottom: 0.85rem; font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1rem; color: var(--stone); line-height: 1.75;
+    }
+    .ml-steps li::before {
+      content: counter(mmstep); position: absolute; left: 0; top: 0.05em;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow);
+      border: 1px solid rgba(0, 229, 255, 0.35); width: 1.55rem; height: 1.55rem;
+      display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .ml-steps strong { color: var(--parchment); font-weight: 600; }
+
+    .ml-spec {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.8rem; margin: 1.2rem 0;
+    }
+    .ml-spec-item {
+      border: 1px solid rgba(0, 229, 255, 0.14); background: rgba(0, 229, 255, 0.03);
+      padding: 0.75rem 0.85rem;
+    }
+    .ml-spec-k {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.3rem;
+    }
+    .ml-spec-v { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--glow); }
+
+    .ml-toc {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1.5rem 0 2rem;
+    }
+    .ml-toc a {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em;
+      color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(138, 126, 107, 0.28); transition: all 0.2s;
+    }
+    .ml-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 600px) {
+      .ml-dlabel { font-size: 15px; }
+      .ml-dsub { font-size: 10px; }
+    }
+  </style>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="harmony.html">Harmony</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="melody.html" class="active">Writing Melody</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="multimeter.html">Reading the Meter</a>
+          <a href="portastudio.html">Four Tracks</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Harmony &amp; Sound</div>
+          <a href="breaking-the-loop.html">Breaking the Loop</a>
+          <a href="harmony-guide.html">Writing Harmony</a>
+          <a href="4ad.html">The 4AD Sound</a>
+          <div class="nav-drop-label">DJing</div>
+          <a href="djing.html">Denon Prime GO+</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+    </div>
+  </nav>
+  <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+    <h1>Writing Melody</h1>
+    <div class="subtitle">Contour, motif, tension and space</div>
+  </div>
+
+  <main class="ml-wrap">
+
+    <p class="ml-lead">
+      A melody is <strong>not a scale</strong>. A scale is the alphabet; a melody is a
+      sentence. Knowing every mode in every key tells you as much about writing a tune as
+      knowing the dictionary tells you about writing a paragraph — which is to say,
+      necessary and nowhere near sufficient.
+    </p>
+
+    <p class="ml-lead">
+      What follows is what a melody is actually made of. Most of it is not about pitch at
+      all: <em>shape</em>, <em>repetition</em>, <em>rhythm</em> and <em>silence</em> do more
+      work than note choice, which is the opposite of how theory is usually taught.
+    </p>
+
+    <div class="ml-toc">
+      <a href="#contour">Contour — the shape</a>
+      <a href="#steps">Steps against leaps</a>
+      <a href="#motif">The motif</a>
+      <a href="#phrase">Question and answer</a>
+      <a href="#tension">Tension and release</a>
+      <a href="#rhythm">Rhythm is half of it</a>
+      <a href="#space">Space</a>
+      <a href="#climax">One high point</a>
+      <a href="#mode">What the mode does</a>
+      <a href="#write">Actually writing one</a>
+      <a href="#wrong">What usually goes wrong</a>
+    </div>
+
+    <h2 class="ml-h2" id="contour">Contour — The Shape</h2>
+    <div class="ml-h2-sub">The first thing anyone hears, before a single note is identified</div>
+
+    <p class="ml-p">
+      Play a melody to someone and ask them to describe it. They will not say "it went to the
+      flat seventh." They will move their hand — up, over, down. That gesture is
+      <strong>contour</strong>, and it is the most memorable property a melody has.
+    </p>
+
+    <div class="ml-figure">
+      <svg class="ml-svg ml-svg-wide" viewBox="0 0 700 220" role="img"
+           aria-label="Four melodic contours: arch, descending, ascending, and wave">
+        <defs><style>
+          .cl { fill: none; stroke: #00e5ff; stroke-width: 2.2; }
+          .cd { fill: #00e5ff; }
+          .ct { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: #e8e0d0; }
+          .cs { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; fill: #9aa4b2; }
+          .ax { stroke: rgba(154,164,178,0.25); stroke-width: 1; stroke-dasharray: 3 3; }
+        </style></defs>
+
+        <line class="ax" x1="14" y1="88" x2="166" y2="88"/>
+        <polyline class="cl" points="20,78 48,56 76,34 104,44 132,64 160,80"/>
+        <circle class="cd" cx="76" cy="34" r="3.4"/>
+        <text class="ct" x="90" y="118" text-anchor="middle">ARCH</text>
+        <text class="cs" x="90" y="134" text-anchor="middle">rise, peak, fall</text>
+        <text class="cs" x="90" y="148" text-anchor="middle">most songs, most</text>
+        <text class="cs" x="90" y="161" text-anchor="middle">of the time</text>
+
+        <line class="ax" x1="190" y1="88" x2="342" y2="88"/>
+        <polyline class="cl" points="196,34 224,44 252,58 280,68 308,78 336,86"/>
+        <text class="ct" x="266" y="118" text-anchor="middle">FALLING</text>
+        <text class="cs" x="266" y="134" text-anchor="middle">starts high,</text>
+        <text class="cs" x="266" y="148" text-anchor="middle">settles — resignation,</text>
+        <text class="cs" x="266" y="161" text-anchor="middle">release, sighing</text>
+
+        <line class="ax" x1="366" y1="88" x2="518" y2="88"/>
+        <polyline class="cl" points="372,86 400,78 428,66 456,54 484,42 512,30"/>
+        <text class="ct" x="442" y="118" text-anchor="middle">RISING</text>
+        <text class="cs" x="442" y="134" text-anchor="middle">builds and does not</text>
+        <text class="cs" x="442" y="148" text-anchor="middle">resolve — tension,</text>
+        <text class="cs" x="442" y="161" text-anchor="middle">a question left open</text>
+
+        <line class="ax" x1="542" y1="88" x2="694" y2="88"/>
+        <polyline class="cl" points="548,72 572,50 596,74 620,48 644,76 668,52 688,72"/>
+        <text class="ct" x="618" y="118" text-anchor="middle">WAVE</text>
+        <text class="cs" x="618" y="134" text-anchor="middle">circles one centre —</text>
+        <text class="cs" x="618" y="148" text-anchor="middle">hypnotic, but goes</text>
+        <text class="cs" x="618" y="161" text-anchor="middle">nowhere on its own</text>
+      </svg>
+      <div class="ml-cap">
+        Sing any melody you love. It is almost certainly one of these, or two of them
+        joined. The pitches are negotiable; the shape is what survives being hummed badly.
+      </div>
+    </div>
+
+    <p class="ml-p">
+      The practical use: <strong>decide the shape before the notes</strong>. Draw it in the
+      air. A melody that knows where its high point is and when it gets there will beat one
+      assembled note by note from a scale, every time.
+    </p>
+
+    <h2 class="ml-h2" id="steps">Steps Against Leaps</h2>
+    <div class="ml-h2-sub">Two kinds of motion, and the rule that governs them</div>
+
+    <p class="ml-p">
+      Moving to the next note in the scale is a <strong>step</strong>. Jumping further is a
+      <strong>leap</strong>. Melodies made only of steps wander and feel shapeless; melodies
+      made only of leaps sound like exercises and are hard to sing.
+    </p>
+
+    <p class="ml-p">
+      The convention that has held across centuries and genres: <strong>a leap creates a
+      debt, and steps in the opposite direction pay it back.</strong> Jump up a sixth, then
+      walk back down. Your ear expects it, and honouring the expectation is what makes a
+      wide interval sound intentional rather than accidental.
+    </p>
+
+    <div class="ml-note">
+      Break it deliberately and you get a specific effect: two leaps in the same direction
+      sounds heroic, unstable, or unhinged depending on the harmony under it. That is a
+      choice. Doing it by accident is the most common reason a melody feels like it is
+      falling over.
+    </div>
+
+    <h2 class="ml-h2" id="motif">The Motif</h2>
+    <div class="ml-h2-sub">The smallest unit anyone can remember</div>
+
+    <p class="ml-p">
+      A <strong>motif</strong> is a fragment short enough to recognise instantly — often
+      three or four notes, sometimes two. It is the atom of melodic writing, and almost every
+      melody worth remembering is one motif, repeated and altered.
+    </p>
+
+    <p class="ml-p">
+      That is the part people resist. Writing feels like it should mean constant invention,
+      so beginners write eight bars of continuously new material and wonder why nothing
+      sticks. <strong>Memorability comes from repetition. Interest comes from varying what
+      you repeat.</strong> Those are not in conflict; they are the whole technique.
+    </p>
+
+    <div class="ml-card">
+      <div class="ml-card-label">Ways to repeat without repeating</div>
+      <p class="ml-p"><strong>Sequence</strong> — the same shape, starting on a different
+      note. The single most useful device in melodic writing, and instantly recognisable
+      once you know the name.</p>
+      <p class="ml-p"><strong>Inversion</strong> — the same shape upside down. Up a third
+      becomes down a third.</p>
+      <p class="ml-p"><strong>Retrograde</strong> — backwards. More useful as a source of
+      ideas than as something an audience hears.</p>
+      <p class="ml-p"><strong>Augmentation / diminution</strong> — same notes, doubled or
+      halved in length. A hook slowed to half speed becomes a pad; sped up it becomes a riff.</p>
+      <p class="ml-p"><strong>Same rhythm, new notes</strong> — often the strongest of all,
+      because rhythm is what the listener actually locked onto.</p>
+    </div>
+
+    <h2 class="ml-h2" id="phrase">Question and Answer</h2>
+    <div class="ml-h2-sub">Why melodies come in pairs</div>
+
+    <p class="ml-p">
+      Melodies group into <strong>phrases</strong>, and phrases come in pairs: one that
+      leaves you hanging, one that resolves. The formal names are
+      <em>antecedent</em> and <em>consequent</em>; every songwriter knows them as
+      <strong>question and answer</strong>.
+    </p>
+
+    <p class="ml-p">
+      The question usually ends on an unstable note — the second, the fifth, the seventh —
+      or over a chord that is not home. The answer often starts identically and then
+      <em>ends differently</em>, landing on the root. That shared opening is what makes the
+      pair feel like one thought rather than two fragments.
+    </p>
+
+    <p class="ml-p">
+      Four bars out, four bars back is the default in most popular music, and defaults exist
+      because they work. Deviate once you can hear why you are deviating.
+    </p>
+
+    <h2 class="ml-h2" id="tension">Tension and Release</h2>
+    <div class="ml-h2-sub">Which notes are safe, which are not, and why you need both</div>
+
+    <p class="ml-p">
+      Against any chord, the notes of that chord are <strong>stable</strong> — land on them
+      and the melody feels settled. Everything else is <strong>tension</strong>, and tension
+      is not a mistake. A melody built only from chord tones is an arpeggio, and arpeggios
+      are boring precisely because nothing in them needs to resolve.
+    </p>
+
+    <p class="ml-p">
+      The craft is in <em>how</em> you leave and return. The classical names describe
+      motions you already use by ear:
+    </p>
+
+    <div class="ml-card">
+      <p class="ml-p"><strong>Passing tone</strong> — step through a non-chord tone on your
+      way between two chord tones. Invisible, universal.</p>
+      <p class="ml-p"><strong>Neighbour tone</strong> — step away and come straight back.
+      Decoration around a note you are holding.</p>
+      <p class="ml-p"><strong>Suspension</strong> — hold a note from the previous chord into
+      the next one, so it is briefly wrong, then resolve down by step. The most reliable
+      source of emotion in Western music, and the reason sus chords sound the way they do.</p>
+      <p class="ml-p"><strong>Appoggiatura</strong> — <em>leap</em> onto a tension note on a
+      strong beat, then step off it. Hits harder than a passing tone because it arrives
+      unprepared and on the beat.</p>
+    </div>
+
+    <div class="ml-note">
+      The single most useful adjustment for a melody that sounds flat: find where it lands on
+      a chord tone on a strong beat, and move that note up a step. You have just written an
+      appoggiatura. Let it resolve down on the next beat.
+    </div>
+
+    <h2 class="ml-h2" id="rhythm">Rhythm Is Half Of It</h2>
+    <div class="ml-h2-sub">Probably more than half</div>
+
+    <p class="ml-p">
+      Take a melody you know and play every note as an even quarter note. It dies. Take the
+      original rhythm and put completely different pitches under it and it is still
+      recognisably the same tune. <strong>Melodic rhythm carries more identity than pitch
+      does</strong>, which is not what the way theory is taught would lead you to expect.
+    </p>
+
+    <p class="ml-p">
+      Two things to control deliberately. <strong>Where the phrase starts</strong> — on the
+      beat is stable and declarative, before it (a pickup) is conversational and propulsive.
+      And <strong>where the long notes fall</strong> — the note you hold is the note the
+      listener remembers, so hold the one that matters, not whichever one happened to land
+      at the end of the bar.
+    </p>
+
+    <h2 class="ml-h2" id="space">Space</h2>
+    <div class="ml-h2-sub">The notes you do not play</div>
+
+    <p class="ml-p">
+      Beginner melodies are continuous. Good melodies breathe. Rests are not gaps waiting to
+      be filled — they are what makes the next phrase land, and they are where a vocalist
+      takes a breath, which is a real physical constraint worth respecting even when nobody
+      is singing.
+    </p>
+
+    <p class="ml-p">
+      A useful test: if you cannot sing it in one breath, it is probably one phrase too long.
+      Instruments have no lungs, which is why instrumental melodies so often sound
+      exhausting.
+    </p>
+
+    <h2 class="ml-h2" id="climax">One High Point</h2>
+    <div class="ml-h2-sub">Not two</div>
+
+    <p class="ml-p">
+      A melody should reach its highest note <strong>once</strong>, and preferably late.
+      That note becomes the emotional peak simply by being the extreme — no other device
+      needed. Hit the same high note four times and it stops being a peak and becomes the
+      ceiling.
+    </p>
+
+    <p class="ml-p">
+      This is the easiest structural fix available. Find your highest note. If it appears
+      more than once, lower all but the last one and hear what happens to the shape.
+    </p>
+
+    <h2 class="ml-h2" id="mode">What The Mode Actually Does</h2>
+    <div class="ml-h2-sub">Every mode has one note doing the work</div>
+
+    <p class="ml-p">
+      Modes do not have moods because of some mystical property. Each one differs from a
+      familiar reference by <strong>one or two specific degrees</strong>, and that degree is
+      the entire character. Find it, lean on it, and the mode announces itself. Avoid it and
+      you have written in the parent scale by accident — the most common reason a "Dorian"
+      idea just sounds minor.
+    </p>
+
+    <div class="ml-tablewrap">
+      <table class="ml-table">
+        <tr><th>Mode</th><th>The note doing the work</th><th>Hear it</th></tr>
+        <tr><td>Dorian</td><td>The natural 6th, against an otherwise minor scale. Land on it.</td>
+            <td><a href="synth.html?scale=Dorian&amp;run=1">run it ↗</a></td></tr>
+        <tr><td>Phrygian</td><td>The ♭2, a semitone above the root. Instant tension, Spanish colour.</td>
+            <td><a href="synth.html?scale=Phrygian&amp;run=1">run it ↗</a></td></tr>
+        <tr><td>Lydian</td><td>The ♯4. Everything lifts. Overused in film scoring for a reason.</td>
+            <td><a href="synth.html?scale=Lydian&amp;run=1">run it ↗</a></td></tr>
+        <tr><td>Mixolydian</td><td>The ♭7 in a major context — the rock and blues one.</td>
+            <td><a href="synth.html?scale=Mixolydian&amp;run=1">run it ↗</a></td></tr>
+        <tr><td>Harmonic minor</td><td>The raised 7th, and the augmented 2nd it creates below it.</td>
+            <td><a href="synth.html?scale=Harmonic%20Minor&amp;run=1">run it ↗</a></td></tr>
+        <tr><td>Melodic minor</td><td>Raised 6 and 7 going up, natural coming down — the shape changes with direction.</td>
+            <td><a href="synth.html?scale=Melodic%20Minor&amp;run=1">run it ↗</a></td></tr>
+      </table>
+    </div>
+
+    <h3 class="ml-h3">Beyond twelve notes</h3>
+
+    <p class="ml-p">
+      The maqamat of Arabic and Persian music go further: several of their characteristic
+      degrees sit <strong>between the keys of a piano</strong>. Maqam Rast has a third about
+      50 cents below the major third — not a flat third, not a major third, a note Western
+      notation has no room for. Maqam Bayati's second sits similarly between.
+    </p>
+
+    <p class="ml-p">
+      This matters for melody rather than for harmony. Those microtonal degrees are where the
+      ornamentation lives, and a melody that treats them as "close enough to E♭" is not in
+      that maqam — it is in a Western scale wearing its name.
+    </p>
+
+    <div class="ml-tablewrap">
+      <table class="ml-table">
+        <tr><th>Maqam</th><th>What makes it itself</th><th>Hear it</th></tr>
+        <tr><td>Rast</td><td>Half-flat 3rd and 7th — roughly 350 and 1050 cents.</td>
+            <td><a href="synth.html?scale=Rast&amp;run=1">run it ↗</a></td></tr>
+        <tr><td>Bayati</td><td>Half-flat 2nd, around 150 cents. The most common maqam in Arabic music.</td>
+            <td><a href="synth.html?scale=Bayati&amp;run=1">run it ↗</a></td></tr>
+        <tr><td>Hijaz</td><td>The augmented 2nd between ♭2 and 3 — no microtones, all character.</td>
+            <td><a href="synth.html?scale=Hijaz&amp;run=1">run it ↗</a></td></tr>
+        <tr><td>Chahargah</td><td>Persian dastgah, two augmented seconds, ceremonial.</td>
+            <td><a href="synth.html?scale=Chahargah&amp;run=1">run it ↗</a></td></tr>
+      </table>
+    </div>
+
+    <div class="ml-note">
+      There is a second thing these traditions do that Western scale theory has no slot for:
+      <strong>the way up is not the way down</strong>, and the melodic path itself — the
+      <em>sayr</em> — is part of the maqam's identity, not just its note set. The synth's
+      scale runner lets you set the ascent and descent separately for exactly this reason.
+      It ships with them symmetrical because the real descents vary by performer and phrase,
+      and putting one in the code would be inventing an authority that does not exist.
+    </div>
+
+    <h2 class="ml-h2" id="write">Actually Writing One</h2>
+    <div class="ml-h2-sub">An order of operations that works</div>
+
+    <p class="ml-p">
+      <strong>1. Rhythm first, no pitches.</strong> Tap or program the rhythm of the line
+      alone. If it is not interesting as rhythm, no choice of notes will save it.
+    </p>
+
+    <p class="ml-p">
+      <strong>2. Draw the contour.</strong> Where does it start, where is the peak, where
+      does it land. One arch is enough for four bars.
+    </p>
+
+    <p class="ml-p">
+      <strong>3. Find three or four notes that are the motif.</strong> Play them until they
+      feel inevitable.
+    </p>
+
+    <p class="ml-p">
+      <strong>4. Build the phrase by repeating that motif</strong> — sequenced, inverted,
+      rhythmically altered. Resist writing new material.
+    </p>
+
+    <p class="ml-p">
+      <strong>5. Write the answering phrase</strong> starting the same and ending on the
+      root.
+    </p>
+
+    <p class="ml-p">
+      <strong>6. Now check it against the chords</strong> and adjust the strong beats —
+      chord tone where you want rest, a step above where you want ache.
+    </p>
+
+    <p class="ml-p">
+      Doing it in that order means the melody has shape before it has notes, which is the
+      whole difference between a tune and a scale run.
+    </p>
+
+    <h2 class="ml-h2" id="wrong">What Usually Goes Wrong</h2>
+    <div class="ml-h2-sub">In rough order of frequency</div>
+
+    <p class="ml-p">
+      <strong>It never repeats.</strong> Eight bars of continuous invention. Nothing to hold
+      onto. Fix: take bar 1 and make bar 3 a sequence of it.
+    </p>
+
+    <p class="ml-p">
+      <strong>It never rests.</strong> Wall-to-wall notes. Fix: delete every fourth bar's
+      worth and let the harmony carry it.
+    </p>
+
+    <p class="ml-p">
+      <strong>It has no peak, or four of them.</strong> Fix: find the highest note, keep one.
+    </p>
+
+    <p class="ml-p">
+      <strong>It is all steps.</strong> Wanders like someone reading a scale. Fix: one leap,
+      early, then step back down through it.
+    </p>
+
+    <p class="ml-p">
+      <strong>It avoids every tension note.</strong> Technically correct, emotionally inert.
+      Fix: the appoggiatura trick above.
+    </p>
+
+    <p class="ml-p">
+      <strong>It ignores the mode's characteristic degree.</strong> A Lydian idea that never
+      touches the ♯4 is in the major scale. Fix: land on that note, on a strong beat, early.
+    </p>
+
+    <div class="ml-note">
+      Related on this site: <a href="theory.html">Theory</a> for the scales and chords
+      themselves, <a href="harmony-guide.html">Writing Harmony</a> for what goes underneath,
+      <a href="rhythm.html">Rhythm &amp; Beats</a> and <a href="groove.html">Groove &amp;
+      Timing</a> for the half of melody that is not pitch, and the
+      <a href="synth.html">Synth</a>'s scale runner to hear any of this move.
+    </div>
+
+  </main>
+
+  <script src="scripts.js?v=69"></script>
+  <script src="stars.js?v=1"></script>
+</body>
+</html>
