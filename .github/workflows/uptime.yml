@@ -1,0 +1,70 @@
+name: Uptime Alert
+
+# Watches the Song Analyzer from outside the network it monitors.
+#
+# That placement is the point. A checker running on the XPS cannot report the
+# failure that matters most -- the box being off, cloudflared stopped, the house
+# connection down. Monitoring has to live somewhere that stays up when the thing
+# it watches does not, so it runs here.
+#
+# Mail goes out on STATE CHANGE only. A check every 15 minutes that mails on
+# every failing poll turns a two-hour outage into eight identical emails, and
+# the reliable outcome of that is a filter rule and a missed outage later.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write          # commits the state file so transitions are detectable
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Probe /health
+        id: probe
+        env:
+          HEALTH_URL: ${{ vars.HEALTH_URL || 'https://api.methodictruth.com/health' }}
+        run: node .github/scripts/health-check.js
+
+      - name: Email on state change
+        if: steps.probe.outputs.changed == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.GMAIL_USER }}
+          # A Gmail App Password, not the account password. Requires 2FA on the
+          # account; ordinary passwords are refused by SMTP.
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          from: Methodic Truth Monitor
+          to: ${{ secrets.ALERT_EMAIL }}
+          subject: ${{ steps.probe.outputs.subject }}
+          body: ${{ steps.probe.outputs.body }}
+
+      - name: Record the transition
+        if: steps.probe.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add monitoring/state.json
+          if ! git diff --staged --quiet; then
+            git commit -m "Monitor: ${{ steps.probe.outputs.state }} at $(date -u +%H:%MZ)"
+            # The state file is the only thing this job writes, and another run
+            # may have pushed since checkout, so rebase rather than fail.
+            git pull --rebase --autostash origin main || true
+            git push || true
+          fi
