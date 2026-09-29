@@ -962,6 +962,16 @@
                   background: rgba(0, 229, 255, 0.14); font-weight: 700; }
     .tg-step.micro::after { content: '~'; opacity: 0.85; }
 
+    /* The mechanism behind the mood line: which degree is doing the work. */
+    .tg-why {
+      display: block; width: 100%; margin-top: 0.3rem;
+      font-family: 'EB Garamond', Georgia, serif; font-size: 0.82rem;
+      line-height: 1.55; color: var(--stone);
+    }
+    .tg-why:empty { display: none; }
+    .tg-why-link { font-size: 0.55rem; }
+    .tg-why:empty + .tg-why-link { display: none; }
+
     .tg-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
     .tg-chips:empty { display: none; }
     .tg-chip {
@@ -1406,6 +1416,9 @@
         <span class="tg-title" id="guideTitle"></span>
         <span class="tg-notes" id="guideNotes"></span>
         <span class="tg-mood" id="guideMood"></span>
+        <span class="tg-why" id="guideWhy"></span>
+        <a class="tg-link tg-why-link" id="guideWhyLink" href="melody.html#mode"
+           title="How modes colour a melody, and what to do with the note that defines one">Why it sounds like that ↗</a>
       </div>
       <div class="tg-legend" id="guideLegend"></div>
     </div>
@@ -5166,21 +5179,21 @@
   // here, on the Theory page and on the guitar voicings. Purely visual: the
   // keyboard still plays every note, the dim ones included.
   const GUIDE_SCALES = {
-    'Major':            { iv: [0, 2, 4, 5, 7, 9, 11], group: 'Modes of the major scale', mood: 'Bright, resolved, home base.', theory: 'Major (Ionian)' },
-    'Dorian':           { iv: [0, 2, 3, 5, 7, 9, 10], group: 'Modes of the major scale', mood: 'Minor with a bright spot — the raised 6th is the jazz in it.', theory: 'Dorian' },
-    'Phrygian':         { iv: [0, 1, 3, 5, 7, 8, 10], group: 'Modes of the major scale', mood: 'Dark and Spanish. The ♭2 is instant tension.', theory: 'Phrygian' },
-    'Lydian':           { iv: [0, 2, 4, 6, 7, 9, 11], group: 'Modes of the major scale', mood: 'Dreamy, floating. The ♯4 lifts everything.', theory: 'Lydian' },
-    'Mixolydian':       { iv: [0, 2, 4, 5, 7, 9, 10], group: 'Modes of the major scale', mood: 'Major with a bluesy ♭7 — rock and roll.', theory: 'Mixolydian' },
-    'Natural Minor':    { iv: [0, 2, 3, 5, 7, 8, 10], group: 'Modes of the major scale', mood: 'Melancholic. The shadow side of major.', theory: 'Natural Minor (Aeolian)' },
-    'Locrian':          { iv: [0, 1, 3, 5, 6, 8, 10], group: 'Modes of the major scale', mood: 'Unstable — a diminished home chord. Tension, not a home key.', theory: 'Locrian' },
-    'Harmonic Minor':   { iv: [0, 2, 3, 5, 7, 8, 11], group: 'Other minors', mood: 'Classical drama — the raised 7th pulls home hard.', theory: 'Harmonic Minor' },
-    'Melodic Minor':    { iv: [0, 2, 3, 5, 7, 9, 11], desc: [0, 2, 3, 5, 7, 8, 10], group: 'Other minors', mood: 'Jazz’s secret weapon. Between major and minor — and it comes back down as natural minor.', theory: 'Melodic Minor' },
-    'Major Pentatonic': { iv: [0, 2, 4, 7, 9],        group: 'Pentatonic & blues', mood: 'Five notes, no wrong choices.', theory: 'Pentatonic Major', parent: 'Major' },
-    'Minor Pentatonic': { iv: [0, 3, 5, 7, 10],       group: 'Pentatonic & blues', mood: 'The rock and blues backbone.', theory: 'Pentatonic Minor', parent: 'Natural Minor' },
-    'Blues':            { iv: [0, 3, 5, 6, 7, 10],    group: 'Pentatonic & blues', mood: 'Minor pentatonic plus the blue note.', theory: 'Blues', parent: 'Natural Minor' },
-    'Phrygian Dominant':{ iv: [0, 1, 4, 5, 7, 8, 10], group: 'Exotic', mood: 'Flamenco’s heart — the ♭2 to 3 leap.', theory: 'Phrygian Dominant' },
-    'Double Harmonic':  { iv: [0, 1, 4, 5, 7, 8, 11], group: 'Exotic', mood: 'Byzantine grandeur. Two augmented seconds.', theory: 'Double Harmonic Major' },
-    'Hungarian Minor':  { iv: [0, 2, 3, 6, 7, 8, 11], group: 'Exotic', mood: 'Dark and ornate — harmonic minor with a ♯4.', theory: 'Hungarian Minor' },
+    'Major':            { iv: [0, 2, 4, 5, 7, 9, 11], group: 'Modes of the major scale', mood: 'Bright, resolved, home base.', theory: 'Major (Ionian)', why: "The reference everything else is measured against. No degree pulls — that is why it reads as resolved rather than as having a character." },
+    'Dorian':           { iv: [0, 2, 3, 5, 7, 9, 10], group: 'Modes of the major scale', mood: 'Minor with a bright spot — the raised 6th is the jazz in it.', theory: 'Dorian', why: "The natural 6th. Everything else is natural minor, so that one raised note is the whole difference — land on it or you have written in minor." },
+    'Phrygian':         { iv: [0, 1, 3, 5, 7, 8, 10], group: 'Modes of the major scale', mood: 'Dark and Spanish. The ♭2 is instant tension.', theory: 'Phrygian', why: "The ♭2, one semitone above the root. A half-step that close to home never settles, which is why it reads as tension before you play anything else." },
+    'Lydian':           { iv: [0, 2, 4, 6, 7, 9, 11], group: 'Modes of the major scale', mood: 'Dreamy, floating. The ♯4 lifts everything.', theory: 'Lydian', why: "The ♯4. It is the only note that disagrees with major, and it points upward instead of resolving — the reason everything in Lydian feels lifted." },
+    'Mixolydian':       { iv: [0, 2, 4, 5, 7, 9, 10], group: 'Modes of the major scale', mood: 'Major with a bluesy ♭7 — rock and roll.', theory: 'Mixolydian', why: "The ♭7 in an otherwise major scale. It removes the leading tone, so nothing pulls hard back to the root and the music can sit on one chord." },
+    'Natural Minor':    { iv: [0, 2, 3, 5, 7, 8, 10], group: 'Modes of the major scale', mood: 'Melancholic. The shadow side of major.', theory: 'Natural Minor (Aeolian)', why: "Flat 3rd, 6th and 7th against major. The ♭3 does most of the work; the ♭7 is why it feels settled rather than yearning." },
+    'Locrian':          { iv: [0, 1, 3, 5, 6, 8, 10], group: 'Modes of the major scale', mood: 'Unstable — a diminished home chord. Tension, not a home key.', theory: 'Locrian', why: "The ♭5. The home chord itself is diminished, so there is no stable place to land — less a key than a permanent question." },
+    'Harmonic Minor':   { iv: [0, 2, 3, 5, 7, 8, 11], group: 'Other minors', mood: 'Classical drama — the raised 7th pulls home hard.', theory: 'Harmonic Minor', why: "The raised 7th, and the augmented 2nd it opens between ♭6 and 7. That gap of three semitones inside a scale is the sound people call exotic." },
+    'Melodic Minor':    { iv: [0, 2, 3, 5, 7, 9, 11], desc: [0, 2, 3, 5, 7, 8, 10], group: 'Other minors', mood: 'Jazz’s secret weapon. Between major and minor — and it comes back down as natural minor.', theory: 'Melodic Minor', why: "Raised 6 and 7 going up, natural coming back down. It is the textbook case of a scale whose shape depends on direction — run it both ways and listen." },
+    'Major Pentatonic': { iv: [0, 2, 4, 7, 9],        group: 'Pentatonic & blues', mood: 'Five notes, no wrong choices.', theory: 'Pentatonic Major', why: "Major with the 4th and 7th removed — the two notes that make semitones. Nothing can clash, which is why it is hard to play a wrong note.", parent: 'Major' },
+    'Minor Pentatonic': { iv: [0, 3, 5, 7, 10],       group: 'Pentatonic & blues', mood: 'The rock and blues backbone.', theory: 'Pentatonic Minor', why: "Natural minor with the 2nd and ♭6 removed. The same trick: take out the semitones and every note sits comfortably against every chord.", parent: 'Natural Minor' },
+    'Blues':            { iv: [0, 3, 5, 6, 7, 10],    group: 'Pentatonic & blues', mood: 'Minor pentatonic plus the blue note.', theory: 'Blues', why: "Minor pentatonic plus the ♭5. That note is unstable by design — it is a passing colour, not somewhere to rest.", parent: 'Natural Minor' },
+    'Phrygian Dominant':{ iv: [0, 1, 4, 5, 7, 8, 10], group: 'Exotic', mood: 'Flamenco’s heart — the ♭2 to 3 leap.', theory: 'Phrygian Dominant', why: "A ♭2 sitting under a major 3rd, so there is an augmented 2nd between them. Flamenco and much Middle Eastern music live in that gap." },
+    'Double Harmonic':  { iv: [0, 1, 4, 5, 7, 8, 11], group: 'Exotic', mood: 'Byzantine grandeur. Two augmented seconds.', theory: 'Double Harmonic Major', why: "Two augmented 2nds — between ♭2 and 3, and between ♭6 and 7. Symmetrical, ornate, and unmistakable within one bar." },
+    'Hungarian Minor':  { iv: [0, 2, 3, 6, 7, 8, 11], group: 'Exotic', mood: 'Dark and ornate — harmonic minor with a ♯4.', theory: 'Hungarian Minor', why: "Harmonic minor with a ♯4 added, producing a second augmented 2nd. Darker and more ornamented than harmonic minor alone." },
 
     // Maqamat. `cents` offsets each degree away from 12-TET, which is not
     // decoration -- the half-flat third of Rast and the half-flat second of
@@ -5195,10 +5208,10 @@
     // performer and by phrase (the sayr), so committing one here would be
     // inventing an authority that does not exist. The runner's editable
     // descent is the honest answer -- put in the one you were taught.
-    'Rast':             { iv: [0, 2, 3, 5, 7, 9, 10], cents: [0, 0, 50, 0, 0, 0, 50], group: 'Maqam', mood: 'The root maqam. Major-ish, but the 3rd and 7th sit half-flat — between the keys of a piano.', theory: 'Maqam Rast' },
-    'Bayati':           { iv: [0, 1, 3, 5, 7, 8, 10], cents: [0, 50, 0, 0, 0, 0, 0], group: 'Maqam', mood: 'The most common maqam in Arabic music. Its half-flat 2nd is the whole character.', theory: 'Maqam Bayati' },
-    'Hijaz':            { iv: [0, 1, 4, 5, 7, 8, 10], group: 'Maqam', mood: 'The augmented 2nd between ♭2 and 3 — the sound most Western ears call "Middle Eastern".', theory: 'Maqam Hijaz' },
-    'Chahargah':        { iv: [0, 2, 3, 6, 7, 8, 11], group: 'Maqam', mood: 'Persian dastgah. Two augmented seconds, bold and ceremonial.', theory: 'Chahargah' },
+    'Rast':             { iv: [0, 2, 3, 5, 7, 9, 10], cents: [0, 0, 50, 0, 0, 0, 50], group: 'Maqam', mood: 'The root maqam. Major-ish, but the 3rd and 7th sit half-flat — between the keys of a piano.', theory: 'Maqam Rast', why: "The 3rd and 7th sit roughly half a semitone flat — about 350 and 1050 cents. They are not on a piano at all, and playing them as E♭ or E makes it a different scale." },
+    'Bayati':           { iv: [0, 1, 3, 5, 7, 8, 10], cents: [0, 50, 0, 0, 0, 0, 0], group: 'Maqam', mood: 'The most common maqam in Arabic music. Its half-flat 2nd is the whole character.', theory: 'Maqam Bayati', why: "The 2nd sits around 150 cents — between ♭2 and 2. Ornamentation circles that note, and rounding it to either neighbour loses the maqam." },
+    'Hijaz':            { iv: [0, 1, 4, 5, 7, 8, 10], group: 'Maqam', mood: 'The augmented 2nd between ♭2 and 3 — the sound most Western ears call "Middle Eastern".', theory: 'Maqam Hijaz', why: "The augmented 2nd between ♭2 and 3. No microtones needed — this one is entirely about that three-semitone gap near the bottom of the scale." },
+    'Chahargah':        { iv: [0, 2, 3, 6, 7, 8, 11], group: 'Maqam', mood: 'Persian dastgah. Two augmented seconds, bold and ceremonial.', theory: 'Chahargah', why: "Two augmented 2nds, like Double Harmonic but used differently: Persian practice treats it as ceremonial and declamatory rather than ornamental." },
   };
   // Chord qualities, keyed by the suffix a chart would print. The same keys
   // are what the Chord Voicings page understands, so a chord here links to
@@ -5380,6 +5393,11 @@
     document.getElementById('guideTitle').textContent = pat.title;
     document.getElementById('guideNotes').innerHTML = pat.notes.map((n, i) => i === 0 ? '<b>' + n + '</b>' : n).join(' · ');
     document.getElementById('guideMood').textContent = pat.mood || '';
+    // Only meaningful for a scale: the "why" is about which degree defines a
+    // mode, and a chord view has no mode on screen to explain.
+    const scDef = GUIDE_SCALES[guide.scale];
+    document.getElementById('guideWhy').textContent =
+      (guide.view === 'scale' && scDef && scDef.why) ? scDef.why : '';
     // Legend: only the roles actually on screen
     const roles = new Set(); pat.keys.forEach(k => roles.add(k.role));
     document.getElementById('guideLegend').innerHTML = ['r', '3', '5', '7', 'x', 't'].filter(r => roles.has(r))
