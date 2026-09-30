@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Privacy — What This Site Collects | Methodic Truth</title>
+  <meta name="description" content="Exactly what methodictruth.com records, why, how long it is kept, and what it never does. No ads, no data sales, no third-party trackers.">
+  <link rel="canonical" href="https://methodictruth.com/privacy.html">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Privacy — What This Site Collects">
+  <meta property="og:description" content="Plainly: what is recorded, why, for how long, and what never happens.">
+  <meta property="og:url" content="https://methodictruth.com/privacy.html">
+  <meta property="og:site_name" content="Methodic Truth">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css?v=77">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    .pv-wrap { max-width: 860px; margin: 0 auto; padding: 0 clamp(1rem, 3vw, 2rem) 4rem; position: relative; z-index: 1; }
+
+    .pv-lead {
+      font-family: 'EB Garamond', Georgia, serif; font-size: clamp(1rem, 1.6vw, 1.15rem);
+      color: var(--stone); line-height: 1.8; margin-bottom: 1.2rem;
+    }
+    .pv-lead strong { color: var(--glow-warm); font-weight: 600; }
+    .pv-lead em { color: var(--glow); font-style: italic; }
+
+    .pv-h2 {
+      font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+      color: var(--glow); letter-spacing: 0.04em; margin: 2.6rem 0 0.3rem;
+    }
+    .pv-h2-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-dark);
+      margin-bottom: 1rem;
+    }
+    .pv-h3 {
+      font-family: 'Cinzel', serif; font-size: 1rem; color: var(--glow-warm);
+      letter-spacing: 0.03em; margin: 1.6rem 0 0.5rem;
+    }
+    .pv-p {
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem; color: var(--stone);
+      line-height: 1.8; margin-bottom: 0.9rem;
+    }
+    .pv-p strong { color: var(--parchment); font-weight: 600; }
+    .pv-p em { color: var(--glow); font-style: italic; }
+    .pv-p code, .pv-code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85em; color: var(--glow);
+      background: rgba(0, 229, 255, 0.07); border: 1px solid rgba(0, 229, 255, 0.18);
+      padding: 0.05rem 0.35rem; border-radius: 2px; white-space: nowrap;
+    }
+
+    .pv-card {
+      border: 1px solid rgba(0, 229, 255, 0.14);
+      background: linear-gradient(135deg, rgba(26, 18, 10, 0.5), rgba(15, 20, 15, 0.4));
+      padding: 1.2rem 1.3rem; margin: 1.3rem 0;
+    }
+    .pv-card-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--glow);
+      margin-bottom: 0.6rem; opacity: 0.8;
+    }
+
+    .pv-svg-wide { max-width: 720px; }
+    .pv-note {
+      border-left: 3px solid var(--glow-warm);
+      background: rgba(80, 60, 20, 0.18);
+      padding: 1rem 1.2rem; margin: 1.4rem 0;
+      font-family: 'EB Garamond', Georgia, serif; color: var(--stone);
+      line-height: 1.75;
+    }
+    .pv-note em { color: var(--glow); font-style: italic; }
+    .pv-note strong { color: var(--parchment); font-weight: 600; }
+    .pv-note a { color: var(--glow); }
+
+    .pv-danger {
+      border: 1px solid rgba(232, 92, 92, 0.5); background: rgba(80, 20, 20, 0.22);
+      padding: 1.2rem 1.3rem; margin: 1.4rem 0;
+    }
+    .pv-danger .pv-card-label { color: #ff9999; opacity: 1; }
+    .pv-danger .pv-p { color: #f0d0d0; }
+    .pv-danger .pv-p strong { color: #ffc9c9; }
+
+    .pv-figure { margin: 1.6rem 0; }
+    .pv-svg { display: block; width: 100%; height: auto; max-width: 520px; margin: 0 auto; }
+    .pv-cap {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.06em; color: var(--stone-dark); text-align: center;
+      margin-top: 0.7rem; line-height: 1.7;
+    }
+
+    /* Dial diagram */
+    .pv-dial-body { fill: rgba(18, 22, 34, 0.9); stroke: rgba(138, 126, 107, 0.4); stroke-width: 1.5; }
+    .pv-dial-knob { fill: rgba(40, 46, 60, 0.95); stroke: var(--glow-warm); stroke-width: 1.5; }
+    .pv-dial-ptr { stroke: var(--glow-warm); stroke-width: 3.5; stroke-linecap: round; }
+    .pv-tick { stroke: rgba(138, 126, 107, 0.55); stroke-width: 1.4; stroke-linecap: round; }
+    .pv-tick-on { stroke: var(--glow-warm); stroke-width: 2.4; }
+    .pv-dlabel {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+      fill: var(--parchment); text-anchor: middle;
+    }
+    .pv-dlabel-on { fill: var(--glow-warm); }
+    .pv-dsub {
+      font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+      fill: var(--stone-dark); text-anchor: middle; letter-spacing: 0.05em;
+    }
+    .pv-jack { fill: rgba(10, 14, 26, 0.9); stroke-width: 2; }
+    .pv-jack-red { stroke: #d55e00; }
+    .pv-jack-black { stroke: var(--stone); }
+    .pv-jtxt {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      fill: var(--stone); text-anchor: middle;
+    }
+
+    /* Connection diagram */
+    .pv-wire { stroke: var(--stone-dark); stroke-width: 2; fill: none; }
+    .pv-wire-live { stroke: var(--glow); stroke-width: 2.2; fill: none; }
+    .pv-block { fill: rgba(0, 229, 255, 0.07); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.4; }
+    .pv-meter { fill: rgba(232, 168, 124, 0.1); stroke: var(--glow-warm); stroke-width: 1.6; }
+    .pv-ctxt {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      fill: var(--stone); text-anchor: middle;
+    }
+    .pv-ctxt-w { fill: var(--glow-warm); font-weight: 700; }
+
+    /* Tables */
+    .pv-tablewrap { overflow-x: auto; margin: 1.2rem 0; }
+    .pv-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+    .pv-table th {
+      text-align: left; padding: 0.55rem 0.6rem; color: var(--glow-warm); font-weight: 400;
+      letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.58rem;
+      border-bottom: 1px solid rgba(232, 168, 124, 0.3); white-space: nowrap;
+    }
+    .pv-table td {
+      padding: 0.55rem 0.6rem; color: var(--stone); vertical-align: top;
+      border-bottom: 1px solid rgba(138, 126, 107, 0.12); line-height: 1.6;
+    }
+    .pv-table td.pv-sym {
+      color: var(--glow); font-weight: 700; white-space: nowrap; font-size: 0.85rem;
+    }
+    .pv-table tr:hover td { background: rgba(0, 229, 255, 0.03); }
+
+    .pv-list { list-style: none; padding-left: 0; margin: 0.6rem 0 1rem; }
+    .pv-list li {
+      position: relative; padding-left: 1.5rem; margin-bottom: 0.6rem;
+      font-family: 'EB Garamond', Georgia, serif; font-size: 1rem;
+      color: var(--stone); line-height: 1.75;
+    }
+    .pv-list li::before {
+      content: '◆'; position: absolute; left: 0; top: 0.15em;
+      color: var(--glow); font-size: 0.62em; opacity: 0.75;
+    }
+    .pv-list strong { color: var(--parchment); font-weight: 600; }
+    .pv-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; color: var(--glow); }
+
+    .pv-steps { counter-reset: mmstep; list-style: none; padding-left: 0; margin: 0.8rem 0 1.2rem; }
+    .pv-steps li {
+      counter-increment: mmstep; position: relative; padding-left: 2.3rem;
+      margin-bottom: 0.85rem; font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1rem; color: var(--stone); line-height: 1.75;
+    }
+    .pv-steps li::before {
+      content: counter(mmstep); position: absolute; left: 0; top: 0.05em;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--glow);
+      border: 1px solid rgba(0, 229, 255, 0.35); width: 1.55rem; height: 1.55rem;
+      display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .pv-steps strong { color: var(--parchment); font-weight: 600; }
+
+    .pv-spec {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.8rem; margin: 1.2rem 0;
+    }
+    .pv-spec-item {
+      border: 1px solid rgba(0, 229, 255, 0.14); background: rgba(0, 229, 255, 0.03);
+      padding: 0.75rem 0.85rem;
+    }
+    .pv-spec-k {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--stone-dark); margin-bottom: 0.3rem;
+    }
+    .pv-spec-v { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--glow); }
+
+    .pv-toc {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1.5rem 0 2rem;
+    }
+    .pv-toc a {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em;
+      color: var(--stone); text-decoration: none; padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(138, 126, 107, 0.28); transition: all 0.2s;
+    }
+    .pv-toc a:hover { color: var(--glow-warm); border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.05); }
+
+    @media (max-width: 600px) {
+      .pv-dlabel { font-size: 15px; }
+      .pv-dsub { font-size: 10px; }
+    }
+  </style>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="harmony.html">Harmony</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Education ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <div class="nav-drop-label">Reference</div>
+          <a href="theory.html">Theory</a>
+          <a href="melody.html">Writing Melody</a>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="multimeter.html">Reading the Meter</a>
+          <a href="portastudio.html">Four Tracks</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="jam-guide.html">Jam Guide</a>
+          <div class="nav-drop-label">Harmony &amp; Sound</div>
+          <a href="breaking-the-loop.html">Breaking the Loop</a>
+          <a href="harmony-guide.html">Writing Harmony</a>
+          <a href="4ad.html">The 4AD Sound</a>
+          <div class="nav-drop-label">DJing</div>
+          <a href="djing.html">Denon Prime GO+</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+      <a href="privacy.html" class="active">Privacy</a>
+    </div>
+  </nav>
+  <div class="page-header" style="padding:5.5rem 1rem 1.2rem;">
+    <h1>Privacy</h1>
+    <div class="subtitle">What this site records, and what it never does</div>
+  </div>
+
+  <main class="pv-wrap">
+
+    <p class="pv-lead">
+      This is a personal site. It carries <strong>no advertising, no third-party analytics,
+      no marketing pixels and no cross-site tracking</strong> — there is no Google Analytics
+      here, no Meta pixel, nothing loading from a company that wants to follow you elsewhere.
+    </p>
+
+    <p class="pv-lead">
+      It does record some things, because otherwise there is no way to know whether anything
+      works or whether anyone is using it. Here is all of it, specifically.
+    </p>
+
+    <h2 class="pv-h2" id="what">What Gets Recorded</h2>
+    <div class="pv-h2-sub">Three places, nothing else</div>
+
+    <h3 class="pv-h3">1 · Page views</h3>
+
+    <p class="pv-p">
+      When you open a page, it sends: <strong>which page</strong>, a timestamp, the
+      <strong>referring site</strong> if you arrived from a link, your <strong>screen
+      size</strong>, and the first 120 characters of your <strong>browser's user-agent</strong>
+      (its self-description — browser and operating system).
+    </p>
+
+    <p class="pv-p">
+      It also sends a <strong>random identifier</strong> stored in your browser, so two visits
+      from the same browser can be recognised as the same browser. It is a random string, it is
+      not derived from anything about you, and it is not linked to any name, email or account.
+      Clearing your site data erases it and you become a new visitor.
+    </p>
+
+    <p class="pv-p">
+      <strong>Your IP address is not included</strong> in this.
+    </p>
+
+    <h3 class="pv-h3">2 · Song Analyzer requests</h3>
+
+    <p class="pv-p">
+      The <a href="song-analyzer.html">Song Analyzer</a> runs on a machine at home rather than
+      a cloud service. Requests to it are logged in the ordinary way a web server logs
+      requests: <strong>IP address</strong>, country, which endpoint was called, the response
+      code, the size, how long it took, and the user-agent.
+    </p>
+
+    <p class="pv-p">
+      This is the only place an IP address is recorded, it applies only to the analyzer
+      (not to reading pages), and those logs are <strong>deleted after 14 days</strong>
+      automatically. They exist so that when something breaks — and it does — there is enough
+      information to find out why.
+    </p>
+
+    <h3 class="pv-h3">3 · Cloudflare</h3>
+
+    <p class="pv-p">
+      The site is served through Cloudflare, which keeps its own standard traffic statistics:
+      request counts, rough visitor numbers, countries, cache performance. What I can see
+      there is <strong>aggregate only</strong> — totals and charts, not individuals.
+    </p>
+
+    <h2 class="pv-h2" id="analyzer">Songs You Analyze</h2>
+    <div class="pv-h2-sub">Because the analyzer keeps a cache</div>
+
+    <p class="pv-p">
+      When a song is analyzed, the audio and the resulting analysis — chords, key, tempo,
+      and lyrics if you asked for them — are <strong>cached on the server</strong> so the next
+      person asking for that song gets an instant answer instead of re-running everything.
+    </p>
+
+    <p class="pv-p">
+      That cache is keyed by the song, <strong>not by who requested it</strong>. There is no
+      record connecting a person to a song they looked up. The cache is also visible to
+      everyone as the <a href="song-analyzer.html">Library</a>, so treat an analyzed song as
+      public.
+    </p>
+
+    <p class="pv-p">
+      <strong>Uploaded files are stored the same way</strong>, identified by a hash of their
+      contents. If you would not want a file to sit on someone else's computer or appear in a
+      public library, do not upload it.
+    </p>
+
+    <h2 class="pv-h2" id="feedback">The Feedback Form</h2>
+
+    <p class="pv-p">
+      Whatever you write, plus an email address <strong>only if you choose to give one</strong>.
+      The email is used to reply and nothing else — it is not added to any list, because there
+      is no list.
+    </p>
+
+    <h2 class="pv-h2" id="browser">Things Kept In Your Browser</h2>
+    <div class="pv-h2-sub">Which never reach the server</div>
+
+    <p class="pv-p">
+      Several tools remember your settings locally — the synth's patches and preferences, the
+      guide's selected key and scale, trainer high scores, news source choices. This lives in
+      your browser's own storage, <strong>stays on your device</strong>, and is never sent
+      anywhere.
+    </p>
+
+    <p class="pv-p">
+      There are <strong>no cookies</strong> in the tracking sense. Nothing here is readable by
+      any other website.
+    </p>
+
+    <h2 class="pv-h2" id="never">What Never Happens</h2>
+
+    <div class="pv-card">
+      <p class="pv-p">Your data is <strong>never sold</strong>, rented or traded.</p>
+      <p class="pv-p">There are <strong>no advertisements</strong> and no advertising networks.</p>
+      <p class="pv-p">There is <strong>no third-party analytics</strong> — no Google Analytics,
+      no Meta pixel, no session recording, nothing watching you on other sites.</p>
+      <p class="pv-p">Nothing is used to <strong>build a profile</strong> of you.</p>
+      <p class="pv-p">No account is required to use anything here, so there is nothing to sign
+      up for and nothing to delete.</p>
+    </div>
+
+    <h2 class="pv-h2" id="third">Services Involved</h2>
+
+    <p class="pv-p">
+      Three, and only because the site has to run somewhere. <strong>Cloudflare</strong> serves
+      the pages and carries traffic to the analyzer. <strong>Google Firebase</strong> stores the
+      page-view records and feedback messages. The <strong>Song Analyzer</strong> itself runs on
+      hardware at home, which is why its logs are on a machine rather than a service.
+    </p>
+
+    <p class="pv-p">
+      Analyzing a YouTube link means the server fetches that video's audio, so the request
+      reaches YouTube from this server — not from you.
+    </p>
+
+    <h2 class="pv-h2" id="ask">Asking For Removal</h2>
+
+    <p class="pv-p">
+      Use the <a href="feedback.html">feedback form</a> and say what you want removed. Since
+      nothing is tied to an identity, the practical options are: page-view records associated
+      with your browser's random identifier (tell me the identifier, or just clear your site
+      data and it stops existing), and any analyzed song or uploaded file you want taken out of
+      the cache.
+    </p>
+
+    <p class="pv-p">
+      Analyzer request logs delete themselves within 14 days regardless.
+    </p>
+
+    <h2 class="pv-h2" id="changes">Changes</h2>
+
+    <p class="pv-p">
+      If what is collected changes, this page changes with it. The site is
+      <a href="https://github.com/Colimaforever/Methodictruth">open source</a>, so the code
+      doing the collecting can be read directly rather than taken on trust — which is a better
+      guarantee than anything a page like this can promise.
+    </p>
+
+    <div class="pv-note">
+      Last updated 30 September 2026. Questions go to the
+      <a href="feedback.html">feedback form</a>.
+    </div>
+
+  </main>
+
+  <script src="scripts.js?v=69"></script>
+  <script src="stars.js?v=1"></script>
+</body>
+</html>
