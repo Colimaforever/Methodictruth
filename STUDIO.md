@@ -202,7 +202,7 @@ flattens the record. Pick the elements where the saturation is the point.
 Marked `VERIFY` in the CSV, all unverified against real rear panels:
 
 - ~~**Fostex 3180**~~ — **confirmed mono in, mono out.** One point each way
-  (A19 bottom, A21 top), which is what the layout already assumed. A mono
+  (A19 bottom, A21 top — each bay counts 1–24 on its own), which is what the layout already assumed. A mono
   return also costs only one Clarett input rather than two.
 - **Yamaha R-1000** — mono or stereo in, connector format (A20, A22, A23)
 - **424 effect returns** — whether they exist and how many (A21, A22)
