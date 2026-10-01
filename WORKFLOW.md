@@ -219,6 +219,21 @@ gain. That's operating level, not a fault. Keep those runs short and away from m
 **Write the tape counter number down.** A cassette tells you nothing about where
 you are.
 
+**Interface not detected? Plug it into the computer, not the dock.** Thunderbolt
+audio is PCIe over the wire and needs guaranteed bandwidth; a dock shares that
+budget with displays, ethernet and USB, and a display will take most of it. The
+Clarett wants its own port on the machine. Everything else goes through the dock.
+
+Failing that, in order: power the interface **on before** the computer boots
+(Thunderbolt enumerates at connect, not on demand); confirm the cable is an
+actual Thunderbolt cable and not a USB-C charging cable, which fits the port and
+behaves erratically; and check whether it disappears specifically after sleep.
+
+To tell a bus problem from a driver problem: look for the device in **System
+Information → Thunderbolt** (macOS) or **Thunderbolt Control Center** (Windows).
+Listed there but missing in the DAW is software. Not listed at all is cable,
+port, dock or power — don't reinstall drivers for that.
+
 ---
 
 ## Still to verify
