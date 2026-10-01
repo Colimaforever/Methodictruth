@@ -211,13 +211,27 @@ Marked `VERIFY` in the CSV, all unverified against real rear panels:
 Confirm these before cutting cable to them. Everything else comes from the
 documented setup.
 
+## Instruments not wired in
+
+Everything permanent is on the rack table. These live elsewhere and are patched
+in on demand — a long cable into a **front bottom jack**, costing zero patchbay
+points:
+
+- **MS-20 Mini · MS-2000B · Minilogue** — shared stand across the room
+- **Roland R-8** — stored under the bed, brought out when wanted
+
+Leave two or three long cables permanently run from the stand to near the bay,
+coiled with free ends, rather than dragging one across the floor each session.
+The R-8 is stereo, so it needs two on its own.
+
 ## Open discrepancies with `studio.html`
 
 Flagged rather than silently reconciled — the site page and the owner's core-rig
 list disagree, and both may be right (the list is "core", not exhaustive):
 
-- `studio.html` lists **Korg MS-20 Mini**; the core list says **Korg MS-2000B**.
-  Entirely different instruments. Unresolved.
+- ~~MS-20 Mini vs MS-2000B~~ — **resolved: both are owned.** They share a stand
+  with the Minilogue: MS-20 Mini on top, MS-2000B in the middle, Minilogue below.
+  The core list was a subset, not a correction.
 - `studio.html` lists **Fostex 3510**; the core list says **Fostex 3180**.
   Unresolved.
 - Present on `studio.html`, absent from the core list: Roland Juno DS, Akai
