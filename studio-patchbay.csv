@@ -1,49 +1,40 @@
-Bay,Point,Top Row (SOURCE / output),Device,Bottom Row (DESTINATION / input),Device,Normalling,Notes
-A,1,Clarett OUT 1,Clarett+ 8Pre,SSL SiX CH1 input,SSL SiX,Half-normal,Logic track into the SSL channel compressor
-A,2,Clarett OUT 2,Clarett+ 8Pre,SSL SiX CH2 input,SSL SiX,Half-normal,Second SSL strip - only two exist
-A,3,Clarett OUT 3,Clarett+ 8Pre,424 Channel 1 input,Tascam 424 mkIII,Half-normal,Print stem to tape track 1 (RECORD FUNCTION = DIRECT)
-A,4,Clarett OUT 4,Clarett+ 8Pre,424 Channel 2 input,Tascam 424 mkIII,Half-normal,Print stem to tape track 2
-A,5,Clarett OUT 5,Clarett+ 8Pre,424 Channel 3 input,Tascam 424 mkIII,Half-normal,Print stem to tape track 3
-A,6,Clarett OUT 6,Clarett+ 8Pre,424 Channel 4 input,Tascam 424 mkIII,Half-normal,Print stem to tape track 4
-A,7,Clarett OUT 7,Clarett+ 8Pre,RE-202 input,Roland RE-202,Half-normal,Logic aux send to the Space Echo
-A,8,Clarett OUT 8,Clarett+ 8Pre,Yamaha R-1000 input,Yamaha R-1000,Half-normal,Logic aux send to the 80s digital reverb
-A,9,SSL SiX Main OUT L,SSL SiX,Clarett IN 1,Clarett+ 8Pre,Half-normal,Analog front end back to Logic
-A,10,SSL SiX Main OUT R,SSL SiX,Clarett IN 2,Clarett+ 8Pre,Half-normal,Analog front end back to Logic
-A,11,424 TAPE OUT 1,Tascam 424 mkIII,Clarett IN 3,Clarett+ 8Pre,Half-normal,RCA -10 dBV - tape track 1 to Logic
-A,12,424 TAPE OUT 2,Tascam 424 mkIII,Clarett IN 4,Clarett+ 8Pre,Half-normal,RCA -10 dBV - tape track 2 to Logic
-A,13,424 TAPE OUT 3,Tascam 424 mkIII,Clarett IN 5,Clarett+ 8Pre,Half-normal,RCA -10 dBV - tape track 3 to Logic
-A,14,424 TAPE OUT 4,Tascam 424 mkIII,Clarett IN 6,Clarett+ 8Pre,Half-normal,RCA -10 dBV - tape track 4 to Logic
-A,15,RE-202 OUT L,Roland RE-202,Clarett IN 7,Clarett+ 8Pre,Half-normal,Effect return to Logic
-A,16,RE-202 OUT R,Roland RE-202,Clarett IN 8,Clarett+ 8Pre,Half-normal,Effect return to Logic
-A,17,424 LINE OUT L,Tascam 424 mkIII,SSL SiX stereo in L,SSL SiX,Half-normal,MONITOR the tape mix - NOT the capture path
-A,18,424 LINE OUT R,Tascam 424 mkIII,SSL SiX stereo in R,SSL SiX,Half-normal,MONITOR the tape mix - NOT the capture path
-A,19,424 EFFECT SEND 1,Tascam 424 mkIII,Fostex 3180 input,Fostex 3180,OPEN,Print real spring reverb to tape without touching Logic
-A,20,424 EFFECT SEND 2,Tascam 424 mkIII,Yamaha R-1000 input R,Yamaha R-1000,OPEN,Send 2 doubles as TAPE CUE - check which mode it is in
-A,21,Fostex 3180 OUT,Fostex 3180,424 effect return L,Tascam 424 mkIII,OPEN,VERIFY jack count and format on the 3180
-A,22,Yamaha R-1000 OUT L,Yamaha R-1000,424 effect return R,Tascam 424 mkIII,OPEN,VERIFY jack count and format on the R-1000
-A,23,Yamaha R-1000 OUT R,Yamaha R-1000,SSL SiX FX return L,SSL SiX,OPEN,Reverb into the console rather than the computer
-A,24,424 MONITOR OUT L/R,Tascam 424 mkIII,SSL SiX FX return R,SSL SiX,OPEN,Spare monitoring path
-B,25,MS-2000B OUT L,Korg MS-2000B,424 Channel 5 input,Tascam 424 mkIII,Half-normal,Play straight to tape - no computer in the path
-B,26,MS-2000B OUT R,Korg MS-2000B,424 Channel 6 input,Tascam 424 mkIII,Half-normal,Play straight to tape - no computer in the path
-B,27,Minilogue OUT,Korg Minilogue,SSL SiX stereo in 2 L,SSL SiX,Half-normal,VERIFY - minilogue output count
-B,28,(spare),,SSL SiX stereo in 2 R,SSL SiX,Half-normal,
-B,29,JV-1010 OUT L,Roland JV-1010,(spare),,OPEN,Currently hardwired to Clarett 7/8 - bay copy for flexibility
-B,30,JV-1010 OUT R,Roland JV-1010,(spare),,OPEN,
-B,31,VC-340 OUT L,Roland VC-340,(spare),,OPEN,Strings and vocoder - the 500-800 Hz layer
-B,32,VC-340 OUT R,Roland VC-340,(spare),,OPEN,
-B,33,RD-8 OUT L,Behringer RD-8,(spare),,OPEN,808 clone - prime candidate for tape saturation
-B,34,RD-8 OUT R,Behringer RD-8,(spare),,OPEN,
-B,35,R-8 OUT L,Roland R-8,(spare),,OPEN,
-B,36,R-8 OUT R,Roland R-8,(spare),,OPEN,
-B,37,Guitar DI (post pedals),Les Paul chain,(spare),,OPEN,After Green Rhino > FL-9 > Dimension C > RE-202
-B,38,Bass DI,Fender Jazz Bass 2007 MIM,(spare),,OPEN,
-B,39,(spare),,(spare),,OPEN,
-B,40,(spare),,(spare),,OPEN,
-B,41,(spare),,(spare),,OPEN,
-B,42,(spare),,(spare),,OPEN,
-B,43,(spare),,(spare),,OPEN,
-B,44,(spare),,(spare),,OPEN,
-B,45,(spare),,(spare),,OPEN,
-B,46,(spare),,(spare),,OPEN,
-B,47,(spare),,(spare),,OPEN,
-B,48,(spare),,(spare),,OPEN,Keep free - something always needs a point
+Bay,Point,TOP jack (source),BOTTOM jack (destination),Note,Done
+A,1,Clarett OUT 1,SSL CH1 in,SSL compressor on a Logic track,
+A,2,Clarett OUT 2,SSL CH2 in,Second SSL strip - only two exist,
+A,3,Clarett OUT 3,424 Ch1 in,Print stem to tape 1,
+A,4,Clarett OUT 4,424 Ch2 in,Print stem to tape 2,
+A,5,Clarett OUT 5,424 Ch3 in,Print stem to tape 3,
+A,6,Clarett OUT 6,424 Ch4 in,Print stem to tape 4,
+A,7,Clarett OUT 7,RE-202 in,Logic send to Space Echo,
+A,8,Clarett OUT 8,R-1000 in,Logic send to reverb,
+A,9,SSL Main OUT L,Clarett IN 1,Console back to Logic,
+A,10,SSL Main OUT R,Clarett IN 2,Console back to Logic,
+A,11,424 TAPE OUT 1,Clarett IN 3,RCA - tape 1 to Logic,
+A,12,424 TAPE OUT 2,Clarett IN 4,RCA - tape 2 to Logic,
+A,13,424 TAPE OUT 3,Clarett IN 5,RCA - tape 3 to Logic,
+A,14,424 TAPE OUT 4,Clarett IN 6,RCA - tape 4 to Logic,
+A,15,RE-202 OUT L,Clarett IN 7,Effect return,
+A,16,RE-202 OUT R,Clarett IN 8,Effect return,
+A,17,424 LINE OUT L,SSL stereo in L,MONITOR only - not capture,
+A,18,424 LINE OUT R,SSL stereo in R,MONITOR only - not capture,
+A,19,424 EFFECT SEND 1,Fostex 3180 in,Print spring reverb to tape,
+A,20,424 EFFECT SEND 2,R-1000 in R,Send 2 doubles as TAPE CUE,
+A,21,Fostex 3180 OUT,424 effect return L,VERIFY jacks,
+A,22,R-1000 OUT L,424 effect return R,VERIFY jacks,
+A,23,R-1000 OUT R,SSL FX return L,VERIFY jacks,
+A,24,424 MONITOR OUT,SSL FX return R,,
+B,25,MS-2000B OUT L,424 Ch5 in,Play straight to tape - no computer,
+B,26,MS-2000B OUT R,424 Ch6 in,Play straight to tape - no computer,
+B,27,Minilogue OUT,SSL stereo in 2 L,VERIFY output count,
+B,28,-,SSL stereo in 2 R,,
+B,29,JV-1010 OUT L,-,,
+B,30,JV-1010 OUT R,-,,
+B,31,VC-340 OUT L,-,Strings and vocoder,
+B,32,VC-340 OUT R,-,,
+B,33,RD-8 OUT L,-,808 - best tape candidate,
+B,34,RD-8 OUT R,-,,
+B,35,R-8 OUT L,-,,
+B,36,R-8 OUT R,-,,
+B,37,Guitar DI,-,After the pedal chain,
+B,38,Bass DI,-,,
+B,39-48,spare,spare,Leave free,

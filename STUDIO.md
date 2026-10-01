@@ -148,39 +148,45 @@ Logic aux send → Clarett OUT 7 → RE-202 → Clarett IN 7/8 → Logic aux ret
 roughly **four mono inserts or two stereo** can be live at once. That ceiling is
 why the patchbay exists — repatch rather than buy I/O.
 
-### Patchbay — two bays, 48 points
+### Patchbay — two Neutrik NYS-SPP-L1, 48 points
 
-Full point-by-point map: `studio-patchbay.csv`.
+Map: `studio-patchbay.csv`.
 
-**A device is not "on" a row.** Its *outputs* live on the top row and its *inputs*
-on the bottom row, so most gear appears in both. The 424 is the clearest case:
-tape outs and line outs on top, channel inputs on the bottom.
+**Leave both bays at factory settings.** The NYS-SPP-L1 ships half-normalled with
+the grey jack on the bottom row, which is what this layout wants everywhere. No
+cards to flip.
 
-The "normal" is an invisible cable running straight down inside a single column,
-so a source goes on top of the column whose usual destination sits below it.
-Half-normalled means a cable in the **bottom** jack breaks that connection, while
-a cable in the **top** jack takes a *copy* without disturbing it — which is why
-half-normal is the right default almost everywhere.
+Because they were bought used, **check before racking**: grey jacks on the bottom
+row means half-normalled and correct. Grey on top means a previous owner changed
+it — two screws off the front, slide the jack card out, flip it, reinsert. Do that
+on the bench, never with cable dressed into the back.
 
-**Bay A — the loop.** Everything that moves audio between Logic and hardware:
-the Clarett's eight outs and eight ins, the SSL, the 424's core connections, and
-the three outboard effects. Points 1–18 half-normalled (the default chains),
-19–24 open (the effects, which want to move).
+**A device is not "on" a row.** Its outputs are on the top row, its inputs on the
+bottom, so most gear appears in both. The 424 is the clearest case: tape outs and
+line outs on top, channel inputs on the bottom.
 
-**Bay B — sources.** Instruments. Its top row is dense and its bottom row is
-mostly spare, which is correct rather than wasteful: a sources bay produces
-signal, and the destinations all live in Bay A.
+The normal runs straight down inside one column. Half-normalled means a cable in
+the **bottom** jack breaks it, while a cable in the **top** jack takes a copy
+without disturbing anything.
 
-Two things Bay B buys that one bay could not:
+**Bay A** is the loop — everything moving audio between Logic and hardware.
+**Bay B** is sources — instruments. Bay B's bottom row is mostly empty, which is
+correct: a sources bay produces signal, and the destinations all live in Bay A.
 
-- **424 channels 5–6** are reachable (points 25–26), so the MS-2000B can be
-  played straight to tape with no computer in the path at all.
-- **The 424's own effect sends** are on the bay (19–20), so the tape machine can
-  drive the Fostex spring reverb directly and print real reverb to tape — rather
-  than every effect having to route through Logic.
+Two things the second bay buys:
 
-Note that **424 EFFECT SEND 2 doubles as TAPE CUE**. If it seems dead, check
-which mode it is in before suspecting a fault.
+- **424 channels 5–6** are reachable, so the MS-2000B plays straight to tape with
+  no computer in the path.
+- **The 424's own effect sends** have points, so the tape machine drives the
+  Fostex directly and prints real spring reverb to tape rather than routing every
+  effect through Logic.
+
+`424 EFFECT SEND 2 doubles as TAPE CUE` — if it seems dead, check the mode before
+suspecting a fault.
+
+The bays are balanced TRS; the RCA→TS cables are unbalanced TS. That is fine — a
+TS plug in a TRS jack shorts ring to sleeve, which is correct for an unbalanced
+signal.
 
 ### Two habits worth keeping
 
