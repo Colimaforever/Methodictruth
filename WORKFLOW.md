@@ -54,28 +54,74 @@ because the tape returns as four separate tracks rather than a mix.**
 
 **Order matters. Test after each device, never all at the end.**
 
+## The layout decision, before any cable
+
+**Everything permanent lives on the rack table.** That means every point on Bay A
+is a short run to gear sitting right next to it — wire it once, never touch the
+back again.
+
+**Instruments across the room are not wired in.** The MS-2000B, MS-20 Mini and
+anything else at a distance get a long cable into a **front bottom jack** when
+wanted. Costs zero patchbay points, leaves no cable permanently strung across the
+floor, and pulls straight back out when you're done.
+
+**Bay B stays mostly empty on purpose.** Six overflow destinations, eighteen free.
+A point costs nothing until something earns it, and free points mean the next
+piece of gear doesn't force a rewire — which is exactly what went wrong with one bay.
+
+**Mount Bay A where you can reach it** — in the rack, near the Clarett and SSL.
+Those are the points you'll touch daily.
+
+**Put the 424 somewhere with clear space above it.** Its jacks are on the **top
+panel**, not the back, so don't bury it mid-rack with something sitting on it.
+
+## Steps
+
 1. **Photograph** every rear panel and the current patch state.
 2. **Power down** everything. Not standby.
 3. **Consolidate power** onto one strip, one circuit. Do this before any audio
    cable. Ground loops are the most likely thing to ruin the day.
-4. Route **power down one side** of the rack, audio down the other. Cross at 90°.
-5. **Check the patchbays on the bench.** Grey jacks on the bottom row = half
-   normalled = correct. Grey on top = flip the card (two screws). Never open a
-   bay with cable dressed into it.
-6. **Wire the spine first**: Clarett OUT 1–2 → bay 1–2, SSL Main → bay 9–10.
-7. **Power up and test that one loop.** Logic track out, through the SSL, back in.
+4. Route **power down one side**, audio down the other. Cross at 90°.
+5. **Verify the bays on the bench, with the Fluke.** Continuity between rear top
+   and rear bottom of the same column:
+   - *Beeps with nothing plugged* → connected. Good.
+   - *Now plug a cable into the front bottom and re-test* → should **stop**
+     beeping. That's half-normalled with the break on the bottom. Correct.
+   - *Still beeps* → the break is on the top row. Flip that card: two screws off
+     the front, slide the jack card out, reverse it, reinsert.
+   - Test two or three columns per bay; they're all alike unless someone went to
+     trouble.
+   Never open a bay with cable dressed into the back.
+6. **Note the ground tabs** on the bay — `CHASSIS COMMON / TOP / BOTTOM`. Leave
+   them as found. If hum survives the single-power-strip fix, lifting a ground
+   here is the next lever, and it helps to know it exists before you need it.
+7. **Wire the spine first**: Clarett OUT 1–2 → `A1`/`A2`, SSL Main → `A9`/`A10`.
+8. **Power up and test that one loop.** Logic track out, through the SSL, back in.
    Listen for signal, then for hum with nothing playing.
-8. **Add effects one at a time**, testing each: RE-202 (7, 15–16), R-1000
-   (8, 22–23), Fostex (19, 21).
-9. **Label points 3–6 and 11–14 for the 424 now**, even before cabling them.
-10. **Dress**: service loops so any unit pulls forward without unplugging.
+9. **Add the rest of Bay A one device at a time**, testing each: the 424 channel
+   inputs (`A3`–`A6`), tape outs (`A11`–`A14`), RE-202 (`A7`, `A15`–`A16`),
+   R-1000 (`A8`, `A22`–`A23`), Fostex (`A19`, `A21`), line outs (`A17`–`A18`).
+10. **Wire Bay B's six destinations** — `B1`–`B6`. Leave the rest.
+11. **Dress**: service loops so any unit pulls forward without unplugging.
     Velcro, never zip ties. Labels on **both** ends.
-11. Photograph the finished state. Tick the **Done** column in the CSV.
+12. Photograph the finished state. Tick the **Done** column in the CSV.
 
 Keep something playing through the system the whole time. You'll hear the moment
 something breaks instead of finding out five cables later.
 
----
+## Using an instrument that isn't wired in
+
+Long cable from the instrument → **front bottom jack** of whatever destination you
+want. `B1` reaches 424 channel 5. Any point on Bay A whose bottom is a Clarett
+input sends it straight to the interface.
+
+Never plug a source into a front **top** jack — tops are outputs, you take *from*
+them. The rule holds: **take from a top, give to a bottom.**
+
+That run is long and unbalanced, so a TRS cable buys nothing — synth outputs are
+unbalanced regardless. Keep it on the opposite side of the room from power, cross
+at 90°, and if one instrument hums while others don't, a DI box at the instrument
+end balances it and fixes it properly.
 
 # Part B · The 424's first session
 
