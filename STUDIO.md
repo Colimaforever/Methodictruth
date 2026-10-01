@@ -222,6 +222,10 @@ points:
 
 - **MS-20 Mini · MS-2000B · Minilogue** — shared stand across the room
 - **Roland R-8** — stored under the bed, brought out when wanted
+- **Multi-FX pedalboard** — a floor unit, so it belongs on the floor. Patch it
+  in when wanted; it has not earned a permanent point. Brand unresolved:
+  `studio.html` records a **BOSS** multi-FX pedalboard, the owner recalls a
+  **Korg**. Possibly two units, possibly one misremembered.
 
 Leave two or three long cables permanently run from the stand to near the bay,
 coiled with free ends, rather than dragging one across the floor each session.

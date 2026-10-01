@@ -72,6 +72,12 @@ piece of gear doesn't force a rewire — which is exactly what went wrong with o
 **Mount Bay A where you can reach it** — in the rack, near the Clarett and SSL.
 Those are the points you'll touch daily.
 
+**The Mac mini does not have to move.** It stays in the computer corner with the
+dock and KVM; the Clarett lives on the rack table and reaches it over Thunderbolt,
+and that run is confirmed to make the distance. So the rack table is the anchor
+for Bay A and nothing about the computer corner constrains it. One long
+Thunderbolt run, every audio cable short.
+
 **Put the 424 somewhere with clear space above it.** Its jacks are on the **top
 panel**, not the back, so don't bury it mid-rack with something sitting on it.
 
