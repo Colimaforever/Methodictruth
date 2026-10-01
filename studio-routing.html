@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="robots" content="noindex">
+<title>Routing — Visual Reference</title>
+<style>
+  :root{--bg:#0a0e1a;--ink:#e8e0d0;--dim:#9aa4b2;--glow:#00e5ff;--warm:#e8a87c;--line:rgba(0,229,255,.18)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+       padding:1.2rem clamp(.8rem,3vw,2rem) 4rem;line-height:1.6}
+  h1{font-size:clamp(1.1rem,3vw,1.5rem);letter-spacing:.12em;text-transform:uppercase;
+     color:var(--glow);margin:.4rem 0 .2rem}
+  .sub{color:var(--dim);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:2rem}
+  h2{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--warm);
+     margin:2.6rem 0 .3rem;border-bottom:1px solid var(--line);padding-bottom:.4rem}
+  p{font-size:.84rem;color:var(--dim);max-width:62ch;margin:.5rem 0 1rem}
+  p b{color:var(--ink);font-weight:600}
+  p em{color:var(--glow);font-style:normal}
+  svg{display:block;width:100%;height:auto;margin:1rem 0 .4rem}
+  .cap{font-size:.68rem;color:var(--dim);margin-bottom:1.4rem;max-width:62ch}
+  .rule{font-size:.9rem;color:var(--ink);border-left:3px solid var(--glow);
+        padding:.5rem 0 .5rem .9rem;margin:1.2rem 0;background:rgba(0,229,255,.05)}
+</style>
+</head>
+<body>
+
+<h1>Routing</h1>
+<div class="sub">Patchbay behaviour &amp; the tape workflow</div>
+
+<h2>1 · What a patchbay column does</h2>
+<p>Every column is <b>two jacks wired to two different things</b>. The top jack is hardwired
+to a source's output. The bottom jack is hardwired to a destination's input. The
+<em>normal</em> is an internal link between them that a cable can break.</p>
+
+<svg viewBox="0 0 760 300" role="img" aria-label="Four states of a half-normalled patchbay column">
+<defs>
+  <marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L7,3 L0,6 Z" fill="#00e5ff"/></marker>
+  <marker id="aw" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L7,3 L0,6 Z" fill="#e8a87c"/></marker>
+  <style>
+    .jk{fill:rgba(0,229,255,.07);stroke:rgba(0,229,255,.5);stroke-width:1.3}
+    .jkg{fill:rgba(154,164,178,.18);stroke:rgba(154,164,178,.6);stroke-width:1.3}
+    .lb{font:600 10px monospace;fill:#e8e0d0}
+    .sm{font:9px monospace;fill:#9aa4b2}
+    .ttl{font:600 11px monospace;fill:#e8a87c}
+    .nrm{stroke:#00e5ff;stroke-width:2;fill:none}
+    .brk{stroke:#55606e;stroke-width:2;fill:none;stroke-dasharray:4 4}
+    .pch{stroke:#e8a87c;stroke-width:2.2;fill:none;marker-end:url(#aw)}
+  </style>
+</defs>
+
+<!-- state 1 -->
+<text class="ttl" x="88" y="22" text-anchor="middle">NOTHING PLUGGED</text>
+<rect class="jk" x="48" y="46" width="80" height="34" rx="3"/>
+<text class="lb" x="88" y="68" text-anchor="middle">TOP</text>
+<path class="nrm" d="M88 80 L88 150" marker-end="url(#a)"/>
+<text class="sm" x="98" y="118">normal</text>
+<rect class="jkg" x="48" y="152" width="80" height="34" rx="3"/>
+<text class="lb" x="88" y="174" text-anchor="middle">BOTTOM</text>
+<text class="sm" x="88" y="212" text-anchor="middle">source feeds</text>
+<text class="sm" x="88" y="226" text-anchor="middle">destination</text>
+<text class="sm" x="88" y="248" text-anchor="middle">— the default —</text>
+
+<!-- state 2 -->
+<text class="ttl" x="268" y="22" text-anchor="middle">TOP ONLY</text>
+<rect class="jk" x="228" y="46" width="80" height="34" rx="3"/>
+<text class="lb" x="268" y="68" text-anchor="middle">TOP</text>
+<path class="nrm" d="M268 80 L268 150" marker-end="url(#a)"/>
+<path class="pch" d="M308 63 L358 63"/>
+<text class="sm" x="334" y="52" text-anchor="middle">copy</text>
+<rect class="jkg" x="228" y="152" width="80" height="34" rx="3"/>
+<text class="lb" x="268" y="174" text-anchor="middle">BOTTOM</text>
+<text class="sm" x="268" y="212" text-anchor="middle">still feeds down</text>
+<text class="sm" x="268" y="226" text-anchor="middle">AND out to you</text>
+<text class="sm" x="268" y="248" text-anchor="middle">— breaks nothing —</text>
+
+<!-- state 3 -->
+<text class="ttl" x="470" y="22" text-anchor="middle">BOTTOM ONLY</text>
+<rect class="jk" x="430" y="46" width="80" height="34" rx="3"/>
+<text class="lb" x="470" y="68" text-anchor="middle">TOP</text>
+<path class="brk" d="M470 80 L470 150"/>
+<text class="sm" x="480" y="118">broken</text>
+<rect class="jkg" x="430" y="152" width="80" height="34" rx="3"/>
+<text class="lb" x="470" y="174" text-anchor="middle">BOTTOM</text>
+<path class="pch" d="M560 169 L514 169"/>
+<text class="sm" x="470" y="212" text-anchor="middle">destination fed</text>
+<text class="sm" x="470" y="226" text-anchor="middle">by your cable</text>
+<text class="sm" x="470" y="248" text-anchor="middle">— override —</text>
+
+<!-- state 4 -->
+<text class="ttl" x="672" y="22" text-anchor="middle">BOTH</text>
+<rect class="jk" x="632" y="46" width="80" height="34" rx="3"/>
+<text class="lb" x="672" y="68" text-anchor="middle">TOP</text>
+<path class="brk" d="M672 80 L672 150"/>
+<rect class="jkg" x="632" y="152" width="80" height="34" rx="3"/>
+<text class="lb" x="672" y="174" text-anchor="middle">BOTTOM</text>
+<text class="sm" x="672" y="212" text-anchor="middle">two unrelated</text>
+<text class="sm" x="672" y="226" text-anchor="middle">points</text>
+<text class="sm" x="672" y="248" text-anchor="middle">— independent —</text>
+</svg>
+<div class="cap">Grey = the normalling jack (the NYS-SPP-L1 ships with it on the bottom).
+Orange = a patch cable you insert.</div>
+
+<div class="rule">Take from a <b>top</b> jack — costs nothing.<br>
+Give to a <b>bottom</b> jack — overrides the default.</div>
+
+<h2>2 · The tape workflow</h2>
+<p>Two passes with a gap between them. Nothing is real-time: you <b>print</b>, then you
+<b>play back and capture</b>.</p>
+
+<svg viewBox="0 0 760 330" role="img" aria-label="Logic to tape and back, showing where to commit character and where to arrange">
+<defs><style>
+  .bx{fill:rgba(0,229,255,.06);stroke:rgba(0,229,255,.45);stroke-width:1.3}
+  .bxw{fill:rgba(232,168,124,.08);stroke:rgba(232,168,124,.55);stroke-width:1.3}
+  .bxt{fill:rgba(232,168,124,.14);stroke:#e8a87c;stroke-width:1.8}
+  .t1{font:600 11px monospace;fill:#e8e0d0}
+  .t2{font:9px monospace;fill:#9aa4b2}
+  .fl{stroke:#00e5ff;stroke-width:1.8;fill:none;marker-end:url(#a)}
+  .fl2{stroke:#e8a87c;stroke-width:1.8;fill:none;marker-end:url(#aw)}
+  .ph{font:600 10px monospace;fill:#e8a87c;letter-spacing:.1em}
+</style></defs>
+
+<text class="ph" x="20" y="22">PASS 1 — PRINT</text>
+<rect class="bx" x="20" y="36" width="120" height="56" rx="3"/>
+<text class="t1" x="80" y="58" text-anchor="middle">LOGIC</text>
+<text class="t2" x="80" y="76" text-anchor="middle">stems you chose</text>
+
+<path class="fl" d="M140 64 L186 64"/>
+<rect class="bx" x="190" y="36" width="110" height="56" rx="3"/>
+<text class="t1" x="245" y="58" text-anchor="middle">CLARETT</text>
+<text class="t2" x="245" y="76" text-anchor="middle">OUT 3–6</text>
+
+<path class="fl" d="M300 64 L346 64"/>
+<rect class="bxw" x="350" y="30" width="150" height="68" rx="3"/>
+<text class="t1" x="425" y="52" text-anchor="middle">424 MIXER</text>
+<text class="t2" x="425" y="69" text-anchor="middle">EQ · trim · FX sends</text>
+<text class="t2" x="425" y="85" text-anchor="middle">commit the character</text>
+
+<path class="fl" d="M500 64 L546 64"/>
+<rect class="bxt" x="550" y="36" width="120" height="56" rx="3"/>
+<text class="t1" x="610" y="58" text-anchor="middle">CASSETTE</text>
+<text class="t2" x="610" y="76" text-anchor="middle">tracks 1–4</text>
+
+<text class="ph" x="20" y="150">PASS 2 — CAPTURE</text>
+<rect class="bxt" x="550" y="164" width="120" height="56" rx="3"/>
+<text class="t1" x="610" y="186" text-anchor="middle">CASSETTE</text>
+<text class="t2" x="610" y="204" text-anchor="middle">press PLAY</text>
+
+<path class="fl2" d="M550 192 L504 192"/>
+<rect class="bx" x="360" y="164" width="140" height="56" rx="3"/>
+<text class="t1" x="430" y="186" text-anchor="middle">TAPE OUT 1–4</text>
+<text class="t2" x="430" y="204" text-anchor="middle">RCA · bypasses mixer</text>
+
+<path class="fl2" d="M360 192 L314 192"/>
+<rect class="bx" x="200" y="164" width="110" height="56" rx="3"/>
+<text class="t1" x="255" y="186" text-anchor="middle">CLARETT</text>
+<text class="t2" x="255" y="204" text-anchor="middle">IN 3–6</text>
+
+<path class="fl2" d="M200 192 L154 192"/>
+<rect class="bx" x="20" y="158" width="130" height="68" rx="3"/>
+<text class="t1" x="85" y="180" text-anchor="middle">LOGIC</text>
+<text class="t2" x="85" y="197" text-anchor="middle">4 separate tracks</text>
+<text class="t2" x="85" y="213" text-anchor="middle">arrange &amp; automate</text>
+
+<line x1="20" y1="256" x2="740" y2="256" stroke="rgba(0,229,255,.18)"/>
+<text class="t2" x="20" y="278">LINE OUT L/R → SSL → speakers = MONITORING while you work.</text>
+<text class="t2" x="20" y="294">It is a stereo mix. It is NOT the capture path — that is TAPE OUT 1–4.</text>
+<text class="t2" x="20" y="316">Mixing the machine's own stereo output would freeze every balance decision.</text>
+</svg>
+
+<div class="rule">Commit the <b>sound</b> on the 424. Decide the <b>arrangement</b> in Logic.<br>
+The thing you can't undo is the thing you shouldn't want to.</div>
+
+<h2>3 · Which elements go to tape</h2>
+<p>Four tracks, so you choose. Printing everything flattens the record — the contrast
+between tape-coloured and clean is what makes the colour read.</p>
+<p><b>Usual picks:</b> RD-8 drums (an 808 through tape is the canonical sound), bass,
+one pad or the VC-340, guitar that's already been through the pedals.<br>
+<b>Usually leave clean:</b> anything where detail matters more than weight.</p>
+
+</body>
+</html>
