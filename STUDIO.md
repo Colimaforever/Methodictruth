@@ -24,9 +24,9 @@ a hybrid workflow, not an alternative to the DAW.
 | Computer / DAW | Mac mini · Logic Pro |
 | Interface | Focusrite Clarett+ 8Pre |
 | Analog mixer | SSL SiX |
-| Patchbay | 24-in, 2-row |
+| Patchbay | 2× Neutrik NYS-SPP-L1 — 24 points each, half-normalled (Bay A, Bay B) |
 | MIDI | MOTU MIDI Express 128 (replaced a failed Sonos MT70) |
-| Synths | Korg MS-2000B · Korg Minilogue · Roland JV-1010 · Roland VC-340 |
+| Synths | Korg MS-20 Mini · Korg MS-2000B · Korg Minilogue · Roland JV-1010 · Roland VC-340 |
 | Drums | Roland R-8 · Behringer RD-8 |
 | Guitar / bass | Gibson Les Paul · 2007 MIM Fender Jazz Bass |
 | Outboard FX | Roland RE-202 · Fostex 3180 · Yamaha R-1000 |
@@ -206,7 +206,10 @@ Marked `VERIFY` in the CSV, all unverified against real rear panels:
   return also costs only one Clarett input rather than two.
 - **Yamaha R-1000** — mono or stereo in, connector format (A20, A22, A23)
 - **424 effect returns** — whether they exist and how many (A21, A22)
-- **Korg Minilogue** — output count; the layout assumes one (B27)
+- ~~**Korg Minilogue** — output count~~ — **no longer blocks the layout.** The
+  Minilogue is not wired in (see below), so it costs no patchbay point either
+  way. Still worth knowing before you cut the long cable that reaches it: one
+  output means one cable, two means two.
 
 Confirm these before cutting cable to them. Everything else comes from the
 documented setup.
