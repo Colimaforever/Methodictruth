@@ -197,51 +197,59 @@ one pad or the VC-340, guitar that already went through the pedals.<br>
 <b>Usually leave clean:</b> anything where detail matters more than weight.</p>
 
 <h2>6 · The patchbay map</h2>
-<p>Every point, both bays. <b>Top = source</b> (signal leaves it). <b>Bottom = destination</b> (signal enters it). All half-normalled — factory default on the NYS-SPP-L1, nothing to configure.</p>
-<p><b>Each bay counts 1–24 on its own</b>, matching the numbered strip on the unit itself. The letter tells you which box, the number tells you which point — so <em>A11</em> and <em>B11</em> are different jacks on different bays.</p>
+<p>All 48 points. <b>Top = source</b> (signal leaves it), <b>bottom = destination</b> (signal enters it). Each bay counts 1–24 on its own, matching the numbered strip on the unit. All half-normalled — factory default, nothing to configure.</p>
 <table class="bay">
-<tr><th>#</th><th>Top jack — source</th><th>Bottom jack — destination</th></tr>
-<tr class="bayhead"><td colspan="3">Bay A — the loop (Logic ↔ hardware)</td></tr>
-<tr><td class="pt">A1</td><td>Clarett OUT 1<div class="nt">SSL compressor on a Logic track</div></td><td>SSL CH1 in</td></tr>
-<tr><td class="pt">A2</td><td>Clarett OUT 2<div class="nt">Second SSL strip - only two exist</div></td><td>SSL CH2 in</td></tr>
-<tr><td class="pt">A3</td><td>Clarett OUT 3<div class="nt">Print stem to tape 1</div></td><td>424 Ch1 in</td></tr>
-<tr><td class="pt">A4</td><td>Clarett OUT 4<div class="nt">Print stem to tape 2</div></td><td>424 Ch2 in</td></tr>
-<tr><td class="pt">A5</td><td>Clarett OUT 5<div class="nt">Print stem to tape 3</div></td><td>424 Ch3 in</td></tr>
-<tr><td class="pt">A6</td><td>Clarett OUT 6<div class="nt">Print stem to tape 4</div></td><td>424 Ch4 in</td></tr>
-<tr><td class="pt">A7</td><td>Clarett OUT 7<div class="nt">Logic send to Space Echo</div></td><td>RE-202 in</td></tr>
-<tr><td class="pt">A8</td><td>Clarett OUT 8<div class="nt">Logic send to reverb</div></td><td>R-1000 in</td></tr>
-<tr><td class="pt">A9</td><td>SSL Main OUT L<div class="nt">Console back to Logic</div></td><td>Clarett IN 1</td></tr>
-<tr><td class="pt">A10</td><td>SSL Main OUT R<div class="nt">Console back to Logic</div></td><td>Clarett IN 2</td></tr>
-<tr><td class="pt">A11</td><td>424 TAPE OUT 1<div class="nt">RCA - tape 1 to Logic</div></td><td>Clarett IN 3</td></tr>
-<tr><td class="pt">A12</td><td>424 TAPE OUT 2<div class="nt">RCA - tape 2 to Logic</div></td><td>Clarett IN 4</td></tr>
-<tr><td class="pt">A13</td><td>424 TAPE OUT 3<div class="nt">RCA - tape 3 to Logic</div></td><td>Clarett IN 5</td></tr>
-<tr><td class="pt">A14</td><td>424 TAPE OUT 4<div class="nt">RCA - tape 4 to Logic</div></td><td>Clarett IN 6</td></tr>
-<tr><td class="pt">A15</td><td>RE-202 OUT L<div class="nt">Effect return</div></td><td>Clarett IN 7</td></tr>
-<tr><td class="pt">A16</td><td>RE-202 OUT R<div class="nt">Effect return</div></td><td>Clarett IN 8</td></tr>
-<tr><td class="pt">A17</td><td>424 LINE OUT L<div class="nt">MONITOR only - not capture</div></td><td>SSL stereo in L</td></tr>
-<tr><td class="pt">A18</td><td>424 LINE OUT R<div class="nt">MONITOR only - not capture</div></td><td>SSL stereo in R</td></tr>
-<tr><td class="pt">A19</td><td>424 EFFECT SEND 1<div class="nt">Print spring reverb to tape - mono in</div></td><td>Fostex 3180 in</td></tr>
-<tr><td class="pt">A20</td><td>424 EFFECT SEND 2<div class="nt">Send 2 doubles as TAPE CUE</div></td><td>R-1000 in R</td></tr>
-<tr><td class="pt">A21</td><td>Fostex 3180 OUT<div class="nt">Mono in/out - confirmed. 1 point each way</div></td><td>424 effect return L</td></tr>
-<tr><td class="pt">A22</td><td>R-1000 OUT L<div class="nt">VERIFY jacks</div></td><td>424 effect return R</td></tr>
-<tr><td class="pt">A23</td><td>R-1000 OUT R<div class="nt">VERIFY jacks</div></td><td>SSL FX return L</td></tr>
-<tr><td class="pt">A24</td><td>424 MONITOR OUT</td><td>SSL FX return R</td></tr>
-<tr class="bayhead"><td colspan="3">Bay B — sources (instruments)</td></tr>
-<tr><td class="pt">B1</td><td>MS-2000B OUT L<div class="nt">Play straight to tape - no computer</div></td><td>424 Ch5 in</td></tr>
-<tr><td class="pt">B2</td><td>MS-2000B OUT R<div class="nt">Play straight to tape - no computer</div></td><td>424 Ch6 in</td></tr>
-<tr><td class="pt">B3</td><td>Minilogue OUT<div class="nt">VERIFY output count</div></td><td>SSL stereo in 2 L</td></tr>
-<tr><td class="pt">B4</td><td><span class="sp">—</span></td><td>SSL stereo in 2 R</td></tr>
-<tr><td class="pt">B5</td><td>JV-1010 OUT L</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B6</td><td>JV-1010 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B7</td><td>VC-340 OUT L<div class="nt">Strings and vocoder</div></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B8</td><td>VC-340 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B9</td><td>RD-8 OUT L<div class="nt">808 - best tape candidate</div></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B10</td><td>RD-8 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B11</td><td>R-8 OUT L</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B12</td><td>R-8 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B13</td><td>Guitar DI<div class="nt">After the pedal chain</div></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B14</td><td>Bass DI</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B15-24</td><td><span class="sp">—</span><div class="nt">Leave free</div></td><td><span class="sp">—</span></td></tr>
+<tr><th>#</th><th>Top — source</th><th>Bottom — destination</th></tr>
+<tr class="bayhead"><td colspan="3">Bay A — the loop: Logic ↔ hardware</td></tr>
+<tr><td class="pt">A1</td><td>Clarett OUT 1<div class="nt">Send a Logic track to the SSL channel compressor and bring it back changed</div></td><td>SSL SiX CH1 input</td></tr>
+<tr><td class="pt">A2</td><td>Clarett OUT 2<div class="nt">Second SSL strip. You only have two - spend them on parts needing dynamic control</div></td><td>SSL SiX CH2 input</td></tr>
+<tr><td class="pt">A3</td><td>Clarett OUT 3<div class="nt">Print a stem to tape track 1. RECORD FUNCTION = DIRECT</div></td><td>424 Channel 1 input</td></tr>
+<tr><td class="pt">A4</td><td>Clarett OUT 4<div class="nt">Print a stem to tape track 2</div></td><td>424 Channel 2 input</td></tr>
+<tr><td class="pt">A5</td><td>Clarett OUT 5<div class="nt">Print a stem to tape track 3</div></td><td>424 Channel 3 input</td></tr>
+<tr><td class="pt">A6</td><td>Clarett OUT 6<div class="nt">Print a stem to tape track 4</div></td><td>424 Channel 4 input</td></tr>
+<tr><td class="pt">A7</td><td>Clarett OUT 7<div class="nt">Logic aux send to the Space Echo. Treat it like a plugin send</div></td><td>RE-202 input</td></tr>
+<tr><td class="pt">A8</td><td>Clarett OUT 8<div class="nt">Logic aux send to the 80s digital reverb</div></td><td>Yamaha R-1000 input</td></tr>
+<tr><td class="pt">A9</td><td>SSL SiX Main OUT L<div class="nt">The analog front end returning to Logic. Leave this permanently</div></td><td>Clarett IN 1</td></tr>
+<tr><td class="pt">A10</td><td>SSL SiX Main OUT R<div class="nt">The analog front end returning to Logic. Leave this permanently</div></td><td>Clarett IN 2</td></tr>
+<tr><td class="pt">A11</td><td>424 TAPE OUT 1<div class="nt">Tape track 1 back to Logic as its own track. RCA cable. -10 dBV so it arrives quiet</div></td><td>Clarett IN 3</td></tr>
+<tr><td class="pt">A12</td><td>424 TAPE OUT 2<div class="nt">Tape track 2 back to Logic. RCA</div></td><td>Clarett IN 4</td></tr>
+<tr><td class="pt">A13</td><td>424 TAPE OUT 3<div class="nt">Tape track 3 back to Logic. RCA</div></td><td>Clarett IN 5</td></tr>
+<tr><td class="pt">A14</td><td>424 TAPE OUT 4<div class="nt">Tape track 4 back to Logic. RCA</div></td><td>Clarett IN 6</td></tr>
+<tr><td class="pt">A15</td><td>RE-202 OUT L<div class="nt">Space Echo return</div></td><td>Clarett IN 7</td></tr>
+<tr><td class="pt">A16</td><td>RE-202 OUT R<div class="nt">Space Echo return</div></td><td>Clarett IN 8</td></tr>
+<tr><td class="pt">A17</td><td>424 LINE OUT L<div class="nt">MONITORING the tape machine while you work. NOT the capture path</div></td><td>SSL SiX stereo in 1 L</td></tr>
+<tr><td class="pt">A18</td><td>424 LINE OUT R<div class="nt">MONITORING only. Capture is A11-A14</div></td><td>SSL SiX stereo in 1 R</td></tr>
+<tr><td class="pt">A19</td><td>424 EFFECT SEND 1<div class="nt">Drive the spring reverb from the tape machine and print real reverb to tape</div></td><td>Fostex 3180 input</td></tr>
+<tr><td class="pt">A20</td><td>424 EFFECT SEND 2<div class="nt">Send 2 doubles as TAPE CUE - check which mode it is in before assuming a fault</div></td><td>Yamaha R-1000 input R</td></tr>
+<tr><td class="pt">A21</td><td>Fostex 3180 OUT<div class="nt">Spring reverb back into the 424. Mono in and out - confirmed</div></td><td>424 effect return L</td></tr>
+<tr><td class="pt">A22</td><td>Yamaha R-1000 OUT L<div class="nt">VERIFY - does the 424 have effect returns and how many</div></td><td>424 effect return R</td></tr>
+<tr><td class="pt">A23</td><td>Yamaha R-1000 OUT R<div class="nt">Reverb into the console instead of the computer</div></td><td>SSL SiX FX return L</td></tr>
+<tr><td class="pt">A24</td><td>424 MONITOR OUT<div class="nt">Spare monitoring path</div></td><td>SSL SiX FX return R</td></tr>
+<tr class="bayhead"><td colspan="3">Bay B — sources: instruments</td></tr>
+<tr><td class="pt">B1</td><td>MS-2000B OUT L<div class="nt">Play the MS-2000B straight to tape with no computer in the path at all</div></td><td>424 Channel 5 input</td></tr>
+<tr><td class="pt">B2</td><td>MS-2000B OUT R<div class="nt">Same - the standalone Portastudio workflow</div></td><td>424 Channel 6 input</td></tr>
+<tr><td class="pt">B3</td><td>Korg Minilogue OUT<div class="nt">VERIFY - one output or two</div></td><td>SSL SiX stereo in 2 L</td></tr>
+<tr><td class="pt">B4</td><td><span class="sp">—</span><div class="nt">Right half of the SSL second stereo input</div></td><td>SSL SiX stereo in 2 R</td></tr>
+<tr><td class="pt">B5</td><td>Roland JV-1010 OUT L<div class="nt">Patch to a free Clarett IN on Bay A when you want to record it</div></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B6</td><td>Roland JV-1010 OUT R</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B7</td><td>Roland VC-340 OUT L<div class="nt">Strings and vocoder. The 500-800 Hz layer</div></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B8</td><td>Roland VC-340 OUT R</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B9</td><td>Behringer RD-8 OUT L<div class="nt">808 clone. The strongest candidate for tape saturation</div></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B10</td><td>Behringer RD-8 OUT R</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B11</td><td>Roland R-8 OUT L</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B12</td><td>Roland R-8 OUT R</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B13</td><td>Alesis SR-16 OUT L</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B14</td><td>Alesis SR-16 OUT R</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B15</td><td>Roland Juno DS OUT L</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B16</td><td>Roland Juno DS OUT R</td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B17</td><td>Guitar DI<div class="nt">After the pedal chain - Green Rhino > FL-9 > Dimension C > RE-202</div></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B18</td><td>Bass DI<div class="nt">2007 MIM Fender Jazz Bass</div></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B19</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B20</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B21</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B22</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B23</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B24</td><td><span class="sp">—</span><div class="nt">Keep one free. Something always needs a point</div></td><td><span class="sp">—</span></td></tr>
 </table>
 
 </div></body>
