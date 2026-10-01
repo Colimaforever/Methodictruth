@@ -31,7 +31,85 @@
 <h1>Routing</h1>
 <div class="sub">Patchbay behaviour &amp; the tape workflow</div>
 
-<h2>1 · What a patchbay column does</h2>
+<h2>1 · The whole arc</h2>
+<p>Five stages. The only one that is irreversible is <em>colour</em> — which is why it
+sits where it does, after the arrangement works and before the mix.</p>
+
+<svg viewBox="0 0 760 400" role="img" aria-label="The full studio workflow from writing through to finishing">
+<defs><style>
+  .st{fill:rgba(0,229,255,.06);stroke:rgba(0,229,255,.45);stroke-width:1.3}
+  .stc{fill:rgba(232,168,124,.12);stroke:#e8a87c;stroke-width:1.9}
+  .h{font:600 11px monospace;fill:#e8e0d0;letter-spacing:.08em}
+  .hc{font:600 11px monospace;fill:#e8a87c;letter-spacing:.08em}
+  .d{font:8.5px monospace;fill:#9aa4b2}
+  .n{font:600 9px monospace;fill:#00e5ff}
+  .ar{stroke:#00e5ff;stroke-width:1.8;fill:none;marker-end:url(#a)}
+  .lp{stroke:#e8a87c;stroke-width:1.5;fill:none;marker-end:url(#aw);stroke-dasharray:5 4}
+  .md{fill:rgba(154,164,178,.07);stroke:rgba(154,164,178,.35);stroke-width:1}
+</style></defs>
+
+<rect class="st" x="8" y="60" width="132" height="94" rx="3"/>
+<text class="n" x="18" y="78">1</text>
+<text class="h" x="74" y="95" text-anchor="middle">WRITE</text>
+<text class="d" x="74" y="114" text-anchor="middle">Logic sequences MIDI</text>
+<text class="d" x="74" y="128" text-anchor="middle">hardware makes sound</text>
+<text class="d" x="74" y="144" text-anchor="middle">nothing recorded yet</text>
+
+<path class="ar" d="M140 107 L164 107"/>
+
+<rect class="st" x="168" y="60" width="132" height="94" rx="3"/>
+<text class="n" x="178" y="78">2</text>
+<text class="h" x="234" y="95" text-anchor="middle">TRACK</text>
+<text class="d" x="234" y="114" text-anchor="middle">synths · drums · guitar</text>
+<text class="d" x="234" y="128" text-anchor="middle">→ patchbay → Clarett</text>
+<text class="d" x="234" y="144" text-anchor="middle">audio exists now</text>
+
+<path class="ar" d="M300 107 L324 107"/>
+
+<rect class="st" x="328" y="60" width="132" height="94" rx="3"/>
+<text class="n" x="338" y="78">3</text>
+<text class="h" x="394" y="95" text-anchor="middle">ARRANGE</text>
+<text class="d" x="394" y="114" text-anchor="middle">structure the song</text>
+<text class="d" x="394" y="128" text-anchor="middle">all still editable</text>
+<text class="d" x="394" y="144" text-anchor="middle">decide what stays</text>
+
+<path class="ar" d="M460 107 L484 107"/>
+
+<rect class="stc" x="488" y="54" width="132" height="106" rx="3"/>
+<text class="n" x="498" y="74" style="fill:#e8a87c">4</text>
+<text class="hc" x="554" y="92" text-anchor="middle">COLOUR</text>
+<text class="d" x="554" y="110" text-anchor="middle">424 tape · SSL comp</text>
+<text class="d" x="554" y="124" text-anchor="middle">RE-202 · springs</text>
+<text class="d" x="554" y="140" text-anchor="middle" style="fill:#e8a87c">committed — no undo</text>
+<text class="d" x="554" y="154" text-anchor="middle">pick 3–4 elements only</text>
+
+<path class="ar" d="M620 107 L644 107"/>
+
+<rect class="st" x="648" y="60" width="104" height="94" rx="3"/>
+<text class="n" x="658" y="78">5</text>
+<text class="h" x="700" y="95" text-anchor="middle">MIX</text>
+<text class="d" x="700" y="114" text-anchor="middle">balance</text>
+<text class="d" x="700" y="128" text-anchor="middle">automate</text>
+<text class="d" x="700" y="144" text-anchor="middle">master · export</text>
+
+<path class="lp" d="M700 160 L700 194 L554 194 L554 164"/>
+<text class="d" x="634" y="210" text-anchor="middle">heard something wrong? re-print that element</text>
+
+<rect class="md" x="8" y="238" width="744" height="56" rx="3"/>
+<text class="h" x="22" y="258">MIDI — underneath all of it</text>
+<text class="d" x="22" y="276">MOTU MIDI Express 128 · 8×8 · clock from Logic · R-8 set to clock only, MTC/MMC off</text>
+<text class="d" x="22" y="289">Every synth and drum machine stays in time whether or not its audio is being recorded.</text>
+
+<line x1="8" y1="316" x2="752" y2="316" stroke="rgba(0,229,255,.18)"/>
+<text class="d" x="8" y="338">Stages 1–3 are free: change anything, as often as you like.</text>
+<text class="d" x="8" y="354" style="fill:#e8a87c">Stage 4 is where sound becomes permanent — so it happens once the song already works.</text>
+<text class="d" x="8" y="370">Stage 5 is free again, because the tape came back as four separate tracks rather than a mix.</text>
+<text class="d" x="8" y="392">That last line is the entire reason for the four tape outputs.</text>
+</svg>
+<div class="cap">The dashed loop is the one you will actually use: mix, hear that the drums
+want more saturation, re-print just the drums, carry on.</div>
+
+<h2>2 · What a patchbay column does</h2>
 <p>Every column is <b>two jacks wired to two different things</b>. The top jack is hardwired
 to a source's output. The bottom jack is hardwired to a destination's input. The
 <em>normal</em> is an internal link between them that a cable can break.</p>
@@ -109,7 +187,7 @@ Orange = a patch cable you insert.</div>
 <div class="rule">Take from a <b>top</b> jack — costs nothing.<br>
 Give to a <b>bottom</b> jack — overrides the default.</div>
 
-<h2>2 · The tape workflow</h2>
+<h2>3 · The tape workflow</h2>
 <p>Two passes with a gap between them. Nothing is real-time: you <b>print</b>, then you
 <b>play back and capture</b>.</p>
 
@@ -176,7 +254,7 @@ Give to a <b>bottom</b> jack — overrides the default.</div>
 <div class="rule">Commit the <b>sound</b> on the 424. Decide the <b>arrangement</b> in Logic.<br>
 The thing you can't undo is the thing you shouldn't want to.</div>
 
-<h2>3 · Which elements go to tape</h2>
+<h2>4 · Which elements go to tape</h2>
 <p>Four tracks, so you choose. Printing everything flattens the record — the contrast
 between tape-coloured and clean is what makes the colour read.</p>
 <p><b>Usual picks:</b> RD-8 drums (an 808 through tape is the canonical sound), bass,
