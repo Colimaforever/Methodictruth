@@ -72,11 +72,23 @@ piece of gear doesn't force a rewire — which is exactly what went wrong with o
 **Mount Bay A where you can reach it** — in the rack, near the Clarett and SSL.
 Those are the points you'll touch daily.
 
-**The Mac mini does not have to move.** It stays in the computer corner with the
-dock and KVM; the Clarett lives on the rack table and reaches it over Thunderbolt,
-and that run is confirmed to make the distance. So the rack table is the anchor
-for Bay A and nothing about the computer corner constrains it. One long
-Thunderbolt run, every audio cable short.
+**The Mac mini is not a constraint either way.** The Thunderbolt run from the
+rack table to the dock in the computer corner is confirmed to make the distance,
+so the Mac mini *can* stay in the corner. It can also move to the rack table
+with the dock, which is better if there is room — a short Thunderbolt run beats
+a long one, and you stop standing up mid-session.
+
+Either way **the rack table is the anchor for Bay A**, the patchbay map does not
+change, and every audio cable stays short. If the Mac mini and dock do come
+over, two things to watch:
+
+- **Keep the XPS tower out of it.** It is a fan-heavy desktop you reach over
+  Meshnet and SSH — it has no reason to sit next to a microphone. The Mac mini
+  is near-silent and you touch it constantly; the tower is the opposite of both.
+- **Hum.** Computer switching supplies next to audio gear invite ground loops,
+  and the most susceptible thing in the room is the 424's unbalanced −10 dBV
+  RCA tape returns (`A11`–`A14`). If you hear hum appear after the move, that is
+  where it will be. Try a different outlet before you blame a cable.
 
 **Put the 424 somewhere with clear space above it.** Its jacks are on the **top
 panel**, not the back, so don't bury it mid-rack with something sitting on it.
