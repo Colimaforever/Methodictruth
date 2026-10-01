@@ -17,6 +17,39 @@ Governing philosophy:
 Logic is not being replaced. The Portastudio is a *tape-processing stage inside*
 a hybrid workflow, not an alternative to the DAW.
 
+## Describing it in one line
+
+For when someone asks. Pick the length that fits.
+
+**One line**
+> Hybrid studio: Logic drives it, hardware colours it, a cassette 4-track prints
+> the character, and it all comes back into Logic to mix.
+
+**One line, with the sound**
+> A hybrid hardware studio for dark, atmospheric 80s/post-punk music — Logic
+> sequences, outboard and a Tascam 424 cassette deck add the character, and
+> everything returns to Logic as fresh tracks.
+
+**A paragraph**
+> Logic Pro and a Mac mini at the centre, with a Clarett+ 8Pre as the way in and
+> out. Every piece of hardware sits on the same loop — out of the interface,
+> through the box, back in — so an SSL SiX, a Space Echo, a spring reverb and a
+> Tascam 424 cassette deck are all just different detours on one path. The 424 is
+> the unusual part: it isn't the recorder, it's a saturation stage. Stems get
+> printed to tape and pulled back in as new tracks, so every part can exist in
+> both digital and tape form and the mix picks. Aimed at dark, atmospheric
+> 80s/post-punk, around 107 BPM.
+
+**Out loud, casually**
+> I write in Logic, run the parts out through analog gear and a cassette 4-track
+> to rough them up, then bring them back in to mix. Tape does something to a
+> sound I can't get any other way.
+
+**The gear, in one breath**
+> Mac mini and Logic · Clarett+ 8Pre · SSL SiX · Tascam 424 mkIII · RE-202,
+> Fostex 3180 spring, Yamaha R-1000 · Korg MS-20 Mini, MS-2000B, Minilogue ·
+> Roland JV-1010, VC-340, R-8 · Behringer RD-8 · Les Paul and a Jazz Bass.
+
 ## Core rig
 
 | Role | Gear |
