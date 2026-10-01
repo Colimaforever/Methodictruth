@@ -22,23 +22,23 @@ a hybrid workflow, not an alternative to the DAW.
 For when someone asks. Pick the length that fits.
 
 **One line**
-> Hybrid studio: Logic drives it, hardware colours it, a cassette 4-track prints
-> the character, and it all comes back into Logic to mix.
+> Hybrid studio: Logic writes it, an SSL SiX is the analog hub, a cassette
+> 4-track prints the character, and it all comes back into Logic to mix.
 
 **One line, with the sound**
 > A hybrid hardware studio for dark, atmospheric 80s/post-punk music — Logic
-> sequences, outboard and a Tascam 424 cassette deck add the character, and
+> sequences, an SSL SiX and a Tascam 424 cassette deck give it character, and
 > everything returns to Logic as fresh tracks.
 
 **A paragraph**
-> Logic Pro and a Mac mini at the centre, with a Clarett+ 8Pre as the way in and
-> out. Every piece of hardware sits on the same loop — out of the interface,
-> through the box, back in — so an SSL SiX, a Space Echo, a spring reverb and a
-> Tascam 424 cassette deck are all just different detours on one path. The 424 is
-> the unusual part: it isn't the recorder, it's a saturation stage. Stems get
-> printed to tape and pulled back in as new tracks, so every part can exist in
-> both digital and tape form and the mix picks. Aimed at dark, atmospheric
-> 80s/post-punk, around 107 BPM.
+> Two centres. Logic Pro on a Mac mini is where it gets written and mixed; an SSL
+> SiX is where the analog side converges and where I listen from. A Clarett+ 8Pre
+> joins them. Hanging off that are the colour boxes — a Space Echo, a spring
+> reverb, an 80s digital reverb, and a Tascam 424 cassette 4-track — each one a
+> detour out of the interface and back in. The 424 is the unusual part: it isn't
+> the recorder, it's a saturation stage. Stems get printed to tape and pulled back
+> in as new tracks, so every part can exist in both digital and tape form and the
+> mix picks. Aimed at dark, atmospheric 80s/post-punk, around 107 BPM.
 
 **Out loud, casually**
 > I write in Logic, run the parts out through analog gear and a cassette 4-track
@@ -237,7 +237,13 @@ Marked `VERIFY` in the CSV, all unverified against real rear panels:
 - ~~**Fostex 3180**~~ — **confirmed mono in, mono out.** One point each way
   (A19 bottom, A21 top — each bay counts 1–24 on its own), which is what the layout already assumed. A mono
   return also costs only one Clarett input rather than two.
-- **Yamaha R-1000** — mono or stereo in, connector format (A20, A22, A23)
+- **Yamaha R-1000** — mono or stereo in, connector format (A20, A22, A23).
+  **Also: its two outputs are currently split across two different
+  destinations** — OUT L to the 424's effect return (A22), OUT R to the SSL FX
+  return (A23). If the unit is stereo that is wrong either way; half the reverb
+  would land in the tape machine and half in the console. Both outputs belong in
+  the same place. Decide which after seeing the rear panel; if it turns out mono,
+  A23 frees up entirely.
 - **424 effect returns** — whether they exist and how many (A21, A22)
 - ~~**Korg Minilogue** — output count~~ — **no longer blocks the layout.** The
   Minilogue is not wired in (see below), so it costs no patchbay point either

@@ -12,12 +12,25 @@ you do things in.
 Logic → Clarett OUT → [hardware] → Clarett IN → Logic
 ```
 
-Every box does the same thing structurally. **Clarett outputs are ways out to
-hardware. Clarett inputs are ways back.** The SSL, the tape machine and the
-Space Echo are the same shape with a different thing in the middle.
+Every **colour box** does the same thing structurally. **Clarett outputs are ways
+out to hardware. Clarett inputs are ways back.** The tape machine, the Space Echo
+and the spring reverb are the same shape with a different thing in the middle.
 
 The patchbay exists so you can change what's in the middle without crawling
 behind anything.
+
+**The SSL SiX is the exception, and it matters.** Its two channel strips are a
+detour like any other box — out on `A1`/`A2`, back on `A9`/`A10`. But the console
+itself is a *terminus*: it sums, and it is where you listen from. That is why the
+424's LINE OUT (`A17`/`A18`) and the reverb returns (`A23`/`A24`) land there and
+go no further.
+
+The consequence is worth knowing before you print anything: **Main Out carries
+everything live on the console**, and Main Out is the only path back to Logic. So
+monitoring the tape machine while printing a part through CH1 puts both into the
+take. Either mute before you print, or — better — split the jobs: **Main Out for
+capture, Alt or Cue for your headphones.** Then listening can never contaminate a
+recording.
 
 ---
 
