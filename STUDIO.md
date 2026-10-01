@@ -101,6 +101,81 @@ cassette is a fully legitimate way to get real tape colour.
 The payoff is per-part choice: every stem can exist in both digital and tape
 form, and the mix decides which — or blends them.
 
+## Signal routing
+
+### The one idea
+
+Every piece of outboard is structurally identical:
+
+```
+Logic → Clarett OUT → [hardware] → Clarett IN → Logic
+```
+
+**Clarett outputs are ways out to hardware. Clarett inputs are ways back.**
+The SSL compressor, the tape machine, the Space Echo — same shape, different
+box. Once each is seen as a detour on that loop, the only question left is
+which detour and in what order, which is what the patchbay answers.
+
+### The three chains
+
+**SSL compression on a part**
+
+```
+Logic track → Clarett OUT 1 → SSL CH1 (comp + EQ) → SSL Main → Clarett IN 1 → Logic
+```
+
+Two channel strips means two mono sources at a time. For a stereo source use
+the **master bus compressor** and feed the SiX's stereo input instead.
+
+**Tape saturation** — the one chain with a gap in the middle, since it is not
+real time:
+
+```
+Logic stems   → Clarett OUT 3-6 → 424 channels 1-4 → record to tape
+tape playback → 424 TAPE OUT 1-4 → Clarett IN 3-6 → Logic
+```
+
+**Hardware effects** — set up in Logic exactly like a plugin send, except the
+plugin is a box with a tape loop in it:
+
+```
+Logic aux send → Clarett OUT 7 → RE-202 → Clarett IN 7/8 → Logic aux return
+```
+
+### The constraint
+
+**8 out, 8 in.** A stereo round trip costs 2 and 2; a mono costs 1 and 1. So
+roughly **four mono inserts or two stereo** can be live at once. That ceiling is
+why the patchbay exists — repatch rather than buy I/O.
+
+### Patchbay
+
+Full point-by-point map: `studio-patchbay.csv`.
+
+Top row is sources (outputs), bottom row is destinations (inputs).
+**Points 1–18 half-normalled**, so the default chain works untouched and a cable
+breaks it — and a cable in the *top* row taps a copy without breaking anything,
+which is what makes half-normal the right default.
+**Points 19–24 open**, because the Fostex and the R-1000 want to move around and
+a normal there only fights you.
+
+Synths stay hardwired to their fixed Clarett inputs. They do not move, so they do
+not earn bay space.
+
+### Two habits worth keeping
+
+**Do not compress everything on the way in.** Two channel compressors and one bus
+compressor is the scarcest resource in the rack. Print clean, then insert the SSL
+on the two or three parts that need it — usually bass, lead vocal, drum bus.
+
+**Do not print everything to tape.** Running the whole arrangement through the 424
+flattens the record. Pick the elements where the saturation is the point.
+
+### Still to confirm
+
+The Fostex 3180 and Yamaha R-1000 rows are a template — jack count and connector
+format unverified against the actual rear panels.
+
 ## Open discrepancies with `studio.html`
 
 Flagged rather than silently reconciled — the site page and the owner's core-rig

@@ -1,0 +1,25 @@
+Point,Top Row (SOURCE / output),Device,Bottom Row (DESTINATION / input),Device,Normalling,Notes
+1,Clarett OUT 1,Focusrite Clarett+ 8Pre,SSL SiX CH1 input,SSL SiX,Half-normal,Send a Logic track to the SSL channel compressor
+2,Clarett OUT 2,Focusrite Clarett+ 8Pre,SSL SiX CH2 input,SSL SiX,Half-normal,Second SSL channel strip - only two exist
+3,Clarett OUT 3,Focusrite Clarett+ 8Pre,424 Channel 1 input,Tascam 424 mkIII,Half-normal,Print stem to tape track 1 (RECORD FUNCTION = DIRECT)
+4,Clarett OUT 4,Focusrite Clarett+ 8Pre,424 Channel 2 input,Tascam 424 mkIII,Half-normal,Print stem to tape track 2
+5,Clarett OUT 5,Focusrite Clarett+ 8Pre,424 Channel 3 input,Tascam 424 mkIII,Half-normal,Print stem to tape track 3
+6,Clarett OUT 6,Focusrite Clarett+ 8Pre,424 Channel 4 input,Tascam 424 mkIII,Half-normal,Print stem to tape track 4
+7,Clarett OUT 7,Focusrite Clarett+ 8Pre,RE-202 input,Roland RE-202,Half-normal,Aux send from Logic to the Space Echo
+8,Clarett OUT 8,Focusrite Clarett+ 8Pre,Yamaha R-1000 input,Yamaha R-1000,Half-normal,Aux send from Logic to the 80s digital reverb
+9,SSL SiX Main OUT L,SSL SiX,Clarett IN 1,Focusrite Clarett+ 8Pre,Half-normal,Analog front end returning to Logic
+10,SSL SiX Main OUT R,SSL SiX,Clarett IN 2,Focusrite Clarett+ 8Pre,Half-normal,Analog front end returning to Logic
+11,424 TAPE OUT 1,Tascam 424 mkIII,Clarett IN 3,Focusrite Clarett+ 8Pre,Half-normal,RCA -10 dBV - tape track 1 back to Logic
+12,424 TAPE OUT 2,Tascam 424 mkIII,Clarett IN 4,Focusrite Clarett+ 8Pre,Half-normal,RCA -10 dBV - tape track 2 back to Logic
+13,424 TAPE OUT 3,Tascam 424 mkIII,Clarett IN 5,Focusrite Clarett+ 8Pre,Half-normal,RCA -10 dBV - tape track 3 back to Logic
+14,424 TAPE OUT 4,Tascam 424 mkIII,Clarett IN 6,Focusrite Clarett+ 8Pre,Half-normal,RCA -10 dBV - tape track 4 back to Logic
+15,RE-202 OUT L,Roland RE-202,Clarett IN 7,Focusrite Clarett+ 8Pre,Half-normal,Effect return to Logic
+16,RE-202 OUT R,Roland RE-202,Clarett IN 8,Focusrite Clarett+ 8Pre,Half-normal,Effect return to Logic
+17,424 LINE OUT L,Tascam 424 mkIII,SSL SiX stereo in L,SSL SiX,Half-normal,MONITOR the tape machine mix - not the capture path
+18,424 LINE OUT R,Tascam 424 mkIII,SSL SiX stereo in R,SSL SiX,Half-normal,MONITOR the tape machine mix - not the capture path
+19,Fostex 3180 OUT,Fostex 3180,Fostex 3180 IN,Fostex 3180,OPEN,Spring reverb - patch it wherever it is wanted
+20,(spare),,(spare),,OPEN,Reserved - confirm 3180 jack count and format
+21,Yamaha R-1000 OUT L,Yamaha R-1000,(spare),,OPEN,Reverb return - patch manually
+22,Yamaha R-1000 OUT R,Yamaha R-1000,(spare),,OPEN,Reverb return - patch manually
+23,Guitar / Bass DI,Les Paul / Jazz Bass,(spare),,OPEN,After the pedal chain - Green Rhino > FL-9 > Dimension C > RE-202
+24,(spare),,(spare),,OPEN,Keep free - something always needs a point
