@@ -197,10 +197,11 @@ one pad or the VC-340, guitar that already went through the pedals.<br>
 <b>Usually leave clean:</b> anything where detail matters more than weight.</p>
 
 <h2>6 · The patchbay map</h2>
-<p>All 48 points. <b>Top = source</b> (signal leaves it), <b>bottom = destination</b> (signal enters it). Each bay counts 1–24 on its own, matching the numbered strip on the unit. All half-normalled — factory default, nothing to configure.</p>
+<p><b>Bay A does the work.</b> Everything permanent lives on the rack table, so every point here is a short run wired once and never touched again.</p>
+<p><b>Bay B is headroom.</b> Instruments across the room are not wired in — they get a long cable into a <em>front bottom jack</em> when wanted, which costs zero points. Bay B holds the few destinations that overflowed Bay A, and stays otherwise empty until something earns a permanent place.</p>
 <table class="bay">
 <tr><th>#</th><th>Top — source</th><th>Bottom — destination</th></tr>
-<tr class="bayhead"><td colspan="3">Bay A — the loop: Logic ↔ hardware</td></tr>
+<tr class="bayhead"><td colspan="3">Bay A — the loop: everything on the rack table</td></tr>
 <tr><td class="pt">A1</td><td>Clarett OUT 1<div class="nt">Send a Logic track to the SSL channel compressor and bring it back changed</div></td><td>SSL SiX CH1 input</td></tr>
 <tr><td class="pt">A2</td><td>Clarett OUT 2<div class="nt">Second SSL strip. You only have two - spend them on parts needing dynamic control</div></td><td>SSL SiX CH2 input</td></tr>
 <tr><td class="pt">A3</td><td>Clarett OUT 3<div class="nt">Print a stem to tape track 1. RECORD FUNCTION = DIRECT</div></td><td>424 Channel 1 input</td></tr>
@@ -225,31 +226,31 @@ one pad or the VC-340, guitar that already went through the pedals.<br>
 <tr><td class="pt">A22</td><td>Yamaha R-1000 OUT L<div class="nt">VERIFY - does the 424 have effect returns and how many</div></td><td>424 effect return R</td></tr>
 <tr><td class="pt">A23</td><td>Yamaha R-1000 OUT R<div class="nt">Reverb into the console instead of the computer</div></td><td>SSL SiX FX return L</td></tr>
 <tr><td class="pt">A24</td><td>424 MONITOR OUT<div class="nt">Spare monitoring path</div></td><td>SSL SiX FX return R</td></tr>
-<tr class="bayhead"><td colspan="3">Bay B — sources: instruments</td></tr>
-<tr><td class="pt">B1</td><td>MS-2000B OUT L<div class="nt">Play the MS-2000B straight to tape with no computer in the path at all</div></td><td>424 Channel 5 input</td></tr>
-<tr><td class="pt">B2</td><td>MS-2000B OUT R<div class="nt">Same - the standalone Portastudio workflow</div></td><td>424 Channel 6 input</td></tr>
-<tr><td class="pt">B3</td><td>Korg Minilogue OUT<div class="nt">VERIFY - one output or two</div></td><td>SSL SiX stereo in 2 L</td></tr>
-<tr><td class="pt">B4</td><td><span class="sp">—</span><div class="nt">Right half of the SSL second stereo input</div></td><td>SSL SiX stereo in 2 R</td></tr>
-<tr><td class="pt">B5</td><td>Roland JV-1010 OUT L<div class="nt">Patch to a free Clarett IN on Bay A when you want to record it</div></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B6</td><td>Roland JV-1010 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B7</td><td>Roland VC-340 OUT L<div class="nt">Strings and vocoder. The 500-800 Hz layer</div></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B8</td><td>Roland VC-340 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B9</td><td>Behringer RD-8 OUT L<div class="nt">808 clone. The strongest candidate for tape saturation</div></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B10</td><td>Behringer RD-8 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B11</td><td>Roland R-8 OUT L</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B12</td><td>Roland R-8 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B13</td><td>Alesis SR-16 OUT L</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B14</td><td>Alesis SR-16 OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B15</td><td>Roland Juno DS OUT L</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B16</td><td>Roland Juno DS OUT R</td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B17</td><td>Guitar DI<div class="nt">After the pedal chain - Green Rhino > FL-9 > Dimension C > RE-202</div></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B18</td><td>Bass DI<div class="nt">2007 MIM Fender Jazz Bass</div></td><td><span class="sp">—</span></td></tr>
+<tr class="bayhead"><td colspan="3">Bay B — overflow destinations and headroom</td></tr>
+<tr><td class="pt">B1</td><td><span class="sp">—</span><div class="nt">Plug a keyboard in here on demand - long cable to the front bottom jack</div></td><td>424 Channel 5 input</td></tr>
+<tr><td class="pt">B2</td><td><span class="sp">—</span><div class="nt">Same. Lets the MS-2000B or MS-20 reach tape without being wired in</div></td><td>424 Channel 6 input</td></tr>
+<tr><td class="pt">B3</td><td><span class="sp">—</span><div class="nt">On-demand input to the console</div></td><td>SSL SiX stereo in 2 L</td></tr>
+<tr><td class="pt">B4</td><td><span class="sp">—</span></td><td>SSL SiX stereo in 2 R</td></tr>
+<tr><td class="pt">B5</td><td><span class="sp">—</span><div class="nt">VERIFY - does the 424 have effect returns</div></td><td>424 effect return L</td></tr>
+<tr><td class="pt">B6</td><td><span class="sp">—</span><div class="nt">VERIFY</div></td><td>424 effect return R</td></tr>
+<tr><td class="pt">B7</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B8</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B9</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B10</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B11</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B12</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B13</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B14</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B15</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B16</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B17</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B18</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B19</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B20</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B21</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B22</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B23</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B24</td><td><span class="sp">—</span><div class="nt">Keep one free. Something always needs a point</div></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B24</td><td><span class="sp">—</span><div class="nt">Headroom. Wire Bay B only when something earns a permanent point</div></td><td><span class="sp">—</span></td></tr>
 </table>
 
 </div></body>
