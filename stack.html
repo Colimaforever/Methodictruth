@@ -206,11 +206,26 @@
     <div class="stack-section">
       <div class="stack-section-title">Infrastructure</div>
       <div class="stack-row"><span class="stack-key">Hardware</span><span class="stack-val">Intel N100, 8GB RAM — dedicated agent machine</span></div>
-      <div class="stack-row"><span class="stack-key">OS</span><span class="stack-val">Windows + WSL2 (Ubuntu)</span></div>
+      <div class="stack-row"><span class="stack-key">GPU host</span><span class="stack-val">Dell XPS 8930, NVIDIA CUDA — runs the Song Analyzer</span></div>
+      <div class="stack-row"><span class="stack-key">OS</span><span class="stack-val">Windows + WSL2 (Ubuntu) · Ubuntu on the GPU host</span></div>
       <div class="stack-row"><span class="stack-key">Domain</span><span class="stack-val">methodictruth.com</span></div>
       <div class="stack-row"><span class="stack-key">Hosting</span><span class="stack-val">Cloudflare Pages — static deploy from GitHub</span></div>
+      <div class="stack-row"><span class="stack-key">API</span><span class="stack-val"><code>api.methodictruth.com</code> — Cloudflare Tunnel to the GPU host, no open ports</span></div>
       <div class="stack-row"><span class="stack-key">SSL</span><span class="stack-val">Cloudflare edge — Universal cert, Always HTTPS</span></div>
       <div class="stack-row"><span class="stack-key">DNS</span><span class="stack-val">Cloudflare managed</span></div>
+    </div>
+
+    <div class="stack-section">
+      <div class="stack-section-title">Song Analyzer</div>
+      <div class="stack-row"><span class="stack-key">Service</span><span class="stack-val">Flask under gunicorn — 4 workers, 300s timeout, systemd-managed</span></div>
+      <div class="stack-row"><span class="stack-key">Ingest</span><span class="stack-val"><code>yt-dlp</code> + <code>ffmpeg</code>, on a residential IP — the part a datacenter host cannot do</span></div>
+      <div class="stack-row"><span class="stack-key">Analysis</span><span class="stack-val"><code>librosa</code> — chroma, beat tracking, onset strength, RMS</span></div>
+      <div class="stack-row"><span class="stack-key">Chords</span><span class="stack-val">Viterbi decoding over the full template set — maj, min, dim, aug, sus2, sus4 and sevenths. A change penalty buys stability, so a one-frame flip has to pay for leaving and returning</span></div>
+      <div class="stack-row"><span class="stack-key">Lyrics</span><span class="stack-val"><code>faster-whisper</code> large-v3 on CUDA, <code>int8_float16</code>. Runs as its own process so torch and CUDA stay out of the analyzer's dependency tree</span></div>
+      <div class="stack-row"><span class="stack-key">Streaming</span><span class="stack-val">NDJSON over a held connection — transcription outlives Cloudflare's 100s proxy ceiling, so progress arrives instead of a timeout</span></div>
+      <div class="stack-row"><span class="stack-key">Practice</span><span class="stack-val">A/B looping, and pitch shift rendered on demand with <code>asetrate</code>/<code>atempo</code> — present in every ffmpeg build, unlike rubberband</span></div>
+      <div class="stack-row"><span class="stack-key">Caching</span><span class="stack-val">Results and audio cached on disk; a video's audio never changes, so it is served <code>immutable</code> and repeat plays come from the Cloudflare edge rather than a worker</span></div>
+      <p class="stack-note">The whole thing exists because this analysis needs ffmpeg, real CPU time and a GPU — none of which a Cloudflare Worker has. So the site stays static at the edge and reaches back to one machine at home for the parts that cannot live there.</p>
     </div>
 
     <div class="stack-section">

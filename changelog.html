@@ -134,6 +134,18 @@
     </div>
 
     <article class="entry">
+      <p><strong>The <a href="stack.html">Stack</a> page had never heard of the Song Analyzer.</strong> It described one
+      machine — the N100 that runs the agent — while the analyzer had quietly become the largest piece of engineering
+      on the site, running on a second box entirely. It now has its own section: Flask under gunicorn, <code>yt-dlp</code>
+      and <code>ffmpeg</code> for ingest, <code>librosa</code> for chroma and beat tracking, Viterbi decoding across the
+      full chord template set, <code>faster-whisper</code> large-v3 on CUDA in a separate process, NDJSON streaming so
+      transcription outlives Cloudflare's 100-second proxy ceiling, and on-demand pitch shifting for practice.</p>
+      <p>Infrastructure gained the two rows that were missing with it — the GPU host, and <code>api.methodictruth.com</code>
+      as a Cloudflare Tunnel with no open ports. The shape worth naming is that the site is still entirely static at the
+      edge; it just reaches back to one machine at home for the things an edge worker has no ffmpeg, no CPU time and no
+      GPU to do.</p>
+    </article>
+    <article class="entry">
       <p><strong>The Music Education menu had grown past the bottom of the screen.</strong> Twenty-three links under
       six headings, hanging off a <code>position: fixed</code> nav — so the last few items were laid out below the
       viewport with no way to reach them. A fixed element does not scroll with the page, and the menu had no height
