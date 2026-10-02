@@ -346,6 +346,17 @@ body::after {
   min-width: 140px;
   z-index: 600;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  /* The nav is position:fixed, so a dropdown taller than the viewport runs off
+     the bottom of the screen and the items down there cannot be reached — the
+     page behind scrolls, a fixed element does not. Bounding the height and
+     letting the menu scroll itself is what makes a long list usable. dvh over
+     vh because on iOS vh counts browser chrome that is covering the page.
+     Splitting the menus is the real fix; this is the backstop for when one
+     grows again. */
+  max-height: calc(100vh - 5rem);
+  max-height: calc(100dvh - 5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .nav-dropdown:hover .nav-drop-menu,
@@ -1343,6 +1354,10 @@ footer .donate-link:hover {
     min-width: auto;
     border-left: 1px solid rgba(0, 229, 255, 0.15);
     margin-left: 0.5rem;
+    /* On mobile the whole .site-nav already scrolls, so a second scroller
+       nested inside it would trap the gesture. Undo the desktop bound. */
+    max-height: none;
+    overflow-y: visible;
   }
   .nav-drop-menu a {
     padding: 0.4rem 0.8rem;

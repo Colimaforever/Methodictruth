@@ -66,10 +66,13 @@
           <a href="chord-voicings.html">Chord Voicings</a>
           <a href="songwriter.html">Songwriter</a>
           <a href="harmony.html">Harmony</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
         </div>
       </div>
       <div class="nav-dropdown">
-        <button class="nav-drop-btn">Music Education ▾</button>
+        <button class="nav-drop-btn">Learn ▾</button>
         <div class="nav-drop-menu">
           <div class="nav-drop-label">The Path</div>
           <a href="production.html">Learn Production</a>
@@ -84,23 +87,24 @@
           <a href="groove.html">Groove &amp; Timing</a>
           <a href="minimalism.html">Space &amp; Restraint</a>
           <a href="finishing.html">Finishing</a>
-          <div class="nav-drop-label">Reference</div>
+          <a href="jam-guide.html">Jam Guide</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Reference ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">Theory &amp; Harmony</div>
           <a href="theory.html">Theory</a>
           <a href="melody.html">Writing Melody</a>
+          <a href="harmony-guide.html">Writing Harmony</a>
+          <a href="breaking-the-loop.html">Breaking the Loop</a>
+          <a href="4ad.html">The 4AD Sound</a>
+          <div class="nav-drop-label">Instruments &amp; Gear</div>
           <a href="fretboard.html">Seeing the Fretboard</a>
           <a href="multimeter.html">Reading the Meter</a>
           <a href="portastudio.html">Four Tracks</a>
           <a href="logic.html">Logic Pro</a>
-          <a href="jam-guide.html">Jam Guide</a>
-          <div class="nav-drop-label">Harmony &amp; Sound</div>
-          <a href="breaking-the-loop.html">Breaking the Loop</a>
-          <a href="harmony-guide.html">Writing Harmony</a>
-          <a href="4ad.html">The 4AD Sound</a>
-          <div class="nav-drop-label">DJing</div>
           <a href="djing.html">Denon Prime GO+</a>
-          <div class="nav-drop-label">Trainers</div>
-          <a href="ear-training.html">Ear Training</a>
-          <a href="chord-trainer.html">Chord-Tone Trainer</a>
         </div>
       </div>
       <div class="nav-dropdown">
@@ -129,6 +133,22 @@
       <p>Everything shipped here, newest first. No version numbers — just the work, in the order it happened. <a href="feed.xml">RSS feed ⟶</a></p>
     </div>
 
+    <article class="entry">
+      <p><strong>The Music Education menu had grown past the bottom of the screen.</strong> Twenty-three links under
+      six headings, hanging off a <code>position: fixed</code> nav — so the last few items were laid out below the
+      viewport with no way to reach them. A fixed element does not scroll with the page, and the menu had no height
+      of its own to scroll within, so <em>Trainers</em> was simply unreachable on most laptops. Grouping it into
+      labelled sections had made it readable, but it was still one list, and it had kept growing.</p>
+      <p>It is now <strong>two menus</strong>. <strong>Learn</strong> holds the things you work through in order —
+      <em>The Path</em> and <em>Craft</em>. <strong>Reference</strong> holds the things you look up — theory and
+      harmony writing, then instruments and gear. The two trainers moved to <strong>Music Tools</strong>, where they
+      belonged all along: they are interactive, not reading. Three menus of ten to twelve, instead of one of
+      twenty-three and one of eight.</p>
+      <p>The underlying bug is fixed too, so this cannot come back silently — any dropdown now bounds itself to the
+      viewport and scrolls internally, using <code>dvh</code> so iOS does not lay items out behind its own browser
+      chrome. On phones that bound is removed again, because the nav there is already a scroller and nesting a second
+      one inside it traps the gesture.</p>
+    </article>
     <article class="entry">
       <p><strong>The <a href="synth.html">Synth</a> was partly unreachable on a phone.</strong> The toolbar is fixed
       directly under the site nav, and it was pinned there at a hardcoded 40px — but the nav grows by
