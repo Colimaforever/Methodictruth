@@ -84,8 +84,15 @@ async function firebase() {
   try {
     const res = await fetch(url);
     if (!res.ok) {
-      const hint = res.status === 401 || res.status === 403
-        ? ' (rules deny read — set the FIREBASE_AUTH secret)' : '';
+      // 401 and 403 mean different things here and lead to different fixes.
+      // 401: no credential was presented, or it was rejected outright — the
+      // rules were never consulted, so "rules deny read" is the wrong advice.
+      // 403: the credential was accepted and the rules then said no.
+      const hint = res.status === 401
+        ? ' (no credential accepted — FIREBASE_AUTH is unset or wrong)'
+        : res.status === 403
+          ? ' (credential accepted, rules deny read — widen the read rule for /analytics)'
+          : '';
       return { ok: false, error: `HTTP ${res.status}${hint}` };
     }
     const data = await res.json();
@@ -164,6 +171,32 @@ function trend(days) {
   L.push('Aggregates only — no raw visitor records are stored in this repository.');
   L.push('');
 
+  // A collector that reports "unavailable" in a footnote every day, exits 0 and
+  // commits a green run looks healthy while measuring nothing. Say it at the
+  // top, name the fix, and fail the run so the Actions tab shows it too.
+  const blind = !cf.ok && !fb.ok;
+  if (blind) {
+    L.push('> ## ⚠ No traffic data is being collected');
+    L.push('>');
+    L.push('> **Both sources are unreachable, so this report is empty and the');
+    L.push('> history below it is not growing.** Nothing here says anything about');
+    L.push('> whether people are visiting — it only says we cannot see.');
+    L.push('>');
+    L.push('> The fix is two repository secrets, in');
+    L.push('> *Settings → Secrets and variables → Actions*:');
+    L.push('>');
+    L.push('> | Secret | Where it comes from |');
+    L.push('> | --- | --- |');
+    L.push('> | `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → Create Token → *Read analytics and logs* template, scoped to this zone |');
+    L.push('> | `CLOUDFLARE_ZONE_ID` | Cloudflare → the `methodictruth.com` zone → Overview, right-hand column |');
+    L.push('>');
+    L.push('> Cloudflare alone answers the question, and it sees every request —');
+    L.push('> including visitors who never run JavaScript, which the on-site');
+    L.push('> beacon cannot count. `FIREBASE_AUTH` is optional and only adds');
+    L.push('> per-page and per-referrer detail.');
+    L.push('');
+  }
+
   if (cf.ok && cf.days.length) {
     const d = cf.days;
     const r30 = sumOver(d, 30, 'requests'), c30 = sumOver(d, 30, 'cached');
@@ -228,4 +261,11 @@ function trend(days) {
   console.log(`cloudflare: ${cf.ok ? cf.days.length + ' days' : 'FAILED — ' + cf.error}`);
   console.log(`firebase:   ${fb.ok ? fb.total + ' rows' : 'FAILED — ' + fb.error}`);
   console.log(`history:    ${hist.length} days on file`);
+
+  if (blind) {
+    console.error('\nNo source returned data. The report was still written (and the ' +
+      'workflow still commits it) but it contains no traffic. Failing the run so ' +
+      'this is visible in the Actions tab rather than passing quietly.');
+    process.exitCode = 1;
+  }
 })();

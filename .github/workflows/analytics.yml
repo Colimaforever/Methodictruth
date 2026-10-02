@@ -41,7 +41,11 @@ jobs:
           FIREBASE_AUTH: ${{ secrets.FIREBASE_AUTH }}
         run: node .github/scripts/collect-analytics.js
 
+      # always(): the collector exits non-zero when no source returned data, so
+      # that a blind run shows red instead of passing quietly. The report it
+      # wrote still explains why, and is worth committing either way.
       - name: Commit if anything changed
+        if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
