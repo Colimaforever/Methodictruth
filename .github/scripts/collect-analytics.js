@@ -175,6 +175,13 @@ function trend(days) {
   // commits a green run looks healthy while measuring nothing. Say it at the
   // top, name the fix, and fail the run so the Actions tab shows it too.
   const blind = !cf.ok && !fb.ok;
+  // "Never set up" and "set up and broken" are different events and deserve
+  // different treatment. A missing secret is a known, standing condition: it
+  // should be visible in the report, but mailing a failure about it every
+  // morning is an alarm nobody can act on twice, and an alarm that fires daily
+  // forever is one you learn to delete unread. A source that WAS configured and
+  // then failed is news, and that is what should go red.
+  const configured = Boolean((CF_TOKEN && CF_ZONE) || process.env.FIREBASE_AUTH);
   if (blind) {
     L.push('> ## ⚠ No traffic data is being collected');
     L.push('>');
@@ -262,10 +269,14 @@ function trend(days) {
   console.log(`firebase:   ${fb.ok ? fb.total + ' rows' : 'FAILED — ' + fb.error}`);
   console.log(`history:    ${hist.length} days on file`);
 
-  if (blind) {
-    console.error('\nNo source returned data. The report was still written (and the ' +
-      'workflow still commits it) but it contains no traffic. Failing the run so ' +
-      'this is visible in the Actions tab rather than passing quietly.');
+  if (blind && configured) {
+    console.error('\nA source IS configured and still returned nothing — that is a ' +
+      'regression, not a setup gap. Failing the run so it shows red.');
     process.exitCode = 1;
+  } else if (blind) {
+    console.log('\nNo source is configured yet, so there is nothing to collect. ' +
+      'Not failing the run: this is a standing setup gap, not a regression, and a ' +
+      'daily red X for it is noise. REPORT.md says so at the top, and the run will ' +
+      'start failing for real once a secret is set and then stops working.');
   }
 })();

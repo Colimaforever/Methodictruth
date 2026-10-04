@@ -27,9 +27,9 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
 
@@ -41,17 +41,26 @@ jobs:
           FIREBASE_AUTH: ${{ secrets.FIREBASE_AUTH }}
         run: node .github/scripts/collect-analytics.js
 
-      # always(): the collector exits non-zero when no source returned data, so
-      # that a blind run shows red instead of passing quietly. The report it
-      # wrote still explains why, and is worth committing either way.
+      # always(): the collector exits non-zero when a CONFIGURED source stops
+      # working. The report it wrote explains why, and is worth committing even
+      # then.
       - name: Commit if anything changed
         if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add analytics/
-          if git diff --staged --quiet; then
-            echo "no change"
+          # REPORT.md carries the collection time, so a run with no new data
+          # still produces a one-line diff. Committing that daily fills the
+          # history with changes that say nothing. Count the changed lines that
+          # are not the timestamp; if there are none, there is no news.
+          real=$(git diff --staged --unified=0 -- analytics/ \
+                 | grep -E '^[+-]' \
+                 | grep -vE '^(\+\+\+|---)' \
+                 | grep -vcE '^[+-]Collected \*\*' || true)
+          if [ "${real:-0}" -eq 0 ]; then
+            echo "only the collection timestamp moved — nothing worth committing"
+            git reset -q
           else
             git commit -m "Analytics: snapshot $(date -u +%Y-%m-%d)"
             git push
