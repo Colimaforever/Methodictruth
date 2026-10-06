@@ -1,0 +1,72 @@
+name: Weekly Traffic Report
+
+# Mails a traffic summary once a week.
+#
+# Weekly rather than daily by choice. Daily numbers on a site this size swing
+# by a factor of three on one crawler, and a percentage on a base of four
+# visitors is noise wearing a suit. A week smooths that enough for a change in
+# it to usually mean something -- and it arrives rarely enough to stay worth
+# opening, which is the property that actually matters in an automated email.
+#
+# The daily collector keeps running; this only changes how often you are
+# written to, not how often data is gathered.
+#
+# Sends nothing when there is nothing to report. A weekly empty page teaches
+# you to filter the sender, and then the first real one goes unread too.
+
+on:
+  schedule:
+    # Mondays, 14:06 UTC. Off the hour because scheduled runs cluster there
+    # and get delayed; Monday so the week being summarised is a finished one.
+    - cron: '6 14 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      # Refresh first. history.json is committed and so is already here, but
+      # the per-page and per-referrer breakdown lives in latest.json, which is
+      # gitignored -- it has to be produced in this runner to exist at all.
+      - name: Collect fresh numbers
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          FIREBASE_DB_URL: ${{ vars.FIREBASE_DB_URL }}
+          FIREBASE_AUTH: ${{ secrets.FIREBASE_AUTH }}
+        run: node .github/scripts/collect-analytics.js
+
+      - name: Build the report
+        id: report
+        run: node .github/scripts/weekly-report.js
+
+      - name: Email it
+        if: steps.report.outputs.send == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.GMAIL_USER }}
+          # A Gmail App Password, not the account password. Requires 2FA.
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          from: Methodic Truth <${{ secrets.GMAIL_USER }}>
+          to: ${{ secrets.ALERT_EMAIL }}
+          subject: ${{ steps.report.outputs.subject }}
+          html_body: ${{ steps.report.outputs.html }}
+          # Plain-text alternative, for clients that prefer or force it.
+          body: ${{ steps.report.outputs.text }}
