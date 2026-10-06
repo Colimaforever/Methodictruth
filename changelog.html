@@ -134,6 +134,27 @@
     </div>
 
     <article class="entry">
+      <p><strong>The <a href="songwriter.html">Song Arrangement</a> page was a form, and a song is not a form.</strong>
+      Every section was a collapsed card: writing one line of lyric cost a click to expand, the typing, and a click to
+      collapse — with the two things you touch constantly, the words and the energy, buried behind the same toggle as
+      five fields you'd rarely fill. It is now a <strong>sheet</strong>. Nothing collapses, every section's text area is
+      open all the time, and you scroll and type as you would on paper with the structure already drawn in.</p>
+      <p>The change that made that possible is invisible: the page used to rebuild itself on every edit, which with
+      always-open fields would have destroyed the caret, the selection and the undo stack on each keystroke. Typing now
+      updates the model and nothing else; the page only redraws when something structural happens. Dragging moved to a
+      grip for the same reason — the whole block being draggable meant you couldn't place a cursor in the lyrics on a
+      phone.</p>
+      <p>Key and tempo moved to the top of the song, where they are one fact rather than eight copies of one. Sections
+      are named the way you'd say them out loud — <em>Verse 2</em>, not <em>#4</em>. The energy slider became ten
+      tappable steps that read as a level at a glance. Each empty section now prompts with what that section is
+      <em>for</em> rather than "Lyrics / Ideas". Saving is automatic, so the Save button is gone; a button that asks you
+      to remember something the machine already knows is a way to lose work. Sheets written in the old format are
+      migrated on load, with the old notes field folded into the words rather than dropped.</p>
+      <p>And the emoji are gone. Fourteen of them were doing the work of headings on a site that has its own vocabulary
+      for that — cuneiform, circled numerals, <span aria-hidden="true">❧</span> — which is most of why the page read as
+      cheaper than the rest.</p>
+    </article>
+    <article class="entry">
       <p><strong>The <a href="stack.html">Stack</a> page had never heard of the Song Analyzer.</strong> It described one
       machine — the N100 that runs the agent — while the analyzer had quietly become the largest piece of engineering
       on the site, running on a second box entirely. It now has its own section: Flask under gunicorn, <code>yt-dlp</code>

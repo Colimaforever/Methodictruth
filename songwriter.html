@@ -50,65 +50,119 @@
 /* Energy Canvas */
 #energyCanvas { width: 100%; height: 120px; border: 1px solid var(--stone-dark, #555); border-radius: 6px; margin-bottom: 1rem; background: rgba(0,0,0,0.3); }
 
-/* Timeline */
-.sw-timeline { min-height: 80px; margin-bottom: 1rem; }
-.sw-empty { text-align: center; padding: 2rem; color: var(--stone-dark, #888); font-family: 'EB Garamond', serif; font-style: italic; border: 1px dashed var(--stone-dark, #555); border-radius: 8px; }
-
-/* Cards */
-.sw-card {
-  border: 1px solid var(--stone-dark, #555); border-radius: 8px;
-  margin-bottom: 0.5rem; overflow: hidden; cursor: grab;
-  transition: border-color 0.2s, box-shadow 0.2s; background: var(--sky-deep, #1a1a2e);
+/* ── The sheet ──
+   A song is written on paper, not filled into a form. Every section is open
+   all the time: you scroll and type. The previous version hid the words behind
+   an expand toggle, which meant two clicks to write one line and no way to see
+   the song as a whole. Nothing here collapses. */
+.sw-songbar {
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.5rem;
+  margin-bottom: 1.25rem; padding-bottom: 1.1rem;
+  border-bottom: 1px solid rgba(138, 126, 107, 0.18);
 }
-.sw-card.dragging { opacity: 0.5; }
-.sw-card.drag-over { border-color: var(--glow, #d4a574); box-shadow: 0 0 8px rgba(212,165,116,0.3); }
-.sw-card-header {
-  display: flex; align-items: center; padding: 0.6rem 0.8rem; min-height: 44px; user-select: none;
+.sw-songbar input {
+  width: 100%; box-sizing: border-box; background: transparent;
+  border: none; border-bottom: 1px solid var(--stone-dark, #555);
+  color: var(--parchment, #e8dcc8); padding: 0.45rem 0.15rem; border-radius: 0;
+  font-family: 'EB Garamond', serif; font-size: 1rem;
 }
-.sw-card-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 0.6rem; flex-shrink: 0; }
-.sw-card-label { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--parchment, #e8dcc8); flex: 1; }
-.sw-card-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--stone-dark, #888); margin-right: 0.5rem; }
-.sw-card-expand { background: none; border: none; color: var(--stone-dark, #888); font-size: 1.1rem; cursor: pointer; padding: 0.3rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-.sw-card-del { background: none; border: none; color: #944; font-size: 1rem; cursor: pointer; padding: 0.3rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-.sw-card-del:hover { color: #f66; }
-.sw-card-body { display: none; padding: 0.6rem 0.8rem; border-top: 1px solid var(--stone-dark, #444); }
-.sw-card.expanded .sw-card-body { display: block; }
-.sw-card-body label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark, #aaa); display: block; margin: 0.4rem 0 0.2rem; }
-.sw-card-body textarea, .sw-card-body input[type="text"], .sw-card-body input[type="number"] {
-  width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid var(--stone-dark, #555);
-  color: var(--parchment, #e8dcc8); font-family: 'EB Garamond', serif; font-size: 0.9rem;
-  padding: 0.4rem; border-radius: 4px; resize: vertical;
+.sw-songbar input:focus { outline: none; border-bottom-color: var(--glow, #d4a574); }
+.sw-songbar input#songTitle { font-family: 'Cinzel', serif; font-size: 1.15rem; color: var(--glow, #d4a574); }
+
+.sw-sheet { margin-bottom: 1.25rem; }
+.sw-empty {
+  text-align: center; padding: 2.5rem 1.5rem; color: var(--stone-dark, #888);
+  font-family: 'EB Garamond', serif; font-style: italic; font-size: 1.05rem;
+  border: 1px dashed rgba(138, 126, 107, 0.3); border-radius: 2px;
 }
-.sw-card-body textarea { min-height: 60px; }
-.sw-card-body input[type="range"] { width: 100%; accent-color: var(--glow, #d4a574); }
-.sw-range-row { display: flex; align-items: center; gap: 0.5rem; }
-.sw-range-val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--glow, #d4a574); min-width: 1.5em; }
-.sw-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 
-/* Color coding */
-.sw-type-intro .sw-card-dot, .sw-type-outro .sw-card-dot { background: var(--stone-dark, #888); }
-.sw-type-verse .sw-card-dot { background: var(--moss, #5a7a5a); }
-.sw-type-pre-chorus .sw-card-dot { background: #7a8a5a; }
-.sw-type-chorus .sw-card-dot { background: #5ac8c8; }
-.sw-type-post-chorus .sw-card-dot { background: #4ab8b8; }
-.sw-type-bridge .sw-card-dot { background: #9a6ac8; }
-.sw-type-breakdown .sw-card-dot { background: #c86a6a; }
-.sw-type-interlude .sw-card-dot { background: #6a8ac8; }
-.sw-type-hook .sw-card-dot { background: var(--glow, #d4a574); }
-.sw-type-drop .sw-card-dot { background: #e85050; }
-.sw-type-ad-lib .sw-card-dot { background: #c8b86a; }
+/* A section: a rule, a heading row, then the words. No box, no card. The page
+   should read as one continuous sheet rather than a stack of containers. */
+.sw-sec { position: relative; padding: 0 0 0.5rem 0.9rem; margin-bottom: 1.4rem; }
+.sw-sec::before {
+  content: ''; position: absolute; left: 0; top: 0.1rem; bottom: 0.6rem;
+  width: 2px; background: var(--sw-hue, #8a7e6b); opacity: 0.85;
+}
+.sw-sec.dragging { opacity: 0.4; }
+.sw-sec.drag-over::after {
+  content: ''; position: absolute; left: 0; right: 0; top: -0.7rem;
+  height: 2px; background: var(--glow, #d4a574);
+}
+.sw-sec-head {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  margin-bottom: 0.45rem; user-select: none;
+}
+.sw-sec-name {
+  font-family: 'Cinzel', serif; font-size: 0.95rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--sw-hue, #e8dcc8); flex: 1; min-width: 7rem;
+}
+.sw-sec-grip {
+  cursor: grab; color: var(--stone-dark, #777); font-size: 0.85rem;
+  padding: 0.3rem 0.2rem; line-height: 1; touch-action: none;
+}
+.sw-sec-grip:active { cursor: grabbing; }
+.sw-sec-bars {
+  width: 3.4rem; box-sizing: border-box; background: transparent;
+  border: 1px solid rgba(138, 126, 107, 0.25); border-radius: 2px;
+  color: var(--parchment, #e8dcc8); font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; padding: 0.3rem 0.35rem; text-align: right;
+}
+.sw-sec-barlabel { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone-dark, #888); }
+.sw-sec-del {
+  background: none; border: none; color: var(--stone-dark, #666);
+  font-size: 0.85rem; cursor: pointer; padding: 0.3rem 0.4rem; line-height: 1;
+}
+.sw-sec-del:hover { color: #c87a7a; }
 
-.sw-type-intro, .sw-type-outro { border-left: 3px solid var(--stone-dark, #888); }
-.sw-type-verse { border-left: 3px solid var(--moss, #5a7a5a); }
-.sw-type-pre-chorus { border-left: 3px solid #7a8a5a; }
-.sw-type-chorus { border-left: 3px solid #5ac8c8; }
-.sw-type-post-chorus { border-left: 3px solid #4ab8b8; }
-.sw-type-bridge { border-left: 3px solid #9a6ac8; }
-.sw-type-breakdown { border-left: 3px solid #c86a6a; }
-.sw-type-interlude { border-left: 3px solid #6a8ac8; }
-.sw-type-hook { border-left: 3px solid var(--glow, #d4a574); }
-.sw-type-drop { border-left: 3px solid #e85050; }
-.sw-type-ad-lib { border-left: 3px solid #c8b86a; }
+/* Energy as ten clickable steps rather than a slider. A slider needs a precise
+   drag and shows its value in a separate readout; these read as a level at a
+   glance and set it in one tap, which is what matters on a phone. */
+.sw-energy { display: flex; align-items: flex-end; gap: 2px; height: 18px; }
+.sw-energy button {
+  width: 7px; padding: 0; border: none; cursor: pointer; border-radius: 1px;
+  background: rgba(138, 126, 107, 0.22); transition: background 0.12s;
+}
+.sw-energy button.on { background: var(--sw-hue, #d4a574); }
+.sw-energy button:hover { background: var(--glow, #d4a574); }
+
+/* The words. Grows with what you type, so the sheet has no scrollbars inside
+   scrollbars and the whole song stays readable by scrolling the page. */
+.sw-sec-words {
+  width: 100%; box-sizing: border-box; display: block;
+  background: transparent; border: none; resize: none; overflow: hidden;
+  color: var(--parchment, #e8dcc8); font-family: 'EB Garamond', serif;
+  font-size: 1.02rem; line-height: 1.65; padding: 0.15rem 0; min-height: 3.2em;
+}
+.sw-sec-words:focus { outline: none; }
+.sw-sec-words::placeholder { color: var(--stone-dark, #6a6a6a); font-style: italic; }
+.sw-sec-parts {
+  width: 100%; box-sizing: border-box; background: transparent; border: none;
+  border-top: 1px dotted rgba(138, 126, 107, 0.22); margin-top: 0.4rem;
+  color: var(--stone-dark, #a09886); font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; padding: 0.4rem 0 0.1rem;
+}
+/* Only the first section spells the hint out. Eight copies of the same
+   sentence down the page is noise, and you only need telling once. */
+.sw-sec-parts:focus { outline: none; color: var(--parchment, #e8dcc8); }
+.sw-sec-parts::placeholder { color: var(--stone-dark, #5f5f5f); }
+
+/* Colour coding, as one custom property per type so the rule, the heading and
+   the energy steps all take it from one declaration. */
+.sw-type-intro, .sw-type-outro { --sw-hue: #8a8577; }
+.sw-type-verse { --sw-hue: #7a9a7a; }
+.sw-type-pre-chorus { --sw-hue: #9aaa6a; }
+.sw-type-chorus { --sw-hue: #5ac8c8; }
+.sw-type-post-chorus { --sw-hue: #4ab8b8; }
+.sw-type-bridge { --sw-hue: #a97ad8; }
+.sw-type-breakdown { --sw-hue: #c86a6a; }
+.sw-type-interlude { --sw-hue: #7a9ad8; }
+.sw-type-hook { --sw-hue: #d4a574; }
+.sw-type-drop { --sw-hue: #e85050; }
+.sw-type-ad-lib { --sw-hue: #c8b86a; }
+
+@media (max-width: 600px) {
+  .sw-songbar { grid-template-columns: 1fr; gap: 0.1rem; }
+}
 
 /* Actions bar */
 .sw-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
@@ -120,6 +174,11 @@
   transition: background 0.2s;
 }
 .sw-actions button:hover { background: rgba(212,165,116,0.15); }
+.sw-saved {
+  align-self: center; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone-dark, #777);
+}
+.sw-saved.on { color: var(--moss, #7a9a7a); }
 
 /* Collapsible panels */
 .sw-panel { border: 1px solid var(--stone-dark, #444); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
@@ -141,6 +200,10 @@
 .sw-ref-item h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--glow, #d4a574); margin: 0 0 0.3rem; }
 .sw-ref-item p { margin: 0.2rem 0; }
 .sw-ref-item .tip { color: var(--moss, #7a9a7a); }
+/* A word beats a pictogram: it says which of the two lines you are reading
+   without relying on a lightbulb and a warning triangle to carry meaning. */
+.sw-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em;
+  text-transform: uppercase; opacity: 0.75; margin-right: 0.5rem; }
 .sw-ref-item .mistake { color: #c87a7a; }
 
 /* Quotes */
@@ -288,56 +351,55 @@
   </nav>
 
 <main class="sw-page">
-  <h1>🎵 Song Arrangement Workbench</h1>
-  <p class="sw-subtitle">Plan your song's architecture — section by section, energy curve to lyrics</p>
+  <h1>Song Arrangement</h1>
+  <p class="sw-subtitle">A sheet with the structure already drawn in. Write into it.</p>
 
-  <!-- Templates -->
-  <h2>⚡ Structure Templates</h2>
+  <!-- Song-level facts. Key and tempo live here rather than on every section,
+       because in most songs they are one fact, not eight copies of one. -->
+  <div class="sw-songbar">
+    <input type="text" id="songTitle" placeholder="Untitled" autocomplete="off" aria-label="Song title">
+    <input type="text" id="songKey" placeholder="Key — e.g. C minor" autocomplete="off" aria-label="Key">
+    <input type="text" id="songTempo" placeholder="Tempo — e.g. 107 BPM" autocomplete="off" aria-label="Tempo">
+  </div>
+
+  <h2>① Start from a shape</h2>
   <div class="sw-templates" id="templates"></div>
 
-  <!-- Palette -->
-  <h2>🧱 Add Sections</h2>
+  <h2>② Add sections</h2>
   <div class="sw-palette" id="palette"></div>
 
-  <!-- Energy Curve -->
-  <h2>📈 Energy Arc</h2>
+  <h2>③ Write it</h2>
+  <div class="sw-sheet" id="timeline">
+    <div class="sw-empty">Pick a template, or add a section — then just start typing</div>
+  </div>
+
+  <div class="sw-actions">
+    <button onclick="SW.exportMD()">Export</button>
+    <button onclick="SW.clearAll()">Clear</button>
+    <span class="sw-saved" id="savedNote">Saves itself</span>
+  </div>
+
+  <h2>The energy arc</h2>
   <canvas id="energyCanvas"></canvas>
 
-  <!-- Timeline -->
-  <h2>🎼 Arrangement</h2>
-  <div class="sw-timeline" id="timeline">
-    <div class="sw-empty">Click a section above to start building your arrangement</div>
-  </div>
-
-  <!-- Actions -->
-  <div class="sw-actions">
-    <button onclick="SW.save()">💾 Save</button>
-    <button onclick="SW.exportMD()">📄 Export MD</button>
-    <button onclick="SW.clearAll()">🗑 Clear</button>
-  </div>
-
-  <!-- Section Reference Guide -->
   <div class="sw-panel" id="panelRef">
-    <button class="sw-panel-toggle" onclick="togglePanel('panelRef')">📖 Section Reference Guide <span class="arrow">▸</span></button>
+    <button class="sw-panel-toggle" onclick="togglePanel('panelRef')">Section reference <span class="arrow">▸</span></button>
     <div class="sw-panel-content" id="refContent"></div>
   </div>
 
-  <!-- Songwriter Wisdom -->
-  <div class="sw-panel" id="panelWisdom">
-    <button class="sw-panel-toggle" onclick="togglePanel('panelWisdom')">💡 Songwriter Wisdom <span class="arrow">▸</span></button>
-    <div class="sw-panel-content" id="wisdomContent"></div>
-  </div>
-
-  <!-- Harmony & Dynamics -->
   <div class="sw-panel" id="panelHarmony">
-    <button class="sw-panel-toggle" onclick="togglePanel('panelHarmony')">🎹 Harmony &amp; Dynamics <span class="arrow">▸</span></button>
+    <button class="sw-panel-toggle" onclick="togglePanel('panelHarmony')">Harmony &amp; dynamics <span class="arrow">▸</span></button>
     <div class="sw-panel-content" id="harmonyContent"></div>
   </div>
 
-  <!-- Lyric Tools -->
   <div class="sw-panel" id="panelLyric">
-    <button class="sw-panel-toggle" onclick="togglePanel('panelLyric')">✍️ Lyric Tools <span class="arrow">▸</span></button>
+    <button class="sw-panel-toggle" onclick="togglePanel('panelLyric')">Lyric tools <span class="arrow">▸</span></button>
     <div class="sw-panel-content" id="lyricContent"></div>
+  </div>
+
+  <div class="sw-panel" id="panelWisdom">
+    <button class="sw-panel-toggle" onclick="togglePanel('panelWisdom')">On writing <span class="arrow">▸</span></button>
+    <div class="sw-panel-content" id="wisdomContent"></div>
   </div>
 </main>
 
@@ -400,6 +462,9 @@ const WISDOM = [
 
 let sections = [];
 let dragIdx = null;
+// The section textarea the caret was last in, so the rhyme finder knows
+// where to drop a word.
+let lastWords = null;
 
 // Build palette
 const paletteEl = document.getElementById('palette');
@@ -423,7 +488,7 @@ TEMPLATES.forEach(t => {
 const refEl = document.getElementById('refContent');
 Object.entries(REFERENCE).forEach(([id, r]) => {
   const label = SECTION_TYPES.find(t=>t.id===id)?.label||id;
-  refEl.innerHTML += `<div class="sw-ref-item"><h4>${label}</h4><p>${r.desc}</p><p><strong>Length:</strong> ${r.length}</p><p class="tip">💡 ${r.tips}</p><p class="mistake">⚠️ ${r.mistakes}</p></div>`;
+  refEl.innerHTML += `<div class="sw-ref-item"><h4>${label}</h4><p>${r.desc}</p><p><strong>Length:</strong> ${r.length}</p><p class="tip"><span class="sw-tag">Try</span>${r.tips}</p><p class="mistake"><span class="sw-tag">Avoid</span>${r.mistakes}</p></div>`;
 });
 
 // Build wisdom
@@ -434,7 +499,7 @@ WISDOM.forEach(w => {
 
 // Build harmony & dynamics
 document.getElementById('harmonyContent').innerHTML = `
-<h3>🎯 Tension &amp; Release</h3>
+<h3>Tension &amp; Release</h3>
 <p style="opacity:0.85;margin-bottom:0.5rem;">Harmony is managed tension. Every chord either pulls toward "home" (the I/tonic) or away from it — a song's harmonic interest comes from <em>how long you delay the return</em>, not from how unusual the chords are. Most of the moves below are just different ways to stretch or release that pull.</p>
 
 <h3>Chord Progressions by Genre</h3>
@@ -456,7 +521,7 @@ document.getElementById('harmonyContent').innerHTML = `
 <div class="sw-ref-item"><h4>Suspension</h4><p>Hold a note from the previous chord into the new one, then resolve it down a step a beat later. The "ache before the relief" sound — it's why so many ballads lean on sus4 chords right before they resolve.</p></div>
 <div class="sw-ref-item"><h4>Pedal Tone</h4><p>Keep the bass locked on one note while the chords above it change. Builds tension because the harmony keeps implying motion the bass refuses to follow — common under a pre-chorus that's building toward release.</p></div>
 
-<h3>📈 Building a Real Crescendo</h3>
+<h3>Building a Real Crescendo</h3>
 <p style="opacity:0.85;margin-bottom:0.5rem;">A crescendo isn't "turn it up" — it's stacking several kinds of lift at once so the climax feels inevitable rather than abrupt. Mix and match:</p>
 <div class="sw-ref-item"><h4>Add layers, not just volume</h4><p>Bring in one new instrument per section instead of raising every fader. A song that adds drums in the pre-chorus and strings in the last chorus feels like it's growing; one that just gets louder feels like it's straining.</p></div>
 <div class="sw-ref-item"><h4>Increase rhythmic density</h4><p>Move from whole/half notes in the verse to quarter notes in the pre-chorus to eighths or sixteenths in the chorus — on the hi-hat, the strums, the vocal phrasing. Density reads as energy even at the same tempo and volume.</p></div>
@@ -469,7 +534,7 @@ document.getElementById('harmonyContent').innerHTML = `
 
 // Build lyric tools
 document.getElementById('lyricContent').innerHTML = `
-<h3>✍️ How to Actually Write the Lyrics</h3>
+<h3>How to Actually Write the Lyrics</h3>
 <p style="opacity:0.8;font-size:0.85rem;margin-bottom:0.5rem;">A working process, not a rulebook. Skip whatever doesn't match how you write.</p>
 <ol class="sw-steps">
   <li><strong>Pin the idea in one sentence.</strong> Not the topic — the angle. "Heartbreak" isn't an angle. "I still set out two coffee cups out of habit" is.</li>
@@ -481,7 +546,7 @@ document.getElementById('lyricContent').innerHTML = `
   <li><strong>Cut the weakest line in every section.</strong> There's almost always one line doing less work than the rest. Find it, cut it, and let the gap force a better one — or let the silence sit.</li>
 </ol>
 
-<h3>🎤 Rhyme Finder</h3>
+<h3>Rhyme Finder</h3>
 <p style="opacity:0.75;font-size:0.85rem;margin-bottom:0.5rem;">Type a word and find what rhymes with it.</p>
 <div class="sw-tool-row">
   <input type="text" id="rhymeInput" placeholder="e.g. heart" autocomplete="off">
@@ -489,7 +554,7 @@ document.getElementById('lyricContent').innerHTML = `
 </div>
 <div id="rhymeOutput"></div>
 
-<h3>🔢 Syllable Counter</h3>
+<h3>Syllable Counter</h3>
 <p style="opacity:0.75;font-size:0.85rem;margin-bottom:0.5rem;">Paste lyrics below — see syllables per line so you can match meter across verses.</p>
 <textarea id="syllableInput" class="sw-syllable-input" placeholder="Type or paste lyrics here, one line per line..."></textarea>
 <div class="sw-syllable-output" id="syllableOutput"></div>
@@ -580,12 +645,22 @@ async function findRhymes() {
     out.innerHTML = html;
     out.querySelectorAll('.sw-rhyme-chip').forEach(c => {
       c.addEventListener('click', () => {
-        const ta = document.querySelector('.sw-card.expanded textarea[data-field="lyrics"]') || document.getElementById('syllableInput');
+        // Goes into whichever section you were last writing in. Nothing
+        // "expands" any more, so the cue is where the caret was, not which
+        // card is open -- and it drops at the caret rather than at the end,
+        // because the word you want a rhyme for is rarely the last one typed.
+        const ta = lastWords && document.body.contains(lastWords)
+          ? lastWords : document.getElementById('syllableInput');
         if (ta) {
-          const insertion = c.textContent.replace(/\d+♪$/, '').trim();
-          ta.value += (ta.value && !ta.value.endsWith('\n') ? ' ' : '') + insertion;
+          const word = c.textContent.replace(/\d+♪$/, '').trim();
+          const at = ta.selectionStart ?? ta.value.length;
+          const before = ta.value.slice(0, at), after = ta.value.slice(at);
+          const pad = before && !/\s$/.test(before) ? ' ' : '';
+          ta.value = before + pad + word + after;
           ta.dispatchEvent(new Event('input'));
           ta.focus();
+          const caret = (before + pad + word).length;
+          ta.setSelectionRange(caret, caret);
         }
       });
     });
@@ -599,7 +674,25 @@ document.getElementById('rhymeBtn').addEventListener('click', findRhymes);
 document.getElementById('rhymeInput').addEventListener('keydown', e => { if (e.key === 'Enter') findRhymes(); });
 
 function makeSection(typeId) {
-  return { id: crypto.randomUUID(), type: typeId, lyrics:'', mood:5, key:'', tempo:'', instruments:'', bars:'8', notes:'', expanded:false };
+  return { id: crypto.randomUUID(), type: typeId, lyrics:'', mood:5, instruments:'', bars:'8' };
+}
+
+/* Numbering by type. "Verse 2" is how anyone refers to a section out loud;
+   "#4" is how a list refers to a row. */
+function sectionNames(list) {
+  const seen = {};
+  const totals = {};
+  list.forEach(s => { totals[s.type] = (totals[s.type] || 0) + 1; });
+  return list.map(s => {
+    seen[s.type] = (seen[s.type] || 0) + 1;
+    const label = SECTION_TYPES.find(t => t.id === s.type)?.label || s.type;
+    return totals[s.type] > 1 ? `${label} ${seen[s.type]}` : label;
+  });
+}
+
+function autoGrow(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight + 2) + 'px';
 }
 
 function addSection(typeId) {
@@ -615,10 +708,20 @@ function transitionTip(delta) {
   return null;
 }
 
+/* Structural changes only. Typing must never re-render: an always-open
+   textarea that is rebuilt on each keystroke loses the caret, the selection
+   and the undo stack. So input handlers update the model and nothing else;
+   render() runs on add, delete, reorder and template only. */
 function render() {
   const tl = document.getElementById('timeline');
-  if (!sections.length) { tl.innerHTML = '<div class="sw-empty">Click a section above to start building your arrangement</div>'; drawEnergy(); return; }
   tl.innerHTML = '';
+  if (!sections.length) {
+    tl.innerHTML = '<div class="sw-empty">Pick a template, or add a section — then just start typing</div>';
+    drawEnergy(); save(); return;
+  }
+
+  const names = sectionNames(sections);
+
   sections.forEach((s, i) => {
     if (i > 0) {
       const tip = transitionTip(s.mood - sections[i-1].mood);
@@ -629,87 +732,131 @@ function render() {
         tl.appendChild(tipEl);
       }
     }
-    const label = SECTION_TYPES.find(t=>t.id===s.type)?.label||s.type;
-    const card = document.createElement('div');
-    card.className = 'sw-card sw-type-' + s.type + (s.expanded?' expanded':'');
-    card.draggable = true;
-    card.dataset.idx = i;
-    card.innerHTML = `
-      <div class="sw-card-header">
-        <div class="sw-card-dot"></div>
-        <span class="sw-card-num">#${i+1}</span>
-        <span class="sw-card-label">${label}</span>
-        <button class="sw-card-expand" title="Expand">${s.expanded?'▾':'▸'}</button>
-        <button class="sw-card-del" title="Delete">✕</button>
+
+    const sec = document.createElement('div');
+    sec.className = 'sw-sec sw-type-' + s.type;
+    sec.dataset.idx = i;
+
+    const steps = Array.from({length:10}, (_,n) =>
+      `<button type="button" class="${n < s.mood ? 'on' : ''}" data-level="${n+1}" ` +
+      `style="height:${6 + n*1.2}px" aria-label="Energy ${n+1} of 10"></button>`).join('');
+
+    sec.innerHTML = `
+      <div class="sw-sec-head">
+        <span class="sw-sec-grip" draggable="true" title="Drag to reorder">⣿</span>
+        <span class="sw-sec-name">${esc(names[i])}</span>
+        <span class="sw-energy" title="Energy">${steps}</span>
+        <input type="number" class="sw-sec-bars" value="${esc(s.bars)}" min="1" max="64" aria-label="Bars">
+        <span class="sw-sec-barlabel">bars</span>
+        <button type="button" class="sw-sec-del" title="Remove this section">✕</button>
       </div>
-      <div class="sw-card-body">
-        <label>Lyrics / Ideas</label>
-        <textarea data-field="lyrics">${esc(s.lyrics)}</textarea>
-        <label>Mood / Energy</label>
-        <div class="sw-range-row">
-          <input type="range" min="1" max="10" value="${s.mood}" data-field="mood">
-          <span class="sw-range-val">${s.mood}</span>
-        </div>
-        <div class="sw-field-row">
-          <div><label>Key</label><input type="text" data-field="key" value="${esc(s.key)}" placeholder="e.g. C minor"></div>
-          <div><label>Tempo</label><input type="text" data-field="tempo" value="${esc(s.tempo)}" placeholder="e.g. 120 BPM"></div>
-        </div>
-        <div class="sw-field-row">
-          <div><label>Instrumentation</label><input type="text" data-field="instruments" value="${esc(s.instruments)}" placeholder="e.g. piano, strings"></div>
-          <div><label>Duration (bars)</label><input type="number" data-field="bars" value="${s.bars}" min="1" max="64"></div>
-        </div>
-        <label>Notes</label>
-        <textarea data-field="notes">${esc(s.notes)}</textarea>
-      </div>`;
+      <textarea class="sw-sec-words" data-field="lyrics" spellcheck="true"
+        placeholder="${esc(placeholderFor(s.type))}">${esc(s.lyrics)}</textarea>
+      <input type="text" class="sw-sec-parts" data-field="instruments"
+        value="${esc(s.instruments)}" placeholder="${i === 0
+          ? `what's playing — e.g. guitar, pad, no drums yet`
+          : 'parts…'}">`;
 
-    // Events
-    card.querySelector('.sw-card-expand').onclick = (e) => { e.stopPropagation(); s.expanded=!s.expanded; render(); };
-    card.querySelector('.sw-card-del').onclick = (e) => { e.stopPropagation(); sections.splice(i,1); render(); };
-    card.querySelectorAll('[data-field]').forEach(el => {
-      el.addEventListener('input', () => {
-        const f = el.dataset.field;
-        s[f] = f==='mood'? +el.value : el.value;
-        if(f==='mood') { el.parentElement.querySelector('.sw-range-val').textContent=el.value; drawEnergy(); }
+    const words = sec.querySelector('.sw-sec-words');
+    words.addEventListener('focus', () => { lastWords = words; });
+    words.addEventListener('input', () => { s.lyrics = words.value; autoGrow(words); saveSoon(); });
+
+    sec.querySelector('.sw-sec-parts').addEventListener('input', e => {
+      s.instruments = e.target.value; saveSoon();
+    });
+
+    sec.querySelector('.sw-sec-bars').addEventListener('input', e => {
+      s.bars = e.target.value; saveSoon();
+    });
+
+    sec.querySelectorAll('.sw-energy button').forEach(b => {
+      b.addEventListener('click', () => {
+        // Tapping the step you are already on clears down to it, so a single
+        // control can go both ways without a second gesture.
+        const lvl = +b.dataset.level;
+        s.mood = (s.mood === lvl && lvl === 1) ? 1 : lvl;
+        render();
       });
-      if (el.dataset.field === 'mood') el.addEventListener('change', () => render());
     });
 
-    // Drag
-    card.addEventListener('dragstart', e => { dragIdx=i; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
-    card.addEventListener('dragend', () => { card.classList.remove('dragging'); dragIdx=null; });
-    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
-    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-    card.addEventListener('drop', e => { e.preventDefault(); card.classList.remove('drag-over'); if(dragIdx!==null&&dragIdx!==i){ const item=sections.splice(dragIdx,1)[0]; sections.splice(i,0,item); render(); }});
+    sec.querySelector('.sw-sec-del').addEventListener('click', () => {
+      sections.splice(i, 1); render();
+    });
 
-    // Touch drag
-    let touchY=0, touchClone=null;
-    card.addEventListener('touchstart', e => {
-      if(e.target.closest('.sw-card-body')) return;
-      touchY = e.touches[0].clientY; dragIdx = i;
-    }, {passive:true});
-    card.addEventListener('touchmove', e => {
-      if(dragIdx===null || e.target.closest('.sw-card-body')) return;
+    // Reorder, from the grip only -- the rest of the block is a text field and
+    // must stay selectable.
+    const grip = sec.querySelector('.sw-sec-grip');
+    grip.addEventListener('dragstart', e => {
+      dragIdx = i; sec.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', String(i)); } catch {}
+    });
+    grip.addEventListener('dragend', () => { sec.classList.remove('dragging'); dragIdx = null; });
+    sec.addEventListener('dragover', e => {
+      if (dragIdx === null) return;
+      e.preventDefault(); sec.classList.add('drag-over');
+    });
+    sec.addEventListener('dragleave', () => sec.classList.remove('drag-over'));
+    sec.addEventListener('drop', e => {
+      e.preventDefault(); sec.classList.remove('drag-over');
+      if (dragIdx !== null && dragIdx !== i) {
+        const item = sections.splice(dragIdx, 1)[0];
+        sections.splice(i, 0, item); render();
+      }
+    });
+
+    // Touch reorder, also grip-only. Without this the whole block was draggable
+    // and you could not place a caret in the lyrics on a phone.
+    grip.addEventListener('touchstart', () => { dragIdx = i; sec.classList.add('dragging'); }, {passive:true});
+    grip.addEventListener('touchmove', e => {
+      if (dragIdx === null) return;
       e.preventDefault();
-      const touch = e.touches[0];
-      const els = document.elementsFromPoint(touch.clientX, touch.clientY);
-      const target = els.find(el => el.classList?.contains('sw-card') && el !== card);
-      tl.querySelectorAll('.sw-card').forEach(c=>c.classList.remove('drag-over'));
-      if(target) target.classList.add('drag-over');
+      const t = e.touches[0];
+      const over = document.elementsFromPoint(t.clientX, t.clientY)
+        .find(el => el.classList?.contains('sw-sec') && el !== sec);
+      tl.querySelectorAll('.sw-sec').forEach(c => c.classList.remove('drag-over'));
+      if (over) over.classList.add('drag-over');
     }, {passive:false});
-    card.addEventListener('touchend', e => {
-      if(dragIdx===null) return;
-      const touch = e.changedTouches[0];
-      const els = document.elementsFromPoint(touch.clientX, touch.clientY);
-      const target = els.find(el => el.classList?.contains('sw-card') && el !== card);
-      tl.querySelectorAll('.sw-card').forEach(c=>c.classList.remove('drag-over'));
-      if(target) { const ti = +target.dataset.idx; const item=sections.splice(dragIdx,1)[0]; sections.splice(ti,0,item); render(); }
-      dragIdx=null;
+    grip.addEventListener('touchend', e => {
+      if (dragIdx === null) return;
+      const t = e.changedTouches[0];
+      const over = document.elementsFromPoint(t.clientX, t.clientY)
+        .find(el => el.classList?.contains('sw-sec') && el !== sec);
+      tl.querySelectorAll('.sw-sec').forEach(c => c.classList.remove('drag-over'));
+      sec.classList.remove('dragging');
+      if (over) {
+        const ti = +over.dataset.idx;
+        const item = sections.splice(dragIdx, 1)[0];
+        sections.splice(ti, 0, item); render();
+      }
+      dragIdx = null;
     });
 
-    tl.appendChild(card);
+    tl.appendChild(sec);
+    autoGrow(words);
   });
+
   drawEnergy();
+  save();
 }
+
+/* A prompt is worth more than "Lyrics / Ideas" when the page is blank. These
+   say what this particular section is for, so the empty sheet is already
+   giving advice. */
+const PLACEHOLDERS = {
+  intro: 'How does it open? One idea is enough…',
+  verse: 'The story. Specific detail beats naming the feeling…',
+  'pre-chorus': 'The lift. What makes the chorus feel inevitable?',
+  chorus: 'The line that has to survive…',
+  'post-chorus': 'Pure ear candy — a riff, a phrase, a sound…',
+  bridge: 'The turn. Say the thing the verses were avoiding…',
+  breakdown: 'What drops out, and what is left alone?',
+  interlude: 'No words needed — what does the music say here?',
+  outro: 'How does it end? Resolve, fade, or stop dead…',
+  hook: 'The catchiest phrase. Short. Repeatable…',
+  drop: 'The release. What finally arrives?',
+  'ad-lib': 'Small vocal additions — placement over quantity…'
+};
+const placeholderFor = (t) => PLACEHOLDERS[t] || 'Write here…';
 
 function drawEnergy() {
   const canvas = document.getElementById('energyCanvas');
@@ -760,34 +907,100 @@ function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function togglePanel(id) { document.getElementById(id).classList.toggle('open'); }
 window.togglePanel = togglePanel;
 
-// Save/Load/Export
+/* Saving is automatic. A Save button on a page you type into is a way to lose
+   work: it asks you to remember something the machine already knows. Writes
+   are debounced so a burst of typing is one write, and the note under the
+   sheet confirms it without a dialog interrupting the sentence you are in. */
+const KEY = 'sw-song-v2';
+const songFields = ['songTitle', 'songKey', 'songTempo'];
+let saveTimer = null;
+
+function save() {
+  const song = {};
+  songFields.forEach(id => { song[id] = document.getElementById(id)?.value || ''; });
+  try {
+    localStorage.setItem(KEY, JSON.stringify({ song, sections }));
+    const n = document.getElementById('savedNote');
+    if (n) {
+      n.textContent = 'Saved ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+      n.classList.add('on');
+    }
+  } catch (e) { /* private mode, quota -- the sheet still works, it just will not persist */ }
+}
+function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 600); }
+
+function load() {
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(KEY)); } catch {}
+  if (!d) {
+    // Anything written before the rebuild. Key and tempo were per-section
+    // then; the first section that named either becomes the song's.
+    try {
+      const old = JSON.parse(localStorage.getItem('sw-sections'));
+      if (old && old.length) {
+        d = { song: {
+                songKey: (old.find(s => s.key) || {}).key || '',
+                songTempo: (old.find(s => s.tempo) || {}).tempo || '' },
+              sections: old.map(s => ({
+                id: s.id || crypto.randomUUID(), type: s.type,
+                // Old sheets had a separate notes field; fold it in rather
+                // than dropping something somebody wrote.
+                lyrics: [s.lyrics, s.notes].filter(Boolean).join('\n\n'),
+                mood: s.mood ?? 5, instruments: s.instruments || '', bars: s.bars || '8' })) };
+      }
+    } catch {}
+  }
+  if (!d) return;
+  if (d.song) songFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && d.song[id]) el.value = d.song[id];
+  });
+  if (d.sections && d.sections.length) sections = d.sections;
+  render();
+}
+
 const SW = {
-  save() { localStorage.setItem('sw-sections', JSON.stringify(sections)); alert('Saved!'); },
-  load() { try { const d = JSON.parse(localStorage.getItem('sw-sections')); if(d&&d.length){ sections=d; render(); } } catch(e){} },
-  clearAll() { if(confirm('Clear entire arrangement?')){ sections=[]; render(); localStorage.removeItem('sw-sections'); } },
+  clearAll() {
+    if (!confirm('Clear the whole sheet? This cannot be undone.')) return;
+    sections = [];
+    songFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    localStorage.removeItem(KEY);
+    localStorage.removeItem('sw-sections');
+    render();
+  },
   exportMD() {
-    if(!sections.length){ alert('Nothing to export'); return; }
-    let md = '# Song Arrangement\n\n';
-    sections.forEach((s,i) => {
-      const label = SECTION_TYPES.find(t=>t.id===s.type)?.label||s.type;
-      md += `## ${i+1}. ${label}\n`;
-      md += `- **Energy:** ${s.mood}/10\n`;
-      if(s.key) md += `- **Key:** ${s.key}\n`;
-      if(s.tempo) md += `- **Tempo:** ${s.tempo}\n`;
-      if(s.bars) md += `- **Bars:** ${s.bars}\n`;
-      if(s.instruments) md += `- **Instruments:** ${s.instruments}\n`;
-      if(s.lyrics) md += `\n### Lyrics/Ideas\n${s.lyrics}\n`;
-      if(s.notes) md += `\n### Notes\n${s.notes}\n`;
-      md += '\n';
+    if (!sections.length) { alert('Nothing to export yet.'); return; }
+    const title = document.getElementById('songTitle').value.trim() || 'Untitled';
+    const key = document.getElementById('songKey').value.trim();
+    const tempo = document.getElementById('songTempo').value.trim();
+    const names = sectionNames(sections);
+    let md = `# ${title}\n\n`;
+    const meta = [key && `**Key:** ${key}`, tempo && `**Tempo:** ${tempo}`,
+                  `**Sections:** ${sections.length}`].filter(Boolean);
+    if (meta.length) md += meta.join(' · ') + '\n\n';
+    sections.forEach((s, i) => {
+      md += `## ${names[i]}\n`;
+      const bits = [`${s.bars || '?'} bars`, `energy ${s.mood}/10`];
+      if (s.instruments) bits.push(s.instruments);
+      md += `*${bits.join(' · ')}*\n\n`;
+      if (s.lyrics) md += `${s.lyrics}\n\n`;
     });
-    const blob = new Blob([md],{type:'text/markdown'});
-    const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='arrangement.md'; a.click();
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.md';
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 };
 window.SW = SW;
 
-// Auto-load
-SW.load();
+songFields.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', saveSoon);
+});
+
+load();
 window.addEventListener('resize', drawEnergy);
 })();
 </script>
