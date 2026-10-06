@@ -19,10 +19,17 @@
 <style>
 /* ── Songwriter Workbench ── */
 .sw-page { max-width: min(960px, 95vw); margin: 0 auto; padding: clamp(0.5rem, 2vw, 1rem); padding-top: 4rem; }
-.sw-page h1 { font-family: 'Cinzel', serif; color: var(--glow, #d4a574); text-align: center; margin: 1.5rem 0 0.5rem; font-size: clamp(1.3rem, 3vw, 1.8rem); }
+.sw-page h1 { font-family: 'Cinzel', serif; color: var(--glow-warm, #e8a87c); text-align: center; margin: 1.5rem 0 0.5rem; font-size: clamp(1.3rem, 3vw, 1.8rem); }
 .sw-page h2 { font-family: 'Cinzel', serif; color: var(--parchment, #e8dcc8); font-size: 1.2rem; margin: 1.5rem 0 0.75rem; }
-.sw-page h3 { font-family: 'Cinzel', serif; color: var(--glow, #d4a574); font-size: 1rem; margin: 0.75rem 0 0.5rem; }
-.sw-subtitle { text-align: center; color: var(--stone-dark, #888); font-family: 'EB Garamond', serif; margin-bottom: 1.5rem; font-size: 1.05rem; }
+.sw-page h3 { font-family: 'Cinzel', serif; color: var(--glow-warm, #e8a87c); font-size: 1rem; margin: 0.75rem 0 0.5rem; }
+.sw-subtitle { text-align: center; color: var(--stone, #c4b799); font-family: 'EB Garamond', serif; font-style: italic; margin-bottom: 1.5rem; font-size: 1.05rem; opacity: 0.8; }
+/* Matches the ornament under the header on index.html, so the page announces
+   itself in the same voice as the rest of the site. */
+.sw-rule { text-align: center; color: var(--glow-warm, #e8a87c); opacity: 0.5; letter-spacing: 0.75em; font-size: 1.05rem; margin: 0.2rem 0 1rem; }
+/* The step headings read as rubrics — the red-inked instructions a scribe set
+   apart from the body text. */
+.sw-page h2 { letter-spacing: 0.12em; }
+.sw-page h2 .sw-num { color: var(--glow-warm, #e8a87c); opacity: 0.75; margin-right: 0.3rem; }
 
 /* Palette */
 .sw-palette { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
@@ -33,7 +40,7 @@
   border-radius: 4px; cursor: pointer; min-height: 44px; min-width: 44px;
   transition: background 0.2s, border-color 0.2s;
 }
-.sw-palette button:hover, .sw-palette button:active { border-color: var(--glow, #d4a574); background: #2a2a3e; }
+.sw-palette button:hover, .sw-palette button:active { border-color: var(--glow-warm, #e8a87c); background: #2a2a3e; }
 
 /* Templates */
 .sw-templates { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
@@ -48,7 +55,14 @@
 .sw-templates button .tmpl-example { display: block; font-size: 0.6rem; opacity: 0.6; margin-top: 2px; }
 
 /* Energy Canvas */
-#energyCanvas { width: 100%; height: 120px; border: 1px solid var(--stone-dark, #555); border-radius: 6px; margin-bottom: 1rem; background: rgba(0,0,0,0.3); }
+#energyCanvas {
+  width: 100%; height: 130px; border-radius: 2px; margin-bottom: 1.25rem;
+  border: 1px solid rgba(232, 168, 124, 0.16);
+  background:
+    radial-gradient(110% 70% at 20% 0%, rgba(232, 168, 124, 0.06), transparent 60%),
+    linear-gradient(176deg, rgba(42, 31, 20, 0.5), rgba(42, 31, 20, 0.26) 50%, rgba(42, 31, 20, 0.46)),
+    var(--sky-mid, #111827);
+}
 
 /* ── The sheet ──
    A song is written on paper, not filled into a form. Every section is open
@@ -66,35 +80,97 @@
   color: var(--parchment, #e8dcc8); padding: 0.45rem 0.15rem; border-radius: 0;
   font-family: 'EB Garamond', serif; font-size: 1rem;
 }
-.sw-songbar input:focus { outline: none; border-bottom-color: var(--glow, #d4a574); }
-.sw-songbar input#songTitle { font-family: 'Cinzel', serif; font-size: 1.15rem; color: var(--glow, #d4a574); }
+.sw-songbar input:focus { outline: none; border-bottom-color: var(--glow-warm, #e8a87c); }
+.sw-songbar input#songTitle { font-family: 'Cinzel', serif; font-size: 1.15rem; color: var(--glow-warm, #e8a87c); }
 
-.sw-sheet { margin-bottom: 1.25rem; }
+/* ── Vellum ──
+   The sheet is a surface, not a container: a warm wash over the site's deep
+   ink so it reads as something lit by a candle rather than a form on a page.
+   Built from gradients alone — no image, nothing to download, and it tints
+   correctly against the existing palette instead of fighting it. */
+.sw-sheet {
+  position: relative;
+  margin-bottom: 1.25rem;
+  padding: 2.2rem clamp(1rem, 3.5vw, 2.4rem);
+  border-radius: 2px;
+  background:
+    /* pooled light, as if from one side */
+    radial-gradient(120% 60% at 18% 0%, rgba(232, 168, 124, 0.07), transparent 62%),
+    radial-gradient(90% 50% at 85% 100%, rgba(232, 168, 124, 0.045), transparent 60%),
+    /* the age of the thing */
+    linear-gradient(176deg, rgba(42, 31, 20, 0.55), rgba(42, 31, 20, 0.28) 45%, rgba(42, 31, 20, 0.5)),
+    var(--sky-mid, #111827);
+  border-top: 1px solid rgba(232, 168, 124, 0.16);
+  border-bottom: 1px solid rgba(232, 168, 124, 0.16);
+  box-shadow:
+    inset 0 14px 22px -18px rgba(0, 0, 0, 0.9),
+    inset 0 -14px 22px -18px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(240, 232, 216, 0.03);
+}
+/* The curl at each end, so it reads as rolled rather than cut. */
+.sw-sheet::before, .sw-sheet::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 10px;
+  pointer-events: none;
+}
+.sw-sheet::before {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(232, 168, 124, 0.1), transparent);
+}
+.sw-sheet::after {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(232, 168, 124, 0.1), transparent);
+}
+
 .sw-empty {
-  text-align: center; padding: 2.5rem 1.5rem; color: var(--stone-dark, #888);
-  font-family: 'EB Garamond', serif; font-style: italic; font-size: 1.05rem;
-  border: 1px dashed rgba(138, 126, 107, 0.3); border-radius: 2px;
+  text-align: center; padding: 2rem 1.5rem; color: var(--stone, #c4b799);
+  font-family: 'EB Garamond', serif; font-style: italic; font-size: 1.1rem;
+  opacity: 0.75; border: none;
+}
+.sw-empty::before {
+  content: '❧'; display: block; font-style: normal;
+  font-size: 1.6rem; color: var(--glow-warm, #e8a87c);
+  opacity: 0.55; margin-bottom: 0.7rem;
 }
 
-/* A section: a rule, a heading row, then the words. No box, no card. The page
-   should read as one continuous sheet rather than a stack of containers. */
-.sw-sec { position: relative; padding: 0 0 0.5rem 0.9rem; margin-bottom: 1.4rem; }
-.sw-sec::before {
-  content: ''; position: absolute; left: 0; top: 0.1rem; bottom: 0.6rem;
-  width: 2px; background: var(--sw-hue, #8a7e6b); opacity: 0.85;
-}
+/* A section: an illuminated capital, the name, then the words. No box, no
+   card. The page should read as one continuous manuscript rather than a stack
+   of containers. */
+.sw-sec { position: relative; padding: 0 0 0.6rem 0; margin-bottom: 1.6rem; }
 .sw-sec.dragging { opacity: 0.4; }
 .sw-sec.drag-over::after {
-  content: ''; position: absolute; left: 0; right: 0; top: -0.7rem;
-  height: 2px; background: var(--glow, #d4a574);
+  content: ''; position: absolute; left: 0; right: 0; top: -0.8rem;
+  height: 1px; background: var(--glow-warm, #e8a87c);
+  box-shadow: 0 0 6px rgba(232, 168, 124, 0.7);
 }
 .sw-sec-head {
-  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
-  margin-bottom: 0.45rem; user-select: none;
+  display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap;
+  margin-bottom: 0.6rem; user-select: none;
 }
+
+/* The versal. A manuscript opens each division with a decorated capital, and
+   it does real work here too: colour plus letter identifies the section type
+   at a glance, where the old coloured dot carried the colour alone. */
+.sw-versal {
+  flex-shrink: 0; width: 1.95rem; height: 1.95rem;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 1.05rem; line-height: 1;
+  color: var(--sw-hue, #e8a87c);
+  border: 1px solid color-mix(in srgb, var(--sw-hue, #e8a87c) 45%, transparent);
+  background:
+    linear-gradient(145deg,
+      color-mix(in srgb, var(--sw-hue, #e8a87c) 16%, transparent),
+      transparent 70%);
+  border-radius: 1px;
+  box-shadow: inset 0 0 10px -4px var(--sw-hue, #e8a87c);
+}
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .sw-versal { border-color: rgba(232, 168, 124, 0.45); background: rgba(232, 168, 124, 0.08); }
+}
+
 .sw-sec-name {
-  font-family: 'Cinzel', serif; font-size: 0.95rem; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--sw-hue, #e8dcc8); flex: 1; min-width: 7rem;
+  font-family: 'Cinzel', serif; font-size: 0.92rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--sw-hue, #e8dcc8);
+  flex: 1; min-width: 6rem;
 }
 .sw-sec-grip {
   cursor: grab; color: var(--stone-dark, #777); font-size: 0.85rem;
@@ -116,25 +192,51 @@
 
 /* Energy as ten clickable steps rather than a slider. A slider needs a precise
    drag and shows its value in a separate readout; these read as a level at a
-   glance and set it in one tap, which is what matters on a phone. */
+   glance and set it in one tap, which is what matters on a phone. Lit ones
+   carry a faint glow, so the row reads as candles rather than a progress bar. */
 .sw-energy { display: flex; align-items: flex-end; gap: 2px; height: 18px; }
 .sw-energy button {
   width: 7px; padding: 0; border: none; cursor: pointer; border-radius: 1px;
-  background: rgba(138, 126, 107, 0.22); transition: background 0.12s;
+  background: rgba(196, 183, 153, 0.18); transition: background 0.12s, box-shadow 0.12s;
 }
-.sw-energy button.on { background: var(--sw-hue, #d4a574); }
-.sw-energy button:hover { background: var(--glow, #d4a574); }
+.sw-energy button.on {
+  background: var(--sw-hue, #e8a87c);
+  box-shadow: 0 0 5px -1px var(--sw-hue, #e8a87c);
+}
+.sw-energy button:hover { background: var(--glow-warm, #e8a87c); }
 
-/* The words. Grows with what you type, so the sheet has no scrollbars inside
-   scrollbars and the whole song stays readable by scrolling the page. */
+/* The words, written on ruled lines.
+   A scribe rules the page before writing on it, and the same thing helps here:
+   lyrics are lines, and lines that sit on a rule are easier to scan and to
+   count. The geometry has to be exact or it looks broken — the font size and
+   line height are set in whole pixels, not rem or a unitless multiplier, so
+   the repeating gradient lands on every baseline instead of drifting a
+   fraction of a pixel per line. Change one of these three and change all. */
 .sw-sec-words {
+  --rule: 28px;                  /* must equal line-height */
+  --rule-top: 5px;               /* must equal padding-top  */
   width: 100%; box-sizing: border-box; display: block;
-  background: transparent; border: none; resize: none; overflow: hidden;
-  color: var(--parchment, #e8dcc8); font-family: 'EB Garamond', serif;
-  font-size: 1.02rem; line-height: 1.65; padding: 0.15rem 0; min-height: 3.2em;
+  border: none; resize: none; overflow: hidden;
+  /* Explicit, and not folded into the `background` shorthand below: a textarea
+     without one falls back to the UA's opaque field colour, which on a dark
+     page means white paper under parchment-coloured ink. */
+  background-color: transparent;
+  color: var(--parchment, #f0e8d8); font-family: 'EB Garamond', serif;
+  font-size: 17px; line-height: 28px;
+  padding: 5px 0 0; min-height: 84px;   /* three ruled lines */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0, transparent calc(var(--rule) - 1px),
+    rgba(232, 168, 124, 0.13) calc(var(--rule) - 1px), rgba(232, 168, 124, 0.13) var(--rule));
+  background-position: 0 var(--rule-top);
+  background-attachment: local;  /* rules scroll with the text, not the box */
 }
 .sw-sec-words:focus { outline: none; }
-.sw-sec-words::placeholder { color: var(--stone-dark, #6a6a6a); font-style: italic; }
+.sw-sec-words:focus { background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0, transparent calc(var(--rule) - 1px),
+    rgba(232, 168, 124, 0.26) calc(var(--rule) - 1px), rgba(232, 168, 124, 0.26) var(--rule)); }
+.sw-sec-words::placeholder { color: var(--stone-dark, #847a68); font-style: italic; opacity: 0.85; }
 .sw-sec-parts {
   width: 100%; box-sizing: border-box; background: transparent; border: none;
   border-top: 1px dotted rgba(138, 126, 107, 0.22); margin-top: 0.4rem;
@@ -144,21 +246,36 @@
 /* Only the first section spells the hint out. Eight copies of the same
    sentence down the page is noise, and you only need telling once. */
 .sw-sec-parts:focus { outline: none; color: var(--parchment, #e8dcc8); }
-.sw-sec-parts::placeholder { color: var(--stone-dark, #5f5f5f); }
+.sw-sec-parts::placeholder { color: var(--stone-dark, #847a68); opacity: 0.7; }
+
+/* The flourish between divisions. A manuscript does not butt one section
+   against the next; it marks the join. This one is decorative only, so it is
+   hidden from assistive technology — the heading already says where you are. */
+.sw-flourish {
+  text-align: center; color: var(--glow-warm, #e8a87c);
+  opacity: 0.3; font-size: 0.8rem; letter-spacing: 0.6em;
+  margin: 0.2rem 0 1.5rem; user-select: none;
+}
 
 /* Colour coding, as one custom property per type so the rule, the heading and
    the energy steps all take it from one declaration. */
-.sw-type-intro, .sw-type-outro { --sw-hue: #8a8577; }
-.sw-type-verse { --sw-hue: #7a9a7a; }
-.sw-type-pre-chorus { --sw-hue: #9aaa6a; }
-.sw-type-chorus { --sw-hue: #5ac8c8; }
-.sw-type-post-chorus { --sw-hue: #4ab8b8; }
-.sw-type-bridge { --sw-hue: #a97ad8; }
-.sw-type-breakdown { --sw-hue: #c86a6a; }
-.sw-type-interlude { --sw-hue: #7a9ad8; }
-.sw-type-hook { --sw-hue: #d4a574; }
-.sw-type-drop { --sw-hue: #e85050; }
-.sw-type-ad-lib { --sw-hue: #c8b86a; }
+/* ── The pigments ──
+   Drawn from what an illuminator actually ground: gold leaf, vermilion, lapis,
+   verdigris, Tyrian purple, bone white. Not only decoration — gold went on
+   whatever mattered most in a manuscript, so the chorus takes it, and a section
+   that extends another (post-chorus after chorus, drop after breakdown) is
+   deliberately a near neighbour of the one it follows. */
+.sw-type-intro, .sw-type-outro { --sw-hue: #a89c84; }   /* bone white       */
+.sw-type-verse { --sw-hue: #5f9b7a; }                   /* verdigris        */
+.sw-type-pre-chorus { --sw-hue: #93a85c; }              /* green earth      */
+.sw-type-chorus { --sw-hue: #d9a441; }                  /* gold leaf        */
+.sw-type-post-chorus { --sw-hue: #c2924a; }             /* dimmer gold      */
+.sw-type-bridge { --sw-hue: #a070c0; }                  /* Tyrian purple    */
+.sw-type-breakdown { --sw-hue: #cc5540; }               /* vermilion        */
+.sw-type-interlude { --sw-hue: #6f8fd0; }               /* lapis            */
+.sw-type-hook { --sw-hue: #e08a3c; }                    /* saffron          */
+.sw-type-drop { --sw-hue: #e24b35; }                    /* bright vermilion */
+.sw-type-ad-lib { --sw-hue: #c98c93; }                  /* madder rose      */
 
 @media (max-width: 600px) {
   .sw-songbar { grid-template-columns: 1fr; gap: 0.1rem; }
@@ -168,12 +285,12 @@
 .sw-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
 .sw-actions button {
   font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-  padding: 0.5rem 1rem; border: 1px solid var(--glow, #d4a574);
-  background: transparent; color: var(--glow, #d4a574);
+  padding: 0.5rem 1rem; border: 1px solid var(--glow-warm, #e8a87c);
+  background: transparent; color: var(--glow-warm, #e8a87c);
   border-radius: 4px; cursor: pointer; min-height: 44px;
   transition: background 0.2s;
 }
-.sw-actions button:hover { background: rgba(212,165,116,0.15); }
+.sw-actions button:hover { background: rgba(232,168,124,0.15); }
 .sw-saved {
   align-self: center; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone-dark, #777);
@@ -197,7 +314,7 @@
 /* Reference items */
 .sw-ref-item { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--stone-dark, #333); }
 .sw-ref-item:last-child { border-bottom: none; margin-bottom: 0; }
-.sw-ref-item h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--glow, #d4a574); margin: 0 0 0.3rem; }
+.sw-ref-item h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--glow-warm, #e8a87c); margin: 0 0 0.3rem; }
 .sw-ref-item p { margin: 0.2rem 0; }
 .sw-ref-item .tip { color: var(--moss, #7a9a7a); }
 /* A word beats a pictogram: it says which of the two lines you are reading
@@ -207,29 +324,31 @@
 .sw-ref-item .mistake { color: #c87a7a; }
 
 /* Quotes */
-.sw-quote { margin-bottom: 0.75rem; padding-left: 1rem; border-left: 2px solid var(--glow, #d4a574); }
+.sw-quote { margin-bottom: 0.75rem; padding-left: 1rem; border-left: 2px solid var(--glow-warm, #e8a87c); }
 .sw-quote p { margin: 0; font-style: italic; }
 .sw-quote cite { font-size: 0.85rem; color: var(--stone-dark, #aaa); font-style: normal; }
 
 /* Practical method steps */
 .sw-steps { padding-left: 1.3rem; margin: 0 0 1rem; }
 .sw-steps li { margin-bottom: 0.65rem; line-height: 1.55; }
-.sw-steps strong { color: var(--glow, #d4a574); }
+.sw-steps strong { color: var(--glow-warm, #e8a87c); }
 
 /* Transition tips in the arrangement timeline */
 .sw-transition-tip {
   font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark, #ccc);
   text-align: left; padding: 0.4rem 0.7rem; margin: 0.1rem 0 0.4rem;
-  border-left: 2px dashed var(--glow, #d4a574); background: rgba(212,165,116,0.06); border-radius: 4px;
+  border-left: 2px dashed var(--glow-warm, #e8a87c); background: rgba(232,168,124,0.06); border-radius: 4px;
   line-height: 1.4;
 }
-.sw-transition-tip.rise { border-left-color: #5ac8c8; background: rgba(90,200,200,0.06); }
-.sw-transition-tip.drop { border-left-color: #c86a6a; background: rgba(200,106,106,0.06); }
+/* Gold for a lift, vermilion for a fall — the two pigments a scribe reached
+   for to mark a change, and warm enough not to break the page. */
+.sw-transition-tip.rise { border-left-color: #d9a441; background: rgba(217,164,65,0.07); color: #d8c9a8; }
+.sw-transition-tip.drop { border-left-color: #cc5540; background: rgba(204,85,64,0.07); color: #d8bdb4; }
 
 /* Lyric tools */
 .sw-chord-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
 .sw-chord-table th, .sw-chord-table td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--stone-dark, #333); font-size: 0.9rem; }
-.sw-chord-table th { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--glow, #d4a574); }
+.sw-chord-table th { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--glow-warm, #e8a87c); }
 
 /* Rhyme finder + syllable counter */
 .sw-tool-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
@@ -240,12 +359,12 @@
 }
 .sw-tool-btn {
   font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-  padding: 0.5rem 1rem; border: 1px solid var(--glow, #d4a574);
-  background: transparent; color: var(--glow, #d4a574);
+  padding: 0.5rem 1rem; border: 1px solid var(--glow-warm, #e8a87c);
+  background: transparent; color: var(--glow-warm, #e8a87c);
   border-radius: 4px; cursor: pointer; min-height: 44px;
   transition: background 0.2s;
 }
-.sw-tool-btn:hover { background: rgba(212,165,116,0.15); }
+.sw-tool-btn:hover { background: rgba(232,168,124,0.15); }
 .sw-tool-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .sw-syllable-input {
   width: 100%; box-sizing: border-box; min-height: 90px; background: rgba(0,0,0,0.3);
@@ -254,7 +373,7 @@
 }
 .sw-syllable-output { margin-top: 0.6rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
 .sw-syllable-line { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.2rem 0; border-bottom: 1px solid var(--stone-dark, #2a2a2a); }
-.sw-syllable-line .count { color: var(--glow, #d4a574); flex-shrink: 0; }
+.sw-syllable-line .count { color: var(--glow-warm, #e8a87c); flex-shrink: 0; }
 .sw-syllable-total { margin-top: 0.4rem; color: var(--stone-dark, #aaa); font-size: 0.75rem; }
 .sw-rhyme-group-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark, #aaa); text-transform: uppercase; letter-spacing: 0.05em; margin: 0.6rem 0 0.3rem; }
 .sw-rhyme-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -264,7 +383,7 @@
   background: rgba(90,122,90,0.1); color: var(--parchment, #e8dcc8);
   border-radius: 999px; cursor: pointer; transition: background 0.2s, border-color 0.2s;
 }
-.sw-rhyme-chip:hover { background: rgba(90,122,90,0.25); border-color: var(--glow, #d4a574); }
+.sw-rhyme-chip:hover { background: rgba(90,122,90,0.25); border-color: var(--glow-warm, #e8a87c); }
 .sw-rhyme-chip .syl { opacity: 0.6; font-size: 0.7rem; margin-left: 0.3em; }
 .sw-rhyme-status { font-family: 'EB Garamond', serif; font-style: italic; color: var(--stone-dark, #888); font-size: 0.9rem; }
 
@@ -352,7 +471,8 @@
 
 <main class="sw-page">
   <h1>Song Arrangement</h1>
-  <p class="sw-subtitle">A sheet with the structure already drawn in. Write into it.</p>
+  <div class="sw-rule" aria-hidden="true">❧ ❧ ❧</div>
+  <p class="sw-subtitle">A sheet with the structure already ruled. Write into it.</p>
 
   <!-- Song-level facts. Key and tempo live here rather than on every section,
        because in most songs they are one fact, not eight copies of one. -->
@@ -362,15 +482,15 @@
     <input type="text" id="songTempo" placeholder="Tempo — e.g. 107 BPM" autocomplete="off" aria-label="Tempo">
   </div>
 
-  <h2>① Start from a shape</h2>
+  <h2><span class="sw-num">①</span>Start from a shape</h2>
   <div class="sw-templates" id="templates"></div>
 
-  <h2>② Add sections</h2>
+  <h2><span class="sw-num">②</span>Add sections</h2>
   <div class="sw-palette" id="palette"></div>
 
-  <h2>③ Write it</h2>
+  <h2><span class="sw-num">③</span>Write it</h2>
   <div class="sw-sheet" id="timeline">
-    <div class="sw-empty">Pick a template, or add a section — then just start typing</div>
+    <div class="sw-empty">Choose a shape above, or set down a single section — then begin</div>
   </div>
 
   <div class="sw-actions">
@@ -716,7 +836,7 @@ function render() {
   const tl = document.getElementById('timeline');
   tl.innerHTML = '';
   if (!sections.length) {
-    tl.innerHTML = '<div class="sw-empty">Pick a template, or add a section — then just start typing</div>';
+    tl.innerHTML = '<div class="sw-empty">Choose a shape above, or set down a single section — then begin</div>';
     drawEnergy(); save(); return;
   }
 
@@ -730,6 +850,14 @@ function render() {
         tipEl.className = 'sw-transition-tip ' + tip.cls;
         tipEl.textContent = tip.text;
         tl.appendChild(tipEl);
+      } else {
+        // Only where there is no advice to give. A flourish and a tip in the
+        // same gap is two things competing to mark one join.
+        const fl = document.createElement('div');
+        fl.className = 'sw-flourish';
+        fl.setAttribute('aria-hidden', 'true');
+        fl.textContent = '❧';
+        tl.appendChild(fl);
       }
     }
 
@@ -744,6 +872,7 @@ function render() {
     sec.innerHTML = `
       <div class="sw-sec-head">
         <span class="sw-sec-grip" draggable="true" title="Drag to reorder">⣿</span>
+        <span class="sw-versal" aria-hidden="true">${esc(versalFor(s.type))}</span>
         <span class="sw-sec-name">${esc(names[i])}</span>
         <span class="sw-energy" title="Energy">${steps}</span>
         <input type="number" class="sw-sec-bars" value="${esc(s.bars)}" min="1" max="64" aria-label="Bars">
@@ -857,6 +986,16 @@ const PLACEHOLDERS = {
   'ad-lib': 'Small vocal additions — placement over quantity…'
 };
 const placeholderFor = (t) => PLACEHOLDERS[t] || 'Write here…';
+/* The letter in each versal. Initials alone would collide — intro/interlude,
+   breakdown/bridge, chorus/post-chorus — and a capital that means two things
+   is worse than none, so the clashes take a second letter. */
+const VERSALS = {
+  intro: 'I', verse: 'V', 'pre-chorus': 'P', chorus: 'C', 'post-chorus': 'Ps',
+  bridge: 'B', breakdown: 'Bk', interlude: 'Il', outro: 'O', hook: 'H',
+  drop: 'D', 'ad-lib': 'A'
+};
+const versalFor = (t) => VERSALS[t] || (t[0] || '?').toUpperCase();
+
 
 function drawEnergy() {
   const canvas = document.getElementById('energyCanvas');
@@ -866,12 +1005,12 @@ function drawEnergy() {
   ctx.scale(2,2);
   const w = canvas.offsetWidth, h = canvas.offsetHeight;
   ctx.clearRect(0,0,w,h);
-  if(sections.length < 2) { ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='14px EB Garamond'; ctx.textAlign='center'; ctx.fillText('Add 2+ sections to see energy arc',w/2,h/2); return; }
+  if(sections.length < 2) { ctx.fillStyle='rgba(232,168,124,0.4)'; ctx.font='italic 15px "EB Garamond",serif'; ctx.textAlign='center'; ctx.fillText('Two sections or more, and the arc draws itself',w/2,h/2); return; }
   const pad = 30;
   const pw = w - pad*2, ph = h - pad*2;
 
   // Grid
-  ctx.strokeStyle='rgba(255,255,255,0.08)';
+  ctx.strokeStyle='rgba(232,168,124,0.1)';
   ctx.lineWidth=0.5;
   for(let i=1;i<=10;i++){ const y=pad+ph-(i/10)*ph; ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(pad+pw,y);ctx.stroke(); }
 
@@ -884,20 +1023,23 @@ function drawEnergy() {
     const cpx1=prev.x+(curr.x-prev.x)*0.4, cpx2=prev.x+(curr.x-prev.x)*0.6;
     ctx.bezierCurveTo(cpx1,prev.y,cpx2,curr.y,curr.x,curr.y);
   }
-  ctx.strokeStyle='rgba(212,165,116,0.9)'; ctx.lineWidth=2.5; ctx.stroke();
+  ctx.strokeStyle='rgba(232,168,124,0.95)'; ctx.lineWidth=2;
+  // A faint bloom under the line, so it reads as ink catching candlelight
+  // rather than a plotted series.
+  ctx.shadowColor='rgba(232,168,124,0.55)'; ctx.shadowBlur=9; ctx.stroke(); ctx.shadowBlur=0;
 
   // Fill
   ctx.lineTo(pts[pts.length-1].x, pad+ph); ctx.lineTo(pts[0].x, pad+ph); ctx.closePath();
   const grad = ctx.createLinearGradient(0,pad,0,pad+ph);
-  grad.addColorStop(0,'rgba(212,165,116,0.3)'); grad.addColorStop(1,'rgba(212,165,116,0.02)');
+  grad.addColorStop(0,'rgba(232,168,124,0.26)'); grad.addColorStop(1,'rgba(232,168,124,0.015)');
   ctx.fillStyle=grad; ctx.fill();
 
   // Dots + labels
   pts.forEach((p,i) => {
     ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2);
-    ctx.fillStyle='var(--glow,#d4a574)'; ctx.fillStyle='#d4a574'; ctx.fill();
+    ctx.fillStyle='#e8a87c'; ctx.fill();
     const label = SECTION_TYPES.find(t=>t.id===sections[i].type)?.label||'';
-    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+    ctx.fillStyle='rgba(196,183,153,0.65)'; ctx.font='10px "Cinzel",serif'; ctx.textAlign='center';
     ctx.fillText(label.substring(0,6), p.x, pad+ph+12);
   });
 }
