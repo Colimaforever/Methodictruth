@@ -96,6 +96,7 @@
           <div class="nav-drop-label">Theory &amp; Harmony</div>
           <a href="theory.html">Theory</a>
           <a href="melody.html">Writing Melody</a>
+          <a href="prosody.html">Words &amp; Music</a>
           <a href="harmony-guide.html">Writing Harmony</a>
           <a href="breaking-the-loop.html">Breaking the Loop</a>
           <a href="4ad.html">The 4AD Sound</a>
@@ -133,6 +134,27 @@
       <p>Everything shipped here, newest first. No version numbers — just the work, in the order it happened. <a href="feed.xml">RSS feed ⟶</a></p>
     </div>
 
+    <article class="entry">
+      <p><strong>The site had twenty guides on music and none on words.</strong> Melody got 696 lines, harmony 535,
+      rhythm 840 — and lyrics got a rhyme lookup and a syllable counter. Worse, the one piece of advice tying them
+      together was wrong: <em>"use the syllable counter to keep line lengths consistent across verses."</em> Counting
+      syllables is a proxy for the real thing and a weak one. <a href="prosody.html">Words and Music</a> is the missing
+      half — prosody, which is where a lyric meets a melody and the most common reason an amateur line sounds amateur.</p>
+      <p>It covers why two six-syllable lines can be completely incompatible, three ways to find the stress in your own
+      line, the three different things music means by "emphasis" and how they disagree, which vowels survive a long note
+      and why so many choruses land on <em>oh</em>, consonants that stop a note dead, the second-verse problem and four
+      fixes in the order worth trying, and when to break all of it deliberately. It ends with the case this site's own
+      music actually sits in — the <a href="4ad.html">4AD</a> tradition, where the words are chosen for sound rather
+      than story, and prosody matters <em>more</em> rather than less.</p>
+      <p>And the syllable counter became a <strong>scansion tool</strong>. It now reads stress from a pronunciation
+      dictionary rather than guessing from spelling, marks each syllable strong or weak, and flags any two lines that
+      share a syllable count while disagreeing on shape — exactly the pair a melody cannot fit twice. Function words are
+      forced to unstressed, because a dictionary returns the citation form and would otherwise insist that <em>the</em>
+      and <em>to</em> are stressed.</p>
+      <p>Building the tool immediately found an error in the guide: the example pair "I never meant to leave" and
+      "Remember me tomorrow" are <em>not</em> the same length — the second is seven syllables. Replaced with a pair that
+      genuinely matches, and the scansion of both is now asserted in the tests against what the page prints.</p>
+    </article>
     <article class="entry">
       <p><strong>And then the <a href="songwriter.html">arrangement sheet</a> was illuminated.</strong> The page worked but
       looked like a utility. It is now a manuscript: the words sit on <strong>ruled lines</strong>, drawn by a repeating

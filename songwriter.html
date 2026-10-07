@@ -5,11 +5,11 @@
   <meta name="google-site-verification" content="YeglcO4VchcXWbKXu12hStroeHlNnc2lIuPT4P7ofhA" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0a0e1a">
-<title>Songwriter — Rhyme Finder, Syllable Counter, and Lyric Writing Tools</title>
+<title>Song Arrangement — Scansion, Rhyme Finder and Lyric Writing Tools</title>
   <meta name="keywords" content="rhyme finder, songwriter tool, syllable counter, lyric writing, songwriting helper, rhyme generator">
   <meta name="description" content="Write better lyrics with rhyme suggestions, syllable counting, and structure templates. A songwriter's toolkit built into your browser.">
   <link rel="canonical" href="https://methodictruth.com/songwriter.html">
-  <meta property="og:title" content="Songwriter — Rhyme Finder, Syllable Counter, and Lyric Writing Tools">
+  <meta property="og:title" content="Song Arrangement — Scansion, Rhyme Finder and Lyric Writing Tools">
   <meta property="og:description" content="Write better lyrics with rhyme suggestions, syllable counting, and structure templates. A songwriter's toolkit built into your browser.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/songwriter.html">
@@ -375,6 +375,41 @@
 .sw-syllable-line { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.2rem 0; border-bottom: 1px solid var(--stone-dark, #2a2a2a); }
 .sw-syllable-line .count { color: var(--glow-warm, #e8a87c); flex-shrink: 0; }
 .sw-syllable-total { margin-top: 0.4rem; color: var(--stone-dark, #aaa); font-size: 0.75rem; }
+
+/* ── Scansion ──
+   Each word is a column: its stress marks above, the word below. Marks rather
+   than a re-spelling, because splitting a word into syllables orthographically
+   is guesswork — the dictionary gives the pattern reliably and the letters not
+   at all, so the tool shows only what it actually knows. */
+.sc-line {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 0.9rem;
+  padding: 0.45rem 0; border-bottom: 1px solid rgba(138, 126, 107, 0.14);
+}
+.sc-words { display: flex; flex-wrap: wrap; gap: 0.1rem 0.6rem; align-items: flex-end; }
+.sc-w { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.25; }
+.sc-marks { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.18em; height: 1.1em; }
+.sc-m { color: var(--stone-dark, #847a68); }
+.sc-m.on { color: var(--glow-warm, #e8a87c); }
+.sc-m.unk { color: #8a6a6a; }
+.sc-txt { font-family: 'EB Garamond', serif; font-size: 0.98rem; color: var(--stone-dark, #a09886); }
+.sc-w.on .sc-txt { color: var(--parchment, #f0e8d8); }
+.sc-meta { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+.sc-n { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--glow-warm, #e8a87c); }
+.sc-flag {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #e0a0a0;
+  border: 1px solid rgba(224, 160, 160, 0.4); padding: 0.15rem 0.4rem; border-radius: 2px;
+  white-space: nowrap;
+}
+/* The legend marks in the blurb, so ▲ and · are explained in the same ink they
+   appear in below. */
+.sc-k { font-family: 'JetBrains Mono', monospace; color: var(--stone-dark, #847a68); }
+.sc-k.on { color: var(--glow-warm, #e8a87c); }
+
+@media (max-width: 600px) {
+  .sc-line { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  .sc-txt { font-size: 0.9rem; }
+}
 .sw-rhyme-group-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--stone-dark, #aaa); text-transform: uppercase; letter-spacing: 0.05em; margin: 0.6rem 0 0.3rem; }
 .sw-rhyme-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .sw-rhyme-chip {
@@ -662,7 +697,7 @@ document.getElementById('lyricContent').innerHTML = `
   <li><strong>Free-write before you edit.</strong> Set a timer for 10 minutes, write everything that comes, including the bad lines. You can't edit a blank page — first drafts exist to be cut.</li>
   <li><strong>Show, don't tell.</strong> "I'm sad" tells. "I left the porch light on for a year" shows. Specific, sensory detail beats naming the emotion directly almost every time.</li>
   <li><strong>Make every verse lean toward the hook.</strong> End each verse on a question, a turn, or a reveal — something that makes the chorus feel inevitable rather than just "next."</li>
-  <li><strong>Match meter to melody.</strong> Use the syllable counter below to keep line lengths consistent across verses, so the melody doesn't have to bend differently each time.</li>
+  <li><strong>Match stress, not syllables.</strong> Two six-syllable lines can be completely incompatible if their strong syllables land in different places — a melody written for one will mispronounce the other. Use the scansion tool below, which marks stress rather than counting, and see <a href="prosody.html">Words and Music</a> for how to hear it and fix it.</li>
   <li><strong>Cut the weakest line in every section.</strong> There's almost always one line doing less work than the rest. Find it, cut it, and let the gap force a better one — or let the silence sit.</li>
 </ol>
 
@@ -674,10 +709,11 @@ document.getElementById('lyricContent').innerHTML = `
 </div>
 <div id="rhymeOutput"></div>
 
-<h3>Syllable Counter</h3>
-<p style="opacity:0.75;font-size:0.85rem;margin-bottom:0.5rem;">Paste lyrics below — see syllables per line so you can match meter across verses.</p>
+<h3>Scansion</h3>
+<p style="opacity:0.75;font-size:0.85rem;margin-bottom:0.5rem;">Paste lyrics below. <span class="sc-k on">▲</span> is a stressed syllable, <span class="sc-k">·</span> unstressed — read from a pronunciation dictionary, not guessed from spelling. Lines with the same syllable count but a <em>different</em> stress shape get flagged, because that is the pair a melody cannot fit twice. <a href="prosody.html">Why this matters</a>.</p>
 <textarea id="syllableInput" class="sw-syllable-input" placeholder="Type or paste lyrics here, one line per line..."></textarea>
 <div class="sw-syllable-output" id="syllableOutput"></div>
+<div class="sw-syllable-total" id="syllableStatus"></div>
 
 <h3>Rhyme Schemes</h3>
 <div class="sw-ref-item"><h4>AABB (Couplet)</h4><p>"I walk the line / I keep my eyes wide open all the time"</p></div>
@@ -695,7 +731,21 @@ document.getElementById('lyricContent').innerHTML = `
 <div class="sw-ref-item"><h4>Contrast/Juxtaposition</h4><p>"Hello darkness, my old friend" — pairing opposites for tension.</p></div>
 `;
 
-// ── Syllable Counter ──
+// ── Scansion ──
+// Counting syllables tells you something true and nearly useless: two lines of
+// eight can be completely incompatible if their STRESSES fall in different
+// places. See prosody.html. So this reads the stress pattern, not just the
+// count, and flags lines that match on length while disagreeing on shape.
+//
+// Stress comes from Datamuse's pronunciation field (md=r), which returns
+// Arpabet: "R IH0 M EH1 M B ER0". Every vowel phone carries a stress digit --
+// 1 primary, 2 secondary, 0 none -- so the vowels in order ARE the pattern, and
+// one syllable per vowel phone is the syllable count, from a dictionary rather
+// than from guessing at spelling.
+//
+// The heuristic counter below stays as the fallback. It is wrong often enough
+// that it should not be the only answer, and right often enough to be better
+// than nothing when the network is gone.
 const SYLLABLE_EXCEPTIONS = {
   eye: 1, eyes: 1, queue: 1, queued: 1, rhythm: 2, rhythms: 2,
   isnt: 2, arent: 2, wasnt: 2, werent: 2, wouldnt: 2, couldnt: 2,
@@ -720,21 +770,158 @@ function countSyllablesInLine(line) {
   return words.reduce((sum, w) => sum + countSyllablesInWord(w), 0);
 }
 
-function renderSyllableCounts() {
+// word -> array of stress digits, or null once we know the dictionary has no
+// entry. Shared across lines and kept for the session, so editing a verse
+// re-requests only genuinely new words.
+const pronCache = new Map();
+let scanTimer = null, scanRun = 0;
+
+function stressFromPron(pron) {
+  // Vowel phones are the ones carrying a digit. Their digits, in order, are the
+  // stress pattern; their count is the syllable count.
+  const digits = [];
+  for (const ph of String(pron).trim().split(/\s+/)) {
+    const m = /([012])$/.exec(ph);
+    if (m) digits.push(+m[1]);
+  }
+  return digits.length ? digits : null;
+}
+
+async function lookupStress(word) {
+  if (pronCache.has(word)) return pronCache.get(word);
+  try {
+    const res = await fetch(
+      `https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&md=r&max=1`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    // Only trust an exact match: "sp=" is a pattern query and will happily
+    // return a different word, whose stress would be a confident lie.
+    const hit = Array.isArray(j) && j[0] && String(j[0].word).toLowerCase() === word
+      ? j[0] : null;
+    const tag = hit && (hit.tags || []).find(t => t.startsWith('pron:'));
+    const stress = tag ? stressFromPron(tag.slice(5)) : null;
+    pronCache.set(word, stress);
+    return stress;
+  } catch {
+    return null;   // not cached: a network blip should not become a permanent "unknown"
+  }
+}
+
+// Bounded fan-out. A verse is a few dozen words and most repeat; this keeps a
+// paste of a whole lyric from opening eighty sockets at once.
+async function lookupAll(words) {
+  const todo = [...new Set(words)].filter(w => !pronCache.has(w));
+  const queue = todo.slice();
+  const workers = Array.from({ length: Math.min(6, queue.length) }, async () => {
+    while (queue.length) await lookupStress(queue.shift());
+  });
+  await Promise.all(workers);
+}
+
+// A dictionary gives CITATION stress: every single-syllable word, including
+// "to" and "the", comes back marked 1 because that is how it sounds said alone.
+// In a sung line that is wrong — function words carry no weight unless you
+// deliberately lean on one, which is exactly the failure this tool is meant to
+// catch. So monosyllabic function words are forced to unstressed. It is a
+// judgement, not a lookup, and it is the one place here that guesses.
+const FUNCTION_WORDS = new Set([
+  'a','an','the','and','or','but','nor','so','yet','as','if','than','that','though',
+  'of','to','in','on','at','by','for','from','with','into','onto','off','out','up',
+  'is','am','are','was','were','be','been','being','do','does','did','has','have','had',
+  'will','would','shall','should','can','could','may','might','must',
+  'i','me','my','you','your','he','him','his','she','her','it','its',
+  'we','us','our','they','them','their','this','these','those','there','here'
+]);
+
+const MARK = { 1: '▲', 2: '▵', 0: '·' };
+
+function scanLine(line) {
+  const tokens = line.match(/[A-Za-z']+/g) || [];
+  const words = [], pattern = [];
+  let known = true, count = 0;
+  for (const t of tokens) {
+    const key = t.toLowerCase().replace(/[^a-z']/g, '');
+    let stress = key ? pronCache.get(key) : null;
+    if (stress && stress.length === 1 && FUNCTION_WORDS.has(key)) stress = [0];
+    if (stress && stress.length) {
+      words.push({ text: t, marks: stress.map(d => MARK[d]) });
+      stress.forEach(d => pattern.push(d === 0 ? 0 : 1));
+      count += stress.length;
+    } else {
+      const n = countSyllablesInWord(t) || 1;
+      words.push({ text: t, marks: Array(n).fill('?') });
+      for (let i = 0; i < n; i++) pattern.push(null);
+      count += n;
+      known = false;
+    }
+  }
+  return { words, pattern, count, known };
+}
+
+function renderScansion(scans) {
+  // Lines that agree on length but not on shape are the whole reason this tool
+  // exists, so they are found and named rather than left to the eye.
+  const clash = new Set();
+  for (let i = 0; i < scans.length; i++) {
+    for (let j = i + 1; j < scans.length; j++) {
+      const a = scans[i], b = scans[j];
+      if (!a.known || !b.known || a.count !== b.count || !a.count) continue;
+      if (a.pattern.join() !== b.pattern.join()) { clash.add(i); clash.add(j); }
+    }
+  }
+
+  return scans.map((s, i) => {
+    const cols = s.words.map(w => {
+      const marks = w.marks.map(m =>
+        `<span class="sc-m${m === '▲' ? ' on' : m === '?' ? ' unk' : ''}">${m}</span>`).join('');
+      return `<span class="sc-w${w.marks.includes('▲') ? ' on' : ''}">` +
+             `<span class="sc-marks">${marks}</span>` +
+             `<span class="sc-txt">${esc(w.text)}</span></span>`;
+    }).join('');
+    const flag = clash.has(i)
+      ? `<span class="sc-flag" title="Same syllable count as another line, different stress pattern">shape differs</span>`
+      : '';
+    return `<div class="sc-line"><div class="sc-words">${cols}</div>` +
+           `<div class="sc-meta"><span class="sc-n">${s.count}</span>${flag}</div></div>`;
+  }).join('');
+}
+
+async function renderSyllableCounts() {
   const text = document.getElementById('syllableInput').value;
   const out = document.getElementById('syllableOutput');
-  if (!text.trim()) { out.innerHTML = ''; return; }
-  const lines = text.split('\n');
-  let total = 0;
-  const rows = lines.map(line => {
-    if (!line.trim()) return '';
-    const n = countSyllablesInLine(line);
-    total += n;
-    return `<div class="sw-syllable-line"><span>${esc(line)}</span><span class="count">${n}</span></div>`;
-  }).join('');
-  out.innerHTML = rows + `<div class="sw-syllable-total">Total: ${total} syllables across ${lines.filter(l=>l.trim()).length} line(s)</div>`;
+  const status = document.getElementById('syllableStatus');
+  if (!text.trim()) { out.innerHTML = ''; if (status) status.textContent = ''; return; }
+
+  const lines = text.split('\n').filter(l => l.trim());
+  const draw = () => {
+    const scans = lines.map(scanLine);
+    out.innerHTML = renderScansion(scans);
+    const total = scans.reduce((a, s) => a + s.count, 0);
+    const unknown = scans.filter(s => !s.known).length;
+    if (status) {
+      status.textContent = `${total} syllables across ${lines.length} line` +
+        (lines.length === 1 ? '' : 's') +
+        (unknown ? ` · ${unknown} line${unknown === 1 ? '' : 's'} with words not in the ` +
+                   `dictionary, shown as ? and counted by spelling` : '');
+    }
+  };
+
+  draw();   // immediately, from cache and the fallback — never a blank pane
+
+  const run = ++scanRun;
+  const words = (text.match(/[A-Za-z']+/g) || [])
+    .map(w => w.toLowerCase().replace(/[^a-z']/g, '')).filter(Boolean);
+  if (words.some(w => !pronCache.has(w))) {
+    if (status) status.textContent = 'Reading stress…';
+    await lookupAll(words);
+    if (run === scanRun) draw();   // a later edit has already redrawn; don't fight it
+  }
 }
-document.getElementById('syllableInput').addEventListener('input', renderSyllableCounts);
+
+document.getElementById('syllableInput').addEventListener('input', () => {
+  clearTimeout(scanTimer);
+  scanTimer = setTimeout(renderSyllableCounts, 450);
+});
 
 // ── Rhyme Finder ──
 async function findRhymes() {
