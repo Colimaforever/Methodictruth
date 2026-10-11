@@ -3,31 +3,28 @@
  * Firebase Realtime Database event tracking (compat API)
  * 
  * Usage:
- *   <script src="lib/firebase-app-compat.js"></script>
- *   <script src="lib/firebase-database-compat.js"></script>
  *   <script src="analytics.js"></script>
  *   <script>Analytics.init(); Analytics.track('event_name', {data});</script>
+ *
+ * No SDK. This only ever WRITES, and the Realtime Database has a plain REST
+ * interface -- POST to <path>.json is exactly what db.ref(path).push() does on
+ * the wire. The compat libraries that used to be required for this cost 193 KB
+ * (31 KB app + 162 KB database) on every page that tracked an event, to do what
+ * fetch already does in a dozen lines. They bought realtime listeners, offline
+ * queueing and auth, none of which a write-only beacon uses.
  */
 
 (function(window) {
   'use strict';
 
-  let db = null;
   let sessionId = null;
   let deviceType = null;
   let startTime = null;
-  let firebaseInitialized = false;
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
-    authDomain: "methodictruth.firebaseapp.com",
-    databaseURL: "https://methodictruth-default-rtdb.firebaseio.com",
-    projectId: "methodictruth",
-    storageBucket: "methodictruth.firebasestorage.app",
-    messagingSenderId: "415814328505",
-    appId: "1:415814328505:web:6f8ad89f05d944d4087b68"
-  };
+  // The REST endpoint events are posted to. The apiKey, appId and the rest of
+  // the old client config were only ever needed to construct an SDK instance.
+  const EVENTS_URL =
+    'https://methodictruth-default-rtdb.firebaseio.com/analytics/events.json';
 
   // Detect device type
   function detectDevice() {
@@ -41,15 +38,6 @@
   // Initialize analytics
   function init() {
     try {
-      // Init Firebase if not already done
-      if (!firebaseInitialized && typeof firebase !== 'undefined') {
-        if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-        }
-        db = firebase.database();
-        firebaseInitialized = true;
-      }
-
       sessionId = Math.random().toString(36).substring(2, 15);
       deviceType = detectDevice();
       startTime = Date.now();
@@ -86,7 +74,7 @@
 
   // Track an event
   function track(eventName, data, sync) {
-    if (!db || !sessionId) return;
+    if (!sessionId) return;
     data = data || {};
     sync = sync || false;
 
@@ -95,7 +83,7 @@
         event: eventName,
         session: sessionId,
         device: deviceType,
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        timestamp: Date.now(),
         page: window.location.pathname
       };
 
@@ -106,18 +94,19 @@
         }
       }
 
+      const body = JSON.stringify(eventData);
       if (sync && navigator.sendBeacon) {
-        // Best-effort sync write for beforeunload
-        const blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
-        navigator.sendBeacon(
-          'https://methodictruth-default-rtdb.firebaseio.com/analytics/events.json',
-          blob
-        );
+        // beforeunload: the page is going away, so hand it to the browser to
+        // deliver rather than starting a fetch that will be cancelled.
+        navigator.sendBeacon(EVENTS_URL, new Blob([body], { type: 'application/json' }));
       } else {
-        // Async write
-        db.ref('analytics/events').push(eventData).catch(function(err) {
-          console.warn('Analytics write failed:', err);
-        });
+        // keepalive so a navigation mid-flight does not drop the event either.
+        fetch(EVENTS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body,
+          keepalive: true
+        }).catch(function() { /* analytics must never break the page */ });
       }
     } catch (error) {
       console.warn('Analytics track failed:', error);

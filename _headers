@@ -4,6 +4,37 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=self, microphone=self, geolocation=()
 
+# ── HTML at the edge ──
+# Everything else here is cached hard because it is content-addressed by a ?v=
+# query. HTML is not, so it had no rule at all and fell through to the Pages
+# default of revalidate-every-time: every page view, from every visitor, went
+# back to origin for a document that only changes when I push.
+#
+# max-age=0 keeps the BROWSER revalidating, so a reader never sees a stale page
+# after a deploy. s-maxage=300 lets Cloudflare answer from the edge for five
+# minutes. stale-while-revalidate=86400 is the part that matters: for a day
+# after that, the edge serves the cached copy INSTANTLY and refreshes it in the
+# background, so nobody ever waits on origin -- including the first visitor
+# after the cache expires, who otherwise pays for everyone else.
+#
+# The cost of being wrong is five minutes of staleness on a page I just
+# deployed. Cloudflare Pages purges its cache on deploy anyway, so in practice
+# it is less than that.
+/*.html
+  Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=86400
+
+# The extensionless and root forms of the same documents.
+/
+  Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=86400
+/synth
+  Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=86400
+/architecture
+  Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=86400
+/chronicles
+  Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=86400
+
+# Must stay BELOW the /*.html rule above: when two rules match, the later and
+# more specific one wins, and this page must never sit in a shared edge cache.
 /r54a3a48a000156c0.html
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-cache, no-store, must-revalidate

@@ -210,22 +210,13 @@
   <script src="scripts.js?v=69"></script>
 
   <!-- Firebase SDK -->
-  <script src="lib/firebase-app-compat.js"></script>
-  <script src="lib/firebase-database-compat.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDosCOXMInZQoOkgNEhbTCzzXEy1rdkCFA",
-      authDomain: "methodictruth.firebaseapp.com",
-      databaseURL: "https://methodictruth-default-rtdb.firebaseio.com",
-      projectId: "methodictruth",
-      storageBucket: "methodictruth.firebasestorage.app",
-      messagingSenderId: "415814328505",
-      appId: "1:415814328505:web:6f8ad89f05d944d4087b68"
-    };
-
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const feedbackRef = db.ref('feedback');
+    // This page sends one message and never reads anything back, so it does not
+    // need a database client -- db.ref(path).push(obj) is, on the wire, a POST
+    // to <path>.json. Doing that directly saves 193 KB of SDK (31 KB app +
+    // 162 KB database) on a page whose entire job is a form.
+    const FEEDBACK_URL =
+      'https://methodictruth-default-rtdb.firebaseio.com/feedback.json';
 
     const fbType = document.getElementById('fbType');
     const fbMessage = document.getElementById('fbMessage');
@@ -282,14 +273,23 @@
       fbStatus.className = 'fb-status';
 
       try {
-        await feedbackRef.push({
-          type: fbType.value,
-          message: msg,
-          email: fbEmail.value.trim() || null,
-          timestamp: firebase.database.ServerValue.TIMESTAMP,
-          userAgent: navigator.userAgent.substring(0, 200),
-          page: document.referrer || null
+        const res = await fetch(FEEDBACK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: fbType.value,
+            message: msg,
+            email: fbEmail.value.trim() || null,
+            // ServerValue.TIMESTAMP was an SDK sentinel the server resolved.
+            // Over REST it would be stored as the literal object, so send a
+            // real time instead.
+            timestamp: Date.now(),
+            userAgent: navigator.userAgent.substring(0, 200),
+            page: document.referrer || null
+          })
         });
+        // push() rejected on failure; fetch resolves on a 4xx, so check.
+        if (!res.ok) throw new Error('HTTP ' + res.status);
 
         markSubmitted();
         fbMessage.value = '';
