@@ -197,51 +197,53 @@ one pad or the VC-340, guitar that already went through the pedals.<br>
 <b>Usually leave clean:</b> anything where detail matters more than weight.</p>
 
 <h2>6 · The patchbay map</h2>
-<p><b>Bay A does the work.</b> Everything permanent lives on the rack table, so every point here is a short run wired once and never touched again.</p>
-<p><b>Bay B is headroom.</b> Instruments across the room are not wired in — they get a long cable into a <em>front bottom jack</em> when wanted, which costs zero points. Bay B holds the few destinations that overflowed Bay A, and stays otherwise empty until something earns a permanent place.</p>
+<p><b>Bay A is the spine:</b> Logic ⇄ SSL ⇄ tape ⇄ effect sends, plus the SSL's channel and mix-bus inserts. <b>Bay B is the sources:</b> the four bay instruments, the guitar chain, and the effect returns.</p>
+<p><b>With nothing plugged in, the studio is ready to write.</b> Every bay instrument plays through the SSL, Logic is in your headphones, a Logic print lands on the 424, and tape playback lands back in Logic. Most sessions need no patch cables at all.</p>
+<p><b>Bus B is the record send, not the main out.</b> On the SiX, a channel's Mute button does not kill it — it routes that channel to Bus B instead of the main mix, processed through its own strip, on its own, into Clarett IN 7–8. The main out would carry everything live on the console, so it sits on <code>A23</code>/<code>A24</code> with an open bottom jack for the one job it suits: printing a finished mix.</p>
+<p><b>The feedback guard:</b> EXT 1 carries Logic and stays <em>off</em> the mix bus. That one setting is what stops Logic reaching the mix or Bus B while you record from them. The single exception is printing a finished mix, with input monitoring off.</p>
+<p>Columns marked <span class="sp">open</span> have nothing on the bottom jack — that source goes somewhere only when you patch it. <code>B15</code>–<code>B24</code> are spare, with room for the MS-2000B, Minilogue or R-8 if they ever move closer.</p>
 <table class="bay">
 <tr><th>#</th><th>Top — source</th><th>Bottom — destination</th></tr>
-<tr class="bayhead"><td colspan="3">Bay A — the loop: everything on the rack table</td></tr>
-<tr><td class="pt">A1</td><td>Clarett OUT 1<div class="nt">Send a Logic track to the SSL channel compressor and bring it back changed</div></td><td>SSL SiX CH1 input</td></tr>
-<tr><td class="pt">A2</td><td>Clarett OUT 2<div class="nt">Second SSL strip. You only have two - spend them on parts needing dynamic control</div></td><td>SSL SiX CH2 input</td></tr>
-<tr><td class="pt">A3</td><td>Clarett OUT 3<div class="nt">Print a stem to tape track 1. RECORD FUNCTION = DIRECT</div></td><td>424 Channel 1 input</td></tr>
-<tr><td class="pt">A4</td><td>Clarett OUT 4<div class="nt">Print a stem to tape track 2</div></td><td>424 Channel 2 input</td></tr>
-<tr><td class="pt">A5</td><td>Clarett OUT 5<div class="nt">Print a stem to tape track 3</div></td><td>424 Channel 3 input</td></tr>
-<tr><td class="pt">A6</td><td>Clarett OUT 6<div class="nt">Print a stem to tape track 4</div></td><td>424 Channel 4 input</td></tr>
-<tr><td class="pt">A7</td><td>Clarett OUT 7<div class="nt">Logic aux send to the Space Echo. Treat it like a plugin send</div></td><td>RE-202 input</td></tr>
-<tr><td class="pt">A8</td><td>Clarett OUT 8<div class="nt">Logic aux send to the 80s digital reverb</div></td><td>Yamaha R-1000 input</td></tr>
-<tr><td class="pt">A9</td><td>SSL SiX Main OUT L<div class="nt">The analog front end returning to Logic. Leave this permanently</div></td><td>Clarett IN 1</td></tr>
-<tr><td class="pt">A10</td><td>SSL SiX Main OUT R<div class="nt">The analog front end returning to Logic. Leave this permanently</div></td><td>Clarett IN 2</td></tr>
-<tr><td class="pt">A11</td><td>424 TAPE OUT 1<div class="nt">Tape track 1 back to Logic as its own track. RCA cable. -10 dBV so it arrives quiet</div></td><td>Clarett IN 3</td></tr>
-<tr><td class="pt">A12</td><td>424 TAPE OUT 2<div class="nt">Tape track 2 back to Logic. RCA</div></td><td>Clarett IN 4</td></tr>
-<tr><td class="pt">A13</td><td>424 TAPE OUT 3<div class="nt">Tape track 3 back to Logic. RCA</div></td><td>Clarett IN 5</td></tr>
-<tr><td class="pt">A14</td><td>424 TAPE OUT 4<div class="nt">Tape track 4 back to Logic. RCA</div></td><td>Clarett IN 6</td></tr>
-<tr><td class="pt">A15</td><td>RE-202 OUT L<div class="nt">Space Echo return</div></td><td>Clarett IN 7</td></tr>
-<tr><td class="pt">A16</td><td>RE-202 OUT R<div class="nt">Space Echo return</div></td><td>Clarett IN 8</td></tr>
-<tr><td class="pt">A17</td><td>424 LINE OUT L<div class="nt">MONITORING the tape machine while you work. NOT the capture path</div></td><td>SSL SiX stereo in 1 L</td></tr>
-<tr><td class="pt">A18</td><td>424 LINE OUT R<div class="nt">MONITORING only. Capture is A11-A14</div></td><td>SSL SiX stereo in 1 R</td></tr>
-<tr><td class="pt">A19</td><td>424 EFFECT SEND 1<div class="nt">Drive the spring reverb from the tape machine and print real reverb to tape</div></td><td>Fostex 3180 input</td></tr>
-<tr><td class="pt">A20</td><td>424 EFFECT SEND 2<div class="nt">Send 2 doubles as TAPE CUE - check which mode it is in before assuming a fault</div></td><td>Yamaha R-1000 input R</td></tr>
-<tr><td class="pt">A21</td><td>Fostex 3180 OUT<div class="nt">Spring reverb back into the 424. Mono in and out - confirmed</div></td><td>424 effect return L</td></tr>
-<tr><td class="pt">A22</td><td>Yamaha R-1000 OUT L<div class="nt">VERIFY - does the 424 have effect returns and how many</div></td><td>424 effect return R</td></tr>
-<tr><td class="pt">A23</td><td>Yamaha R-1000 OUT R<div class="nt">Reverb into the console instead of the computer</div></td><td>SSL SiX FX return L</td></tr>
-<tr><td class="pt">A24</td><td>424 MONITOR OUT<div class="nt">Spare monitoring path</div></td><td>SSL SiX FX return R</td></tr>
-<tr class="bayhead"><td colspan="3">Bay B — overflow destinations and headroom</td></tr>
-<tr><td class="pt">B1</td><td><span class="sp">—</span><div class="nt">Plug a keyboard in here on demand - long cable to the front bottom jack</div></td><td>424 Channel 5 input</td></tr>
-<tr><td class="pt">B2</td><td><span class="sp">—</span><div class="nt">Same. Lets the MS-20 Mini / MS-2000B / Minilogue reach tape without being wired in. B1+B2 together take the R-8 in stereo</div></td><td>424 Channel 6 input</td></tr>
-<tr><td class="pt">B3</td><td><span class="sp">—</span><div class="nt">On-demand stereo input to the console — R-8, or a stand synth you want on the SSL rather than on tape</div></td><td>SSL SiX stereo in 2 L</td></tr>
-<tr><td class="pt">B4</td><td><span class="sp">—</span><div class="nt">Right half of the B3 pair — always use both or you get a half-silent image</div></td><td>SSL SiX stereo in 2 R</td></tr>
-<tr><td class="pt">B5</td><td><span class="sp">—</span><div class="nt">VERIFY - does the 424 have effect returns</div></td><td>424 effect return L</td></tr>
-<tr><td class="pt">B6</td><td><span class="sp">—</span><div class="nt">VERIFY</div></td><td>424 effect return R</td></tr>
-<tr><td class="pt">B7</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B8</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B9</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B10</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B11</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B12</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B13</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B14</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B15</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
+<tr class="bayhead"><td colspan="3">Bay A — the spine: Logic, SSL, tape and effect sends</td></tr>
+<tr><td class="pt">A1</td><td>Clarett OUT 1 (Logic L)<div class="nt">Logic and Mac audio in your headphones. EXT 1 stays OFF the mix bus - that is the feedback guard</div></td><td>SSL EXT 1 IN L</td></tr>
+<tr><td class="pt">A2</td><td>Clarett OUT 2 (Logic R)</td><td>SSL EXT 1 IN R</td></tr>
+<tr><td class="pt">A3</td><td>Clarett OUT 3<div class="nt">Print stem 1 to tape</div></td><td>424 IN 1</td></tr>
+<tr><td class="pt">A4</td><td>Clarett OUT 4<div class="nt">Print stem 2 to tape</div></td><td>424 IN 2</td></tr>
+<tr><td class="pt">A5</td><td>Clarett OUT 5<div class="nt">Print stem 3 to tape</div></td><td>424 IN 3</td></tr>
+<tr><td class="pt">A6</td><td>Clarett OUT 6<div class="nt">Print stem 4 to tape</div></td><td>424 IN 4</td></tr>
+<tr><td class="pt">A7</td><td>Clarett OUT 7<div class="nt">Reverb send from Logic</div></td><td>Yamaha R-1000 IN</td></tr>
+<tr><td class="pt">A8</td><td>Clarett OUT 8<div class="nt">Spring reverb send from Logic</div></td><td>Fostex 3180 IN</td></tr>
+<tr><td class="pt">A9</td><td>SSL BUS B OUT L<div class="nt">Record any SSL channel you mute - processed - on its own</div></td><td>Clarett IN 7</td></tr>
+<tr><td class="pt">A10</td><td>SSL BUS B OUT R</td><td>Clarett IN 8</td></tr>
+<tr><td class="pt">A11</td><td>424 TAPE OUT 1<div class="nt">Capture tape track 1. RCA to 1/4&quot; TS. -10 dBV so it arrives quiet</div></td><td>Clarett IN 3</td></tr>
+<tr><td class="pt">A12</td><td>424 TAPE OUT 2<div class="nt">Capture tape track 2</div></td><td>Clarett IN 4</td></tr>
+<tr><td class="pt">A13</td><td>424 TAPE OUT 3<div class="nt">Capture tape track 3</div></td><td>Clarett IN 5</td></tr>
+<tr><td class="pt">A14</td><td>424 TAPE OUT 4<div class="nt">Capture tape track 4</div></td><td>Clarett IN 6</td></tr>
+<tr><td class="pt">A15</td><td>424 LINE OUT L<div class="nt">Patch to EXT 2 to hear the 424 on the SSL. Monitoring only - NOT the capture path</div></td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">A16</td><td>424 LINE OUT R</td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">A17</td><td>424 EFFECT SEND 1<div class="nt">Patch to an effect input</div></td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">A18</td><td>424 EFFECT SEND 2 / TAPE CUE<div class="nt">Doubles as TAPE CUE - check the mode before suspecting a fault</div></td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">A19</td><td>SSL CH1 INSERT SEND<div class="nt">Insert bypassed until you patch outboard in</div></td><td>SSL CH1 INSERT RETURN</td></tr>
+<tr><td class="pt">A20</td><td>SSL CH2 INSERT SEND<div class="nt">Insert bypassed until you patch outboard in</div></td><td>SSL CH2 INSERT RETURN</td></tr>
+<tr><td class="pt">A21</td><td>SSL MIX BUS INSERT SEND L<div class="nt">Bypassed. Patch an effect - or the 424 - across the whole mix</div></td><td>SSL MIX BUS INSERT RETURN L</td></tr>
+<tr><td class="pt">A22</td><td>SSL MIX BUS INSERT SEND R</td><td>SSL MIX BUS INSERT RETURN R</td></tr>
+<tr><td class="pt">A23</td><td>SSL MAIN OUT L<div class="nt">Patch to Clarett IN 3-4 to print a finished mix. XLR to TRS</div></td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">A24</td><td>SSL MAIN OUT R</td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">B1</td><td>Alesis 12R MAIN L (RD-8 submix)<div class="nt">Drums get the SSL channel strips. Pan CH1 hard left</div></td><td>SSL CH1 LINE IN</td></tr>
+<tr><td class="pt">B2</td><td>Alesis 12R MAIN R<div class="nt">Pan CH2 hard right</div></td><td>SSL CH2 LINE IN</td></tr>
+<tr><td class="pt">B3</td><td>Juno DS L<div class="nt">Juno plays through the SSL</div></td><td>SSL ST1 L</td></tr>
+<tr><td class="pt">B4</td><td>Juno DS R</td><td>SSL ST1 R</td></tr>
+<tr><td class="pt">B5</td><td>VC-340 L<div class="nt">VC-340 plays through the SSL</div></td><td>SSL ST2 L</td></tr>
+<tr><td class="pt">B6</td><td>VC-340 R<div class="nt">VERIFY - is the VC-340 true stereo? If mono this frees up and ST2 pans centre</div></td><td>SSL ST2 R</td></tr>
+<tr><td class="pt">B7</td><td>JV-1010 L<div class="nt">JV-1010 plays through the SSL. EXT 2 DOES go to the mix bus</div></td><td>SSL EXT 2 IN L</td></tr>
+<tr><td class="pt">B8</td><td>JV-1010 R</td><td>SSL EXT 2 IN R</td></tr>
+<tr><td class="pt">B9</td><td>Guitar pedalboard out (Dimension C)<div class="nt">The guitar chain works untouched</div></td><td>RE-202 IN</td></tr>
+<tr><td class="pt">B10</td><td>RE-202 OUT L<div class="nt">Patch to a Clarett IN or an SSL input</div></td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">B11</td><td>RE-202 OUT R</td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">B12</td><td>Yamaha R-1000 OUT L<div class="nt">Reverb return - patch where needed</div></td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">B13</td><td>Yamaha R-1000 OUT R</td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">B14</td><td>Fostex 3180 OUT<div class="nt">Mono reverb return - confirmed mono in and out</div></td><td><span class="sp">open</span></td></tr>
+<tr><td class="pt">B15</td><td><span class="sp">—</span><div class="nt">Room for the MS-2000B / Minilogue / R-8 if they move closer</div></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B16</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B17</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B18</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
@@ -250,7 +252,7 @@ one pad or the VC-340, guitar that already went through the pedals.<br>
 <tr><td class="pt">B21</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B22</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
 <tr><td class="pt">B23</td><td><span class="sp">—</span></td><td><span class="sp">—</span></td></tr>
-<tr><td class="pt">B24</td><td><span class="sp">—</span><div class="nt">Headroom. Wire Bay B only when something earns a permanent point</div></td><td><span class="sp">—</span></td></tr>
+<tr><td class="pt">B24</td><td><span class="sp">—</span><div class="nt">Headroom. Wire Bay B past B14 only when something earns a permanent point</div></td><td><span class="sp">—</span></td></tr>
 </table>
 
 </div></body>

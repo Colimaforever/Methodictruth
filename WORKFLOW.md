@@ -19,18 +19,22 @@ and the spring reverb are the same shape with a different thing in the middle.
 The patchbay exists so you can change what's in the middle without crawling
 behind anything.
 
-**The SSL SiX is the exception, and it matters.** Its two channel strips are a
-detour like any other box — out on `A1`/`A2`, back on `A9`/`A10`. But the console
-itself is a *terminus*: it sums, and it is where you listen from. That is why the
-424's LINE OUT (`A17`/`A18`) and the reverb returns (`A23`/`A24`) land there and
-go no further.
+**The SSL SiX is the exception, and it matters.** The console is a *terminus*: it
+sums, and it is where you listen from. Every bay instrument lands there and goes
+no further until you ask it to.
 
-The consequence is worth knowing before you print anything: **Main Out carries
-everything live on the console**, and Main Out is the only path back to Logic. So
-monitoring the tape machine while printing a part through CH1 puts both into the
-take. Either mute before you print, or — better — split the jobs: **Main Out for
-capture, Alt or Cue for your headphones.** Then listening can never contaminate a
-recording.
+Which raises the obvious problem — if the console sums everything, how do you
+record one channel without recording your monitoring with it? **Bus B.** On the
+SiX a channel's Mute button does not kill it; it routes that channel to Bus B
+instead of the main mix. So Mute is a per-channel record send: that channel,
+through its own EQ and dynamics, on its own, out `A9`/`A10` into Clarett IN 7–8.
+
+The main out is therefore *not* the return path. It sits on `A23`/`A24` with an
+open bottom jack, for the one job it is right for — printing a finished mix.
+
+And the guard that holds the whole thing together: **EXT 1 carries Logic, and
+EXT 1 stays off the mix bus.** That one setting is what stops Logic reaching the
+main mix or Bus B while you record from them. Without it, Logic records itself.
 
 ---
 
@@ -52,14 +56,38 @@ channels. Spend the SSL on the two or three parts that need dynamic control.
 
 ## The five stages
 
-1. **Write** — Logic sequences MIDI, hardware makes sound. Nothing recorded.
-2. **Track** — hardware audio → patchbay → Clarett → Logic.
-3. **Arrange** — structure the song. Everything still editable.
-4. **Colour** — ⚠️ **the only irreversible stage.** SSL and tape.
-5. **Mix** — balance, automate, master.
+**Decide one thing per pass.** Writing decides notes, tracking decides
+performances, arranging decides structure, colour decides sound, mixing decides
+balance. Never decide the sound and the arrangement at the same time.
+
+1. **Write** — no cables, SSL in tracking mode. Logic sequences everything
+   through the MOTU and you hear all the hardware on the SSL. **Record only
+   MIDI.** Choose sounds and parts freely; nothing is committed.
+2. **Track** — turn each hardware part into audio in Logic.
+   - Default to **raw**: take a top-jack copy into Clarett IN 3–6.
+   - Record **through the SSL** (Mute → Bus B → IN 7–8) only when you already
+     know the part wants it — usually drums.
+   - Unsure? Record both versions in one take.
+   - Name tracks by source *and* version: `Juno raw`, `Drums SSL`.
+   - The MS-2000B, Minilogue and R-8 go in through the **front** inputs 1–2, one
+     at a time.
+3. **Arrange** — Logic only; leave the hardware alone. Cut, mute and move until
+   the song works with everything still rough.
+4. **Colour** — ⚠️ **the only irreversible stage.** Pick three or four elements
+   for tape: drums, bass, one pad or the VC-340, and guitar.
+   - Put a sharp click one bar before the music.
+   - Send the stems to Clarett outs 3–6 and record them on the 424.
+   - Rewind, play, capture the four tape tracks, align them on the click.
+   - Not right? Re-print just that element.
+5. **Mix** — in Logic, each tape version beside its original. Keep one or blend
+   both. For SSL glue at the end, switch to mix print mode and print through the
+   bus compressor.
 
 Stages 1–3 are free. Stage 4 commits sound. Stage 5 is free again — **only
 because the tape returns as four separate tracks rather than a mix.**
+
+The loop you'll actually use: you're mixing, the drums want more grit, you
+re-print just the drums, and carry on.
 
 ---
 
@@ -78,9 +106,11 @@ anything else at a distance get a long cable into a **front bottom jack** when
 wanted. Costs zero patchbay points, leaves no cable permanently strung across the
 floor, and pulls straight back out when you're done.
 
-**Bay B stays mostly empty on purpose.** Six overflow destinations, eighteen free.
-A point costs nothing until something earns it, and free points mean the next
-piece of gear doesn't force a rewire — which is exactly what went wrong with one bay.
+**Bay B is the sources, not the overflow.** The four instruments that live near
+the rack (Juno DS, VC-340, JV-1010, and the RD-8 via the 12R), the guitar chain,
+and the effect returns. `B15`–`B24` stay free — a point costs nothing until
+something earns it, and free points mean the next piece of gear doesn't force a
+rewire.
 
 **Mount Bay A where you can reach it** — in the rack, near the Clarett and SSL.
 Those are the points you'll touch daily.
@@ -232,6 +262,23 @@ gain. That's operating level, not a fault. Keep those runs short and away from m
 **Write the tape counter number down.** A cassette tells you nothing about where
 you are.
 
+**Never route a Clarett Analogue input to a line output.** In Focusrite Control
+each output carries its matching Logic *playback* channel and nothing else.
+Breaking that rule is what caused the June feedback loop, when the SSL master
+came back out of outputs 5–6.
+
+**Logic must never reach the main mix or Bus B while you record from them**, or
+Logic records itself. Keeping EXT 1 off the mix bus guarantees it. The single
+exception is printing a finished mix — then EXT 1 goes on the mix bus and you
+record with input monitoring **off**.
+
+**Mute on the SiX is a send, not a kill.** A muted channel leaves the main mix
+and goes to Bus B. That is the feature the whole tracking path is built on, and
+it will surprise you the first time you mute something expecting silence.
+
+**Front inputs 1–2 are deliberately empty.** They are the guitar and bass DI, and
+the reason tape capture lives on inputs 3–6 rather than 1–4.
+
 **Interface not detected? Plug it into the computer, not the dock.** Thunderbolt
 audio is PCIe over the wire and needs guaranteed bandwidth; a dock shares that
 budget with displays, ethernet and USB, and a display will take most of it. The
@@ -251,8 +298,20 @@ port, dock or power — don't reinstall drivers for that.
 
 ## Still to verify
 
-- **Yamaha R-1000** — mono or stereo in
-- **424 effect returns** — do they exist, how many
-- **Korg Minilogue** — one output or two
+Before wiring:
+
+- **SSL headphones** — do they follow the monitor matrix? The whole EXT 1 plan
+  assumes yes, so check this first.
+- **SSL Bus B** — stereo out, and does a muted channel keep its EQ, dynamics and
+  fader on the way there?
+- **SSL inserts** — separate send and return jacks on CH1, CH2 and the mix bus?
+  If not, `A19`–`A22` come out of the map.
+- **VC-340** — true stereo out, or one output? If mono, `B6` frees up and SSL ST2
+  pans centre.
+- **Yamaha R-1000** — mono or stereo input?
+- **Alesis 12R** — any spare channels? The MS-2000B or Minilogue could ride along
+  with the RD-8 and skip the floor cable entirely.
+- **Patch bays** — grey normalling jacks on the bottom row. If they're on top,
+  flip the card.
 
 Fostex 3180 confirmed **mono in, mono out** — one point each way.
