@@ -115,16 +115,37 @@ Apple silicon. Logic Pro, the Clarett and everything in `STUDIO.md`. Not part of
 the web estate; listed because it holds the studio work, and because of what
 happened to it.
 
-**Status: locked out since October 2026.** It stopped booting and now lands on
-*Activate Mac* on every restart. `Macintosh HD` is still visible in the startup
-picker, so the disk is alive and this is a boot fault rather than a destroyed
-install — but on Apple silicon, Recovery requires authenticating as a volume
-owner before it hands over Terminal or Disk Utility, so none of the usual
-diagnostics are reachable. Activation Lock is held by the owner's own Apple ID,
-which means the machine itself is recoverable. The data is a separate question:
-no FileVault recovery key was ever saved, and Apple keeps no copy. The
-non-destructive escalation is a **Revive** (Apple Configurator 2 from a second
-Mac over USB-C), *not* a Restore, which erases. See `MAC-REBUILD.md`.
+| | |
+| --- | --- |
+| Model | Mac mini, Apple silicon (M-series) |
+| OS | macOS, reinstalled 12 October 2026 |
+| User | `deposibilidad` (full name `dePosibilidad`) |
+| Role | Workstation. Logic, and the machine that administers the servers |
+
+### What happened, October 2026
+
+It stopped booting and landed on *Activate Mac* on every restart. `Macintosh HD`
+was still visible in the startup picker, so the disk was alive and it was a boot
+fault rather than a destroyed install — but on Apple silicon, Recovery makes you
+authenticate as a **volume owner** before it hands over Terminal or Disk Utility,
+and the account password was refused there. No reset link appeared, because the
+reset link needs an account record it could reach.
+
+The non-destructive escalation was a **Revive** — Apple Configurator 2 from a
+second Mac over USB-C, which reinstalls firmware and recoveryOS and leaves the
+data volume alone. *Restore*, the button beside it, erases. The Revive was never
+tried; the disk was erased instead.
+
+**What that cost:** everything after January 2025. On Apple silicon an erase
+destroys the volume keys in the Secure Enclave — there is no undelete and no
+forensic recovery, and no data recovery company can help. No FileVault recovery
+key had ever been saved, and Apple keeps no copy of one.
+
+**What saved the rest:** `DRIVE-ARCHIVE.md`. Over 54 complete `.logicx` projects
+were already in Google Drive, 2022 through January 2025, from ad-hoc uploads
+rather than any backup policy.
+
+Rebuild procedure: `MAC-REBUILD.md`.
 
 **The thing this file used to say** — that Logic projects and tape captures
 exist in exactly one place — turned out to be wrong, and that is the only reason
@@ -180,3 +201,41 @@ connection — no port forwards, no inbound rules, no dynamic DNS — so the pub
 site survives a router swap untouched. What does not survive is hardcoded IPs:
 prefer `<host>.local` over an address wherever something points at another
 machine.
+
+---
+
+## Who can reach whom
+
+Two keypairs, both ED25519, both registered at `github.com/settings/keys` so
+`ssh-import-id gh:colimaforever` on any new box picks up both. Fingerprints are
+public identifiers — they exist to be compared out loud — but **no private key
+has ever left the machine that generated it, and none belongs in this repo.**
+
+| Key on GitHub | Private half lives on | Fingerprint |
+| --- | --- | --- |
+| `Clawdbot` | Kamrui | `SHA256:hIUYi7n1oENwyhKyYAJH9PJn8VOZCTlqKPWEtD9bC14` |
+| `Mac-mini` | Mac mini | `SHA256:dfpBjERXeHThtaVC/GnibPEAZq8PwNLNEadl5aExuW4` |
+
+The Mac is the admin workstation. Its `~/.ssh/config` has `chord`, `amp` and
+`xps`, so each is one word. `chord` and `amp` are reached over the LAN directly;
+`xps` resolves only through NordVPN Meshnet as `dkcommunisst.nord`.
+
+---
+
+## Still open
+
+- **`amp`** — lid drop-in (`HandleLidSwitch=ignore`), LVM expand to the full
+  disk, Wi-Fi MAC randomisation off, DHCP reservation. Until the lid setting
+  lands, closing the laptop takes the server down.
+- **The analyzer split** — `chord` runs the CPU half, the 8930 keeps
+  `lyrics_service.py`. Needs the 8930's LAN address, the env file, the unit, a
+  ufw rule and the tunnel move. See `chord-server/SPLIT-HOSTS.md`.
+- **The Kamrui** — destroy `~/.cloudflared/` and `cookies.txt` before it is ever
+  repurposed. Both are live credentials.
+- **Five GitHub Actions secrets** still unset, so the traffic reports have no
+  data: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `GMAIL_USER`,
+  `GMAIL_APP_PASSWORD`, `ALERT_EMAIL`. These get entered in GitHub directly,
+  never pasted into a chat.
+- **The Mac** — Logic, plugins and licences, per `MAC-REBUILD.md`. And the thing
+  that caused all of this: Time Machine running, FileVault key stored off the
+  machine.
