@@ -80,7 +80,13 @@ permanent AC at 100% kills a laptop battery in about a year.
 | --- | --- |
 | GPU | NVIDIA, 6 GB |
 | OS | Ubuntu |
+| User | `methodictruth` |
 | Hostname | `dkcommunisst` (also its Meshnet name) |
+| Reached as | `dkcommunisst.nord` — **Meshnet only**, no LAN address recorded |
+
+The missing LAN address is not a cosmetic gap: the analyzer split needs it for
+`LYRICS_SERVICE_URL` and for the ufw rule, and Meshnet is the wrong path for a
+hop between two machines in the same room. `hostname -I` on this box closes it.
 
 **Runs:** `lyrics_service.py` — faster-whisper `large-v3` on CUDA,
 `int8_float16`, one gunicorn worker. One worker is deliberate: it keeps a single
@@ -227,6 +233,9 @@ The Mac is the admin workstation. Its `~/.ssh/config` has `chord`, `amp` and
 - **`amp`** — lid drop-in (`HandleLidSwitch=ignore`), LVM expand to the full
   disk, Wi-Fi MAC randomisation off, DHCP reservation. Until the lid setting
   lands, closing the laptop takes the server down.
+- **The 8930** — the Mac's key is not on it yet, so run
+  `ssh-import-id gh:colimaforever` there too. And record its LAN address; right
+  now the only route to it is Meshnet.
 - **The analyzer split** — `chord` runs the CPU half, the 8930 keeps
   `lyrics_service.py`. Needs the 8930's LAN address, the env file, the unit, a
   ufw rule and the tunnel move. See `chord-server/SPLIT-HOSTS.md`.
