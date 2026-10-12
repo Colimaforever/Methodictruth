@@ -85,11 +85,14 @@ permanent AC at 100% kills a laptop battery in about a year.
 | Meshnet | nickname `SongAnalyzer` · `sergmacedo1-sierranevada.nord` |
 
 **It is not `dkcommunisst`.** That name was recorded here and in the SSH config
-for months and is wrong: `DKCommunisst` is a *separate Windows machine* on the
-same Meshnet (`sergmacedo1-altai.nord`), and both were online simultaneously, so
-they cannot be the same box. Anything pointed at `dkcommunisst.nord` has been
-aimed at a Windows host with no sshd — which is exactly the "connection timed
-out" that was once blamed on this machine failing to boot.
+for months and is wrong. `DKCommunisst` is the **Windows gaming PC** — a
+different machine entirely, on the same Meshnet as `sergmacedo1-altai.nord`.
+This box was named `methodictruth` at install.
+
+The cost of the mix-up: anything pointed at `dkcommunisst.nord` was aimed at a
+Windows host with no sshd, which is exactly the "connection timed out" once
+blamed on *this* machine failing to boot. A wrong name produced a wrong
+diagnosis, and the diagnosis stuck longer than the name did.
 
 Still no LAN address recorded, and that is not cosmetic: the analyzer split
 needs one for `LYRICS_SERVICE_URL` and the ufw rule. Meshnet is the wrong path
