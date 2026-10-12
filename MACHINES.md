@@ -82,6 +82,7 @@ permanent AC at 100% kills a laptop battery in about a year.
 | OS | Ubuntu |
 | User | `methodictruth` |
 | Hostname | `methodictruth-XPS-8930` |
+| Address | `192.168.4.50` |
 | Meshnet | nickname `SongAnalyzer` · `sergmacedo1-sierranevada.nord` |
 
 **It is not `dkcommunisst`.** That name was recorded here and in the SSH config
@@ -94,9 +95,9 @@ Windows host with no sshd, which is exactly the "connection timed out" once
 blamed on *this* machine failing to boot. A wrong name produced a wrong
 diagnosis, and the diagnosis stuck longer than the name did.
 
-Still no LAN address recorded, and that is not cosmetic: the analyzer split
-needs one for `LYRICS_SERVICE_URL` and the ufw rule. Meshnet is the wrong path
-for a hop between two machines in the same room. `hostname -I` closes it.
+Use the LAN address for anything in this house. Meshnet is the right answer from
+outside it and the wrong one for a hop between two machines in the same room —
+it routes a local request out through Nord and back.
 
 **Runs:** `lyrics_service.py` — faster-whisper `large-v3` on CUDA,
 `int8_float16`, one gunicorn worker. One worker is deliberate: it keeps a single
