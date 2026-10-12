@@ -111,9 +111,28 @@ The lesson stuck: **nothing goes in `fstab` that might not be present.**
 
 ## Mac mini — the studio
 
-Logic Pro, the Clarett and everything in `STUDIO.md`. Not part of the web
-estate; listed because it is the machine that holds the only irreplaceable data
-in the house — Logic projects and tape captures exist in exactly one place.
+Apple silicon. Logic Pro, the Clarett and everything in `STUDIO.md`. Not part of
+the web estate; listed because it holds the studio work, and because of what
+happened to it.
+
+**Status: locked out since October 2026.** It stopped booting and now lands on
+*Activate Mac* on every restart. `Macintosh HD` is still visible in the startup
+picker, so the disk is alive and this is a boot fault rather than a destroyed
+install — but on Apple silicon, Recovery requires authenticating as a volume
+owner before it hands over Terminal or Disk Utility, so none of the usual
+diagnostics are reachable. Activation Lock is held by the owner's own Apple ID,
+which means the machine itself is recoverable. The data is a separate question:
+no FileVault recovery key was ever saved, and Apple keeps no copy. The
+non-destructive escalation is a **Revive** (Apple Configurator 2 from a second
+Mac over USB-C), *not* a Restore, which erases. See `MAC-REBUILD.md`.
+
+**The thing this file used to say** — that Logic projects and tape captures
+exist in exactly one place — turned out to be wrong, and that is the only reason
+this was survivable. A large part of the catalogue is in Google Drive: whole
+`.logicx` packages (visible there as folders containing Logic's own
+`Project File Backups`), stems, bounces and plugin presets, weighted towards
+late 2023 and January 2025. It was an accident of ad-hoc uploads rather than a
+backup policy. Fix that rather than relying on it twice.
 
 ---
 
