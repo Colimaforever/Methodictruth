@@ -56,6 +56,7 @@ separation and a backup target.
 | Network | Intel Tiger Lake CNVi Wi-Fi · Realtek RTL8153 USB gigabit (via dock) |
 | OS | Ubuntu Server 24.04.5 LTS |
 | User | `amp` |
+| Address | `192.168.4.165` |
 
 **The 4 GB is the deciding fact.** It is *less* VRAM than the 8930's 6 GB card,
 so this does not replace the GPU host: the lyrics service keeps a ~3 GB model
