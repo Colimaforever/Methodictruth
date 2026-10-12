@@ -148,8 +148,23 @@ puts the key in `authorized_keys` before the machine is ever headless — which 
 the step whose absence once stranded the 8930. The private half never leaves the
 machine you sit at; every server gets a copy of the public half.
 
-**Password auth stays on** until key auth is proven from a second machine.
-Turning it off first is how you lock yourself out of a box with no monitor.
+**Password auth is already off, and nobody chose that.** The installer disables
+it automatically when you import a GitHub identity at install time — it does not
+ask. The default is right, but it has a sharp edge: **a new machine cannot add
+itself.** Its key has to arrive by a path the server already trusts.
+
+Both `ssh-copy-id` and `cat key | ssh host 'cat >> authorized_keys'` need a
+password login, so both fail with `Permission denied (publickey)` — which reads
+like a key problem and is really a bootstrap problem. The two paths that work:
+
+1. Add the new key at `github.com/settings/keys`, confirm GitHub is serving it
+   (`curl -s https://github.com/<user>.keys | ssh-keygen -lf -`), then run
+   `ssh-import-id gh:colimaforever` **at the server**, not from the new machine.
+2. From a machine that is already authorised, append the new public key to
+   `~/.ssh/authorized_keys` over SSH.
+
+Order matters in (1): `ssh-import-id` run before the key is on GitHub pulls the
+keys already present, reports success, and changes nothing.
 
 **The Ubuntu Server installer only allocates ~100 GB** of the disk to the root
 logical volume and leaves the rest unclaimed in the volume group. Both machines
