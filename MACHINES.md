@@ -81,12 +81,19 @@ permanent AC at 100% kills a laptop battery in about a year.
 | GPU | NVIDIA, 6 GB |
 | OS | Ubuntu |
 | User | `methodictruth` |
-| Hostname | `dkcommunisst` (also its Meshnet name) |
-| Reached as | `dkcommunisst.nord` — **Meshnet only**, no LAN address recorded |
+| Hostname | `methodictruth-XPS-8930` |
+| Meshnet | nickname `SongAnalyzer` · `sergmacedo1-sierranevada.nord` |
 
-The missing LAN address is not a cosmetic gap: the analyzer split needs it for
-`LYRICS_SERVICE_URL` and for the ufw rule, and Meshnet is the wrong path for a
-hop between two machines in the same room. `hostname -I` on this box closes it.
+**It is not `dkcommunisst`.** That name was recorded here and in the SSH config
+for months and is wrong: `DKCommunisst` is a *separate Windows machine* on the
+same Meshnet (`sergmacedo1-altai.nord`), and both were online simultaneously, so
+they cannot be the same box. Anything pointed at `dkcommunisst.nord` has been
+aimed at a Windows host with no sshd — which is exactly the "connection timed
+out" that was once blamed on this machine failing to boot.
+
+Still no LAN address recorded, and that is not cosmetic: the analyzer split
+needs one for `LYRICS_SERVICE_URL` and the ufw rule. Meshnet is the wrong path
+for a hop between two machines in the same room. `hostname -I` closes it.
 
 **Runs:** `lyrics_service.py` — faster-whisper `large-v3` on CUDA,
 `int8_float16`, one gunicorn worker. One worker is deliberate: it keeps a single
