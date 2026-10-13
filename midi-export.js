@@ -159,11 +159,16 @@
     for (const c of chords) {
       const name = c && (c.chord || c.name);
       if (!name || name === 'N' || name === 'N.C.') continue;
+      // The backend reports the bass separately when it hears an inversion, so
+      // C over E arrives as {chord:'C', bass:'E'} rather than as 'C/E'. Two
+      // entries with the same chord but different bass are a real change — the
+      // harmony stays put while the bass walks — so they must not collapse.
+      const bass = (c && c.bass) || null;
       const tick = toTicks(c.timestamp);
       const last = events[events.length - 1];
-      if (last && last.name === name) continue;
-      if (last && last.tick === tick) { last.name = name; continue; }
-      events.push({ name: name, tick: tick });
+      if (last && last.name === name && last.bass === bass) continue;
+      if (last && last.tick === tick) { last.name = name; last.bass = bass; continue; }
+      events.push({ name: name, bass: bass, tick: tick });
     }
     if (!events.length) return null;
 
@@ -207,7 +212,11 @@
     // releases the old voicing before striking the new one.
     let prev = null, written = 0;
     for (const ev of events) {
-      const parsed = global.ChordShapes.parseChord(ev.name);
+      // Try the slash form first; fall back to the plain chord if this quality
+      // is one parseChord does not know, so an unusual suffix costs the
+      // inversion rather than the whole chord.
+      let parsed = ev.bass ? global.ChordShapes.parseChord(ev.name + '/' + ev.bass) : null;
+      if (!parsed) parsed = global.ChordShapes.parseChord(ev.name);
       if (!parsed) continue;
 
       const notes = voiceChord(parsed, prev);
