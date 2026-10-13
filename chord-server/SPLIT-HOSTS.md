@@ -81,6 +81,22 @@ to share a box with the GPU service; on 6 cores with nothing else competing,
 three concurrent analyses leave headroom for the box to still answer `/health`.
 Raise it to 4 only after watching `%(M)s` in the access log under real load.
 
+**Bass detection also wants these cores.** It runs a second CQT over the bass
+register so the analyzer can hear inversions, which is the one measurement that
+improves the chord chart, the shapes and the MIDI export together. It is on by
+default and tunable:
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `BASS_DETECTION` | `0` | **Off until you have heard it.** `1` enables it |
+| `BASS_MARGIN` | `1.25` | How far the winning bass pitch class must beat the runner-up before an inversion is reported |
+| `BASS_OUTSIDE_MARGIN` | `1.8` | The higher bar a bass note outside the chord has to clear |
+
+Raise the margins if slashes start appearing on chords that are plainly in root
+position; lower them if obvious inversions are being missed. Nothing here can
+change a chord *label* — only add a bass note to it — so the worst a bad setting
+costs is a wrong slash.
+
 Load the env file from the unit:
 
 ```ini

@@ -80,7 +80,24 @@ permanent AC at 100% kills a laptop battery in about a year.
 | --- | --- |
 | GPU | NVIDIA, 6 GB |
 | OS | Ubuntu |
-| Hostname | `dkcommunisst` (also its Meshnet name) |
+| User | `methodictruth` |
+| Hostname | `methodictruth-XPS-8930` |
+| Address | `192.168.4.50` |
+| Meshnet | nickname `SongAnalyzer` · `sergmacedo1-sierranevada.nord` |
+
+**It is not `dkcommunisst`.** That name was recorded here and in the SSH config
+for months and is wrong. `DKCommunisst` is the **Windows gaming PC** — a
+different machine entirely, on the same Meshnet as `sergmacedo1-altai.nord`.
+This box was named `methodictruth` at install.
+
+The cost of the mix-up: anything pointed at `dkcommunisst.nord` was aimed at a
+Windows host with no sshd, which is exactly the "connection timed out" once
+blamed on *this* machine failing to boot. A wrong name produced a wrong
+diagnosis, and the diagnosis stuck longer than the name did.
+
+Use the LAN address for anything in this house. Meshnet is the right answer from
+outside it and the wrong one for a hop between two machines in the same room —
+it routes a local request out through Nord and back.
 
 **Runs:** `lyrics_service.py` — faster-whisper `large-v3` on CUDA,
 `int8_float16`, one gunicorn worker. One worker is deliberate: it keeps a single
@@ -111,9 +128,49 @@ The lesson stuck: **nothing goes in `fstab` that might not be present.**
 
 ## Mac mini — the studio
 
-Logic Pro, the Clarett and everything in `STUDIO.md`. Not part of the web
-estate; listed because it is the machine that holds the only irreplaceable data
-in the house — Logic projects and tape captures exist in exactly one place.
+Apple silicon. Logic Pro, the Clarett and everything in `STUDIO.md`. Not part of
+the web estate; listed because it holds the studio work, and because of what
+happened to it.
+
+| | |
+| --- | --- |
+| Model | Mac mini, Apple silicon (M-series) |
+| OS | macOS, reinstalled 12 October 2026 |
+| User | `deposibilidad` (full name `dePosibilidad`) |
+| Role | Workstation. Logic, and the machine that administers the servers |
+
+### What happened, October 2026
+
+It stopped booting and landed on *Activate Mac* on every restart. `Macintosh HD`
+was still visible in the startup picker, so the disk was alive and it was a boot
+fault rather than a destroyed install — but on Apple silicon, Recovery makes you
+authenticate as a **volume owner** before it hands over Terminal or Disk Utility,
+and the account password was refused there. No reset link appeared, because the
+reset link needs an account record it could reach.
+
+The non-destructive escalation was a **Revive** — Apple Configurator 2 from a
+second Mac over USB-C, which reinstalls firmware and recoveryOS and leaves the
+data volume alone. *Restore*, the button beside it, erases. The Revive was never
+tried; the disk was erased instead.
+
+**What that cost:** everything after January 2025. On Apple silicon an erase
+destroys the volume keys in the Secure Enclave — there is no undelete and no
+forensic recovery, and no data recovery company can help. No FileVault recovery
+key had ever been saved, and Apple keeps no copy of one.
+
+**What saved the rest:** `DRIVE-ARCHIVE.md`. Over 54 complete `.logicx` projects
+were already in Google Drive, 2022 through January 2025, from ad-hoc uploads
+rather than any backup policy.
+
+Rebuild procedure: `MAC-REBUILD.md`.
+
+**The thing this file used to say** — that Logic projects and tape captures
+exist in exactly one place — turned out to be wrong, and that is the only reason
+this was survivable. A large part of the catalogue is in Google Drive: whole
+`.logicx` packages (visible there as folders containing Logic's own
+`Project File Backups`), stems, bounces and plugin presets, weighted towards
+late 2023 and January 2025. It was an accident of ad-hoc uploads rather than a
+backup policy. Fix that rather than relying on it twice.
 
 ---
 
@@ -129,8 +186,23 @@ puts the key in `authorized_keys` before the machine is ever headless — which 
 the step whose absence once stranded the 8930. The private half never leaves the
 machine you sit at; every server gets a copy of the public half.
 
-**Password auth stays on** until key auth is proven from a second machine.
-Turning it off first is how you lock yourself out of a box with no monitor.
+**Password auth is already off, and nobody chose that.** The installer disables
+it automatically when you import a GitHub identity at install time — it does not
+ask. The default is right, but it has a sharp edge: **a new machine cannot add
+itself.** Its key has to arrive by a path the server already trusts.
+
+Both `ssh-copy-id` and `cat key | ssh host 'cat >> authorized_keys'` need a
+password login, so both fail with `Permission denied (publickey)` — which reads
+like a key problem and is really a bootstrap problem. The two paths that work:
+
+1. Add the new key at `github.com/settings/keys`, confirm GitHub is serving it
+   (`curl -s https://github.com/<user>.keys | ssh-keygen -lf -`), then run
+   `ssh-import-id gh:colimaforever` **at the server**, not from the new machine.
+2. From a machine that is already authorised, append the new public key to
+   `~/.ssh/authorized_keys` over SSH.
+
+Order matters in (1): `ssh-import-id` run before the key is on GitHub pulls the
+keys already present, reports success, and changes nothing.
 
 **The Ubuntu Server installer only allocates ~100 GB** of the disk to the root
 logical volume and leaves the rest unclaimed in the volume group. Both machines
@@ -146,3 +218,74 @@ connection — no port forwards, no inbound rules, no dynamic DNS — so the pub
 site survives a router swap untouched. What does not survive is hardcoded IPs:
 prefer `<host>.local` over an address wherever something points at another
 machine.
+
+---
+
+## Who can reach whom
+
+**The shape: three admin boxes, three servers that are leaves.** The Mac mini,
+the Kamrui and dkcommunisst can reach everything. `chord`, `amp` and the 8930
+reach *nothing* — they have no keypairs of their own and no reason to initiate a
+connection to each other. The only server-to-server traffic in the estate is
+chord calling the 8930 on port 5006, and that is HTTP, not SSH.
+
+Three admin boxes rather than one is deliberate. In October 2026 the Mac was
+erased; had it been the only way in, the whole estate would have gone dark with
+it.
+
+Every key is ED25519 and registered at `github.com/settings/keys`, so
+`ssh-import-id gh:colimaforever` on a new box picks up all of them at once.
+Fingerprints are public identifiers — they exist to be compared out loud — but
+**no private key has ever left the machine that generated it, and none belongs
+in this repo.**
+
+| Key on GitHub | Private half lives on | Fingerprint |
+| --- | --- | --- |
+| `Clawdbot` | Kamrui (Windows side) | `SHA256:hIUYi7n1oENwyhKyYAJH9PJn8VOZCTlqKPWEtD9bC14` |
+| `Mac-mini` | Mac mini | `SHA256:dfpBjERXeHThtaVC/GnibPEAZq8PwNLNEadl5aExuW4` |
+| `dkcommunisst` | dkcommunisst (Windows side) | `SHA256:RYqKLuNxz/LVWE/NVsnY67NXQ439ynumxBQaNS9qmu8` |
+
+Each admin box keeps the same four aliases — `chord`, `amp`, `xps`, `mac` — so a
+command reads the same wherever you type it. All four use LAN addresses;
+Meshnet names are for reaching the house from outside it.
+
+### Revoking a key
+
+**This is the part that bites, so read it before you need it.**
+`ssh-import-id` only ever *adds*. Deleting a key from GitHub does nothing to a
+host that already imported it — the line stays in `authorized_keys` and keeps
+working. There is no propagation and no central revocation.
+
+So removing a key means editing it out on **every host that ever imported it**:
+`chord`, `amp`, `xps` (`~/.ssh/authorized_keys`) and the Mac (same path,
+populated by `curl`). Delete it from GitHub first so no future import pulls it
+back, then walk the list.
+
+**Known loose end:** the Kamrui's WSL has a *separate* keypair at
+`/home/truth/.ssh/id_ed25519` that is not on GitHub and not authorized anywhere.
+Two identities on one machine is how an hour disappeared in October — WSL fell
+back to passwords while the Windows side worked. Admin from PowerShell on both
+Windows boxes; keys live in `C:\Users\<name>\.ssh`.
+
+---
+
+## Still open
+
+- **`amp`** — lid drop-in (`HandleLidSwitch=ignore`), LVM expand to the full
+  disk, Wi-Fi MAC randomisation off, DHCP reservation. Until the lid setting
+  lands, closing the laptop takes the server down.
+- **The 8930** — the Mac's key is not on it yet, so run
+  `ssh-import-id gh:colimaforever` there too. And record its LAN address; right
+  now the only route to it is Meshnet.
+- **The analyzer split** — `chord` runs the CPU half, the 8930 keeps
+  `lyrics_service.py`. Needs the 8930's LAN address, the env file, the unit, a
+  ufw rule and the tunnel move. See `chord-server/SPLIT-HOSTS.md`.
+- **The Kamrui** — destroy `~/.cloudflared/` and `cookies.txt` before it is ever
+  repurposed. Both are live credentials.
+- **Five GitHub Actions secrets** still unset, so the traffic reports have no
+  data: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `GMAIL_USER`,
+  `GMAIL_APP_PASSWORD`, `ALERT_EMAIL`. These get entered in GitHub directly,
+  never pasted into a chat.
+- **The Mac** — Logic, plugins and licences, per `MAC-REBUILD.md`. And the thing
+  that caused all of this: Time Machine running, FileVault key stored off the
+  machine.

@@ -274,6 +274,43 @@ CHORD_CHANGE_PENALTY = float(os.environ.get('CHORD_CHANGE_PENALTY', '0.2'))
 
 ALL_QUALITIES = {**TRIAD_QUALITIES, **EXTRA_QUALITIES}
 
+# ─── Bass register ─────────────────────────────────────────────────────────
+# chroma_cqt folds every octave onto twelve bins, which is what makes it good
+# at naming a chord and blind to which note is underneath it. A C major over E
+# and one in root position are the same twelve numbers. So the detector has
+# never had any way to hear an inversion, and every chord it reports is
+# implicitly root position.
+#
+# A second chroma restricted to the bass register can hear it: whichever pitch
+# class dominates below ~C4 is what the bass is actually playing. One
+# measurement improves three things at once -- the chord chart, the shapes on
+# the how-to-play panel, and the bass line in the MIDI export.
+#
+# It costs a second CQT, which is the most expensive step in the analysis.
+# That is precisely the trade the dedicated analyzer host exists to make.
+#
+# Off by default, deliberately. The margins below were reasoned rather than
+# measured -- nobody has heard this run on a real song yet -- and this code sits
+# in the path of every analysis on a live site. Set BASS_DETECTION=1 in
+# /etc/chord-analyzer.env to try it, listen to what it does to a few songs you
+# know, and only then consider flipping this default.
+BASS_DETECTION = os.environ.get('BASS_DETECTION', '0') != '0'
+BASS_FMIN_NOTE = 'C1'
+BASS_OCTAVES = 3                  # C1-C4: bass guitar, kick-adjacent, left hand
+
+# How much stronger the winning bass pitch class must be than the runner-up
+# before we believe it. Below this the bass is ambiguous -- walking between
+# notes, or buried in the mix -- and naming an inversion would be inventing
+# detail rather than reporting it.
+BASS_MARGIN = float(os.environ.get('BASS_MARGIN', '1.25'))
+
+# A bass note that is not in the chord (a pedal, a passing tone) has to clear
+# a higher bar, because getting it wrong produces a symbol like "C/D" that
+# reads as a bug rather than as music.
+BASS_OUTSIDE_MARGIN = float(os.environ.get('BASS_OUTSIDE_MARGIN', '1.8'))
+
+_LABEL_RE = re.compile(r'^([A-G][#b]?)(.*)$')
+
 _TRIAD_VECS, _TRIAD_ROOT, _TRIAD_QUAL = [], [], []
 for _i in range(12):
     for _suffix, _intervals in TRIAD_QUALITIES.items():
@@ -478,6 +515,77 @@ def detect_chords(chroma, sr, beat_frames=None, hop_length=512):
         chords.append({'chord': lab, 'timestamp': round(float(times[j]), 2)})
         last = lab
     return chords
+
+
+def _chord_pcs(label):
+    # A chord label back into (root pitch class, set of pitch classes). Labels
+    # are built from NOTES, so they are always sharp-spelled -- no flat handling
+    # is needed on this path.
+    m = _LABEL_RE.match(label or '')
+    if not m or m.group(1) not in NOTES:
+        return None
+    root = NOTES.index(m.group(1))
+    suffix = m.group(2)
+    # The seventh pass appends a 7 to a triad's suffix rather than defining a
+    # separate quality, so strip it and add the degree back.
+    seventh = suffix.endswith('7') and suffix not in ALL_QUALITIES
+    intervals = ALL_QUALITIES.get(suffix[:-1] if seventh else suffix)
+    if intervals is None:
+        return None
+    pcs = {(root + iv) % 12 for iv in intervals}
+    if seventh:
+        pcs.add((root + 10) % 12)
+    return root, pcs
+
+
+def annotate_bass(y, sr, chords, hop_length=512, duration=None):
+    # Adds a 'bass' note name to each chord whose bass is convincingly playing
+    # something other than the root. Strictly additive: 'chord' is never
+    # rewritten, so a misread here costs a slash that should not be there,
+    # never a wrong chord. Returns how many it annotated.
+    if not chords:
+        return 0
+
+    chroma_b = librosa.feature.chroma_cqt(
+        y=y, sr=sr, hop_length=hop_length,
+        fmin=librosa.note_to_hz(BASS_FMIN_NOTE), n_octaves=BASS_OCTAVES)
+    n_frames = chroma_b.shape[1]
+    if n_frames < 2:
+        return 0
+
+    end_of_song = float(duration) if duration else float(
+        librosa.frames_to_time(n_frames, sr=sr, hop_length=hop_length))
+
+    found = 0
+    for i, ch in enumerate(chords):
+        parsed = _chord_pcs(ch.get('chord'))
+        if parsed is None:
+            continue
+        root_pc, pcs = parsed
+
+        start = float(ch['timestamp'])
+        end = float(chords[i + 1]['timestamp']) if i + 1 < len(chords) else end_of_song
+        a = int(librosa.time_to_frames(start, sr=sr, hop_length=hop_length))
+        b = int(librosa.time_to_frames(end, sr=sr, hop_length=hop_length))
+        a = max(0, min(a, n_frames - 1))
+        b = max(a + 1, min(b, n_frames))
+
+        seg = chroma_b[:, a:b].mean(axis=1)
+        order = np.argsort(seg)[::-1]
+        top, runner_up = int(order[0]), int(order[1])
+        if top == root_pc:
+            continue                              # root position: nothing to add
+
+        # A flat segment means no pitch class won; np.inf only when the runner-up
+        # is genuinely silent, which is as decisive as it gets.
+        margin = float(seg[top] / seg[runner_up]) if seg[runner_up] > 1e-9 else float('inf')
+        if margin < (BASS_MARGIN if top in pcs else BASS_OUTSIDE_MARGIN):
+            continue
+
+        ch['bass'] = NOTES[top]
+        found += 1
+
+    return found
 
 
 def estimate_meter(onset_env, beat_frames):
@@ -1036,6 +1144,12 @@ def analyze_file(audio_path, emit):
     chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=hop)
     key_info = detect_key_detailed(chroma.mean(axis=1))
     chords = detect_chords(chroma, sr, beat_frames=beat_frames, hop_length=hop)
+    if BASS_DETECTION:
+        try:
+            n_bass = annotate_bass(y, sr, chords, hop_length=hop, duration=len(y) / sr)
+            _log(f'bass: {n_bass}/{len(chords)} chords carry a non-root bass')
+        except Exception as exc:  # inversions are a bonus, never break analysis
+            _log(f'annotate_bass failed: {exc}')
     try:
         measures = build_measures(beat_frames, chords, sr, hop_length=hop,
                                   beats_per_bar=meter['beats_per_bar'])

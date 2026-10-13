@@ -521,6 +521,8 @@
 
         <div class="sa-share">
             <button class="sa-share-btn" id="shareBtn" type="button">🔗 Copy share link</button>
+            <button class="sa-share-btn" id="midiBtn" type="button"
+                    title="Download the progression as a MIDI file you can drag into Logic, Ableton or any DAW">⬇ Chords as MIDI</button>
         </div>
 
         <div class="sa-metrics">
@@ -765,6 +767,7 @@
   </div>
 
     <script src="chord-shapes.js?v=2"></script>
+    <script src="midi-export.js?v=1"></script>
     <script>
         // Wrapped in an IIFE so none of this page's declarations land on the
         // global scope. scripts.js also declares top-level `const audio` /
@@ -778,6 +781,9 @@
         let currentChords = [];
         let currentMeasures = [];
         let currentVideoId = null;
+        // The whole analysis response, kept so the MIDI export can reach tempo,
+        // meter, key and the section map — not just the chord list.
+        let currentAnalysis = null;
         let reportedDuration = 0;   // the song's full length, per the analysis
         let reportedPartial = false; // backend already knows the download was short
         let chordItems = [], measureCells = [];        // cached node lists — no querySelectorAll per frame
@@ -802,6 +808,20 @@
             (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject())
                 .then(() => restore('✓ Link copied'))
                 .catch(() => { window.prompt('Copy this link:', link); });
+        });
+
+        // Export the progression as a one-track MIDI file. Everything happens
+        // in the browser — the analysis already carries tempo, meter, bar lines
+        // and sections, so there is nothing to ask the server for.
+        document.getElementById('midiBtn').addEventListener('click', () => {
+            const btn = document.getElementById('midiBtn');
+            const restore = (txt) => {
+                btn.textContent = txt;
+                setTimeout(() => { btn.textContent = '⬇ Chords as MIDI'; }, 2200);
+            };
+            if (!currentAnalysis || !window.MidiExport) return restore('✗ Nothing to export');
+            const built = window.MidiExport.download(currentAnalysis);
+            restore(built ? `✓ ${built.chordCount} chords` : '✗ No chords found');
         });
 
         // ─── Upload path (no YouTube, no rate limits) ───
@@ -1108,6 +1128,7 @@
 
         function displayResults(data, videoId) {
             currentVideoId = videoId;
+            currentAnalysis = data;
             setPlaybackLevel(data.loudness);
             // Reflect the analyzed song in the URL so it's shareable/bookmarkable
             // without adding a history entry per analysis.
