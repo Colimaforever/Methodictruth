@@ -223,19 +223,49 @@ machine.
 
 ## Who can reach whom
 
-Two keypairs, both ED25519, both registered at `github.com/settings/keys` so
-`ssh-import-id gh:colimaforever` on any new box picks up both. Fingerprints are
-public identifiers — they exist to be compared out loud — but **no private key
-has ever left the machine that generated it, and none belongs in this repo.**
+**The shape: three admin boxes, three servers that are leaves.** The Mac mini,
+the Kamrui and dkcommunisst can reach everything. `chord`, `amp` and the 8930
+reach *nothing* — they have no keypairs of their own and no reason to initiate a
+connection to each other. The only server-to-server traffic in the estate is
+chord calling the 8930 on port 5006, and that is HTTP, not SSH.
+
+Three admin boxes rather than one is deliberate. In October 2026 the Mac was
+erased; had it been the only way in, the whole estate would have gone dark with
+it.
+
+Every key is ED25519 and registered at `github.com/settings/keys`, so
+`ssh-import-id gh:colimaforever` on a new box picks up all of them at once.
+Fingerprints are public identifiers — they exist to be compared out loud — but
+**no private key has ever left the machine that generated it, and none belongs
+in this repo.**
 
 | Key on GitHub | Private half lives on | Fingerprint |
 | --- | --- | --- |
-| `Clawdbot` | Kamrui | `SHA256:hIUYi7n1oENwyhKyYAJH9PJn8VOZCTlqKPWEtD9bC14` |
+| `Clawdbot` | Kamrui (Windows side) | `SHA256:hIUYi7n1oENwyhKyYAJH9PJn8VOZCTlqKPWEtD9bC14` |
 | `Mac-mini` | Mac mini | `SHA256:dfpBjERXeHThtaVC/GnibPEAZq8PwNLNEadl5aExuW4` |
+| `dkcommunisst` | dkcommunisst (Windows side) | `SHA256:RYqKLuNxz/LVWE/NVsnY67NXQ439ynumxBQaNS9qmu8` |
 
-The Mac is the admin workstation. Its `~/.ssh/config` has `chord`, `amp` and
-`xps`, so each is one word. `chord` and `amp` are reached over the LAN directly;
-`xps` resolves only through NordVPN Meshnet as `dkcommunisst.nord`.
+Each admin box keeps the same four aliases — `chord`, `amp`, `xps`, `mac` — so a
+command reads the same wherever you type it. All four use LAN addresses;
+Meshnet names are for reaching the house from outside it.
+
+### Revoking a key
+
+**This is the part that bites, so read it before you need it.**
+`ssh-import-id` only ever *adds*. Deleting a key from GitHub does nothing to a
+host that already imported it — the line stays in `authorized_keys` and keeps
+working. There is no propagation and no central revocation.
+
+So removing a key means editing it out on **every host that ever imported it**:
+`chord`, `amp`, `xps` (`~/.ssh/authorized_keys`) and the Mac (same path,
+populated by `curl`). Delete it from GitHub first so no future import pulls it
+back, then walk the list.
+
+**Known loose end:** the Kamrui's WSL has a *separate* keypair at
+`/home/truth/.ssh/id_ed25519` that is not on GitHub and not authorized anywhere.
+Two identities on one machine is how an hour disappeared in October — WSL fell
+back to passwords while the Windows side worked. Admin from PowerShell on both
+Windows boxes; keys live in `C:\Users\<name>\.ssh`.
 
 ---
 
