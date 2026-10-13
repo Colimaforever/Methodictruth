@@ -289,17 +289,28 @@ Windows boxes; keys live in `C:\Users\<name>\.ssh`.
 
 ## Still open
 
-- **`amp`** — lid drop-in (`HandleLidSwitch=ignore`), LVM expand to the full
-  disk, Wi-Fi MAC randomisation off, DHCP reservation. Until the lid setting
-  lands, closing the laptop takes the server down.
-- **The 8930** — the Mac's key is not on it yet, so run
-  `ssh-import-id gh:colimaforever` there too. And record its LAN address; right
-  now the only route to it is Meshnet.
-- **The analyzer split** — `chord` runs the CPU half, the 8930 keeps
-  `lyrics_service.py`. Needs the 8930's LAN address, the env file, the unit, a
-  ufw rule and the tunnel move. See `chord-server/SPLIT-HOSTS.md`.
+- **An unidentified tunnel connector.** `cloudflared tunnel info` lists two
+  connectors for `song-analyzer`: `chord`, and one up since 2026-10-12 19:06 UTC
+  from public IP `187.13.176.105` — not this house. All traffic currently goes to
+  it, so `api.methodictruth.com` still answers from the 8930 even though chord
+  has taken over. Most likely the Kamrui running cloudflared behind NordVPN, with
+  an ingress pointed at the 8930 over Meshnet. **If it is not the Kamrui, treat
+  it as a credential leak and rotate the tunnel** — those files are the authority
+  for the hostname.
+- **`amp`** — ufw has its rules but was never enabled (the `--force enable` hit a
+  stray bracket). Also still needs the lid drop-in
+  (`HandleLidSwitch=ignore` — closing the laptop currently takes the server
+  down), the LVM expand off the installer's ~100 GB, MAC randomisation off and a
+  DHCP reservation.
+- **`chord`'s YouTube path is weaker than the 8930's was.** Missing `cookies.txt`
+  (scp only, never committed), the PO-token server, and Deno. Uploads are
+  unaffected; YouTube links will see more 403s until those are carried across.
+- **The stems service** is written and committed but deployed nowhere. See
+  `chord-server/STEMS.md`.
+- **Bass detection** ships off (`BASS_DETECTION=1` to try it). The margins were
+  reasoned, not measured — nobody has heard it run on real audio.
 - **The Kamrui** — destroy `~/.cloudflared/` and `cookies.txt` before it is ever
-  repurposed. Both are live credentials.
+  repurposed. Both are live credentials, and the first is now a suspect above.
 - **Five GitHub Actions secrets** still unset, so the traffic reports have no
   data: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `GMAIL_USER`,
   `GMAIL_APP_PASSWORD`, `ALERT_EMAIL`. These get entered in GitHub directly,
