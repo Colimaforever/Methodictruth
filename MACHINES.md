@@ -44,8 +44,9 @@ expanded from the installer's 100 GB default to the full 232 GB (see below).
 
 ## `amp` — Dell XPS laptop
 
-Spare capacity. Role not finally settled; the candidates are Demucs stem
-separation and a backup target.
+**The stems host.** Runs `stems_service.py` — Demucs separation plus per-part
+note transcription, feeding the analyzer's Full MIDI export. See
+`chord-server/STEMS.md`.
 
 | | |
 | --- | --- |

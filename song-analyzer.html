@@ -523,6 +523,8 @@
             <button class="sa-share-btn" id="shareBtn" type="button">🔗 Copy share link</button>
             <button class="sa-share-btn" id="midiBtn" type="button"
                     title="Download the progression as a MIDI file you can drag into Logic, Ableton or any DAW">⬇ Chords as MIDI</button>
+            <button class="sa-share-btn" id="fullMidiBtn" type="button"
+                    title="Separate the song and transcribe the bass, melody, keys and drums as well. Takes a couple of minutes the first time.">⬇ Full MIDI</button>
         </div>
 
         <div class="sa-metrics">
@@ -822,6 +824,50 @@
             if (!currentAnalysis || !window.MidiExport) return restore('✗ Nothing to export');
             const built = window.MidiExport.download(currentAnalysis);
             restore(built ? `✓ ${built.chordCount} chords` : '✗ No chords found');
+        });
+
+        // The full export: ask the server to separate the song and transcribe
+        // each part, then write one multi-track file with those alongside the
+        // chords. Minutes on a cold cache, instant once a song has been done,
+        // which is why it is a separate button rather than part of analysis.
+        document.getElementById('fullMidiBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('fullMidiBtn');
+            const idle = '⬇ Full MIDI';
+            const restore = (txt, ms) => {
+                btn.textContent = txt;
+                setTimeout(() => { btn.textContent = idle; btn.disabled = false; }, ms || 2600);
+            };
+            if (!currentAnalysis || !currentVideoId || !window.MidiExport) return restore('✗ Analyze a song first');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Separating…';
+            try {
+                // GET first: a song someone already transcribed costs nothing.
+                const url = `${API_URL}/stems/${encodeURIComponent(currentVideoId)}`;
+                let res = await fetch(url);
+                if (res.status === 404) {
+                    btn.textContent = '⏳ Transcribing… (~2 min)';
+                    res = await fetch(url, { method: 'POST' });
+                }
+                const data = await res.json().catch(() => ({}));
+                if (res.status === 503) {
+                    // Nothing to retry — this server has no stems host behind
+                    // it. Say so once and stop offering.
+                    btn.textContent = '✗ Not available here';
+                    btn.disabled = true;
+                    return;
+                }
+                if (!res.ok || !data.success) {
+                    return restore('✗ ' + (data.error || 'Transcription failed'), 4000);
+                }
+                const tracks = (data.tracks || []).filter(t => (t.notes || []).length);
+                if (!tracks.length) return restore('✗ Nothing transcribed', 4000);
+
+                const built = window.MidiExport.download(currentAnalysis, { tracks });
+                restore(built ? `✓ ${built.trackCount} tracks` : '✗ Export failed');
+            } catch (err) {
+                restore('✗ ' + (err && err.message ? err.message : 'Failed'), 4000);
+            }
         });
 
         // ─── Upload path (no YouTube, no rate limits) ───

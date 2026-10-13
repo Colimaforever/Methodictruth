@@ -1,0 +1,30 @@
+# Stem separation and transcription sidecar. Install into its OWN virtualenv
+# (~/stems-venv), never alongside app.py: this pulls torch and CUDA, and the
+# whole point of keeping the analyzer's dependency tree free of them is that a
+# bad torch upgrade cannot take chord detection down with it.
+#
+# Install torch FIRST, from the index that matches the host's CUDA:
+#   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
+# then this file. Letting pip resolve torch from PyPI as a transitive
+# dependency of demucs gets you the CPU build, which works and is ~50x slower,
+# and the only symptom is that it feels broken.
+
+flask>=3.0
+gunicorn>=22.0
+librosa>=0.10
+numpy>=1.24
+scipy>=1.10
+soundfile>=0.12
+
+# Separation. htdemucs is the default model; it downloads on first run.
+demucs>=4.0
+
+# Polyphonic note transcription for the keys/guitar stem. Optional -- the
+# service detects its absence and skips that one track. The onnxruntime extra
+# avoids dragging all of TensorFlow onto the box.
+basic-pitch[onnx]>=0.3
+
+# Monophonic pitch tracking for the vocal melody. Also optional: without it
+# the service falls back to librosa's pYIN, which is decent on clean lines and
+# noticeably worse through vibrato and breath.
+# crepe>=0.0.13

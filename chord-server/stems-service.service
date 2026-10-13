@@ -1,0 +1,37 @@
+[Unit]
+Description=Methodic Truth stem separation and transcription sidecar (GPU)
+After=network.target
+
+[Service]
+Type=simple
+User=REPLACE_WITH_YOUR_USERNAME
+Group=REPLACE_WITH_YOUR_USERNAME
+Environment=HOME=/home/REPLACE_WITH_YOUR_USERNAME
+Environment=STEMS_VENV=/home/REPLACE_WITH_YOUR_USERNAME/stems-venv
+Environment=CACHE_DIR=/REPLACE/WITH/PATH/TO/chord-server/cache
+Environment=STEMS_DIR=/REPLACE/WITH/PATH/TO/chord-server/stems
+Environment=DEMUCS_MODEL=htdemucs
+Environment=DEMUCS_DEVICE=cuda
+# 7 seconds of audio per segment fits a 4 GB card. Raise it on a bigger one
+# for speed; lower it if CUDA reports out of memory.
+Environment=DEMUCS_SEGMENT=7
+Environment=STEMS_CACHE_GB=40
+WorkingDirectory=/REPLACE/WITH/PATH/TO/chord-server
+ExecStart=/REPLACE/WITH/PATH/TO/chord-server/stems-service-start.sh
+Restart=on-failure
+RestartSec=10
+
+# Nothing loads at import here -- Demucs is a subprocess and the transcription
+# models load on first use -- so startup is fast. The long waits are inside
+# requests, which is what the gunicorn timeout covers.
+TimeoutStartSec=60
+
+# Same reasoning as the other two units: a regular file rather than journald,
+# so a rate-limited journal can never block a write() mid-request. Demucs is
+# especially chatty on stderr, which is exactly the shape of output that
+# deadlocks against a full journald pipe.
+StandardOutput=append:/REPLACE/WITH/PATH/TO/chord-server/stems-service.log
+StandardError=append:/REPLACE/WITH/PATH/TO/chord-server/stems-service.log
+
+[Install]
+WantedBy=multi-user.target

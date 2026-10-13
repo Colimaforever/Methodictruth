@@ -72,6 +72,22 @@ LYRICS_ENABLED = os.environ.get('LYRICS_ENABLED', '1') != '0'
 # gunicorn's --timeout so the worker reports a clean error rather than dying.
 LYRICS_TIMEOUT = max(30, int(os.environ.get('LYRICS_TIMEOUT', '240')))
 
+# The stems sidecar (stems_service.py) separates a song into drums/bass/other/
+# vocals and transcribes each part to notes. Same arrangement as the lyrics
+# sidecar and for the same reasons -- its own process, its own virtualenv, one
+# worker -- and it may well live on a different machine again, since separation
+# wants a GPU and chord detection does not.
+#
+# Off by default: it is useless without a host that has Demucs installed, and a
+# button that always fails is worse than one that is not there.
+STEMS_URL = os.environ.get('STEMS_SERVICE_URL', 'http://127.0.0.1:5007')
+STEMS_ENABLED = os.environ.get('STEMS_ENABLED', '0') != '0'
+# Separation plus four transcriptions on a laptop GPU is minutes, not seconds,
+# and a cold cache is the slow case that matters. Generous, and still under the
+# sidecar's own gunicorn timeout so a stall surfaces as an error rather than a
+# dropped connection.
+STEMS_TIMEOUT = max(60, int(os.environ.get('STEMS_TIMEOUT', '1500')))
+
 # Keep the cache from growing without bound: each analyzed song leaves a few-MB
 # MP3 on disk forever. Once there are more than this many, drop the
 # least-recently-used ones (MP3 + its .json) so the disk can't silently fill.
@@ -1386,8 +1402,25 @@ def health():
         except Exception:  # noqa: BLE001
             lyrics_up = False
 
+    # Same shape as the lyrics probe. Reported separately rather than folded
+    # into `ok`, because a dead stems host means one button is unavailable --
+    # not that the analyzer is down.
+    stems_up, stems_tracks = False, None
+    if STEMS_ENABLED:
+        try:
+            import urllib.request
+            with urllib.request.urlopen(f'{STEMS_URL}/health', timeout=1.5) as r:
+                info = json.load(r)
+            stems_up = bool(info.get('ok'))
+            stems_tracks = info.get('tracks')
+        except Exception:  # noqa: BLE001
+            stems_up = False
+
     return jsonify(
         ok=True,
+        stems_enabled=STEMS_ENABLED,
+        stems_service_up=stems_up,
+        stems_tracks=stems_tracks,
         cached_songs=songs,
         yt_proxy_configured=bool(YT_PROXY),
         cookies_present=os.path.exists(COOKIES_FILE),
@@ -1616,6 +1649,75 @@ def lyrics(song_id):
             # An empty transcript is a real answer -- the track is an
             # instrumental -- so cache it too. Without this, every visit to a
             # song with no vocals would re-run the GPU to learn the same thing.
+            with open(cache_path, 'w') as f:
+                json.dump(result, f)
+            return jsonify(result)
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
+@app.route('/stems/<song_id>', methods=['GET', 'POST', 'OPTIONS'])
+def stems(song_id):
+    # Same GET/POST split as /lyrics: GET returns a transcription that already
+    # exists and never starts work, POST spends the GPU. Separation is the most
+    # expensive thing this system does, so it only ever happens because someone
+    # asked for it by name.
+    if request.method == 'OPTIONS':
+        return '', 204
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,20}', song_id):
+        abort(404)
+    if not STEMS_ENABLED:
+        return jsonify(success=False,
+                       error='Stem transcription is not enabled on this server'), 503
+
+    cache_path = os.path.join(CACHE_DIR, f'{song_id}.stems.json')
+    if os.path.exists(cache_path):
+        with open(cache_path) as f:
+            return jsonify(json.load(f))
+    if request.method == 'GET':
+        return jsonify(success=False, error='Not transcribed yet'), 404
+
+    audio_path = os.path.join(CACHE_DIR, f'{song_id}.mp3')
+    if not os.path.isfile(audio_path):
+        return jsonify(success=False, error='Analyze the song first'), 404
+
+    lock_path = os.path.join(CACHE_DIR, f'{song_id}.stems.lock')
+    with open(lock_path, 'w') as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            if os.path.exists(cache_path):
+                with open(cache_path) as f:
+                    return jsonify(json.load(f))
+            import urllib.error
+            import urllib.request
+            payload = json.dumps({'path': audio_path}).encode()
+            req = urllib.request.Request(
+                f'{STEMS_URL}/transcribe', data=payload,
+                headers={'Content-Type': 'application/json'})
+            try:
+                with urllib.request.urlopen(req, timeout=STEMS_TIMEOUT) as r:
+                    data = json.load(r)
+            except urllib.error.URLError as exc:
+                _log(f'stems sidecar unreachable: {exc}')
+                return jsonify(success=False,
+                               error='Stem service is offline'), 503
+            except Exception as exc:  # noqa: BLE001
+                app.logger.exception('stems request failed')
+                return jsonify(success=False, error=f'Transcription failed: {exc}'), 500
+
+            if not data.get('ok'):
+                return jsonify(success=False,
+                               error=data.get('error') or 'Transcription failed'), 502
+
+            result = {
+                'success': True,
+                'id': song_id,
+                'tracks': data.get('tracks') or [],
+                'elapsed': data.get('elapsed'),
+            }
+            # Cached even when a track came back empty: an instrumental has no
+            # melody, and that is an answer worth keeping rather than a reason
+            # to run the GPU again on the next visit.
             with open(cache_path, 'w') as f:
                 json.dump(result, f)
             return jsonify(result)

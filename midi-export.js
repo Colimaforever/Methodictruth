@@ -146,9 +146,13 @@
     const measures = Array.isArray(data.measures) ? data.measures : [];
     const anchor = measures.length ? Number(measures[0].start) || 0 : 0;
 
-    function toTicks(seconds) {
+    // `snap` overrides the global setting. Chord changes are snapped because
+    // they are a harmonic sketch and want to sit on bar lines; transcribed
+    // parts are not, because where a note actually falls is the entire value
+    // of a transcription and quantizing it would throw the performance away.
+    function toTicks(seconds, snap) {
       let beats = (Number(seconds) - anchor) / spb;
-      if (quantize) beats = Math.round(beats);
+      if (snap === undefined ? quantize : snap) beats = Math.round(beats);
       return Math.max(0, Math.round(beats * TPQ));
     }
 
@@ -180,23 +184,31 @@
       if (events[i].end <= events[i].tick) events[i].end = events[i].tick + TPQ;
     }
 
-    // ── absolute-time event list, sorted, then deltas ──
-    const raw = [];           // { tick, order, data: [...] }
-    function push(tick, order, arr) { raw.push({ tick: tick, order: order, data: arr }); }
+    // ── event lists ──
+    // Meta and chords are collected separately because the file format depends
+    // on what else is present: chords alone are written as one merged format-0
+    // track, so the file drops onto a single plugin; with transcribed parts
+    // alongside it becomes format 1, one track each, so a DAW can give them
+    // different instruments.
+    const meta = [], chordEvents = [];
+    function at(list) {
+      return function (tick, order, arr) { list.push({ tick: tick, order: order, data: arr }); };
+    }
+    const pushMeta = at(meta), push = at(chordEvents);
 
     // Meta, all at tick 0. order -1 keeps them ahead of any note.
     const title = (data.title ? String(data.title) : 'Chord progression').slice(0, 120);
-    push(0, -1, [0xff, 0x03].concat(vlq(bytes(title).length), bytes(title)));
+    pushMeta(0, -1, [0xff, 0x03].concat(vlq(bytes(title).length), bytes(title)));
 
     const usPerQuarter = Math.round(60000000 / bpm);
-    push(0, -1, [0xff, 0x51, 0x03,
-                 (usPerQuarter >> 16) & 0xff, (usPerQuarter >> 8) & 0xff, usPerQuarter & 0xff]);
+    pushMeta(0, -1, [0xff, 0x51, 0x03,
+                     (usPerQuarter >> 16) & 0xff, (usPerQuarter >> 8) & 0xff, usPerQuarter & 0xff]);
 
     // Denominator is a power of two as an exponent: 2 means quarter notes.
-    push(0, -1, [0xff, 0x58, 0x04, beatsPerBar, 2, 24, 8]);
+    pushMeta(0, -1, [0xff, 0x58, 0x04, beatsPerBar, 2, 24, 8]);
 
     const ks = keySignature(data.key);
-    if (ks) push(0, -1, [0xff, 0x59, 0x02, ks.sf & 0xff, ks.mi]);
+    if (ks) pushMeta(0, -1, [0xff, 0x59, 0x02, ks.sf & 0xff, ks.mi]);
 
     // Section labels become markers, which Logic reads straight into its
     // arrangement track — so the structure survives the export, not just the
@@ -204,7 +216,7 @@
     if (Array.isArray(data.sections)) {
       data.sections.forEach(function (s, i) {
         const label = 'Section ' + (s.label || String.fromCharCode(65 + i));
-        push(toTicks(s.start), -1, [0xff, 0x06].concat(vlq(bytes(label).length), bytes(label)));
+        pushMeta(toTicks(s.start), -1, [0xff, 0x06].concat(vlq(bytes(label).length), bytes(label)));
       });
     }
 
@@ -232,28 +244,75 @@
     }
     if (!written) return null;
 
-    raw.sort(function (a, b) { return (a.tick - b.tick) || (a.order - b.order); });
+    // ── transcribed parts, when the stems service has supplied them ──
+    const parts = [];
+    (Array.isArray(opts.tracks) ? opts.tracks : []).forEach(function (t, i) {
+      const notes = (t && Array.isArray(t.notes)) ? t.notes : [];
+      if (!notes.length) return;
 
-    const track = [];
-    let last = 0;
-    for (const e of raw) {
-      track.push.apply(track, vlq(e.tick - last));
-      track.push.apply(track, e.data);
-      last = e.tick;
+      const list = [], add = at(list);
+      const name = String(t.name || ('Part ' + (i + 1))).slice(0, 120);
+      add(0, -1, [0xff, 0x03].concat(vlq(bytes(name).length), bytes(name)));
+
+      // Channel 10 (index 9) is percussion in General MIDI — anything placed
+      // there plays as a kit whatever the note numbers say, and anything NOT
+      // placed there plays a drum part as pitches. Nothing else about the file
+      // can fix that, so it has to be right here.
+      const ch = t.drums ? 9 : Math.min(8, i + 1);
+
+      notes.forEach(function (n) {
+        const pitch = Math.max(0, Math.min(127, Math.round(Number(n.pitch))));
+        const on = toTicks(n.start, false);
+        const off = Math.max(on + 1, toTicks(n.end, false));
+        const vel = Math.max(1, Math.min(127, Number(n.velocity) || VEL_CHORD));
+        add(on, 1, [0x90 | ch, pitch, vel]);
+        add(off, 0, [0x80 | ch, pitch, 0]);
+      });
+      parts.push(list);
+    });
+
+    function serialize(list) {
+      list.sort(function (a, b) { return (a.tick - b.tick) || (a.order - b.order); });
+      const out = [];
+      let last = 0;
+      for (const e of list) {
+        out.push.apply(out, vlq(e.tick - last));
+        out.push.apply(out, e.data);
+        last = e.tick;
+      }
+      out.push.apply(out, [0x00, 0xff, 0x2f, 0x00]);   // end of track
+      return out;
     }
-    track.push.apply(track, [0x00, 0xff, 0x2f, 0x00]);   // end of track
 
-    const file = []
-      .concat(bytes('MThd'), u32(6), u16(0), u16(1), u16(TPQ))
-      .concat(bytes('MTrk'), u32(track.length), track);
+    // Format 0 when the chords are all there is, so the file still drops onto
+    // a single plugin exactly as before. Format 1 the moment there is a second
+    // part, because merging a drum kit and a melody onto one channel would be
+    // worse than not having them.
+    if (parts.length) {
+      // In a format-0 file the song title names the only track. Once the
+      // chords are one track among several they need a name of their own, or
+      // a DAW shows the song title on one track and blanks on the rest.
+      const cn = bytes('Chords');
+      chordEvents.push({ tick: 0, order: -2,
+                         data: [0xff, 0x03].concat(vlq(cn.length), cn) });
+    }
+
+    const chunks = parts.length
+      ? [serialize(meta), serialize(chordEvents)].concat(parts.map(serialize))
+      : [serialize(meta.concat(chordEvents))];
+
+    let file = [].concat(bytes('MThd'), u32(6),
+                         u16(parts.length ? 1 : 0), u16(chunks.length), u16(TPQ));
+    chunks.forEach(function (c) { file = file.concat(bytes('MTrk'), u32(c.length), c); });
 
     const safe = (data.title ? String(data.title) : 'chords')
       .replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 60) || 'chords';
 
     return {
       blob: new Blob([new Uint8Array(file)], { type: 'audio/midi' }),
-      filename: safe + '-chords.mid',
-      chordCount: written
+      filename: safe + (parts.length ? '-full.mid' : '-chords.mid'),
+      chordCount: written,
+      trackCount: chunks.length
     };
   }
 
