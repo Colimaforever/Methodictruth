@@ -23,7 +23,7 @@ The analyzer's CPU half. Everything the Song Analyzer does except transcription.
 | Disk | 256 GB NVMe, PCIe Gen4 ×4, M.2 2230 |
 | OS | Ubuntu Server 24.04.5 LTS · Python 3.12.3 |
 | User | `chord` |
-| Address | `192.168.4.116` |
+| Address | `192.168.4.116` · Meshnet `100.80.35.26` |
 
 **Runs:** `app.py` under gunicorn, yt-dlp, ffmpeg, cloudflared, and the PO-token
 server. See `chord-server/SPLIT-HOSTS.md`.
@@ -57,7 +57,7 @@ note transcription, feeding the analyzer's Full MIDI export. See
 | Network | Intel Tiger Lake CNVi Wi-Fi · Realtek RTL8153 USB gigabit (via dock) |
 | OS | Ubuntu Server 24.04.5 LTS |
 | User | `amp` |
-| Address | `192.168.4.165` |
+| Address | `192.168.4.165` · Meshnet `100.93.117.163` |
 
 **The 4 GB is the deciding fact.** It is *less* VRAM than the 8930's 6 GB card,
 so this does not replace the GPU host: the lyrics service keeps a ~3 GB model
@@ -186,6 +186,23 @@ is already in the config files you read.
 puts the key in `authorized_keys` before the machine is ever headless — which is
 the step whose absence once stranded the 8930. The private half never leaves the
 machine you sit at; every server gets a copy of the public half.
+
+**ufw locks you out of Meshnet too.** Enabling it without an SSH rule does not
+merely close the LAN route — NordVPN's mesh traffic lands in the same INPUT
+chain, so `<host>.nord` goes dark at the same instant. There is no second way
+in. `chord` was lost this way in October and needed a monitor carried to it.
+
+Two habits prevent it, and the second matters more than it looks:
+
+```bash
+sudo -v                      # authenticate ONCE, then paste
+sudo ufw allow 22/tcp        # before --force enable, every time
+```
+
+Without `sudo -v` first, pasting a block means the lines after the one that
+triggers the password prompt are **read as the password**. They never run, sudo
+reports incorrect attempts, and you are left with a firewall that enabled
+itself without the rule that keeps you in the building.
 
 **Password auth is already off, and nobody chose that.** The installer disables
 it automatically when you import a GitHub identity at install time — it does not
