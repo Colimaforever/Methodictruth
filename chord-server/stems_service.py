@@ -44,6 +44,8 @@ import time
 
 from flask import Flask, Response, jsonify, request
 
+import sidecar_io
+
 app = Flask(__name__)
 
 # Only files under here may be read. The path arrives over HTTP, so without
@@ -57,6 +59,12 @@ CACHE_DIR = os.path.realpath(
 STEMS_DIR = os.path.realpath(
     os.environ.get('STEMS_DIR',
                    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stems')))
+
+# Set this when the analyzer is on a different machine, to the prefix its audio
+# endpoint sits behind -- e.g. http://192.168.4.116:5005/audio/. This is the
+# usual case for this service, since separation wants a GPU and chord detection
+# does not, so the two halves rarely share a disk. See sidecar_io.
+FETCH_PREFIX = os.environ.get('FETCH_PREFIX', '')
 
 DEMUCS_MODEL = os.environ.get('DEMUCS_MODEL', 'htdemucs')
 DEMUCS_DEVICE = os.environ.get('DEMUCS_DEVICE', 'cuda')
@@ -127,23 +135,23 @@ def engines():
 
 # ─── paths ─────────────────────────────────────────────────────────────────
 
-def _resolve(path):
-    # realpath before the prefix check so symlinks and ../ are resolved first,
-    # not after. The cache is itself a symlink on at least one host, so both
-    # sides have to be resolved to compare meaningfully.
-    real = os.path.realpath(path or '')
-    if not real.startswith(CACHE_DIR + os.sep) or not os.path.isfile(real):
-        return None
-    return real
+def _has_source(body):
+    # Is there anything here this host could actually read? Either a path that
+    # resolves locally, or a URL it is permitted to fetch.
+    if sidecar_io.resolve_local((body or {}).get('path'), CACHE_DIR):
+        return True
+    url = ((body or {}).get('url') or '').strip()
+    return bool(url and FETCH_PREFIX and url.startswith(FETCH_PREFIX))
 
 
 def _stem_key(path):
-    # Keyed on the file's identity rather than its name, so a re-download that
-    # produces identical audio reuses the stems and one that does not, does not.
+    # Keyed on the audio's CONTENT, never its name. A fetched copy lands in a
+    # temp file called 'audio' while the same song read locally is '<id>.mp3';
+    # hashing the name would make those two different songs and separate the
+    # same audio twice. Size plus the first megabyte distinguishes real tracks
+    # without reading hundreds of megabytes to find out.
     h = hashlib.sha1()
-    st = os.stat(path)
-    h.update(os.path.basename(path).encode())
-    h.update(str(st.st_size).encode())
+    h.update(str(os.stat(path).st_size).encode())
     with open(path, 'rb') as fh:
         h.update(fh.read(1 << 20))
     return h.hexdigest()[:16]
@@ -436,11 +444,11 @@ def stems_only():
     # chroma computed on bass+other, with drums and vocals removed, is a
     # better chord reading than the full mix at no extra separation cost.
     body = request.get_json(silent=True) or {}
-    real = _resolve(body.get('path'))
-    if real is None:
-        return jsonify(ok=False, error='unknown audio path'), 404
     try:
-        stems = separate(real)
+        with sidecar_io.source(body, CACHE_DIR, FETCH_PREFIX) as real:
+            if real is None:
+                return jsonify(ok=False, error='unknown audio path'), 404
+            stems = separate(real)
     except Exception as exc:  # noqa: BLE001
         app.logger.exception('separation failed')
         return jsonify(ok=False, error=f'{type(exc).__name__}: {exc}'), 500
@@ -453,8 +461,7 @@ def transcribe_stream():
     # reason: this runs for minutes, and a synchronous response would sit
     # silent long past any proxy's patience.
     body = request.get_json(silent=True) or {}
-    real = _resolve(body.get('path'))
-    if real is None:
+    if not _has_source(body):
         return jsonify(ok=False, error='unknown audio path'), 404
     want = set(w.lower() for w in (body.get('tracks') or [])) or None
 
@@ -467,7 +474,13 @@ def transcribe_stream():
 
         try:
             yield json.dumps({'type': 'start', 'model': DEMUCS_MODEL}) + '\n'
-            tracks = transcribe(real, want=want, progress=progress)
+            # Opened here, not in the view: a fetched file has to outlive the
+            # view call and be removed once the response is done.
+            with sidecar_io.source(body, CACHE_DIR, FETCH_PREFIX) as real:
+                if real is None:
+                    yield json.dumps({'type': 'error', 'error': 'audio unavailable'}) + '\n'
+                    return
+                tracks = transcribe(real, want=want, progress=progress)
             for line in lines:
                 yield line + '\n'
             yield json.dumps({
@@ -486,13 +499,13 @@ def transcribe_stream():
 @app.route('/transcribe', methods=['POST'])
 def transcribe_buffered():
     body = request.get_json(silent=True) or {}
-    real = _resolve(body.get('path'))
-    if real is None:
-        return jsonify(ok=False, error='unknown audio path'), 404
     want = set(w.lower() for w in (body.get('tracks') or [])) or None
     t0 = time.time()
     try:
-        tracks = transcribe(real, want=want)
+        with sidecar_io.source(body, CACHE_DIR, FETCH_PREFIX) as real:
+            if real is None:
+                return jsonify(ok=False, error='unknown audio path'), 404
+            tracks = transcribe(real, want=want)
     except Exception as exc:  # noqa: BLE001
         app.logger.exception('transcription failed')
         return jsonify(ok=False, error=f'{type(exc).__name__}: {exc}'), 500

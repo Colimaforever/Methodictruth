@@ -88,6 +88,28 @@ STEMS_ENABLED = os.environ.get('STEMS_ENABLED', '0') != '0'
 # dropped connection.
 STEMS_TIMEOUT = max(60, int(os.environ.get('STEMS_TIMEOUT', '1500')))
 
+# Where a sidecar can reach THIS analyzer to fetch audio -- e.g.
+# http://192.168.4.116:5005 .
+#
+# Both sidecars were written to take an absolute path, which is free and
+# correct while they share a disk with the analyzer. It silently stops being
+# correct the moment one moves to another machine: the path still looks valid,
+# the file simply is not there, and every request 404s while the sidecar's own
+# /health keeps reporting fine.
+#
+# So requests now carry a path AND a URL, and the sidecar uses whichever it can
+# -- the local read when co-located, the fetch when not. Empty here means
+# path-only, which is the right default for a single box.
+SELF_URL = os.environ.get('ANALYZER_SELF_URL', '').rstrip('/')
+
+
+def _sidecar_body(song_id, audio_path, **extra):
+    body = {'path': audio_path}
+    if SELF_URL:
+        body['url'] = f'{SELF_URL}/audio/{song_id}'
+    body.update(extra)
+    return body
+
 # Keep the cache from growing without bound: each analyzed song leaves a few-MB
 # MP3 on disk forever. Once there are more than this many, drop the
 # least-recently-used ones (MP3 + its .json) so the disk can't silently fill.
@@ -1516,7 +1538,7 @@ def _lyrics_stream(song_id, audio_path, cache_path, language=None):
                 with open(cache_path) as f:
                     yield _ndjson({'type': 'done', **json.load(f)})
                 return
-            body = {'path': audio_path}
+            body = _sidecar_body(song_id, audio_path)
             if language:
                 body['language'] = language
             payload = json.dumps(body).encode()
@@ -1615,7 +1637,7 @@ def lyrics(song_id):
                     return jsonify(json.load(f))
             import urllib.error
             import urllib.request
-            _body = {'path': audio_path}
+            _body = _sidecar_body(song_id, audio_path)
             if language:
                 _body['language'] = language
             payload = json.dumps(_body).encode()
@@ -1690,7 +1712,7 @@ def stems(song_id):
                     return jsonify(json.load(f))
             import urllib.error
             import urllib.request
-            payload = json.dumps({'path': audio_path}).encode()
+            payload = json.dumps(_sidecar_body(song_id, audio_path)).encode()
             req = urllib.request.Request(
                 f'{STEMS_URL}/transcribe', data=payload,
                 headers={'Content-Type': 'application/json'})

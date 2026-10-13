@@ -27,6 +27,8 @@ from collections import Counter
 
 from flask import Flask, Response, jsonify, request
 
+import sidecar_io
+
 app = Flask(__name__)
 
 # Only files under here may be transcribed. The id comes from a URL, so
@@ -34,6 +36,12 @@ app = Flask(__name__)
 CACHE_DIR = os.path.realpath(
     os.environ.get('CACHE_DIR',
                    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')))
+
+# Set this when the analyzer is on a DIFFERENT machine, to the prefix its audio
+# endpoint sits behind -- e.g. http://192.168.4.116:5005/audio/. Empty means
+# this service only reads local files, which is right while the two halves
+# share a disk and wrong the moment they stop. See sidecar_io.
+FETCH_PREFIX = os.environ.get('FETCH_PREFIX', '')
 
 MODEL_SIZE = os.environ.get('WHISPER_MODEL', 'large-v3')
 # int8_float16 halves VRAM against float16 with no measurable accuracy cost
@@ -128,13 +136,9 @@ def health():
 
 
 def _resolve(path):
-    # Confine to the cache directory. realpath first so symlinks and ../ are
-    # resolved before the prefix check, not after -- the cache is itself a
-    # symlink on this host, so both sides must be resolved to compare.
-    real = os.path.realpath(path)
-    if not real.startswith(CACHE_DIR + os.sep) or not os.path.isfile(real):
-        return None
-    return real
+    # Kept for callers that still pass a bare path. New code goes through
+    # sidecar_io.source(), which also handles the cross-host case.
+    return sidecar_io.resolve_local(path, CACHE_DIR)
 
 
 def _run(model, path, language):
@@ -176,6 +180,52 @@ def _run(model, path, language):
         }, info
 
 
+def _has_source(body):
+    # Is there anything here this host could actually read? Either a path that
+    # resolves locally, or a URL it is permitted to fetch.
+    if sidecar_io.resolve_local((body or {}).get('path'), CACHE_DIR):
+        return True
+    url = ((body or {}).get('url') or '').strip()
+    return bool(url and FETCH_PREFIX and url.startswith(FETCH_PREFIX))
+
+
+def _stream_lines(model, real, language):
+    # The streaming body, lifted out of the view so the source can be opened
+    # around it without indenting the whole thing under a `with`.
+    t0 = time.time()
+    collected, info = [], None
+    try:
+        for seg, inf in _run(model, real, language):
+            info = inf
+            if seg is None:
+                yield json.dumps({'type': 'start',
+                                  'language': inf.language,
+                                  'language_probability': round(inf.language_probability, 3)}) + '\n'
+                continue
+            collected.append(seg)
+            # Caption filler is recognisable from the segment alone, so drop it
+            # before it is shown rather than letting it appear and then vanish
+            # when the final list replaces it. Repetition-loop detection still
+            # has to wait for the whole transcript.
+            if _norm(seg['text']) in _CAPTION_FILLER:
+                continue
+            yield json.dumps({'type': 'segment', 'segment': seg}) + '\n'
+    except Exception as exc:  # noqa: BLE001
+        app.logger.exception('streaming transcription failed')
+        yield json.dumps({'type': 'error',
+                          'error': f'{type(exc).__name__}: {exc}'}) + '\n'
+        return
+    final = _drop_repetition_loops(_drop_caption_filler(collected))
+    yield json.dumps({
+        'type': 'done',
+        'segments': final,
+        'language': info.language if info else None,
+        'language_probability': round(info.language_probability, 3) if info else None,
+        'model': MODEL_SIZE,
+        'elapsed': round(time.time() - t0, 1),
+    }) + '\n'
+
+
 @app.route('/transcribe-stream', methods=['POST'])
 def transcribe_stream():
     # Newline-delimited JSON, one object per line. Segments are emitted as the
@@ -183,8 +233,11 @@ def transcribe_stream():
     # response would sit silent for minutes and be cut by Cloudflare's 100 s
     # proxy timeout long before it finished.
     body = request.get_json(silent=True) or {}
-    real = _resolve(body.get('path') or '')
-    if real is None:
+    # Checked before the response starts so an unusable request still gets a
+    # 404 rather than a 200 whose first streamed line is an error. The file is
+    # opened inside the generator, because a fetched one must stay alive for
+    # the whole response and be cleaned up after it.
+    if not _has_source(body):
         return jsonify(ok=False, error='unknown audio path'), 404
     model = get_model()
     if model is None:
@@ -192,38 +245,15 @@ def transcribe_stream():
     language = body.get('language')
 
     def gen():
-        t0 = time.time()
-        collected, info = [], None
-        try:
-            for seg, inf in _run(model, real, language):
-                info = inf
-                if seg is None:
-                    yield json.dumps({'type': 'start',
-                                      'language': inf.language,
-                                      'language_probability': round(inf.language_probability, 3)}) + '\n'
-                    continue
-                collected.append(seg)
-                # Caption filler is recognisable from the segment alone, so
-                # drop it before it is shown rather than letting it appear and
-                # then vanish when the final list replaces it. Repetition-loop
-                # detection still has to wait for the whole transcript.
-                if _norm(seg['text']) in _CAPTION_FILLER:
-                    continue
-                yield json.dumps({'type': 'segment', 'segment': seg}) + '\n'
-        except Exception as exc:  # noqa: BLE001
-            app.logger.exception('streaming transcription failed')
-            yield json.dumps({'type': 'error',
-                              'error': f'{type(exc).__name__}: {exc}'}) + '\n'
-            return
-        final = _drop_repetition_loops(_drop_caption_filler(collected))
-        yield json.dumps({
-            'type': 'done',
-            'segments': final,
-            'language': info.language if info else None,
-            'language_probability': round(info.language_probability, 3) if info else None,
-            'model': MODEL_SIZE,
-            'elapsed': round(time.time() - t0, 1),
-        }) + '\n'
+        # The source has to be opened here rather than in the view, because a
+        # fetched file must outlive the view call and be removed once the
+        # response is finished.
+        with sidecar_io.source(body, CACHE_DIR, FETCH_PREFIX) as real:
+            if real is None:
+                yield json.dumps({'type': 'error', 'error': 'audio unavailable'}) + '\n'
+                return
+            for line in _stream_lines(model, real, language):
+                yield line
 
     return Response(gen(), mimetype='application/x-ndjson')
 
@@ -234,9 +264,6 @@ def transcribe():
     # any caller that would rather have one JSON object. Shares _run() so the
     # two can never drift apart on decoding settings.
     body = request.get_json(silent=True) or {}
-    real = _resolve(body.get('path') or '')
-    if real is None:
-        return jsonify(ok=False, error='unknown audio path'), 404
     model = get_model()
     if model is None:
         return jsonify(ok=False, error=f'model unavailable: {_load_error}'), 503
@@ -244,10 +271,13 @@ def transcribe():
     t0 = time.time()
     out, info = [], None
     try:
-        for seg, inf in _run(model, real, body.get('language')):
-            info = inf
-            if seg is not None:
-                out.append(seg)
+        with sidecar_io.source(body, CACHE_DIR, FETCH_PREFIX) as real:
+            if real is None:
+                return jsonify(ok=False, error='unknown audio path'), 404
+            for seg, inf in _run(model, real, body.get('language')):
+                info = inf
+                if seg is not None:
+                    out.append(seg)
         out = _drop_repetition_loops(_drop_caption_filler(out))
     except Exception as exc:  # noqa: BLE001
         app.logger.exception('transcription failed')

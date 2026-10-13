@@ -105,22 +105,49 @@ STEMS_SERVICE_URL=http://192.168.4.165:5007
 button only ever fails, and a button that always fails is worse than one that is
 not there.
 
-### The shared cache problem
+### Getting the audio to `amp`
 
-`stems_service.py` reads the audio file by path and confines reads to
-`CACHE_DIR`. On one machine that is the analyzer's own cache. Across two
-machines it is not the same directory, so one of these has to be true:
+The service is told which file to work on by **absolute path**, which is free
+and correct on one machine and meaningless across two — the path resolves to
+nothing on `amp`, and every request answers `unknown audio path`.
 
-- the cache is on shared storage both hosts mount at the same path, or
-- `amp` keeps its own `CACHE_DIR` and the analyzer ships the file to it.
+So requests carry a path *and* a URL, and whichever works is used. Add one line
+on each side.
 
-The second needs a code change (upload instead of path). **The first is why the
-`path` field exists**, and it is the simpler answer on a home LAN: export the
-analyzer's cache over NFS and mount it at the same path on `amp`.
+On **`chord`**, in `/etc/chord-analyzer.env`:
 
-Until one of those is done, run the stems service on `chord` itself with
-`DEMUCS_DEVICE=cpu` — slow, correct, and a fine way to prove the pipeline before
-spending an evening on NFS.
+```ini
+ANALYZER_SELF_URL=http://192.168.4.116:5005
+```
+
+On **`amp`**, in the stems unit:
+
+```ini
+Environment=FETCH_PREFIX=http://192.168.4.116:5005/audio/
+```
+
+`FETCH_PREFIX` is a prefix allow-list, not a toggle. A service that downloads
+any URL it is given and then runs two models on it is server-side request
+forgery with extra steps, so only URLs beginning with this exact string are ever
+fetched, and empty means none are.
+
+`amp` therefore needs to reach gunicorn on `chord`, so the firewall opens in
+both directions:
+
+```bash
+# on chord
+sudo ufw allow from 192.168.4.165 to any port 5005 proto tcp
+```
+
+Fetched audio goes to a temp file and is deleted when the response ends. The
+stem cache survives it, because stems are keyed on the audio's **content**
+rather than its filename — so a song separated from a local path and the same
+song fetched over HTTP land on the same cache entry instead of being separated
+twice.
+
+NFS would also work and needs no settings at all. It is not worth it here: a
+hung mount takes processes with it, and this estate has already lost a boot to
+an `fstab` entry for a disk that was not there.
 
 ---
 

@@ -126,6 +126,47 @@ sudo ufw --force enable
 model on it; on loopback that was nobody's business but the box's, and on the
 LAN it is reachable by anything on the network.
 
+### The audio has to reach the XPS too — this is the step that was missing
+
+`app.py` tells the lyrics service which file to transcribe by **absolute path**.
+That is free and correct while both halves share a disk. Split across two
+machines it is a trap: the path still looks valid, the file simply is not on
+the XPS, and every transcription answers `unknown audio path` — while
+`lyrics_service_up` keeps reporting `true`, because `/health` only proves the
+sidecar is alive, not that it can read anything.
+
+Requests now carry a path **and** a URL, and the sidecar uses whichever works.
+Two settings turn that on, one on each host.
+
+On **`chord`**, in `/etc/chord-analyzer.env`:
+
+```ini
+ANALYZER_SELF_URL=http://192.168.4.116:5005
+```
+
+On the **XPS**, in the lyrics unit:
+
+```ini
+Environment=FETCH_PREFIX=http://192.168.4.116:5005/audio/
+```
+
+`FETCH_PREFIX` is a prefix allow-list, not a toggle. A service that downloads
+whatever URL it is handed and then runs a model on it is server-side request
+forgery with extra steps, so it fetches only URLs starting with this exact
+string, and empty means it never fetches at all.
+
+That also means gunicorn on `chord` has to be reachable from the XPS, so the
+rule goes in both directions:
+
+```bash
+# on chord
+sudo ufw allow from <xps-ip> to any port 5005 proto tcp
+```
+
+**Test it with a real transcription, not with `/health`.** Analyze a song, then
+ask for its lyrics. That is the only check that exercises the path this section
+exists to fix.
+
 ---
 
 ## 3. Move the tunnel
