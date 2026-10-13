@@ -288,7 +288,13 @@ ALL_QUALITIES = {**TRIAD_QUALITIES, **EXTRA_QUALITIES}
 #
 # It costs a second CQT, which is the most expensive step in the analysis.
 # That is precisely the trade the dedicated analyzer host exists to make.
-BASS_DETECTION = os.environ.get('BASS_DETECTION', '1') != '0'
+#
+# Off by default, deliberately. The margins below were reasoned rather than
+# measured -- nobody has heard this run on a real song yet -- and this code sits
+# in the path of every analysis on a live site. Set BASS_DETECTION=1 in
+# /etc/chord-analyzer.env to try it, listen to what it does to a few songs you
+# know, and only then consider flipping this default.
+BASS_DETECTION = os.environ.get('BASS_DETECTION', '0') != '0'
 BASS_FMIN_NOTE = 'C1'
 BASS_OCTAVES = 3                  # C1-C4: bass guitar, kick-adjacent, left hand
 

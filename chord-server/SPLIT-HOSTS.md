@@ -88,7 +88,7 @@ default and tunable:
 
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `BASS_DETECTION` | `1` | `0` turns it off and skips the second CQT entirely |
+| `BASS_DETECTION` | `0` | **Off until you have heard it.** `1` enables it |
 | `BASS_MARGIN` | `1.25` | How far the winning bass pitch class must beat the runner-up before an inversion is reported |
 | `BASS_OUTSIDE_MARGIN` | `1.8` | The higher bar a bass note outside the chord has to clear |
 
