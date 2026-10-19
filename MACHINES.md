@@ -267,6 +267,37 @@ Each admin box keeps the same four aliases — `chord`, `amp`, `xps`, `mac` — 
 command reads the same wherever you type it. All four use LAN addresses;
 Meshnet names are for reaching the house from outside it.
 
+### Meshnet does not come back by itself — verify before you rely on it
+
+Meshnet is written up here as the escape hatch: its `100.x` addresses do not
+move when a router does, so it is the way back in when every LAN address has
+just changed underneath you. In October that was put to the test during a
+router swap and **it failed** — the machines were rewired and rebooted and none
+of them rejoined the mesh.
+
+A fallback that does not survive a reboot is not a fallback. It is worse than
+not having one, because the plan that depends on it is only discovered to be
+wrong at the moment it is needed.
+
+Diagnose before fixing, on each box:
+
+```bash
+systemctl is-enabled nordvpnd     # the daemon itself
+nordvpn settings                  # is Meshnet actually on, or just previously on
+nordvpn account                   # is it still logged in after a reboot
+journalctl -u nordvpnd -b --no-pager | tail -20
+```
+
+The likely culprits are the daemon starting before the network is reachable and
+not retrying, or the login not surviving a reboot. The fix shape — **untested,
+pending the output above** — is a oneshot unit ordered `After=nordvpnd.service
+network-online.target` that asserts `nordvpn set meshnet on` a few times with
+sleeps between, so a daemon that was not ready at boot still gets there.
+
+Until that is in place and proven **by actually rebooting a box and checking
+from another machine**, treat Meshnet as convenience, not insurance, and keep a
+monitor and keyboard within reach.
+
 ### Revoking a key
 
 **This is the part that bites, so read it before you need it.**
@@ -289,14 +320,25 @@ Windows boxes; keys live in `C:\Users\<name>\.ssh`.
 
 ## Still open
 
-- **An unidentified tunnel connector.** `cloudflared tunnel info` lists two
-  connectors for `song-analyzer`: `chord`, and one up since 2026-10-12 19:06 UTC
-  from public IP `187.13.176.105` — not this house. All traffic currently goes to
-  it, so `api.methodictruth.com` still answers from the 8930 even though chord
-  has taken over. Most likely the Kamrui running cloudflared behind NordVPN, with
-  an ingress pointed at the 8930 over Meshnet. **If it is not the Kamrui, treat
-  it as a credential leak and rotate the tunnel** — those files are the authority
-  for the hostname.
+- **Meshnet does not survive a reboot** — proven in the October router swap, when
+  nothing rejoined the mesh. Diagnose and fix per *"Meshnet does not come back by
+  itself"* above. This one outranks the rest: it is the route everything else
+  falls back to.
+- **The October router swap.** Every LAN address moved, which breaks the four
+  places that hardcode one: `LYRICS_SERVICE_URL` and `ANALYZER_SELF_URL` in
+  chord's env file, `FETCH_PREFIX` on the 8930, and the ufw rules on both. Fix
+  by replacing the per-host ufw rules with a whole-subnet rule, and by
+  installing `avahi-daemon` so `chord.local` resolves and no address needs
+  writing down again.
+- **The Kamrui still holds tunnel credentials**, now that the duplicate
+  connector mystery is solved. `cloudflared tunnel info` had shown two
+  connectors for `song-analyzer` — chord, and one from `187.13.176.105`, which
+  is not this house. It was the Kamrui, running cloudflared inside WSL since
+  June, with the foreign address explained by its NordVPN exit. Now disabled.
+  The credentials it used are still in `/etc/cloudflared` and
+  `~/.cloudflared` there, which is redundant authority for the hostname sitting
+  on a Windows box. **Copy `cookies.txt` off it to chord first** — chord reports
+  `cookies_present: false` and the Kamrui is the only copy — then destroy both.
 - **`amp`** — ufw has its rules but was never enabled (the `--force enable` hit a
   stray bracket). Also still needs the lid drop-in
   (`HandleLidSwitch=ignore` — closing the laptop currently takes the server
