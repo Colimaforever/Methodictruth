@@ -119,6 +119,19 @@
         .sa-status.down i { background: #e85c5c; box-shadow: 0 0 6px #e85c5c; }
         .sa-status.down, .sa-status.warn { color: var(--stone); }
         .sa-status em { font-style: normal; color: var(--stone-dark); }
+        /* Maintenance notice — warm rather than alarming. This is planned work,
+           not a failure, so it borrows the amber of .sa-status.warn instead of
+           the red the error box uses. */
+        .sa-notice {
+            background: rgba(232, 168, 124, 0.09);
+            border: 1px solid rgba(232, 168, 124, 0.38);
+            border-left-width: 3px;
+            color: #e8c9ae; padding: 0.85rem 1rem; margin: 0 0 1rem;
+            font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; line-height: 1.5;
+        }
+        .sa-notice strong { color: #e8a87c; font-weight: 600; }
+        .sa-notice[hidden] { display: none; }
+
         .sa-error {
             background: rgba(80, 20, 20, 0.25); border: 1px solid rgba(180, 50, 50, 0.5);
             color: #ff9999; padding: 1rem; margin-bottom: 1.5rem;
@@ -492,6 +505,15 @@
            the fold on phones, which makes the page look like it has no input
            at all. Action first, explanation after. -->
       <div class="sa-section">
+        <!-- TEMPORARY maintenance notice. It retires itself two ways, so it can
+             never be the stale banner that says "back tomorrow" for a month:
+             it never renders after EXPIRES below, and it hides the moment the
+             analyzer API answers. Delete this block and its script whenever. -->
+        <div class="sa-notice" id="maintenanceNotice" hidden>
+          <strong>The analyzer is offline today.</strong>
+          It is moving to a new machine and the network around it changed with it.
+          Expected back <span id="maintenanceWhen">tomorrow</span> — everything else on the site works as normal.
+        </div>
         <div class="sa-input-row">
             <input
                 type="text"
@@ -783,6 +805,25 @@
         // referenced from outside (no inline on* handlers), so scoping is safe.
         (function () {
         const API_URL = 'https://api.methodictruth.com'; // local chord-server, tunneled via Cloudflare
+
+        // TEMPORARY. The maintenance notice retires itself two ways, because the
+        // failure mode of a hand-written banner is that nobody remembers to take
+        // it down: it never renders after EXPIRES, so it cannot still be
+        // promising "back tomorrow" in a month; and it hides the moment /health
+        // answers, so the page corrects itself the instant the analyzer returns
+        // rather than waiting for someone to notice and deploy.
+        (function () {
+            const EXPIRES = Date.parse('2026-10-23T00:00:00Z');
+            const BACK = '20 October';
+            const el = document.getElementById('maintenanceNotice');
+            if (!el || !(Date.now() < EXPIRES)) return;
+            const when = document.getElementById('maintenanceWhen');
+            if (when) when.textContent = BACK;
+            el.hidden = false;
+            fetch(API_URL + '/health', { cache: 'no-store' })
+                .then(r => { if (r.ok) el.hidden = true; })
+                .catch(() => {});
+        })();
 
         let currentChords = [];
         let currentMeasures = [];
