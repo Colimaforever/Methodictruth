@@ -85,7 +85,7 @@ permanent AC at 100% kills a laptop battery in about a year.
 | OS | Ubuntu |
 | User | `methodictruth` |
 | Hostname | `methodictruth-XPS-8930` |
-| Address | `192.168.4.50` |
+| Address | `192.168.50.82` |
 | Meshnet | nickname `SongAnalyzer` · `sergmacedo1-sierranevada.nord` |
 
 **It is not `dkcommunisst`.** That name was recorded here and in the SSH config
@@ -269,36 +269,34 @@ Each admin box keeps the same four aliases — `chord`, `amp`, `xps`, `mac` — 
 command reads the same wherever you type it. All four use LAN addresses;
 Meshnet names are for reaching the house from outside it.
 
-### Meshnet does not come back by itself — verify before you rely on it
+### Meshnet is only as available as the link underneath it
 
 Meshnet is written up here as the escape hatch: its `100.x` addresses do not
-move when a router does, so it is the way back in when every LAN address has
-just changed underneath you. In October that was put to the test during a
-router swap and **it failed** — the machines were rewired and rebooted and none
-of them rejoined the mesh.
+move when a router does, so it should be the way back in when every LAN address
+changes underneath you. The October router swap looked like proof that it fails
+— nothing rejoined the mesh after the machines were rewired and rebooted.
 
-A fallback that does not survive a reboot is not a fallback. It is worse than
-not having one, because the plan that depends on it is only discovered to be
-wrong at the moment it is needed.
+**That reading was wrong, and the correction is worth more than the original
+claim.** Examined afterwards:
 
-Diagnose before fixing, on each box:
+- `amp` rejoined the instant netplan was pointed at the new SSID. Its config
+  still held the *old* network, so it had no link at all — not a Meshnet fault.
+- The 8930 runs NordVPN as a **snap**, so its unit is
+  `snap.nordvpn.nordvpnd.service`, not `nordvpnd`. `snap services nordvpn`
+  reports it `enabled` at startup and `active`. It was never off.
 
-```bash
-systemctl is-enabled nordvpnd     # the daemon itself
-nordvpn settings                  # is Meshnet actually on, or just previously on
-nordvpn account                   # is it still logged in after a reboot
-journalctl -u nordvpnd -b --no-pager | tail -20
-```
+Both were configured correctly and started as they should. What was missing was
+a network beneath them — and during a router swap that is precisely what is
+gone. An escape hatch that rides on the LAN cannot rescue you from the LAN being
+down.
 
-The likely culprits are the daemon starting before the network is reachable and
-not retrying, or the login not surviving a reboot. The fix shape — **untested,
-pending the output above** — is a oneshot unit ordered `After=nordvpnd.service
-network-online.target` that asserts `nordvpn set meshnet on` a few times with
-sleeps between, so a daemon that was not ready at boot still gets there.
-
-Until that is in place and proven **by actually rebooting a box and checking
-from another machine**, treat Meshnet as convenience, not insurance, and keep a
-monitor and keyboard within reach.
+Two things follow. **Know the unit name per machine**: a snap install answers to
+`snap services nordvpn`, a deb install to `systemctl status nordvpnd`, and
+asking the wrong one reports a healthy daemon as missing — which is most of how
+the wrong conclusion got made. And **the claim is still untested** in the case
+that matters: a clean reboot with a working link, checked from another machine.
+Until someone runs that, the honest status is unknown, which is different from
+broken and also different from fine.
 
 ### Revoking a key
 
@@ -322,12 +320,10 @@ Windows boxes; keys live in `C:\Users\<name>\.ssh`.
 
 ## Still open
 
-- **Meshnet comes back only once the network does** — and nothing makes it
-  retry. `amp` rejoined the mesh the moment netplan got it onto the new Wi-Fi,
-  so the daemon is not broken; it gives up when there is no network at boot and
-  never tries again. That refines the October finding: the fix is a retry, not a
-  reinstall. See *"Meshnet does not come back by itself"* above. This outranks
-  the rest — it is the route everything else falls back to.
+- **Prove Meshnet survives a clean reboot** — the one test never run. Both
+  machines examined were configured correctly and started as they should; what
+  failed in October was the network beneath them. Reboot a box with a working
+  link and check it from another machine.
 - **The October router swap.** Every LAN address moved, which breaks the four
   places that hardcode one: `LYRICS_SERVICE_URL` and `ANALYZER_SELF_URL` in
   chord's env file, `FETCH_PREFIX` on the 8930, and the ufw rules on both. Fix
