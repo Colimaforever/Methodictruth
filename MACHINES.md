@@ -121,7 +121,23 @@ The lesson stuck: **nothing goes in `fstab` that might not be present.**
 | RAM | 8 GB |
 | OS | Windows + WSL2 (Ubuntu) |
 
-**Runs:** OpenClaw, the agent that works on this site.
+**Runs:** OpenClaw, the agent that works on this site — **and, until October
+2026, the analyzer that was actually serving the public hostname.**
+
+That last part was discovered by accident and is worth keeping. On 13 October
+the 8930's own `/health` reported `cookies_present: false`, both `pot_*` fields
+false, and no successful YouTube download in over eight days. At the same
+moment `api.methodictruth.com/health` reported all three true and a successful
+download 500 seconds earlier. Those are not the same machine.
+
+The cloudflared connector inside this box's WSL was the one Cloudflare was
+routing to, and `chord-server/README.md` still carries the evidence in its
+paths: `/home/truth/Methodictruth/chord-server`, where `truth` is this box's
+WSL user. So the cookies and the PO-token provider that make YouTube downloads
+work live **here**, not on the GPU host everyone assumed was production.
+
+The 8930 was a warm spare that had not fetched a video in a week, and nobody
+noticed because the hostname kept answering.
 
 **Outstanding, before this box is ever repurposed:** destroy `~/.cloudflared/`
 (the credentials are the authority for `api.methodictruth.com`) and
