@@ -25,7 +25,7 @@ The analyzer's CPU half. Everything the Song Analyzer does except transcription.
 | Disk | 256 GB NVMe, PCIe Gen4 ×4, M.2 2230 |
 | OS | Ubuntu Server 24.04.5 LTS · Python 3.12.3 |
 | User | `chord` |
-| Address | `192.168.4.116` · Meshnet `100.80.35.26` |
+| Address | `192.168.50.199` · Meshnet `100.80.35.26` |
 
 **Runs:** `app.py` under gunicorn, yt-dlp, ffmpeg, cloudflared, and the PO-token
 server. See `chord-server/SPLIT-HOSTS.md`.
@@ -306,13 +306,16 @@ a network beneath them — and during a router swap that is precisely what is
 gone. An escape hatch that rides on the LAN cannot rescue you from the LAN being
 down.
 
+**And it does survive a reboot.** `chord` was powered off for several days
+through the router swap, came back on a different port of a different router,
+and had its Meshnet address before anyone touched it. That settles the question
+the original claim got wrong.
+
 Two things follow. **Know the unit name per machine**: a snap install answers to
 `snap services nordvpn`, a deb install to `systemctl status nordvpnd`, and
 asking the wrong one reports a healthy daemon as missing — which is most of how
 the wrong conclusion got made. And **the claim is still untested** in the case
-that matters: a clean reboot with a working link, checked from another machine.
-Until someone runs that, the honest status is unknown, which is different from
-broken and also different from fine.
+that matters was finally run by accident, and Meshnet passed it.
 
 ### Revoking a key
 
@@ -336,10 +339,6 @@ Windows boxes; keys live in `C:\Users\<name>\.ssh`.
 
 ## Still open
 
-- **Prove Meshnet survives a clean reboot** — the one test never run. Both
-  machines examined were configured correctly and started as they should; what
-  failed in October was the network beneath them. Reboot a box with a working
-  link and check it from another machine.
 - **The October router swap.** Every LAN address moved, which breaks the four
   places that hardcode one: `LYRICS_SERVICE_URL` and `ANALYZER_SELF_URL` in
   chord's env file, `FETCH_PREFIX` on the 8930, and the ufw rules on both. Fix
