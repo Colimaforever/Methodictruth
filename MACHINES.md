@@ -6,7 +6,9 @@ the estate reached four machines and lived only in one person's head.
 Local addresses are RFC1918 — meaningful inside the house and nowhere else.
 **No credentials, keys, MAC addresses or public IPs belong in this file.**
 
-Network: ASUS RT-AX1800S V2 · subnet `192.168.4.x`
+Network: subnet **`192.168.50.x`** since the October router swap. Every address
+below that still reads `192.168.4.x` is from the old router and is being
+re-discovered one machine at a time.
 
 ---
 
@@ -57,7 +59,7 @@ note transcription, feeding the analyzer's Full MIDI export. See
 | Network | Intel Tiger Lake CNVi Wi-Fi · Realtek RTL8153 USB gigabit (via dock) |
 | OS | Ubuntu Server 24.04.5 LTS |
 | User | `amp` |
-| Address | `192.168.4.165` · Meshnet `100.93.117.163` |
+| Address | `192.168.50.167` · Meshnet `100.93.117.163` |
 
 **The 4 GB is the deciding fact.** It is *less* VRAM than the 8930's 6 GB card,
 so this does not replace the GPU host: the lyrics service keeps a ~3 GB model
@@ -320,10 +322,12 @@ Windows boxes; keys live in `C:\Users\<name>\.ssh`.
 
 ## Still open
 
-- **Meshnet does not survive a reboot** — proven in the October router swap, when
-  nothing rejoined the mesh. Diagnose and fix per *"Meshnet does not come back by
-  itself"* above. This one outranks the rest: it is the route everything else
-  falls back to.
+- **Meshnet comes back only once the network does** — and nothing makes it
+  retry. `amp` rejoined the mesh the moment netplan got it onto the new Wi-Fi,
+  so the daemon is not broken; it gives up when there is no network at boot and
+  never tries again. That refines the October finding: the fix is a retry, not a
+  reinstall. See *"Meshnet does not come back by itself"* above. This outranks
+  the rest — it is the route everything else falls back to.
 - **The October router swap.** Every LAN address moved, which breaks the four
   places that hardcode one: `LYRICS_SERVICE_URL` and `ANALYZER_SELF_URL` in
   chord's env file, `FETCH_PREFIX` on the 8930, and the ufw rules on both. Fix
