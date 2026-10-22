@@ -249,8 +249,8 @@
   <script>
   (function() {
     const FEEDS = [
-      { name: 'ArXiv cs.AI', url: 'http://arxiv.org/rss/cs.AI', category: 'research' },
-      { name: 'ArXiv cs.LG', url: 'http://arxiv.org/rss/cs.LG', category: 'research' },
+      { name: 'ArXiv cs.AI', url: 'https://rss.arxiv.org/rss/cs.AI', category: 'research' },
+      { name: 'ArXiv cs.LG', url: 'https://rss.arxiv.org/rss/cs.LG', category: 'research' },
       { name: 'Hugging Face Blog', url: 'https://huggingface.co/blog/feed.xml', category: 'research' },
       { name: 'Google AI', url: 'https://blog.google/technology/ai/rss/', category: 'industry' },
       { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/', category: 'industry' },
@@ -274,6 +274,8 @@
     const loadMoreBtn = document.getElementById('anLoadMore');
 
     let allItems = [];
+    let failedSources = new Set();
+    let loadState = 'idle';
     let activeCategory = 'all';
     let activeSources = loadSourcePrefs();
     let visibleCount = PAGE_SIZE;
@@ -337,8 +339,24 @@
       };
     }
 
+    // A free CORS proxy that hangs is the common failure here, and without a
+    // deadline Promise.all never settles: the spinner spins forever, the body
+    // keeps saying "Scrying the feeds", and nothing ever tells you it is stuck.
+    // Two deadlines, not one. The first proxy gets long enough to be merely
+    // slow; by the time we are on the fallback we already know something is
+    // unhealthy, so it gets less rope. Otherwise a cold cache with both proxies
+    // dead means 16 seconds of spinner before the page admits anything.
+    const FETCH_TIMEOUT = 8000;
+    const FALLBACK_TIMEOUT = 5000;
+    async function fetchWithTimeout(url, ms) {
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), ms || FETCH_TIMEOUT);
+      try { return await fetch(url, { signal: ctl.signal }); }
+      finally { clearTimeout(timer); }
+    }
+
     async function fetchViaRss2Json(feed) {
-      const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
+      const r = await fetchWithTimeout('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
       const d = await r.json();
       if (d.status !== 'ok') throw new Error('rss2json status: ' + d.status);
       return (d.items || [])
@@ -347,17 +365,21 @@
     }
 
     async function fetchViaAllOrigins(feed) {
-      const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(feed.url));
+      const r = await fetchWithTimeout('https://api.allorigins.win/raw?url=' + encodeURIComponent(feed.url), FALLBACK_TIMEOUT);
       const text = await r.text();
       const doc = new DOMParser().parseFromString(text, 'text/xml');
       const nodes = Array.from(doc.querySelectorAll('item, entry'));
       return nodes.map(node => {
         const get = (tag) => node.querySelector(tag) ? node.querySelector(tag).textContent.trim() : '';
-        let link = get('link');
-        if (!link) {
-          const linkEl = node.querySelector('link');
-          link = linkEl ? (linkEl.getAttribute('href') || '') : '';
-        }
+        let link = '';
+        // Atom puts the URL in an attribute, and usually lists several <link>
+        // elements -- rel="self" points back at the feed itself, not at the
+        // article, so taking the first one can link every card to the feed.
+        const links = Array.from(node.querySelectorAll('link'));
+        const alt = links.find(l => (l.getAttribute('rel') || 'alternate') === 'alternate');
+        const pick = alt || links[0];
+        if (pick) link = (pick.getAttribute('href') || pick.textContent || '').trim();
+        if (!link) link = get('link');
         return makeItem({
           title: get('title'),
           link,
@@ -368,10 +390,22 @@
     }
 
     async function fetchFeed(feed) {
+      // rss2json sometimes answers ok with nothing in it, which is a failure
+      // wearing a success's clothes -- so an empty result falls through to the
+      // other proxy rather than being reported as a feed with no news.
       try {
-        return await fetchViaRss2Json(feed);
+        const items = await fetchViaRss2Json(feed);
+        if (items.length) return items;
+        throw new Error('empty');
       } catch (e) {
-        try { return await fetchViaAllOrigins(feed); } catch (e2) { return []; }
+        try {
+          const items = await fetchViaAllOrigins(feed);
+          if (!items.length) failedSources.add(feed.name);
+          return items;
+        } catch (e2) {
+          failedSources.add(feed.name);
+          return [];
+        }
       }
     }
 
@@ -403,16 +437,27 @@
         '</a>';
     }
 
+    function emptyMessage() {
+      if (allItems.length) return 'No dispatches match your filters. Try widening your search or re-enabling a source.';
+      // Distinguishing these two matters: before, a total failure left the body
+      // saying "Scrying the feeds" while the status line said it had given up,
+      // so the page looked like it was still working when it had stopped.
+      if (loadState === 'failed') return 'Could not reach any feed. These arrive through free public proxies that go down from time to time — press Refresh to try again.';
+      return 'Scrying the feeds…';
+    }
+
     function render() {
       const filtered = getFiltered();
       const slice = filtered.slice(0, visibleCount);
       feedEl.innerHTML = slice.length
         ? slice.map(renderCard).join('')
-        : '<p class="an-empty">' + (allItems.length ? 'No dispatches match your filters. Try widening your search or re-enabling a source.' : 'Scrying the feeds…') + '</p>';
+        : '<p class="an-empty">' + emptyMessage() + '</p>';
       loadMoreBtn.style.display = filtered.length > visibleCount ? 'block' : 'none';
       if (allItems.length) {
         statusEl.textContent = 'Showing ' + slice.length + ' of ' + filtered.length + ' dispatches (' + allItems.length + ' total) · ' +
-          activeSources.size + '/' + FEEDS.length + ' sources active' + (lastUpdated ? ' · Updated ' + lastUpdated : '');
+          activeSources.size + '/' + FEEDS.length + ' sources active' +
+          (failedSources.size ? ' · ' + failedSources.size + ' unreachable' : '') +
+          (lastUpdated ? ' · Updated ' + lastUpdated : '');
       }
     }
 
@@ -432,6 +477,8 @@
         }
       }
       refreshBtn.classList.add('spinning');
+      loadState = 'loading';
+      failedSources = new Set();
       if (!allItems.length) statusEl.textContent = 'Scrying the feeds…';
       try {
         const results = await Promise.all(FEEDS.map(fetchFeed));
@@ -441,13 +488,18 @@
           .filter(it => { if (seen.has(it.link)) return false; seen.add(it.link); return true; });
         if (merged.length) {
           allItems = merged;
+          loadState = 'idle';
           localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items: allItems }));
           lastUpdated = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         } else if (!allItems.length) {
+          loadState = 'failed';
           statusEl.textContent = 'Feeds unavailable right now — try Refresh in a moment.';
         }
       } catch (e) {
-        if (!allItems.length) statusEl.textContent = 'Feeds unavailable right now — try Refresh in a moment.';
+        if (!allItems.length) {
+          loadState = 'failed';
+          statusEl.textContent = 'Feeds unavailable right now — try Refresh in a moment.';
+        }
       } finally {
         refreshBtn.classList.remove('spinning');
         render();
@@ -486,7 +538,11 @@
 
     renderSourceChips();
     loadFeeds(false);
-    setInterval(() => loadFeeds(false), CACHE_TTL);
+    // Only refresh a tab someone is actually looking at. A background tab left
+    // open for a day was making 72 proxy calls per feed for nobody.
+    setInterval(() => {
+      if (document.visibilityState === 'visible') loadFeeds(false);
+    }, CACHE_TTL);
   })();
   </script>
   <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
