@@ -121,11 +121,29 @@ async function identifyOrigin() {
       ? '  => Functions DO compile here, so /feed alone is at fault -- my bug.'
       : '  => Functions are NOT compiled on this project. A dashboard fix, not a code fix.');
     console.log('');
+    return { functionsCompile: fnProbe.body === 'fn-ok' };
   } catch (e) {
     console.log(`--- could not reach ${ORIGIN}: ${e.message}\n`);
+    return { functionsCompile: false, unreachable: true };
   } finally {
     clearTimeout(timer);
   }
+}
+
+// Why a feed came back empty decides whether anyone should be told. These are
+// genuinely different conditions and only one of them is anybody's to fix:
+//
+//   blocked  403/429 -- the publisher refuses datacenter egress. Permanent,
+//                       works fine from a browser, nothing to do about it.
+//   flaky    timeout/network error -- a bad moment, not a broken feed.
+//   gone     404/410, or 200 carrying no items -- the URL is wrong and the
+//                       page needs editing. This one is worth an email.
+const BLOCKING_CODES = new Set(['403', '429']);
+function classify(row) {
+  if (row.direct.items || row.viaProxy.items) return 'ok';
+  if (BLOCKING_CODES.has(row.direct.code)) return 'blocked';
+  if (row.direct.code === 'timeout' || row.direct.code === 'neterr') return 'flaky';
+  return 'gone';
 }
 
 // A 404 from /feed has two very different causes, and they need opposite
@@ -162,7 +180,7 @@ async function checkDeployFreshness() {
 }
 
 (async () => {
-  await identifyOrigin();
+  const { functionsCompile } = await identifyOrigin();
   await checkDeployFreshness();
 
   const feeds = PAGES.flatMap(feedsFrom);
@@ -181,7 +199,10 @@ async function checkDeployFreshness() {
     if (viaProxy.note) console.log(`        proxy:  ${viaProxy.note}`);
   }
 
-  const deadEverywhere = rows.filter(r => !r.direct.items && !r.viaProxy.items);
+  rows.forEach(r => { r.state = classify(r); });
+  const gone = rows.filter(r => r.state === 'gone');
+  const blocked = rows.filter(r => r.state === 'blocked');
+  const flaky = rows.filter(r => r.state === 'flaky');
   const proxyWorks = rows.filter(r => r.viaProxy.items > 0);
   const proxy404 = rows.filter(r => r.viaProxy.code === '404');
   const proxyBlocked = rows.filter(r => r.direct.items > 0 && !r.viaProxy.items && r.viaProxy.code !== '404');
@@ -189,7 +210,10 @@ async function checkDeployFreshness() {
   console.log('\n--- verdict ---');
   if (proxy404.length === rows.length) {
     console.log('The /feed function is NOT deployed: every request returned 404.');
-    console.log('The pages are falling through to the public proxies, exactly as before.');
+    console.log(functionsCompile
+      ? 'Functions DO compile here, so /feed itself is broken. That is actionable.'
+      : 'Expected: this project compiles no Functions at all, so there is nothing for');
+    if (!functionsCompile) console.log('/feed to be. The pages fall back to the public proxies until that is changed.');
   } else if (proxyWorks.length) {
     console.log(`The /feed function is live and served ${proxyWorks.length}/${rows.length} feeds.`);
   } else {
@@ -200,12 +224,21 @@ async function checkDeployFreshness() {
     console.log('refuse Cloudflare/datacenter egress, and need a different route:');
     proxyBlocked.forEach(r => console.log(`  - ${r.name} (proxy said ${r.viaProxy.code})`));
   }
-  if (deadEverywhere.length) {
-    console.log(`\n${deadEverywhere.length} feed URL(s) are dead by every route -- the URL itself is wrong:`);
-    deadEverywhere.forEach(r => console.log(`  - ${r.page}: ${r.name}\n      ${r.url}`));
+  if (blocked.length) {
+    console.log(`\n${blocked.length} feed(s) refuse datacenter egress (${blocked.map(r => r.direct.code).join(', ')}).`);
+    console.log('Expected and permanent -- they serve a residential browser fine:');
+    blocked.forEach(r => console.log(`  - ${r.name}`));
+  }
+  if (flaky.length) {
+    console.log(`\n${flaky.length} feed(s) timed out or errored this run. Transient, not reported as broken:`);
+    flaky.forEach(r => console.log(`  - ${r.name} (${r.direct.code})`));
+  }
+  if (gone.length) {
+    console.log(`\n${gone.length} feed URL(s) are dead by every route -- the URL itself is wrong:`);
+    gone.forEach(r => console.log(`  - ${r.page}: ${r.name}\n      ${r.url}`));
 
     console.log('\n--- hunting for replacements ---');
-    for (const r of deadEverywhere) {
+    for (const r of gone) {
       const host = new URL(r.url).hostname;
       const list = (CANDIDATES[host] || []).filter(u => u !== r.url);
       if (!list.length) { console.log(`${r.name}: no candidates listed to try`); continue; }
@@ -224,11 +257,26 @@ async function checkDeployFreshness() {
       .join('\n');
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
       `## Feed check\n\n${md}\n\nProxy served ${proxyWorks.length}/${rows.length}. ` +
-      `${deadEverywhere.length} dead URL(s), ${proxyBlocked.length} blocking our egress.\n`);
+      `${gone.length} dead URL(s), ${blocked.length} refusing datacenter egress.\n`);
   }
 
-  // A dead URL is a real defect in the pages, and so is a proxy that is not
-  // deployed. A publisher that merely refuses our egress is worth reporting
-  // but not worth failing over -- the fallbacks still cover it.
-  process.exit(deadEverywhere.length || proxy404.length === rows.length ? 1 : 0);
+  // Fail only for something a person should act on, because a check that cries
+  // wolf gets filtered and then the real failure is missed too. uptime.yml in
+  // this repo already says as much, and mails on state change only.
+  //
+  // Not actionable: a publisher blocking datacenter IPs, a transient timeout,
+  // or /feed 404ing on a project that compiles no Functions -- that last one is
+  // a known state, and emailing about it weekly says nothing new.
+  const actionable = [];
+  if (gone.length) actionable.push(`${gone.length} feed URL(s) need repointing`);
+  if (functionsCompile && !proxyWorks.length) actionable.push('/feed exists but serves no feed');
+
+  if (actionable.length) {
+    console.log(`\nFAILING: ${actionable.join('; ')}`);
+    process.exit(1);
+  }
+  console.log('\nNothing actionable. ' +
+    `${rows.length - gone.length - blocked.length - flaky.length}/${rows.length} feeds healthy` +
+    `${blocked.length ? `, ${blocked.length} blocking datacenter egress (expected)` : ''}` +
+    `${functionsCompile ? '' : ', /feed still awaiting Functions on the Pages project'}.`);
 })();

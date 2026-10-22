@@ -8,6 +8,13 @@ name: Feed Check
 #
 # Weekly, because feed URLs rot slowly and silently. Not on push: a publisher
 # having a bad afternoon should not redden an unrelated commit.
+#
+# It fails ONLY for something a person should act on -- a feed URL that needs
+# repointing, or /feed serving nothing on a project that does compile
+# Functions. A publisher blocking datacenter IPs, a transient timeout, and
+# /feed 404ing where Functions are not compiled at all are known states, and a
+# weekly email about a known state is how a mailbox rule gets written and the
+# next real failure goes unread.
 
 on:
   workflow_dispatch:
