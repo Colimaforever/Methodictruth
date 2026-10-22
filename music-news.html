@@ -248,8 +248,8 @@
   <script>
   (function() {
     const FEEDS = [
-      { name: 'ArXiv eess.AS (Audio)', url: 'http://arxiv.org/rss/eess.AS', category: 'research' },
-      { name: 'ArXiv cs.SD (Sound)', url: 'http://arxiv.org/rss/cs.SD', category: 'research' },
+      { name: 'ArXiv eess.AS (Audio)', url: 'https://rss.arxiv.org/rss/eess.AS', category: 'research' },
+      { name: 'ArXiv cs.SD (Sound)', url: 'https://rss.arxiv.org/rss/cs.SD', category: 'research' },
       { name: 'Synthtopia', url: 'https://www.synthtopia.com/feed/', category: 'industry' },
       { name: 'Bedroom Producers Blog', url: 'https://bedroomproducersblog.com/feed/', category: 'industry' },
       { name: 'Gearnews', url: 'https://www.gearnews.com/feed/', category: 'industry' },
@@ -338,15 +338,24 @@
       };
     }
 
-    // A free CORS proxy that hangs is the common failure here, and without a
-    // deadline Promise.all never settles: the spinner spins forever, the body
-    // keeps saying "Scrying the feeds", and nothing ever tells you it is stuck.
-    // Two deadlines, not one. The first proxy gets long enough to be merely
-    // slow; by the time we are on the fallback we already know something is
-    // unhealthy, so it gets less rope. Otherwise a cold cache with both proxies
-    // dead means 16 seconds of spinner before the page admits anything.
+    // Feeds come through /feed, which is this site's own Pages Function: it
+    // fetches an allowlisted set of publishers and caches the answer at
+    // Cloudflare's edge for twenty minutes. That removes what actually broke
+    // this page -- two free shared proxies, rate-limited by everyone else's
+    // traffic as much as ours. The public proxies stay on as fallbacks, because
+    // a feed arriving the slow way beats a column of "unreachable".
+    //
+    // A proxy that hangs is the characteristic failure, and without a deadline
+    // Promise.all never settles: the spinner spins forever, the body keeps
+    // saying "Scrying the feeds", and nothing ever tells you it is stuck. So
+    // every route has a deadline, and the chain as a whole has a budget. Our
+    // own origin gets long enough to be merely slow; by the time we are on a
+    // public proxy we already know something is unhealthy, so it gets less
+    // rope, and the budget stops three dead routes from adding up to a
+    // twenty-second spinner.
     const FETCH_TIMEOUT = 8000;
     const FALLBACK_TIMEOUT = 5000;
+    const FEED_BUDGET = 14000;
     async function fetchWithTimeout(url, ms) {
       const ctl = new AbortController();
       const timer = setTimeout(() => ctl.abort(), ms || FETCH_TIMEOUT);
@@ -354,18 +363,7 @@
       finally { clearTimeout(timer); }
     }
 
-    async function fetchViaRss2Json(feed) {
-      const r = await fetchWithTimeout('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
-      const d = await r.json();
-      if (d.status !== 'ok') throw new Error('rss2json status: ' + d.status);
-      return (d.items || [])
-        .map(item => makeItem({ title: item.title, link: item.link, pubDate: item.pubDate, description: item.description }, feed))
-        .filter(Boolean);
-    }
-
-    async function fetchViaAllOrigins(feed) {
-      const r = await fetchWithTimeout('https://api.allorigins.win/raw?url=' + encodeURIComponent(feed.url), FALLBACK_TIMEOUT);
-      const text = await r.text();
+    function parseFeedXml(text, feed) {
       const doc = new DOMParser().parseFromString(text, 'text/xml');
       const nodes = Array.from(doc.querySelectorAll('item, entry'));
       return nodes.map(node => {
@@ -388,24 +386,47 @@
       }).filter(Boolean);
     }
 
+    async function fetchViaOrigin(feed, ms) {
+      const r = await fetchWithTimeout('/feed?url=' + encodeURIComponent(feed.url), ms);
+      if (!r.ok) throw new Error('origin proxy ' + r.status);
+      return parseFeedXml(await r.text(), feed);
+    }
+
+    async function fetchViaRss2Json(feed, ms) {
+      const r = await fetchWithTimeout('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url), ms);
+      const d = await r.json();
+      if (d.status !== 'ok') throw new Error('rss2json status: ' + d.status);
+      return (d.items || [])
+        .map(item => makeItem({ title: item.title, link: item.link, pubDate: item.pubDate, description: item.description }, feed))
+        .filter(Boolean);
+    }
+
+    async function fetchViaAllOrigins(feed, ms) {
+      const r = await fetchWithTimeout('https://api.allorigins.win/raw?url=' + encodeURIComponent(feed.url), ms);
+      return parseFeedXml(await r.text(), feed);
+    }
+
     async function fetchFeed(feed) {
-      // rss2json sometimes answers ok with nothing in it, which is a failure
-      // wearing a success's clothes -- so an empty result falls through to the
-      // other proxy rather than being reported as a feed with no news.
-      try {
-        const items = await fetchViaRss2Json(feed);
-        if (items.length) return items;
-        throw new Error('empty');
-      } catch (e) {
+      // An answer carrying no items is a failure wearing a success's clothes --
+      // rss2json does return ok with an empty list, and XML we cannot parse
+      // looks the same from here -- so an empty result falls through to the
+      // next route rather than being reported as a feed with no news.
+      const routes = [
+        [fetchViaOrigin, FETCH_TIMEOUT],
+        [fetchViaRss2Json, FALLBACK_TIMEOUT],
+        [fetchViaAllOrigins, FALLBACK_TIMEOUT]
+      ];
+      const deadline = Date.now() + FEED_BUDGET;
+      for (const [route, ms] of routes) {
+        const left = deadline - Date.now();
+        if (left <= 0) break;
         try {
-          const items = await fetchViaAllOrigins(feed);
-          if (!items.length) failedSources.add(feed.name);
-          return items;
-        } catch (e2) {
-          failedSources.add(feed.name);
-          return [];
-        }
+          const items = await route(feed, Math.min(ms, left));
+          if (items.length) return items;
+        } catch (e) { /* fall through to the next route */ }
       }
+      failedSources.add(feed.name);
+      return [];
     }
 
     function renderSourceChips() {
@@ -441,7 +462,7 @@
       // Distinguishing these two matters: before, a total failure left the body
       // saying "Scrying the feeds" while the status line said it had given up,
       // so the page looked like it was still working when it had stopped.
-      if (loadState === 'failed') return 'Could not reach any feed. These arrive through free public proxies that go down from time to time — press Refresh to try again.';
+      if (loadState === 'failed') return 'Could not reach any feed. Every route was tried — press Refresh to try again.';
       return 'Scrying the feeds…';
     }
 
