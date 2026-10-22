@@ -22,6 +22,31 @@ const ORIGIN = process.env.PROXY_BASE || 'https://methodictruth.com';
 const UA = 'MethodicTruthFeedCheck/1.0 (+https://methodictruth.com)';
 const TIMEOUT = 20000;
 
+// When a publisher moves its feed there is no redirect and no notice, so the
+// only way to find the new address is to try the handful of places a feed
+// conventionally lives. Probed only for feeds that actually failed.
+const CANDIDATES = {
+  'www.musicradar.com': [
+    'https://www.musicradar.com/feeds/all',
+    'https://www.musicradar.com/feed',
+    'https://www.musicradar.com/rss',
+    'https://www.musicradar.com/feeds.xml',
+    'https://www.musicradar.com/feeds/articletype/news'
+  ],
+  'www.soundonsound.com': [
+    'https://www.soundonsound.com/rss/news',
+    'https://www.soundonsound.com/feeds/news',
+    'https://www.soundonsound.com/feed',
+    'https://www.soundonsound.com/rss',
+    'https://www.soundonsound.com/news/feed'
+  ],
+  'venturebeat.com': [
+    'https://venturebeat.com/feed/',
+    'https://venturebeat.com/category/ai/feed/',
+    'https://venturebeat.com/rss'
+  ]
+};
+
 function feedsFrom(file) {
   const src = fs.readFileSync(file, 'utf8');
   const block = src.match(/const FEEDS = \[([\s\S]*?)\n\s*\];/);
@@ -56,7 +81,40 @@ async function probe(url) {
   }
 }
 
+// Whenever /feed 404s, the next question is always what is actually serving
+// this domain -- a Pages Function cannot run on a host that has no Functions.
+// The `_headers` rules are the tell: Cloudflare Pages applies them, GitHub
+// Pages ignores the file entirely. So the response to a plain page answers
+// which of the two we are talking to, without needing dashboard access.
+async function identifyOrigin() {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), TIMEOUT);
+  try {
+    const r = await fetch(`${ORIGIN}/index.html`, { signal: ctl.signal, headers: { 'User-Agent': UA } });
+    const h = (k) => r.headers.get(k) || '-';
+    console.log('--- what is serving this domain ---');
+    console.log(`  status                 ${r.status}`);
+    console.log(`  server                 ${h('server')}`);
+    console.log(`  cf-ray                 ${h('cf-ray')}`);
+    console.log(`  x-github-request-id    ${h('x-github-request-id')}`);
+    console.log(`  cache-control          ${h('cache-control')}`);
+    console.log(`  x-content-type-options ${h('x-content-type-options')}`);
+    const headersApplied = /s-maxage=300/.test(h('cache-control')) || h('x-content-type-options') === 'nosniff';
+    console.log(headersApplied
+      ? '  => _headers IS applied, so Cloudflare Pages is serving. /feed failing is a project setting.'
+      : '  => _headers is NOT applied. This is very likely GitHub Pages, which cannot run Functions');
+    if (!headersApplied) console.log('     at all -- and which also silently ignores _headers and _redirects.');
+    console.log('');
+  } catch (e) {
+    console.log(`--- could not reach ${ORIGIN}: ${e.message}\n`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 (async () => {
+  await identifyOrigin();
+
   const feeds = PAGES.flatMap(feedsFrom);
   console.log(`Checking ${feeds.length} feeds directly and through ${ORIGIN}/feed\n`);
 
@@ -95,6 +153,18 @@ async function probe(url) {
   if (deadEverywhere.length) {
     console.log(`\n${deadEverywhere.length} feed URL(s) are dead by every route -- the URL itself is wrong:`);
     deadEverywhere.forEach(r => console.log(`  - ${r.page}: ${r.name}\n      ${r.url}`));
+
+    console.log('\n--- hunting for replacements ---');
+    for (const r of deadEverywhere) {
+      const host = new URL(r.url).hostname;
+      const list = (CANDIDATES[host] || []).filter(u => u !== r.url);
+      if (!list.length) { console.log(`${r.name}: no candidates listed to try`); continue; }
+      console.log(`${r.name}:`);
+      for (const candidate of list) {
+        const got = await probe(candidate);
+        console.log(`  ${(got.items ? 'WORKS' : 'no   ').padEnd(6)} ${got.code.padEnd(7)} items=${String(got.items).padEnd(4)} ${candidate}`);
+      }
+    }
   }
 
   if (process.env.GITHUB_STEP_SUMMARY) {
