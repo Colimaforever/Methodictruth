@@ -1,0 +1,32 @@
+name: Feed Check
+
+# Verifies every feed the dispatch pages read, from outside the house network
+# and outside Cloudflare -- the only vantage point that sees what a visitor
+# sees. Reports three distinct conditions the pages themselves cannot
+# distinguish: a dead feed URL, a publisher that refuses our datacenter egress,
+# and the /feed function not being deployed at all.
+#
+# Weekly, because feed URLs rot slowly and silently. Not on push: a publisher
+# having a bad afternoon should not redden an unrelated commit.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * 1'
+
+concurrency:
+  group: feed-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Probe every feed, direct and through /feed
+        run: node .github/scripts/feed-check.js
