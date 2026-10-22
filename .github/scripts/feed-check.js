@@ -135,7 +135,11 @@ async function identifyOrigin() {
 //
 //   blocked  403/429 -- the publisher refuses datacenter egress. Permanent,
 //                       works fine from a browser, nothing to do about it.
-//   flaky    timeout/network error -- a bad moment, not a broken feed.
+//   flaky    timeout, network error, or any 5xx -- the publisher's own
+//                       infrastructure is having a moment. Synthtopia served
+//                       15 items in the morning and 522 by evening with the
+//                       URL unchanged, so treating 5xx as a dead URL means
+//                       emailing about someone else's outage.
 //   gone     404/410, or 200 carrying no items -- the URL is wrong and the
 //                       page needs editing. This one is worth an email.
 const BLOCKING_CODES = new Set(['403', '429']);
@@ -143,6 +147,7 @@ function classify(row) {
   if (row.direct.items || row.viaProxy.items) return 'ok';
   if (BLOCKING_CODES.has(row.direct.code)) return 'blocked';
   if (row.direct.code === 'timeout' || row.direct.code === 'neterr') return 'flaky';
+  if (/^5\d\d$/.test(row.direct.code)) return 'flaky';
   return 'gone';
 }
 
