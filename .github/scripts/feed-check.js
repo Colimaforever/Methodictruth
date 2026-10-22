@@ -105,16 +105,21 @@ async function identifyOrigin() {
       : '  => _headers is NOT applied. This is very likely GitHub Pages, which cannot run Functions');
     if (!headersApplied) console.log('     at all -- and which also silently ignores _headers and _redirects.');
 
-    // functions/analyze.js predates this work by months. Probing it separates
-    // "this project compiles no Functions at all" from "the new one is at
-    // fault" -- which are different bugs belonging to different people. It
-    // needs API keys it probably does not have, so any JSON error back from it
-    // still counts as the Function having run.
-    const probe2 = await probe(`${ORIGIN}/analyze?videoId=dQw4w9WgXcQ`);
-    console.log(`  /analyze (the pre-existing Function) -> ${probe2.code}`);
-    console.log(probe2.code === '404'
-      ? '  => it 404s too, so this project compiles NO Functions. Not specific to /feed.'
-      : '  => it responds, so Functions DO work here and /feed alone is the problem.');
+    // Does this project compile Functions at all? The obvious test -- probe
+    // functions/analyze.js, which has been here for months -- gives a FALSE
+    // POSITIVE: /analyze returns 200 because a static analyze.html sits at
+    // that path and Pages serves assets ahead of Functions. So that Function
+    // has never run and could not have.
+    //
+    // /__fnprobe is a path no static file can shadow, which makes its answer
+    // unambiguous.
+    const fnProbe = await fetch(`${ORIGIN}/__fnprobe`, { headers: { 'User-Agent': UA } })
+      .then(async r => ({ code: String(r.status), body: (await r.text()).slice(0, 40), type: r.headers.get('content-type') || '-' }))
+      .catch(e => ({ code: 'neterr', body: e.message, type: '-' }));
+    console.log(`  /__fnprobe -> ${fnProbe.code} ${fnProbe.type} ${JSON.stringify(fnProbe.body)}`);
+    console.log(fnProbe.body === 'fn-ok'
+      ? '  => Functions DO compile here, so /feed alone is at fault -- my bug.'
+      : '  => Functions are NOT compiled on this project. A dashboard fix, not a code fix.');
     console.log('');
   } catch (e) {
     console.log(`--- could not reach ${ORIGIN}: ${e.message}\n`);
