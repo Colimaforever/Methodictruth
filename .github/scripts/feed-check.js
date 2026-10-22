@@ -112,8 +112,42 @@ async function identifyOrigin() {
   }
 }
 
+// A 404 from /feed has two very different causes, and they need opposite
+// responses: either the deploy never happened (wait, or fix the build), or it
+// happened and Functions are not being compiled (fix the project). Comparing
+// the served page against the committed one separates them, and keeps being
+// useful afterwards -- a Pages build that fails leaves the previous deployment
+// serving, which looks exactly like a deploy that worked.
+async function checkDeployFreshness() {
+  console.log('--- is the deployed site current? ---');
+  for (const page of PAGES) {
+    const local = fs.readFileSync(page, 'utf8');
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), TIMEOUT);
+    try {
+      const r = await fetch(`${ORIGIN}/${page}`, { signal: ctl.signal, headers: { 'User-Agent': UA } });
+      const served = await r.text();
+      const same = served === local;
+      console.log(`  ${page}: ${r.status}, ${same ? 'identical to HEAD' : 'DIFFERS from HEAD'}` +
+        ` (served ${served.length}B vs committed ${local.length}B)`);
+      if (!same) {
+        // The marker is whatever makes this commit distinguishable. If the
+        // served copy lacks it, the deploy is behind.
+        console.log(`    contains fetchViaOrigin: ${served.includes('fetchViaOrigin')}` +
+          ` -- if false, this commit is not deployed yet`);
+      }
+    } catch (e) {
+      console.log(`  ${page}: could not fetch (${e.message})`);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  console.log('');
+}
+
 (async () => {
   await identifyOrigin();
+  await checkDeployFreshness();
 
   const feeds = PAGES.flatMap(feedsFrom);
   console.log(`Checking ${feeds.length} feeds directly and through ${ORIGIN}/feed\n`);

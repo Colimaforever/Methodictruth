@@ -256,8 +256,12 @@
       { name: 'Attack Magazine', url: 'https://www.attackmagazine.com/feed/', category: 'media' },
       { name: 'CDM — Create Digital Music', url: 'https://cdm.link/feed/', category: 'media' },
       { name: 'MusicTech', url: 'https://musictech.com/feed/', category: 'media' },
-      { name: 'MusicRadar', url: 'https://www.musicradar.com/feeds/musicradar', category: 'media' },
-      { name: 'Sound on Sound', url: 'https://www.soundonsound.com/news/rss', category: 'media' }
+      // /feeds/musicradar 404s; /feeds/all serves 50 items. Verified by probe,
+      // not guessed -- /feed and /rss and /feeds.xml also work, /feed does not.
+      { name: 'MusicRadar', url: 'https://www.musicradar.com/feeds/all', category: 'media' }
+      // Sound on Sound removed: it has retired RSS altogether. Its feed paths
+      // answer 410 Gone, which is a publisher saying so deliberately rather
+      // than a URL that drifted, so there is nothing here to repoint.
     ];
     const CACHE_KEY = 'music-news-full-cache';
     const CACHE_TTL = 20 * 60 * 1000; // 20 min

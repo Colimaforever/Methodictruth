@@ -253,6 +253,10 @@
       { name: 'ArXiv cs.LG', url: 'https://rss.arxiv.org/rss/cs.LG', category: 'research' },
       { name: 'Hugging Face Blog', url: 'https://huggingface.co/blog/feed.xml', category: 'research' },
       { name: 'Google AI', url: 'https://blog.google/technology/ai/rss/', category: 'industry' },
+      // Answers 429 to datacenter egress -- every VentureBeat feed path does,
+      // so this is bot protection rather than a moved URL. Kept because it
+      // works from a residential browser and a failing source costs the chain
+      // only the one fast rejection.
       { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/', category: 'industry' },
       { name: 'MIT Tech Review', url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed', category: 'industry' },
       { name: 'IEEE Spectrum AI', url: 'https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss', category: 'industry' },

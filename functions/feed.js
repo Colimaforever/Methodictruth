@@ -41,7 +41,6 @@ const ALLOWED_HOSTS = new Set([
   'cdm.link',
   'musictech.com',
   'www.musicradar.com',
-  'www.soundonsound.com',
 ]);
 
 // Matches the client's own cache window, so the two do not fight: the browser
