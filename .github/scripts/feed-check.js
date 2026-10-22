@@ -179,8 +179,35 @@ async function checkDeployFreshness() {
   console.log('');
 }
 
+// Until /feed exists, the pages depend entirely on two free public proxies, so
+// their health IS the dispatches' health. Worth probing on the same schedule:
+// when both are refusing, the pages show nothing no matter how healthy the
+// publishers are, and that is the difference between "a feed moved" and "the
+// whole page is blank" -- which look identical from a browser.
+const FALLBACKS = [
+  ['rss2json  ', u => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}`],
+  ['allorigins', u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`]
+];
+async function checkFallbackProxies() {
+  const sample = 'https://www.synthtopia.com/feed/';
+  console.log('--- the public proxies the pages currently rely on ---');
+  for (const [name, build] of FALLBACKS) {
+    try {
+      const r = await fetch(build(sample), { headers: { 'User-Agent': UA } });
+      const body = await r.text();
+      const items = (body.match(/<item[\s>]|<entry[\s>]|"title"/g) || []).length;
+      console.log(`  ${name} -> ${r.status} ${items ? `${items} items` : 'NO ITEMS'}`);
+      if (!items) console.log(`    body: ${JSON.stringify(body.slice(0, 160))}`);
+    } catch (e) {
+      console.log(`  ${name} -> unreachable (${e.message})`);
+    }
+  }
+  console.log('');
+}
+
 (async () => {
   const { functionsCompile } = await identifyOrigin();
+  await checkFallbackProxies();
   await checkDeployFreshness();
 
   const feeds = PAGES.flatMap(feedsFrom);
