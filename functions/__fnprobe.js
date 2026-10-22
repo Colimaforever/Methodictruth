@@ -14,7 +14,15 @@
  * means Functions work and /feed is my bug. A 404 means the project is not
  * building the functions directory, which is a dashboard fix.
  *
- * Delete once that question is answered.
+ * Answered on 22 Oct 2026: 404. This project compiles no Functions, so /feed
+ * cannot work and the dispatch pages fall back to the public proxies.
+ *
+ * It stays rather than being deleted, because feed-check.js now reads it as
+ * the signal for whether Functions run here at all -- which is worth knowing
+ * on a schedule, since the dispatches depend on it. Removing the file would
+ * make that check report "not compiled" forever, including after someone
+ * fixes the project. It is two lines of output and no exposure: it takes no
+ * input, reads nothing, and returns a constant.
  */
 
 export async function onRequestGet() {
