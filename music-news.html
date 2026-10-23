@@ -298,7 +298,27 @@
       localStorage.setItem('music-news-sources', JSON.stringify([...activeSources]));
     }
 
-    function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    // textContent -> innerHTML escapes & < > but NOT quotes: the HTML serializer
+    // escapes those only inside attribute values, never in text nodes. Each card
+    // interpolates this straight into href="...", so without the replace below a
+    // feed item whose link contains a double quote closes the attribute and
+    // writes its own -- onmouseover included, running in our origin. Escaping
+    // here rather than at each call site means a future call site cannot
+    // reintroduce it. Safe in text position too: the parser turns &quot; back
+    // into a quote on the way in.
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // A feed's <link> is third-party data, and "javascript:" in an href is
+    // script that runs on click -- no quotes needed, so escaping alone does not
+    // stop it. Anything that is not plainly http(s) does not become a link.
+    function safeUrl(u) {
+      const s = String(u || '').trim();
+      return /^https?:\/\//i.test(s) ? s : '';
+    }
     function decodeEntities(str) {
       const ta = document.createElement('textarea');
       ta.innerHTML = str;
@@ -329,7 +349,10 @@
 
     function makeItem(raw, feed) {
       const title = stripHtml(raw.title || '');
-      const link = (raw.link || '').trim();
+      // safeUrl returns '' for anything not http(s), and the guard below then
+      // drops the item entirely -- better than rendering a link that goes
+      // nowhere.
+      const link = safeUrl(raw.link);
       if (!title || !link) return null;
       const snippetFull = stripHtml(raw.description || '');
       const snippet = snippetFull.length > SNIPPET_MAX ? snippetFull.slice(0, SNIPPET_MAX - 1).trim() + '…' : snippetFull;

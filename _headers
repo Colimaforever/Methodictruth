@@ -3,6 +3,17 @@
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=self, microphone=self, geolocation=()
+  # Deliberately NOT script-src. Every page here carries inline <script>, so a
+  # script-src without 'unsafe-inline' would blank the site, and one WITH it
+  # buys almost nothing -- it would be a policy that permits exactly the thing
+  # it is meant to stop. These four directives need no such compromise:
+  #   base-uri    a single injected <base> silently repoints every relative URL
+  #               on the page, scripts included. Nothing here uses one.
+  #   object-src  kills <object>/<embed> as a script vector. Nothing uses them.
+  #   form-action limits where a form may post. There are no forms at all.
+  #   frame-ancestors  the modern X-Frame-Options; both are sent since older
+  #               browsers only honour the latter.
+  Content-Security-Policy: base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'self'
 
 # ── HTML at the edge ──
 # Everything else here is cached hard because it is content-addressed by a ?v=

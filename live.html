@@ -1078,7 +1078,15 @@
       updateRoster();
     }
 
-    function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    // Quotes are escaped as well as & < >, which textContent -> innerHTML does
+    // not do on its own. Every current call site puts the result in text, where
+    // that is already enough -- this is so the first call site that puts a peer
+    // name in an attribute does not silently become an injection point.
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : s;
+      return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
 
     function showToast(msg) {
       liveToast.textContent = msg;
