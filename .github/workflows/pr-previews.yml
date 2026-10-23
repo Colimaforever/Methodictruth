@@ -10,7 +10,10 @@ permissions:
 
 jobs:
   screenshots:
-    runs-on: ubuntu-latest
+    # Pinned for the same reason as dispatch-browser-check: ubuntu-latest is now
+    # 26.04, which Playwright cannot install on, so this workflow was silently
+    # broken too -- it just had no PR open to fail against.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
 

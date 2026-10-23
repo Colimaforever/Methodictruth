@@ -18,7 +18,13 @@ concurrency:
 
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    # Pinned, not 'latest'. GitHub rolled ubuntu-latest to 26.04 and Playwright
+    # 1.56.1 refuses to install on it ("does not support chromium on
+    # ubuntu26.04-x64"), so this job started failing with nothing in the repo
+    # having changed. A browser test is only useful if its own failures mean
+    # something, and a floating OS label makes that untrue on someone else's
+    # schedule. Bump deliberately, with the Playwright version, together.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
 
