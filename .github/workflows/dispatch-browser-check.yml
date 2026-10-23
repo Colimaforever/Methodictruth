@@ -1,0 +1,35 @@
+name: Dispatch Browser Check
+
+# Loads the live dispatch pages in a real Chromium and reports what a visitor
+# sees. feed-check.yml asks whether the feeds and proxies are up; this asks
+# whether the page works, which is a different question. CORS is enforced by
+# browsers and nothing else, the edge can serve stale HTML for up to 24 hours,
+# and a proxy can answer a server politely while refusing a browser -- none of
+# which a fetch() from Node would notice.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 6 * * 1'
+
+concurrency:
+  group: dispatch-browser-check
+  cancel-in-progress: false
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Install Playwright
+        run: |
+          npm install playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Load the live pages as a visitor would
+        run: node .github/scripts/dispatch-browser-check.js
