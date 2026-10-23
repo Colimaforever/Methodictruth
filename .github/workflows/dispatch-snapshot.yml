@@ -39,7 +39,7 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ai-dispatch.json music-dispatch.json
+          git add ai-dispatch.json music-dispatch.json evolution-dispatch.json
           # Headlines change on their own schedule, and a commit per run whether
           # or not anything moved would be noise in the history and a wasted
           # Pages build each time.

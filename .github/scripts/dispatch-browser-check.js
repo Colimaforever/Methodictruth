@@ -13,14 +13,24 @@
 const { chromium } = require('playwright');
 
 const ORIGIN = process.env.PROXY_BASE || 'https://methodictruth.com';
-const PAGES = ['ai-news.html', 'music-news.html'];
-const PROXY_HOSTS = /cors\.lol|rss2json|allorigins|codetabs|\/feed\?/;
+// Every page that renders feeds, not just the obvious two. index.html has an
+// AI Dispatches panel and ai-evolution.html is a third full dispatch page;
+// both were left broken for a day while the other two were being fixed,
+// because nothing checked them. A list of pages is the kind of thing that goes
+// stale quietly, so each entry names what proves that page worked.
+const PAGES = [
+  { file: 'index.html', ready: '#newsItems .news-item', empty: 'Feeds unavailable' },
+  { file: 'ai-news.html', ready: '.an-card', empty: 'Could not reach any feed' },
+  { file: 'music-news.html', ready: '.an-card', empty: 'Could not reach any feed' },
+  { file: 'ai-evolution.html', ready: '.an-card', empty: 'Scrying the feeds' }
+];
+const PROXY_HOSTS = /cors\.lol|rss2json|allorigins|codetabs|dispatch\.json|\/feed\?/;
 
 (async () => {
   const browser = await chromium.launch();
   let anyFailed = false;
 
-  for (const page_ of PAGES) {
+  for (const { file: page_, ready, empty } of PAGES) {
     // The cache-buster matters: _headers allows the edge to serve stale HTML
     // for up to 24h while revalidating, so the plain URL can hand back an old
     // build and hide a deploy that worked.
@@ -49,15 +59,20 @@ const PROXY_HOSTS = /cors\.lol|rss2json|allorigins|codetabs|\/feed\?/;
       // The page's own budget is 14s per feed; give it room to settle.
       await page.waitForTimeout(20000);
 
-      const cards = await page.locator('.an-card').count();
-      const status = (await page.locator('#anStatus').textContent().catch(() => '')).replace(/\s+/g, ' ').trim();
-      const body = (await page.locator('#anFeed').textContent().catch(() => '')).replace(/\s+/g, ' ').trim();
-      const hasCorsLol = await page.evaluate(() => document.documentElement.innerHTML.includes('fetchViaCorsLol'));
+      const cards = await page.locator(ready).count();
+      const status = (await page.locator('#anStatus, #aeStatus, #newsUpdated').first()
+        .textContent().catch(() => '')).replace(/\s+/g, ' ').trim();
+      const body = (await page.locator('#anFeed, #aeFeed, #newsItems').first()
+        .textContent().catch(() => '')).replace(/\s+/g, ' ').trim();
+      // Reading the snapshot is what a fixed page does; still calling a public
+      // proxy first means this page was missed.
+      const usesSnapshot = await page.evaluate(() => document.documentElement.innerHTML.includes('SNAPSHOT_URL'));
 
-      console.log(`  cards rendered : ${cards}`);
+      console.log(`  items rendered : ${cards}`);
       console.log(`  status line    : ${status.slice(0, 120)}`);
-      console.log(`  deployed build : ${hasCorsLol ? 'current (has cors.lol route)' : 'STALE -- no cors.lol route in the served HTML'}`);
+      console.log(`  reads snapshot : ${usesSnapshot ? 'yes' : 'NO -- this page was not migrated, or the build is stale'}`);
       if (!cards) console.log(`  body           : ${body.slice(0, 160)}`);
+      if (!cards && body.includes(empty)) console.log(`  (showing its empty state: "${empty}")`);
 
       console.log(`  proxy requests the browser actually made:`);
       if (!proxyCalls.length) console.log('    (none -- the page never tried, which points at the page not the proxies)');

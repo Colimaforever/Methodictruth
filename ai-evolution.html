@@ -659,7 +659,7 @@
   <script>
   (function() {
     const FEEDS = [
-      { name: 'ArXiv cs.AI', url: 'http://arxiv.org/rss/cs.AI', category: 'advances' },
+      { name: 'ArXiv cs.AI', url: 'https://rss.arxiv.org/rss/cs.AI', category: 'advances' },
       { name: 'Hugging Face Blog', url: 'https://huggingface.co/blog/feed.xml', category: 'advances' },
       { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/', category: 'advances' },
       { name: 'The Verge AI', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', category: 'advances' },
@@ -667,7 +667,7 @@
       { name: 'The Verge — Policy', url: 'https://www.theverge.com/rss/policy/index.xml', category: 'policy' },
       { name: 'Tech Policy Press', url: 'https://www.techpolicy.press/feed', category: 'policy' },
       { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', category: 'market' },
-      { name: 'Ars Technica', url: 'http://feeds.arstechnica.com/arstechnica/index', category: 'market' },
+      { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', category: 'market' },
       { name: 'IEEE Spectrum — Semiconductors', url: 'https://spectrum.ieee.org/feeds/topic/semiconductors.rss', category: 'market' },
       { name: 'Wired — Business', url: 'https://www.wired.com/feed/category/business/latest/rss', category: 'market' }
     ];
@@ -742,8 +742,43 @@
       return { title, link, pubDate: raw.pubDate || '', snippet, source: feed.name, category: feed.category };
     }
 
-    async function fetchViaRss2Json(feed) {
-      const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
+    // Without a deadline a hanging proxy means Promise.all never settles: the
+    // status line keeps saying "Scrying the feeds" and nothing ever reports
+    // that it is stuck.
+    const FETCH_TIMEOUT = 8000;
+    const FALLBACK_TIMEOUT = 5000;
+    const FEED_BUDGET = 14000;
+    async function fetchWithTimeout(url, ms) {
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), ms || FETCH_TIMEOUT);
+      try { return await fetch(url, { signal: ctl.signal }); }
+      finally { clearTimeout(timer); }
+    }
+
+    // A file on our own origin, refreshed every 6 hours by CI, which fetches
+    // the feeds where CORS does not apply. This page keeps its own sources --
+    // policy and market feeds the other dispatch pages do not carry -- so it
+    // gets its own snapshot. See .github/workflows/dispatch-snapshot.yml.
+    //
+    // Fetched once per page load however many feeds read it.
+    const SNAPSHOT_URL = '/evolution-dispatch.json';
+    let snapshotPromise = null;
+    function loadSnapshot(ms) {
+      if (!snapshotPromise) {
+        snapshotPromise = fetchWithTimeout(SNAPSHOT_URL, ms)
+          .then(r => r.ok ? r.json() : Promise.reject(new Error('snapshot ' + r.status)))
+          .catch(e => { snapshotPromise = null; throw e; });
+      }
+      return snapshotPromise;
+    }
+    async function fetchViaSnapshot(feed, ms) {
+      const snap = await loadSnapshot(ms);
+      const raw = (snap && snap.feeds && snap.feeds[feed.name]) || [];
+      return raw.map(item => makeItem(item, feed)).filter(Boolean);
+    }
+
+    async function fetchViaRss2Json(feed, ms) {
+      const r = await fetchWithTimeout('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url), ms);
       const d = await r.json();
       if (d.status !== 'ok') throw new Error('rss2json status: ' + d.status);
       return (d.items || [])
@@ -751,8 +786,8 @@
         .filter(Boolean);
     }
 
-    async function fetchViaAllOrigins(feed) {
-      const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(feed.url));
+    async function fetchViaAllOrigins(feed, ms) {
+      const r = await fetchWithTimeout('https://api.allorigins.win/raw?url=' + encodeURIComponent(feed.url), ms);
       const text = await r.text();
       const doc = new DOMParser().parseFromString(text, 'text/xml');
       const nodes = Array.from(doc.querySelectorAll('item, entry'));
@@ -771,11 +806,26 @@
       }).filter(Boolean);
     }
 
+    // The snapshot first, because it is the only route that works: rss2json
+    // answers a Cloudflare bot challenge and allorigins' origin is down. They
+    // stay behind it in case either recovers, bounded by a budget so three
+    // dead routes cannot add up to a twenty-second wait.
     async function fetchFeed(feed) {
-      try { return await fetchViaRss2Json(feed); }
-      catch (e) {
-        try { return await fetchViaAllOrigins(feed); } catch (e2) { return []; }
+      const routes = [
+        [fetchViaSnapshot, FETCH_TIMEOUT],
+        [fetchViaRss2Json, FALLBACK_TIMEOUT],
+        [fetchViaAllOrigins, FALLBACK_TIMEOUT]
+      ];
+      const deadline = Date.now() + FEED_BUDGET;
+      for (const [route, ms] of routes) {
+        const left = deadline - Date.now();
+        if (left <= 0) break;
+        try {
+          const items = await route(feed, Math.min(ms, left));
+          if (items.length) return items;
+        } catch (e) { /* fall through to the next route */ }
       }
+      return [];
     }
 
     function renderSourceChips() {

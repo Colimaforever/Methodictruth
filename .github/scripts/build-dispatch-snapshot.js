@@ -21,7 +21,14 @@
 
 const fs = require('fs');
 
-const PAGES = { 'ai-news.html': 'ai-dispatch.json', 'music-news.html': 'music-dispatch.json' };
+// Every page that reads feeds needs a snapshot. ai-evolution.html carries its
+// own policy and market sources that appear nowhere else, and index.html's
+// panel reads ai-dispatch.json rather than keeping a list of its own.
+const PAGES = {
+  'ai-news.html': 'ai-dispatch.json',
+  'music-news.html': 'music-dispatch.json',
+  'ai-evolution.html': 'evolution-dispatch.json'
+};
 const UA = 'MethodicTruthDispatchBuilder/1.0 (+https://methodictruth.com)';
 const TIMEOUT = 20000;
 const MAX_ITEMS = 15;          // enough to fill the page, small enough to stay cheap
