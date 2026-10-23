@@ -189,16 +189,19 @@ async function checkDeployFreshness() {
 // when both are refusing, the pages show nothing no matter how healthy the
 // publishers are, and that is the difference between "a feed moved" and "the
 // whole page is blank" -- which look identical from a browser.
+// The first three are routes the pages actually use, in the order they try
+// them. The rest are candidates kept in the probe so a recovery shows up here
+// before it is needed.
+//
+// Dropped after the 23 Oct probe: corsproxy.io now requires a paid API key,
+// and test.cors.workers.dev answers "banned for abuse -- do not use this
+// proxy". Neither is coming back, and the second should not be leaned on.
 const FALLBACKS = [
+  ['cors.lol    ', u => `https://api.cors.lol/?url=${encodeURIComponent(u)}`],
   ['rss2json    ', u => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}`],
   ['allorigins  ', u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`],
-  // Candidates. Both of the above died on the same day for unrelated reasons,
-  // which is an argument for more routes rather than a better one.
   ['codetabs    ', u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`],
-  ['corsproxy.io', u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`],
-  ['cors.lol    ', u => `https://api.cors.lol/?url=${encodeURIComponent(u)}`],
-  ['whateverorig', u => `https://whateverorigin.org/get?url=${encodeURIComponent(u)}`],
-  ['cors.workers', u => `https://test.cors.workers.dev/?${u}`]
+  ['whateverorig', u => `https://whateverorigin.org/get?url=${encodeURIComponent(u)}`]
 ];
 async function checkFallbackProxies() {
   const sample = 'https://cdm.link/feed/';

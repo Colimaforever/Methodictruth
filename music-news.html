@@ -396,6 +396,18 @@
       return parseFeedXml(await r.text(), feed);
     }
 
+    // Probed 23 Oct 2026: of seven public CORS proxies, this was the only one
+    // returning a feed with a usable Access-Control-Allow-Origin. rss2json now
+    // answers a bot challenge, allorigins and codetabs were 522, corsproxy.io
+    // wants an API key, and test.cors.workers.dev replies "banned for abuse,
+    // create your own cors proxy" -- which is the correct advice and the
+    // reason /feed exists.
+    async function fetchViaCorsLol(feed, ms) {
+      const r = await fetchWithTimeout('https://api.cors.lol/?url=' + encodeURIComponent(feed.url), ms);
+      if (!r.ok) throw new Error('cors.lol ' + r.status);
+      return parseFeedXml(await r.text(), feed);
+    }
+
     async function fetchViaRss2Json(feed, ms) {
       const r = await fetchWithTimeout('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url), ms);
       const d = await r.json();
@@ -417,6 +429,7 @@
       // next route rather than being reported as a feed with no news.
       const routes = [
         [fetchViaOrigin, FETCH_TIMEOUT],
+        [fetchViaCorsLol, FALLBACK_TIMEOUT],
         [fetchViaRss2Json, FALLBACK_TIMEOUT],
         [fetchViaAllOrigins, FALLBACK_TIMEOUT]
       ];
