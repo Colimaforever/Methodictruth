@@ -190,21 +190,39 @@ async function checkDeployFreshness() {
 // publishers are, and that is the difference between "a feed moved" and "the
 // whole page is blank" -- which look identical from a browser.
 const FALLBACKS = [
-  ['rss2json  ', u => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}`],
-  ['allorigins', u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`]
+  ['rss2json    ', u => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}`],
+  ['allorigins  ', u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`],
+  // Candidates. Both of the above died on the same day for unrelated reasons,
+  // which is an argument for more routes rather than a better one.
+  ['codetabs    ', u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`],
+  ['corsproxy.io', u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`],
+  ['cors.lol    ', u => `https://api.cors.lol/?url=${encodeURIComponent(u)}`],
+  ['whateverorig', u => `https://whateverorigin.org/get?url=${encodeURIComponent(u)}`],
+  ['cors.workers', u => `https://test.cors.workers.dev/?${u}`]
 ];
 async function checkFallbackProxies() {
-  const sample = 'https://www.synthtopia.com/feed/';
-  console.log('--- the public proxies the pages currently rely on ---');
+  const sample = 'https://cdm.link/feed/';
+  console.log('--- public proxies: alive, and usable from a browser? ---');
+  console.log('    (CORS matters as much as the body -- no ACAO header means a page cannot read it)');
   for (const [name, build] of FALLBACKS) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), TIMEOUT);
     try {
-      const r = await fetch(build(sample), { headers: { 'User-Agent': UA } });
+      // Origin: is what a browser would send, and is what decides whether the
+      // answer carries a usable Access-Control-Allow-Origin.
+      const r = await fetch(build(sample), {
+        signal: ctl.signal,
+        headers: { 'User-Agent': UA, 'Origin': 'https://methodictruth.com' }
+      });
       const body = await r.text();
-      const items = (body.match(/<item[\s>]|<entry[\s>]|"title"/g) || []).length;
-      console.log(`  ${name} -> ${r.status} ${items ? `${items} items` : 'NO ITEMS'}`);
-      if (!items) console.log(`    body: ${JSON.stringify(body.slice(0, 160))}`);
+      const items = (body.match(/<item[\s>]|<entry[\s>]|\\u003citem|"title"/g) || []).length;
+      const acao = r.headers.get('access-control-allow-origin') || 'NONE';
+      console.log(`  ${name} -> ${r.status} ${String(items).padStart(3)} items  ACAO=${acao}`);
+      if (!items) console.log(`    body: ${JSON.stringify(body.slice(0, 120))}`);
     } catch (e) {
-      console.log(`  ${name} -> unreachable (${e.message})`);
+      console.log(`  ${name} -> unreachable (${e.name === 'AbortError' ? 'timeout' : e.message})`);
+    } finally {
+      clearTimeout(timer);
     }
   }
   console.log('');
