@@ -397,12 +397,35 @@
       return parseFeedXml(await r.text(), feed);
     }
 
+    // A file on our own origin, refreshed every 6 hours by CI, which fetches
+    // the feeds where CORS does not apply. It needs no proxy, no third party
+    // and nothing enabled in a dashboard, which is what makes it the route
+    // that actually works. See .github/workflows/dispatch-snapshot.yml.
+    //
+    // Fetched once per page load however many feeds ask for it, because it
+    // holds all of them: ten feeds must not mean ten downloads of the same
+    // file. A failure clears the memo so Refresh genuinely retries.
+    const SNAPSHOT_URL = '/ai-dispatch.json';
+    let snapshotPromise = null;
+    function loadSnapshot(ms) {
+      if (!snapshotPromise) {
+        snapshotPromise = fetchWithTimeout(SNAPSHOT_URL, ms)
+          .then(r => r.ok ? r.json() : Promise.reject(new Error('snapshot ' + r.status)))
+          .catch(e => { snapshotPromise = null; throw e; });
+      }
+      return snapshotPromise;
+    }
+    async function fetchViaSnapshot(feed, ms) {
+      const snap = await loadSnapshot(ms);
+      const raw = (snap && snap.feeds && snap.feeds[feed.name]) || [];
+      return raw.map(item => makeItem(item, feed)).filter(Boolean);
+    }
+
     // Probed 23 Oct 2026: of seven public CORS proxies, this was the only one
-    // returning a feed with a usable Access-Control-Allow-Origin. rss2json now
-    // answers a bot challenge, allorigins and codetabs were 522, corsproxy.io
-    // wants an API key, and test.cors.workers.dev replies "banned for abuse,
-    // create your own cors proxy" -- which is the correct advice and the
-    // reason /feed exists.
+    // returning a feed with a usable Access-Control-Allow-Origin -- to a
+    // server. In a real browser it sends no ACAO header at all and the request
+    // is blocked, so it is kept only in case that changes. Testing a CORS
+    // proxy with anything but a browser does not test it.
     async function fetchViaCorsLol(feed, ms) {
       const r = await fetchWithTimeout('https://api.cors.lol/?url=' + encodeURIComponent(feed.url), ms);
       if (!r.ok) throw new Error('cors.lol ' + r.status);
@@ -430,6 +453,7 @@
       // next route rather than being reported as a feed with no news.
       const routes = [
         [fetchViaOrigin, FETCH_TIMEOUT],
+        [fetchViaSnapshot, FETCH_TIMEOUT],
         [fetchViaCorsLol, FALLBACK_TIMEOUT],
         [fetchViaRss2Json, FALLBACK_TIMEOUT],
         [fetchViaAllOrigins, FALLBACK_TIMEOUT]
