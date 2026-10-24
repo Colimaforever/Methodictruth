@@ -84,6 +84,19 @@ body {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: 0;
+  /* It is fixed, full-viewport and positioned, so it paints above ordinary
+     in-flow content and — without this — swallows every click and tap aimed at
+     anything that did not give itself a z-index. That is why so many
+     components below set `z-index: 1` for no visual reason: they were working
+     around this rather than fixing it. Tap BPM's container never did, so its
+     tap zone could not be clicked at all, on any device. It only seemed to be
+     a touch bug because desktop visitors used the spacebar, which the hint
+     text suggests and which reaches a document listener the canvas cannot
+     block.
+     Every other decorative layer here — .nebula, .ground, .sky-glyph,
+     .artifact-float, the noise overlay — already does this. The canvas is
+     aria-hidden, role="presentation", and nothing listens on it. */
+  pointer-events: none;
 }
 
 .starfield canvas {
