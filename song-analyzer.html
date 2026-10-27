@@ -162,6 +162,48 @@
             font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
             color: var(--stone-dark); margin-top: 0.25rem; letter-spacing: 0.03em;
         }
+        /* A metric that opens the tool for the value it just reported — the key
+           opens the scale explorer already in that key, the tempo opens Tap BPM.
+           Deliberately quiet: the number is the answer, this is the next step. */
+        .sa-metric-link {
+            display: inline-block; margin-top: 0.3rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+            letter-spacing: 0.03em; color: var(--glow); opacity: 0.75;
+            text-decoration: none; border-bottom: 1px dotted rgba(0, 229, 255, 0.4);
+        }
+        .sa-metric-link:hover, .sa-metric-link:focus-visible { opacity: 1; }
+
+        /* "What now" — suggestions chosen from what the analysis actually
+           found, so they are about this song rather than a fixed menu. */
+        .sa-next-grid {
+            display: grid; gap: 0.6rem; margin-top: 0.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        }
+        .sa-next-card {
+            display: block; padding: 0.7rem 0.85rem; text-decoration: none;
+            border: 1px solid rgba(0, 229, 255, 0.16); border-radius: 6px;
+            background: rgba(26, 18, 10, 0.45); transition: border-color 0.15s, transform 0.15s;
+        }
+        .sa-next-card:hover, .sa-next-card:focus-visible {
+            border-color: rgba(0, 229, 255, 0.45); transform: translateY(-1px);
+        }
+        .sa-next-kicker {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.52rem;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--glow); opacity: 0.8;
+        }
+        .sa-next-title {
+            display: block; margin-top: 0.25rem; color: var(--parchment);
+            font-family: 'Cinzel', serif; font-size: 0.95rem;
+        }
+        .sa-next-why {
+            display: block; margin-top: 0.2rem; font-size: 0.78rem;
+            color: var(--stone); line-height: 1.45;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .sa-next-card { transition: none; }
+            .sa-next-card:hover, .sa-next-card:focus-visible { transform: none; }
+        }
         .sa-sections-strip { display: flex; gap: 3px; margin: 0.4rem 0 0.7rem; height: 44px; }
         .sa-section-block {
             position: relative; border: 1px solid rgba(0, 229, 255, 0.25);
@@ -558,11 +600,13 @@
                 <div class="sa-metric-label">BPM</div>
                 <div class="sa-metric-value" id="bpmValue">—</div>
                 <div class="sa-metric-sub" id="bpmSub"></div>
+                <a class="sa-metric-link" id="bpmLink" href="tapbpm.html" style="display:none;">tap it yourself →</a>
             </div>
             <div class="sa-metric">
                 <div class="sa-metric-label">Key</div>
                 <div class="sa-metric-value" id="keyValue">—</div>
                 <div class="sa-metric-sub" id="keySub"></div>
+                <a class="sa-metric-link" id="keyLink" href="theory.html" style="display:none;">see this scale →</a>
             </div>
             <div class="sa-metric">
                 <div class="sa-metric-label">Duration</div>
@@ -697,6 +741,11 @@
                         <input type="checkbox" id="csFollow" checked>
                         Follow along with playback
                     </label>
+                    <!-- Follows whatever chord is selected, so the way out of
+                         this panel is always about the chord in front of you.
+                         Href is rewritten in csSyncControls(). -->
+                    <a class="sa-metric-link" id="csOpenFinder" href="chord-voicings.html"
+                       style="display:none; margin-top:0;">every voicing →</a>
                 </div>
 
                 <div class="cs-controls">
@@ -735,6 +784,14 @@
         <div class="sa-section">
             <div class="sa-section-label">Description</div>
             <p class="sa-description" id="description"></p>
+        </div>
+
+        <!-- Where to go next, chosen from what this analysis actually found.
+             Last in the results on purpose: someone came here for chords, and
+             nothing should stand between them and the chords. -->
+        <div class="sa-section" id="nextSteps" style="display:none;">
+            <div class="sa-section-label">What now</div>
+            <div class="sa-next-grid" id="nextStepsGrid"></div>
         </div>
       </div>
 
@@ -1248,7 +1305,196 @@
             initLyrics(videoId);
             loadAudio(data.audio_url || ('/audio/' + videoId));
 
+            // Hand each metric the tool that takes it further: the key opens
+            // the scale explorer already in that key, the tempo opens Tap BPM.
+            const parsedKey = parseKey(data.key);
+            const keyLink = document.getElementById('keyLink');
+            if (parsedKey) {
+                keyLink.href = theoryLink(parsedKey);
+                keyLink.textContent = 'see ' + data.key + ' →';
+                keyLink.style.display = '';
+            } else {
+                keyLink.style.display = 'none';
+            }
+            document.getElementById('bpmLink').style.display = data.bpm ? '' : 'none';
+
+            renderNextSteps(data);
+
             document.getElementById('results').classList.add('visible');
+        }
+
+        // ─── WHERE TO GO NEXT ───────────────────────────────────────────────
+        //
+        // This page used to be a dead end: it answered one question and then
+        // stopped talking, with no link out of it anywhere in the body. The
+        // site has sixty-odd pages about exactly what someone does next with a
+        // song they have just worked out.
+        //
+        // The suggestions are chosen from what the analysis actually found, so
+        // they are about this song rather than a fixed menu. Three of the
+        // destinations already read the state from the URL — theory.html takes
+        // ?root &scale, chord-voicings.html takes ?root &q — so a link can hand
+        // the tool the answer instead of dropping someone on a front page.
+
+        const NEXT_MAX = 4;                 // past four it reads as a link farm
+        const SCALE_PCS = {
+            Major: [0, 2, 4, 5, 7, 9, 11],
+            Minor: [0, 2, 3, 5, 7, 8, 10]
+        };
+        // The quality each degree of the scale is built on. A chord whose root
+        // is in the key but whose quality is not this one has been borrowed
+        // from somewhere — a secondary dominant, usually.
+        const DIATONIC_QUALITY = {
+            Major: ['maj', 'min', 'min', 'maj', 'maj', 'min', 'dim'],
+            Minor: ['min', 'dim', 'maj', 'min', 'min', 'maj', 'maj']
+        };
+        const AWKWARD_FOR_GUITAR = ['Db', 'C#', 'Eb', 'D#', 'Gb', 'F#', 'Ab', 'G#', 'Bb', 'A#'];
+
+        function parseKey(keyStr) {
+            const m = /^([A-G][#b]?)\s+(Major|Minor)$/i.exec((keyStr || '').trim());
+            if (!m) return null;
+            const mode = m[2][0].toUpperCase() + m[2].slice(1).toLowerCase();
+            const parsed = ChordShapes && ChordShapes.parseChord ? ChordShapes.parseChord(m[1]) : null;
+            if (!parsed) return null;
+            return { name: m[1], pc: parsed.rootPc, mode: mode === 'Major' ? 'Major' : 'Minor' };
+        }
+
+        function qualityOf(suffix) {
+            const s = suffix || '';
+            if (/dim|°|m7b5|ø/.test(s)) return 'dim';
+            if (/^m(?!aj)/.test(s)) return 'min';
+            return 'maj';
+        }
+
+        function theoryLink(key) {
+            const scale = key.mode === 'Major' ? 'Major (Ionian)' : 'Natural Minor (Aeolian)';
+            return 'theory.html?root=' + encodeURIComponent(key.name) +
+                   '&scale=' + encodeURIComponent(scale);
+        }
+
+        function voicingLink(symbol) {
+            const p = ChordShapes && ChordShapes.parseChord ? ChordShapes.parseChord(symbol) : null;
+            if (!p) return 'chord-voicings.html';
+            return 'chord-voicings.html?root=' + encodeURIComponent(p.rootName || ChordShapes.pcName(p.rootPc)) +
+                   '&q=' + encodeURIComponent(p.suffix || '');
+        }
+
+        // Chords that are not in the key, most common first. Guarded twice:
+        // a shaky key reading would call everything borrowed, and a chord heard
+        // once is as likely to be a detection slip as a real borrowing.
+        function outsideTheKey(chords, key, keyConfidence) {
+            if (!key || (keyConfidence != null && keyConfidence < 0.5)) return [];
+            const counts = new Map();
+            chords.forEach(c => counts.set(c.chord, (counts.get(c.chord) || 0) + 1));
+            const scale = SCALE_PCS[key.mode];
+            const qualities = DIATONIC_QUALITY[key.mode];
+            const out = [];
+            counts.forEach((n, symbol) => {
+                if (n < 2) return;
+                const p = ChordShapes.parseChord(symbol);
+                if (!p) return;
+                const degree = scale.indexOf(((p.rootPc - key.pc) % 12 + 12) % 12);
+                if (degree === -1 || qualityOf(p.suffix) !== qualities[degree]) {
+                    out.push({ symbol: symbol, count: n, rootOutside: degree === -1 });
+                }
+            });
+            return out.sort((a, b) => b.count - a.count);
+        }
+
+        // Chord symbols and the key reach this from the analyzer, and the
+        // titles are built from them, so they are escaped before they become
+        // markup. Quotes included: these land inside attributes too.
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s == null ? '' : String(s);
+            return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function nextCard(kicker, title, why, href) {
+            return '<a class="sa-next-card" href="' + escapeHtml(href) + '">' +
+                   '<span class="sa-next-kicker">' + escapeHtml(kicker) + '</span>' +
+                   '<span class="sa-next-title">' + escapeHtml(title) + '</span>' +
+                   '<span class="sa-next-why">' + escapeHtml(why) + '</span></a>';
+        }
+
+        function renderNextSteps(data) {
+            const section = document.getElementById('nextSteps');
+            const grid = document.getElementById('nextStepsGrid');
+            if (!section || !grid || !data) return;
+
+            const key = parseKey(data.key);
+            const chords = Array.isArray(data.chords) ? data.chords : [];
+            const cards = [];
+
+            // Strongest card when it fires: the analyzer knows the key AND the
+            // chords, so it can point at the one that does not belong and say
+            // why it works anyway. That is the question someone is actually
+            // sitting with.
+            const odd = outsideTheKey(chords, key, data.key_confidence);
+            if (odd.length) {
+                cards.push(nextCard(
+                    'In this song',
+                    'Why ' + odd[0].symbol + ' works in ' + data.key,
+                    odd[0].rootOutside
+                        ? 'That chord is not in the key at all, and it still resolves. Borrowed chords are where songs get their colour.'
+                        : 'Its root belongs to the key but its quality does not — that is usually a secondary dominant pulling toward the next chord.',
+                    'harmony-guide.html'));
+            }
+
+            if (currentLyrics && currentLyrics.length) {
+                cards.push(nextCard(
+                    'It has words',
+                    'Why these lines sing',
+                    'Those syllables landed on those beats for a reason. Stress, scansion, and lines that stay singable.',
+                    'prosody.html'));
+            }
+
+            if (Array.isArray(data.sections) && data.sections.length >= 3) {
+                cards.push(nextCard(
+                    data.sections.length + ' sections',
+                    'How a song gets built',
+                    'You can see its shape above. Arranging is deciding what enters, what drops out, and when.',
+                    'arrangement.html'));
+            }
+
+            const bpm = Number(data.bpm) || 0;
+            if (bpm && bpm < 80) {
+                cards.push(nextCard('At ' + data.bpm + ' BPM', 'Slow is harder to play',
+                    'Nothing hides a loose hand like a slow tempo. Velocity, swing and where the pocket actually sits.',
+                    'groove.html'));
+            } else if (bpm > 140) {
+                cards.push(nextCard('At ' + data.bpm + ' BPM', 'Fast patterns that hold up',
+                    'At this tempo the pattern carries the song. How drums and percussion stay out of each other\'s way.',
+                    'rhythm.html'));
+            }
+
+            if (key && AWKWARD_FOR_GUITAR.indexOf(key.name) !== -1) {
+                cards.push(nextCard('Key of ' + key.name, 'Easier shapes for this key',
+                    'Guitar does not love this key. A capo turns it into shapes your hand already knows.',
+                    voicingLink(key.name)));
+            }
+
+            // The fallback, so the block is never empty or nearly so. These are
+            // the three things most people want next from any song at all.
+            if (cards.length < 2) {
+                const top = chords.length ? chords[0].chord : null;
+                if (top) {
+                    cards.push(nextCard('Chord by chord', 'Every way to play ' + top,
+                        'Fingerings on guitar and piano, in any voicing, with the notes named.',
+                        voicingLink(top)));
+                }
+                if (key) {
+                    cards.push(nextCard('The key', 'What fits in ' + data.key,
+                        'The scale this song is built from, with every chord it makes and how each one sounds.',
+                        theoryLink(key)));
+                }
+                cards.push(nextCard('From here', 'Turn it into your own track',
+                    'Recording, arranging, mixing and finishing — the whole path, free.',
+                    'production.html'));
+            }
+
+            grid.innerHTML = cards.slice(0, NEXT_MAX).join('');
+            section.style.display = cards.length ? '' : 'none';
         }
 
         // The comprehensive layer: meter, key confidence, dynamics, song
@@ -1804,6 +2050,9 @@
 
             segs.forEach((seg, idx) => lyricsBody.appendChild(makeLyricLine(seg, idx)));
             lyricLineEls = lyricsBody.querySelectorAll('.sa-lyric-line');
+            // Lyrics arrive long after the rest, so the suggestions are rebuilt
+            // once they land — otherwise the one about prosody could never fire.
+            renderNextSteps(currentAnalysis);
 
             const lang = data.language ? data.language.toUpperCase() : '';
             const conf = data.language_probability;
@@ -2128,6 +2377,21 @@
                 if (lbl) lbl.textContent = csDisplayChord(b.dataset.chord);
             });
             csQualityEl.value = csState.suffix;
+
+            // The way out of this panel follows the selection, so it is always
+            // about the chord in front of you. Uses the sounding chord, which
+            // is what the diagram shows once key and capo are applied.
+            const finder = document.getElementById('csOpenFinder');
+            if (finder) {
+                const sounding = csSymbol();
+                if (sounding) {
+                    finder.href = voicingLink(sounding);
+                    finder.textContent = 'every ' + sounding + ' voicing →';
+                    finder.style.display = '';
+                } else {
+                    finder.style.display = 'none';
+                }
+            }
 
             const t = csState.transpose;
             document.getElementById('csKeyReset').textContent =
