@@ -2488,6 +2488,10 @@ footer .donate-link:hover {
 
 .piano-info {
   display: flex;
+  /* Wraps rather than overflowing. This row carries octave, velocity, the
+     layout picker and four mode buttons, which already ran off the side on a
+     phone before any of them had a label long enough to say what it did. */
+  flex-wrap: wrap;
   gap: clamp(0.4rem, 1vw, 1rem);
   align-items: center;
   margin-bottom: 0.3rem;

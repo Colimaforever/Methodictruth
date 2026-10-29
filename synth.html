@@ -734,6 +734,30 @@
       user-select: none; transition: border-color 0.15s, color 0.15s;
     }
     .piano-oct-btn:hover { border-color: var(--glow); color: var(--glow); }
+
+    /* The Guide is not another input mode like Arp or Remap — it draws scales
+       and the chords of a key straight onto the keys, which is the single most
+       useful thing on this page for anyone who does not already know where the
+       notes are. It sat fourth in a row of identical dim buttons under a word
+       that does not say what it does, so it went unfound. Accented so it reads
+       as a different kind of control, and labelled with its subject. */
+    .piano-oct-btn--feature {
+      color: var(--glow);
+      border-color: rgba(0, 229, 255, 0.45);
+      background: rgba(0, 229, 255, 0.07);
+    }
+    .piano-oct-btn--feature:hover { background: rgba(0, 229, 255, 0.14); }
+
+    /* First visit only, three slow pulses: enough for the eye to land on it
+       once, not a thing that keeps demanding attention. */
+    @keyframes guideNudge {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 255, 0); }
+      50%      { box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.18); }
+    }
+    .piano-oct-btn--nudge { animation: guideNudge 2.2s ease-in-out 3; }
+    @media (prefers-reduced-motion: reduce) {
+      .piano-oct-btn--nudge { animation: none; }
+    }
     .piano-oct-btn.active {
       border-color: var(--glow-warm); color: var(--glow-warm);
       background: rgba(232, 168, 124, 0.12);
@@ -1319,7 +1343,7 @@
         <option value="Custom">Custom</option>
       </select>
       <button class="piano-oct-btn" id="arpBtn" title="Arpeggiator — hold a chord and it plays one note at a time, in time" aria-pressed="false">⇅ Arp</button>
-      <button class="piano-oct-btn" id="guideBtn" title="Theory guide — light up a scale, the chords in a key, or any chord on the keys" aria-pressed="false">♪ Guide</button>
+      <button class="piano-oct-btn piano-oct-btn--feature" id="guideBtn" title="Light up a scale, the chords in a key, or any chord — right on the keys" aria-pressed="false">♪ Scales &amp; Chords</button>
       <button class="piano-oct-btn" id="remapBtn" title="Bind your own keyboard keys to the piano">⌨ Remap</button>
       <button class="piano-oct-btn" id="padsBtn" title="Touch pads — play with your fingers, locked to a scale" hidden>◇ Pads</button>
       <span class="piano-info-hint" id="pianoHint">← → octave · ↑ ↓ velocity</span>
@@ -1725,7 +1749,14 @@
 
   // Configure Tone.js for ultra-low latency
   Tone.context.latencyHint = 'interactive'; // Lowest latency mode
-  Tone.context.lookAhead = 0.005; // Minimal lookahead (5ms) for instant response
+  // 5 ms was tuned for "instant" and is below what building a voice costs:
+  // each note constructs its own oscillator, gain and routing, which measures
+  // ~3.4 ms, and a four-note chord ~10 ms. With 5 ms of lookahead the
+  // scheduler is already late by the second note of a chord, so the notes
+  // spread out and the shared envelope retriggers across them. 20 ms gives it
+  // room to place a whole chord on one deadline, and 20 ms is still below the
+  // threshold where a keyboard feels disconnected from the sound.
+  Tone.context.lookAhead = 0.02;
   
   // Increase audio buffer size slightly for stability while keeping low latency
   // This prevents audio glitches while maintaining responsiveness
@@ -4231,11 +4262,38 @@
     try { midiOutput.send([status, noteNum & 0x7f, (vel || 0) & 0x7f]); } catch(e) {}
   }
 
+  // Notes struck together should sound together. Each voiceOn captured its own
+  // Tone.now(), and building a voice costs a few milliseconds, so a chord
+  // played as one gesture arrived spread across about ten — heard as a flam,
+  // and worse, it retriggered the shared envelope once per note, so the chord
+  // chopped at its own attack instead of blooming.
+  //
+  // Notes arriving inside one window share the first one's start time. Thirty
+  // milliseconds is wide enough to catch a hand landing on a chord and far
+  // narrower than a sixteenth at any tempo anyone sequences at, so deliberate
+  // repeats still retrigger.
+  const CHORD_WINDOW_MS = 30;
+  let chordAnchor = { wall: -Infinity, audio: 0 };
+
+  // Returns the start time AND whether this note opened the gesture. The flag
+  // has to come back from here rather than be re-derived later: building a
+  // voice takes a few milliseconds, so by the time the caller is finished any
+  // "was this just now?" test is already looking at stale arithmetic.
+  function voiceStartTime() {
+    const wall = performance.now();
+    if (wall - chordAnchor.wall > CHORD_WINDOW_MS) {
+      chordAnchor = { wall: wall, audio: Tone.now() };
+      return { time: chordAnchor.audio, newGesture: true };
+    }
+    // Never hand Web Audio a time that has already passed: it fires those
+    // immediately, which is the flam this exists to remove.
+    return { time: Math.max(chordAnchor.audio, Tone.context.currentTime), newGesture: false };
+  }
+
   // Trigger a note on — the raw voice, below the arpeggiator. Everything
   // that plays goes through noteOn()/noteOff() further down, which hand a
   // note to the arpeggiator when it is on and to these otherwise.
   function voiceOn(noteNum, vel, source) {
-    const startTime = performance.now();
     sendMidiOut('on', noteNum, vel);
 
     // Fast path checks
@@ -4262,7 +4320,7 @@
 
     // Create temporary oscillators for this note
     const synthNodes = [];
-    const startTime2 = Tone.now(); // Use audio context time for precise scheduling
+    const { time: startTime2, newGesture } = voiceStartTime(); // shared across a chord
 
     // Pass 1: create the per-voice temp nodes for every oscillator module.
     // This must run for ALL oscillators before any cross-module FM routing in
@@ -4352,17 +4410,15 @@
     highlightPianoKey(noteNum, true);
 
     // Retrigger any patched Envelope (ADSR) modules — monophonic-style:
-    // every new note re-fires Attack/Decay, giving plucked/percussive
-    // shape even when notes overlap (e.g. fast sequencer steps).
-    Object.values(modules).forEach(m => {
-      if (m.type === 'envelope') { try { m.audio.node.triggerAttack(); } catch(e) {} }
-      else if (m.type === 'modenv') { try { m.audio.env.triggerAttack(); } catch(e) {} }
-    });
-
-    // Log processing time for first few notes
-    const processingTime = performance.now() - startTime;
-    if (activeNotes.size <= 3) {
-      console.log('noteOn processing time:', processingTime.toFixed(2), 'ms');
+    // every new GESTURE re-fires Attack/Decay, giving plucked/percussive
+    // shape even when notes overlap (e.g. fast sequencer steps). Once per
+    // gesture rather than once per note: three keys landing together are one
+    // chord, and firing the attack three times chopped it up.
+    if (newGesture) {
+      Object.values(modules).forEach(m => {
+        if (m.type === 'envelope') { try { m.audio.node.triggerAttack(startTime2); } catch(e) {} }
+        else if (m.type === 'modenv') { try { m.audio.env.triggerAttack(startTime2); } catch(e) {} }
+      });
     }
   }
 
@@ -5739,6 +5795,13 @@
   function guideSave() {
     try { localStorage.setItem(GUIDE_STORAGE, JSON.stringify(guide)); } catch (e) {}
   }
+  // Once it has been opened, the nudge has done its job and retires.
+  function guideNudgeSeen() {
+    try { localStorage.setItem('synth-guide-seen', '1'); } catch (e) {}
+    const gb = document.getElementById('guideBtn');
+    if (gb) gb.classList.remove('piano-oct-btn--nudge');
+  }
+
   function guideSetOpen(on) {
     guide.on = on;
     document.getElementById('theoryGuide').hidden = !on;
@@ -5814,7 +5877,7 @@
     rootSel.addEventListener('change', () => { guide.root = parseInt(rootSel.value, 10); guideRenderChips(); guideApply(); guideSave(); rootSel.blur(); });
     scaleSel.addEventListener('change', () => { guide.scale = scaleSel.value; guide.degree = 0; guideRenderChips(); guideApply(); guideSave(); scaleSel.blur(); });
     document.querySelectorAll('.tg-tab').forEach(t => tapHandler(t, () => guideSetView(t.dataset.view)));
-    tapHandler(document.getElementById('guideBtn'), () => guideSetOpen(!guide.on));
+    tapHandler(document.getElementById('guideBtn'), () => { guideNudgeSeen(); guideSetOpen(!guide.on); });
     tapHandler(document.getElementById('guideClose'), () => guideSetOpen(false));
     tapHandler(document.getElementById('guidePlay'), guideAudition);
     tapHandler(document.getElementById('guideLabels'), () => {
@@ -5822,6 +5885,25 @@
       document.getElementById('guideLabels').textContent = guide.labels === 'names' ? 'Names' : 'Degrees';
       guideApply(); guideSave();
     });
+    // Point at it once, for someone who has never opened it. A tooltip was the
+    // only thing saying what the Guide does, and a tooltip does not exist on a
+    // touchscreen — which is most of this site's traffic. Shown once ever, and
+    // never again after it has been used.
+    try {
+      if (!localStorage.getItem('synth-guide-seen')) {
+        const gb = document.getElementById('guideBtn');
+        const hint = document.getElementById('pianoHint');
+        const original = hint ? hint.textContent : '';
+        if (gb) gb.classList.add('piano-oct-btn--nudge');
+        if (hint) {
+          hint.textContent = '♪ Scales & Chords lights up any scale or chord on the keys';
+          setTimeout(() => {
+            if (hint.textContent.indexOf('lights up') !== -1) hint.textContent = original;
+          }, 9000);
+        }
+      }
+    } catch (e) { /* private mode: the synth still works, it just will not nudge */ }
+
     guideReady = true;
     guideSetView(guide.view);
     guideSetOpen(guide.on);
@@ -7303,10 +7385,17 @@
   function loadDefaultPatch() {
     const osc1 = addModule('oscillator', undefined, undefined, { auto: true });
     setParam(osc1, 'type', 'sawtooth');
-    setParam(osc1, 'detune', -7);                 // the beating between the two
+    // ±3, not ±7. Two saws fourteen cents apart is a gorgeous lead and a poor
+    // chord: at A440 it puts the fundamental at 437.4 and 442.8 Hz, so a note
+    // has no single pitch, and a triad arrives as six partials beating against
+    // each other at three different rates. Thirds suffer most, which is why
+    // progressions read as out of tune while one note sounds rich. Six cents
+    // keeps the width and roughly halves the beating. The Screaming Saw preset
+    // still has the wide version for when that is the point.
+    setParam(osc1, 'detune', -3);                 // the beating between the two
     const osc2 = addModule('oscillator', undefined, undefined, { auto: true });
     setParam(osc2, 'type', 'sawtooth');
-    setParam(osc2, 'detune', 7);                  // is most of the warmth
+    setParam(osc2, 'detune', 3);                  // is most of the warmth
     const flt = addModule('filter', undefined, undefined, { auto: true });
     setParam(flt, 'type', 'lowpass');
     setParam(flt, 'frequency', 1800);
