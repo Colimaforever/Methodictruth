@@ -113,35 +113,44 @@ The lesson stuck: **nothing goes in `fstab` that might not be present.**
 
 ---
 
-## Kamrui — the agent box
+## Kamrui — the stale-credentials box
 
 | | |
 | --- | --- |
 | CPU | Intel N100 |
 | RAM | 8 GB |
 | OS | Windows + WSL2 (Ubuntu) |
+| Location | **at the owner's workplace, on a hotspot — not on the house LAN** |
 
-**Runs:** OpenClaw, the agent that works on this site — **and, until October
-2026, the analyzer that was actually serving the public hostname.**
+**Nothing here is load-bearing.** It was set up to run OpenClaw, the coding
+agent, but the agent is effectively unused (too expensive to run), and nothing
+user-facing depends on this box. Do not read "agent box" and treat it as
+production: that misreading is exactly what kept its cleanup framed as a
+migration when it is only a deletion.
 
-That last part was discovered by accident and is worth keeping. On 13 October
-the 8930's own `/health` reported `cookies_present: false`, both `pot_*` fields
-false, and no successful YouTube download in over eight days. At the same
-moment `api.methodictruth.com/health` reported all three true and a successful
-download 500 seconds earlier. Those are not the same machine.
+**The only reason it still matters is what is stored on it**, and all of it is
+an argument for stripping the box, not for being careful around it:
 
-The cloudflared connector inside this box's WSL was the one Cloudflare was
-routing to, and `chord-server/README.md` still carries the evidence in its
-paths: `/home/truth/Methodictruth/chord-server`, where `truth` is this box's
-WSL user. So the cookies and the PO-token provider that make YouTube downloads
-work live **here**, not on the GPU host everyone assumed was production.
+| On this box | What it opens | Do |
+| --- | --- | --- |
+| `Clawdbot` private key | SSH to `chord`, `amp`, the 8930 — everything | Remove its line from `~/.ssh/authorized_keys` on each server. Deleting it from GitHub does **not** revoke it — `ssh-import-id` only ever adds. |
+| `~/.cloudflared/` | Authority to serve `api.methodictruth.com` | Destroy. The 8930 has served the tunnel alone for days; nothing needs a second connector. |
+| `cookies.txt` | A live Google session | `scp` to `chord` if still wanted, then delete here. Lower stakes than once thought: `/health` now shows `yt=ok` with `cookies=false`, so the PO-token provider carries YouTube on its own. |
 
-The 8930 was a warm spare that had not fetched a video in a week, and nobody
-noticed because the hostname kept answering.
+A machine sitting on an unmanaged network at a workplace, holding a key to the
+whole home estate, is pure exposure with no return. Bring it home, or take the
+three things above off it. Either is safe — nothing breaks, because nothing
+runs here.
 
-**Outstanding, before this box is ever repurposed:** destroy `~/.cloudflared/`
-(the credentials are the authority for `api.methodictruth.com`) and
-`cookies.txt` (live Google credentials, gitignored, never to be committed).
+**History worth keeping — it was once accidental production.** Until October
+2026 the cloudflared connector inside this box's WSL was the one Cloudflare
+routed to. On 13 October the 8930's `/health` reported `cookies_present: false`
+and no successful YouTube download in over eight days, while
+`api.methodictruth.com/health` reported healthy with a download 500 s earlier —
+not the same machine. `chord-server/README.md` still carries the evidence in
+its paths (`/home/truth/...`, this box's WSL user). The 8930 was a warm spare,
+and nobody noticed because the hostname kept answering. That is the blind spot
+the `who=` line in `health-check.js` now closes.
 
 ---
 
