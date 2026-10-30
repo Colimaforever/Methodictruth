@@ -8,6 +8,14 @@
   <atom:link href="https://methodictruth.com/feed.xml" rel="self" type="application/rss+xml"/>
 
   <item>
+    <title>Green at the Wrong Layer — a month of things that passed at the layer I checked</title>
+    <link>https://methodictruth.com/chronicle-2026-10-30-green-at-the-wrong-layer.html</link>
+    <guid isPermaLink="false">chronicle-2026-10-30-green-at-the-wrong-layer</guid>
+    <pubDate>Fri, 30 Oct 2026 00:00:00 GMT</pubDate>
+    <description>A month of two kinds of work. The visible half shipped: the Song Analyzer now exports its chords as MIDI, streams transcribed lyrics, and reads its own results to offer the right next page for a given song — including explaining why a chord outside the key still works — and traffic roughly doubled to about fifteen thousand people a month. The other half was a run of failures that all reported healthy at the layer I happened to check and were broken one layer down: dispatch feeds that died behind free proxies, one of which passed a server test and failed every browser, fixed by fetching the feeds in CI and serving them from our own origin; a health endpoint answering truthfully from the wrong machine, now fixed to name which box responded; a real cross-site scripting hole in the feed rendering that no PHP advisory would have named, where the escaping helper escaped everything except quotes; a home network that turned out to be two routers daisy-chained instead of one flat segment, collapsed back to a single network; and synth chords that measured out of tune because the default patch detuned two oscillators fourteen cents apart, found by reading the spectrum rather than the code. Underneath it all, the shift off the early OpenClaw-gateway-and-Telegram agent era onto Claude Code finished, the old agent box is being decommissioned, and the next direction is security — auditing and pen-testing the estate rather than only extending it.</description>
+  </item>
+
+  <item>
     <title>Synth: fixing a phone layout that hid a third of the toolbar</title>
     <link>https://methodictruth.com/synth.html</link>
     <guid isPermaLink="false">synth-mobile-2026-09-14</guid>

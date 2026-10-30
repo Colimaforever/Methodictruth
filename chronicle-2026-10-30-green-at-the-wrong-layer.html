@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e1a">
+    <title>Green at the Wrong Layer - October 30, 2026</title>
+    <meta name="description" content="A month of visible features, and a longer month of things that reported healthy where I checked and broke one layer down: dead feeds, a real security hole, a network that was secretly two. Plus the quiet shift off the OpenClaw era onto Claude Code, and a turn toward security.">
+    <link rel="canonical" href="https://methodictruth.com/chronicle-2026-10-30-green-at-the-wrong-layer.html">
+    <meta property="og:title" content="Green at the Wrong Layer — methodictruth.com">
+    <meta property="og:description" content="Every failure this month reported healthy at the layer I happened to check, and broke one layer down. The fix was always to move the check to where the thing actually runs.">
+    <meta property="og:url" content="https://methodictruth.com/chronicle-2026-10-30-green-at-the-wrong-layer.html">
+    <meta property="og:image" content="https://methodictruth.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="styles.css?v=77">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
+  <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="favicon.ico?v=3">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Green at the Wrong Layer",
+  "datePublished": "2026-10-30",
+  "dateModified": "2026-10-30",
+  "description": "A month of visible features, and a longer month of things that reported healthy where I checked and broke one layer down: dead feeds, a real security hole, a network that was secretly two. Plus the quiet shift off the OpenClaw era onto Claude Code, and a turn toward security.",
+  "url": "https://methodictruth.com/chronicle-2026-10-30-green-at-the-wrong-layer.html",
+  "mainEntityOfPage": "https://methodictruth.com/chronicle-2026-10-30-green-at-the-wrong-layer.html",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "AI Chronicles",
+    "url": "https://methodictruth.com/chronicles.html"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Sergio Macedo"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Methodic Truth",
+    "url": "https://methodictruth.com"
+  }
+}
+    </script>
+</head>
+<body>
+    <div class="chronicle-entry">
+        <div class="chronicle-header">
+            <h1>Green at the Wrong Layer</h1>
+            <div class="chronicle-meta">
+                <span class="date">October 30, 2026</span>
+                <span class="topic">Observability • Security • Feeds • Networking • Changing of the Guard</span>
+            </div>
+        </div>
+
+        <div class="chronicle-content">
+            <p>The last entry was about moving the analyzer onto better hardware. What came after was a month of two very different kinds of work stacked on top of each other. The visible half went roughly to plan — features shipped, the site got more useful, traffic roughly doubled. The other half was a run of things that all failed the same way: they reported perfectly healthy at the layer I happened to be looking at, and were broken one layer down. Every fix turned out to be the same move — stop checking where it's convenient, check where the thing actually runs.</p>
+
+            <h2>The Visible Half</h2>
+
+            <p>First the part worth celebrating, briefly, because it's the reason any of the rest matters. The Song Analyzer learned to hand you its results instead of just displaying them: the chords it finds now export as a MIDI file — a single track you can drag into Logic or Ableton to drive one instrument, or split across parts. It transcribes lyrics on the GPU and streams them in as it goes, in whichever language you pick. It gained practice controls — transpose, capo, playback speed, an A/B loop — and chord diagrams encoded shape-first so they still read if you're colour-blind. I added a prosody guide with a scansion tool, because nobody teaches songwriters to count stresses. And the analyzer itself finished splitting across two machines, chords and tempo on the CPU box, lyrics on the GPU box.</p>
+
+            <p>The quietest of these is the one I'm most pleased with. The analyzer page used to be a dead end — someone arrived from a search, got their chords, and left past sixty pages about exactly what to do next. It now reads its own results and offers the right page for <em>this</em> song: when it finds a chord that doesn't belong to the key, it offers to explain why that chord works anyway. That isn't a related-links box. The page knows the key and the chords, so it can point at the one thing you'd actually be curious about.</p>
+
+            <h2>Feeds Unavailable</h2>
+
+            <p>The site has two "dispatch" pages — live feeds of AI and music-tech news. One day they went blank and said <em>feed unavailable</em>. My first fix made the failure <em>visible</em> instead of a silent hang, which felt like progress and solved nothing: the feeds were still dead. They'd been fetched through two free public proxies, and both had died in the same window for unrelated reasons — one had put a bot challenge in front of its API, the other's server had simply stopped answering.</p>
+
+            <p>So I went looking for a replacement proxy and found a working one. It returned the feeds and, when I checked, sent the right cross-origin header. I wired it in, declared victory, and it didn't work at all. The browser check I'd built to be honest with myself caught why: the proxy sent that permissive header <em>to a server</em>, and nothing — no header at all — to a real browser. I'd tested a CORS proxy with a tool that isn't a browser, which is the one thing that can't tell you whether a CORS proxy works. <em>Testing it with anything but a browser doesn't test it.</em></p>
+
+            <blockquote>One of the seven public proxies I tried literally answered: "banned for abuse. Do not use this proxy. Create your own cors proxy." That is the whole state of that ecosystem in one error message.</blockquote>
+
+            <p>So I stopped needing one. The reason a browser can't fetch a feed is a rule that applies to browsers and nothing else — a script on a build server has no such limit. So the fetching moved there: a workflow pulls every feed on a schedule and commits the result as a plain file the site serves from its own origin. No proxy, no third party, nothing to log into, and it fixed all four pages that read feeds — including the one on the homepage I'd overlooked entirely until a screenshot showed me a layout I didn't recognise.</p>
+
+            <h2>Who's Actually Answering</h2>
+
+            <p>While chasing all that, I kept checking whether the analyzer was up by asking its public health endpoint, which kept answering <em>yes</em>. It was telling the truth and I was asking the wrong question. "Is the hostname answering" is not "is the machine I think is behind it answering." The endpoint said <code>healthy</code> while a different box than I believed — a warm spare — was quietly serving everything in a degraded single-slot mode. Its own report gave it away once I read past the first word: three analysis slots on the real box, one on the spare.</p>
+
+            <p>This is the second time the estate has fooled me the same way. Back in the summer a machine at my workplace served the public site for weeks while everyone read a different box's status, because up-or-down was the only thing the check reported and both answers look identical from outside. So the monitor now prints <em>which</em> machine answered on every run — the fingerprint fields that differ between boxes — and the blind spot that hid a production server twice is closed.</p>
+
+            <h2>The Hole the Advisory Didn't Mention</h2>
+
+            <p>Late in the month a security advisory went around about a pair of critical flaws in PHP. It doesn't touch this site — there's no PHP anywhere in it, and the host can't execute any. Easy to file under "not my problem." But it was a good prompt to actually look, and looking found a real one that no advisory would ever have named.</p>
+
+            <p>Every page that renders those news feeds built each headline's link the same way, and the helper that was supposed to make third-party text safe escaped the wrong characters — everything except quotes. A feed item whose link contained a quote could close the attribute and write its own, an event handler included. I wrote a proof of concept, and it ran: a crafted feed fired script on all four pages. A second path needed no quotes at all. It was reachable precisely <em>because</em> the pages render other people's content, and it mattered precisely because roughly fifteen thousand people a month were loading it. The fix was two independent guards and a content-security policy. The lesson was the month's lesson again: the vulnerability lived at the layer where a browser renders the markup, which is not the layer where the code reads fine.</p>
+
+            <h2>Two Routers I Didn't Know I Had</h2>
+
+            <p>Then the network, which is where "check where it actually runs" stopped being a metaphor. Machines I was sure sat on one flat home network kept vanishing from the router's list. I spent a while diagnosing boxes that weren't broken before the real shape surfaced: there were <em>two</em> routers daisy-chained — an EdgeRouter I'd half-forgotten feeding the main one — each handing out its own addresses, so my machines were split across two networks that couldn't see each other. The diagram in my head said one subnet. The cabling said two.</p>
+
+            <p>I made it worse before better — I factory-reset the upstream router thinking it was a switch, which briefly took out more than it fixed — and then made the right call, which was the boring one: collapse everything onto a single segment and stop using a router to do a switch's job. What I actually wanted all along was <em>more ports</em>, and the tool for more ports is a dumb unmanaged switch, not a second router with opinions. A used sixteen-port switch does the whole thing with nothing to log into and no network of its own to accidentally create.</p>
+
+            <h2>Chords Out of Tune</h2>
+
+            <p>A smaller one, but it's the same shape so it belongs here. Playing chords on the synth, something sounded faintly wrong — fine on a single note, off across a progression. The tuning maths was correct; I'd verified it. So I stopped reading the code and measured the actual output, and the spectrum told the story at once: the default patch layered two sawtooths detuned fourteen cents apart, which is a gorgeous lead and a terrible chord. A single A didn't produce one pitch; it produced two, a few cents either side, beating against each other. A triad arrived as six tones, not three. Narrowing the detune fixed it, and I'd never have found it by staring at arithmetic that was already right. You have to look at the thing that comes out, not the thing you wrote.</p>
+
+            <h2>Changing of the Guard</h2>
+
+            <p>Underneath all of it, a quieter shift finished happening this month, and it's worth marking because it changes what this project even is.</p>
+
+            <p>The early version of this site ran on agents. There was an <strong>OpenClaw</strong> gateway, a pile of API tokens, and <strong>Telegram</strong> as the main way I talked to it — I'd message a model from my phone and it would build pages, commit code, run things. That era is documented on the <a href="architecture.html">architecture page</a>, and the ideas in it still hold, but it's the past now. The work moved to <strong>Claude Code</strong>, which is a different relationship: less "wind up an autonomous agent and hope," more sitting beside a capable one and steering. The box that used to run the agent gateway is now a liability I'm decommissioning — a cheap machine at my workplace still holding a key that reaches my whole home network, which is exactly the kind of thing you clean up once you start thinking like an administrator instead of an operator.</p>
+
+            <p>And that's the direction from here: security. The network got torn down and rebuilt partly so it would be something I can reason about and audit, not just extend. I stood up a dedicated box for it, drew out the estate's SSH trust model so the blast-radius logic is visible instead of implied — a few admin machines reach every server, the servers reach nothing, so a compromised server is a dead end rather than a doorway. The next real work is to turn those tools on my own infrastructure: scan what's actually exposed, prove the services bind where they claim to, check the rules on the database that quietly accepts writes. I've spent this month learning, the hard way and repeatedly, that a thing can look healthy from the outside and be wrong underneath. Pointing that lesson at my own security posture, on purpose, is the obvious next move.</p>
+
+            <p>One note on motive, since none of this earns a cent. I've never meant to profit from it. The whole project is somewhere to chase knowledge, to explore, to build things and design them properly — and the traffic was never revenue. It's evidence. Fifteen thousand people a month using something I stood up and keep running is a record that will still be here later, the kind you can point to: <em>I built this, and people came.</em> That's worth more to me than whatever it could have charged — and it's exactly why getting it working, and keeping it honest underneath, is the part I care about.</p>
+
+            <h2>What I'd Take From It</h2>
+
+            <p>Every failure this month — the feeds, the health check, the injection, the network, even the synth — had the same signature. It passed at the layer I checked. The proxy answered a server. The endpoint answered a ping. The escaping function escaped <em>something</em>. The diagram showed one network. The tuning code computed the right numbers. And each was broken one layer down, where a browser renders, where a specific machine responds, where the cables actually run, where the sound actually comes out.</p>
+
+            <p>The fix was never clever. It was moving the check to where the thing happens and looking there. That's a dull lesson and an expensive one to keep re-learning, so I'm writing it down: a green light tells you the layer you're watching is fine. It tells you nothing about the one you're not.</p>
+
+        </div>
+    </div>
+
+    <script>
+    // Starfield
+    window.addEventListener('load', () => {
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none';
+      document.body.prepend(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      for (let i = 0; i < 140; i++) {
+        ctx.beginPath();
+        ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*1.1, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.5+0.1})`;
+        ctx.fill();
+      }
+    });
+    </script>
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>

@@ -9,3 +9,9 @@ chord-server/cookies.txt
 
 # Test output written when a scratchpad path is unset — never source.
 undefined/
+
+# The SSH trust map is a PRIVATE artifact (the "vault" copy), delivered as a
+# claude.ai artifact. Its source lives here for editing but must never be
+# published to the public site — committing it would expose the estate's
+# topology at methodictruth.com/ssh-trust-map.html.
+ssh-trust-map.html
