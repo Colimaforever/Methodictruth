@@ -134,6 +134,27 @@ function summarise(h) {
   }
 
   console.log(`state=${r.state} (${r.ms}ms) changed=${changed} :: ${r.detail}`);
+
+  // Which box answered. The hostname has no idea, and that is not a hypothetical
+  // problem: for weeks api.methodictruth.com was served by the Kamrui while
+  // everyone read the 8930's health instead, because up/down is the one thing
+  // this check reported and both answers look the same. These fields differ per
+  // machine -- analysis_slots is 3 on chord and 1 on the 8930, and cookies and
+  // the PO-token server live on whichever box actually fetches from YouTube --
+  // so one line of them makes "it is up" into "it is up, and it is this one".
+  if (r.health) {
+    const h = r.health;
+    const fp = [
+      `slots=${h.analysis_slots}`,
+      `cached=${h.cached_songs}`,
+      `cookies=${h.cookies_present}`,
+      `pot=${h.pot_plugin_installed}/${h.pot_server_up}`,
+      `lyrics=${h.lyrics_enabled ? h.lyrics_service_up : 'off'}`,
+      `yt=${h.youtube}`,
+      h.ytdlp_version ? `yt-dlp=${h.ytdlp_version}` : ''
+    ].filter(Boolean).join(' ');
+    console.log(`who=  ${fp}`);
+  }
   // Never fail the job on an unhealthy site -- a red X every 15 minutes is
   // its own alert storm, and the email is the signal.
   process.exit(0);
