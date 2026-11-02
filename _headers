@@ -112,6 +112,30 @@
 /lib/*
   Cache-Control: public, max-age=2592000
 
+# ── Data snapshots & feeds ──
+# The AI-Dispatch panels on the homepage and the two news pages fetch these
+# snapshots on every view. CI rebuilds them every 6h (dispatch-snapshot.yml,
+# cron 23 */6 * * *), so between rebuilds they are static. Without a rule they
+# fell through to the Pages revalidate-every-time default and went back to
+# origin on every page load. The browser fetch sends cache:'no-cache' (readers
+# always revalidate, so a fresh snapshot shows at once), but s-maxage still lets
+# Cloudflare's edge answer without touching origin, and a 6h
+# stale-while-revalidate serves the cached copy instantly between rebuilds.
+/ai-dispatch.json
+  Cache-Control: public, max-age=0, s-maxage=600, stale-while-revalidate=21600
+/music-dispatch.json
+  Cache-Control: public, max-age=0, s-maxage=600, stale-while-revalidate=21600
+/evolution-dispatch.json
+  Cache-Control: public, max-age=0, s-maxage=600, stale-while-revalidate=21600
+
+# RSS feed and sitemap — polled by feed readers and crawlers, not by page
+# views, and they change only when I deploy. A one-hour edge TTL with a day of
+# stale-while-revalidate keeps that bot traffic off origin entirely.
+/feed.xml
+  Cache-Control: public, max-age=0, s-maxage=3600, stale-while-revalidate=86400
+/sitemap.xml
+  Cache-Control: public, max-age=0, s-maxage=3600, stale-while-revalidate=86400
+
 # Fallback for any other JS (unversioned/one-off): a one-day TTL so a deploy is
 # reflected within a day instead of being frozen.
 /*.js
