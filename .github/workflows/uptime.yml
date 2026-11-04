@@ -41,6 +41,13 @@ jobs:
 
       - name: Email on state change
         if: steps.probe.outputs.changed == 'true'
+        # Best-effort. If the SMTP secrets are unset or Gmail rejects the send,
+        # this must NOT fail the job. A broken mailer turning every degraded
+        # poll into a GitHub "run failed" email is exactly the alert storm the
+        # state-change design exists to prevent -- and because the step's
+        # conclusion stays "success", the transition below still gets recorded,
+        # so state.json settles and the next poll sees no change.
+        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -56,7 +63,13 @@ jobs:
           body: ${{ steps.probe.outputs.body }}
 
       - name: Record the transition
-        if: steps.probe.outputs.changed == 'true'
+        # Must run whether or not the email went out -- the recorded state is
+        # what makes `changed` false on the next poll. Gating this on the mail
+        # step succeeding was the original bug: a failed send skipped the commit,
+        # so state.json never advanced past its initial value and every run
+        # re-detected the same change and failed. !cancelled() keeps it running
+        # even if the mail step errored.
+        if: ${{ !cancelled() && steps.probe.outputs.changed == 'true' }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
