@@ -1,7 +1,7 @@
 {
- "state": "degraded",
- "since": "2026-11-04T23:09:51.476Z",
- "lastChecked": "2026-11-04T23:09:51.476Z",
- "lastDetail": "lyrics sidecar unreachable (GPU transcription unavailable)",
- "responseMs": 1221
+ "state": "down",
+ "since": "2026-11-05T02:46:10.429Z",
+ "lastChecked": "2026-11-05T02:46:10.429Z",
+ "lastDetail": "HTTP 530 from /health",
+ "responseMs": 161
 }
