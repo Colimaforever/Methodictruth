@@ -1,7 +1,7 @@
 {
- "state": "ok",
- "since": "2026-11-06T03:30:10.878Z",
- "lastChecked": "2026-11-06T03:30:10.878Z",
- "lastDetail": "all subsystems reporting",
- "responseMs": 297
+ "state": "degraded",
+ "since": "2026-11-07T23:16:57.337Z",
+ "lastChecked": "2026-11-07T23:16:57.337Z",
+ "lastDetail": "YouTube downloads failing (2 consecutive) — ERROR: [youtube] c5FOUyubiH8: Video unavailable. This video is not available",
+ "responseMs": 347
 }
