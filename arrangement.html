@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0e1a">
   <title>Arrangement Guide — How to Structure a Song in Logic Pro</title>
-  <meta name="keywords" content="song arrangement, song structure, Logic Pro X arrangement track, arrangement markers, intro verse chorus bridge, song sections, energy arc, transitions, fills, risers, drops, automation, marker track, cycle recording, song form, how to arrange a song">
+  <meta name="keywords" content="song arrangement, song structure, Logic Pro X arrangement track, arrangement markers, intro verse chorus bridge, song sections, energy arc, transitions, fills, risers, drops, automation, marker track, cycle recording, song form, AABA 32-bar form, 12-bar blues, verse chorus structure, song section bar counts, how many bars in a verse, how to arrange a song">
   <meta name="description" content="A visual guide to arranging a song: the anatomy of song sections and the energy arc, then exactly how to block out, name, move and build that structure in Logic Pro X using the Arrangement track, markers, and automation.">
   <link rel="canonical" href="https://methodictruth.com/arrangement.html">
   <meta property="og:title" content="Arrangement Guide — Structure a Song in Logic Pro X">
@@ -110,6 +110,25 @@
     .ar-energy { fill: none; stroke: var(--glow); stroke-width: 2.2; }
     .ar-flowbox { fill: rgba(10, 14, 26, 0.55); stroke: rgba(0, 229, 255, 0.35); stroke-width: 1.2; }
     .ar-flowtxt { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: var(--parchment); }
+
+    /* common forms */
+    .ar-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0.5rem 0 1.1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; color: var(--stone-dark); letter-spacing: 0.05em; text-transform: uppercase; }
+    .ar-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .ar-legend i { width: 10px; height: 10px; border: 1px solid; display: inline-block; }
+    .ar-forms { display: flex; flex-direction: column; gap: 1.15rem; margin-top: 0.6rem; }
+    .ar-form-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.15rem 1rem; margin-bottom: 0.35rem; }
+    .ar-form-name { font-family: 'Cinzel', serif; font-size: 0.92rem; color: var(--glow); letter-spacing: 0.04em; }
+    .ar-form-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; color: var(--stone-dark); letter-spacing: 0.07em; text-transform: uppercase; }
+    .ar-form-strip { display: flex; gap: 2px; height: 40px; min-width: 480px; }
+    .ar-blk { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid; border-radius: 2px; min-width: 0; padding: 0 2px; line-height: 1.15; text-align: center; }
+    .ar-blk .nm { font-family: 'JetBrains Mono', monospace; font-size: 0.54rem; color: var(--parchment); white-space: nowrap; overflow: hidden; text-overflow: clip; max-width: 100%; }
+    .ar-blk .ct { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--stone-dark); }
+    .b-intro { background: rgba(138,126,107,0.22); border-color: rgba(138,126,107,0.5); }
+    .b-verse { background: rgba(232,168,124,0.22); border-color: rgba(232,168,124,0.5); }
+    .b-pre   { background: rgba(232,168,124,0.42); border-color: rgba(232,168,124,0.72); }
+    .b-chorus{ background: rgba(0,229,255,0.26); border-color: rgba(0,229,255,0.6); }
+    .b-bridge{ background: rgba(168,130,224,0.28); border-color: rgba(168,130,224,0.62); }
+    .b-break { background: rgba(138,126,107,0.3); border-color: rgba(138,126,107,0.55); }
 
     /* toc */
     .ar-toc { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; justify-content: center; }
@@ -227,6 +246,7 @@
 
       <nav class="ar-toc" aria-label="Sections">
         <a href="#anatomy">Anatomy</a>
+        <a href="#forms">Forms</a>
         <a href="#block">Block It Out</a>
         <a href="#rearrange">Rearrange</a>
         <a href="#energy">Energy</a>
@@ -314,9 +334,125 @@
         </p>
       </section>
 
-      <!-- ═══ 2. BLOCK IT OUT ═══ -->
+      <!-- ═══ 2. COMMON FORMS ═══ -->
+      <section class="ar-section" id="forms">
+        <div class="ar-section-label">② Structures You Already Know</div>
+        <h2 class="ar-section-title">Common Song Forms — With the Bar Counts</h2>
+        <p class="ar-lead">
+          The map above is one form. Here are the handful that most music actually uses, drawn to scale by the
+          <strong>number of bars</strong> each section runs. Notice how nearly everything lands on <strong>4, 8, 16 or
+          32</strong> — the ear expects phrases in powers of two, and these forms are just those phrases stacked. Count
+          the bars of any song you love and you'll almost always find these numbers.
+        </p>
+
+        <div class="ar-legend">
+          <span><i class="b-intro"></i> intro / outro</span>
+          <span><i class="b-verse"></i> verse / A</span>
+          <span><i class="b-pre"></i> pre / build</span>
+          <span><i class="b-chorus"></i> chorus / hook / drop</span>
+          <span><i class="b-bridge"></i> bridge / B</span>
+        </div>
+
+        <div class="ar-forms">
+
+          <div class="ar-form">
+            <div class="ar-form-head"><span class="ar-form-name">Verse–Chorus</span><span class="ar-form-meta">~80 bars · pop · rock · R&amp;B</span></div>
+            <div class="ar-table-wrap"><div class="ar-form-strip">
+              <div class="ar-blk b-intro"  style="flex:4"><span class="nm">Intro</span><span class="ct">4</span></div>
+              <div class="ar-blk b-verse"  style="flex:16"><span class="nm">Verse</span><span class="ct">16</span></div>
+              <div class="ar-blk b-pre"    style="flex:8"><span class="nm">Pre</span><span class="ct">8</span></div>
+              <div class="ar-blk b-chorus" style="flex:8"><span class="nm">Chorus</span><span class="ct">8</span></div>
+              <div class="ar-blk b-verse"  style="flex:16"><span class="nm">Verse</span><span class="ct">16</span></div>
+              <div class="ar-blk b-chorus" style="flex:8"><span class="nm">Chorus</span><span class="ct">8</span></div>
+              <div class="ar-blk b-bridge" style="flex:8"><span class="nm">Bridge</span><span class="ct">8</span></div>
+              <div class="ar-blk b-chorus" style="flex:8"><span class="nm">Chorus</span><span class="ct">8</span></div>
+              <div class="ar-blk b-intro"  style="flex:4"><span class="nm">Outro</span><span class="ct">4</span></div>
+            </div></div>
+          </div>
+
+          <div class="ar-form">
+            <div class="ar-form-head"><span class="ar-form-name">AABA — 32-bar form</span><span class="ar-form-meta">32 bars · jazz standards · Tin Pan Alley · early pop</span></div>
+            <div class="ar-table-wrap"><div class="ar-form-strip">
+              <div class="ar-blk b-verse"  style="flex:8"><span class="nm">A</span><span class="ct">8</span></div>
+              <div class="ar-blk b-verse"  style="flex:8"><span class="nm">A</span><span class="ct">8</span></div>
+              <div class="ar-blk b-bridge" style="flex:8"><span class="nm">B · bridge</span><span class="ct">8</span></div>
+              <div class="ar-blk b-verse"  style="flex:8"><span class="nm">A</span><span class="ct">8</span></div>
+            </div></div>
+          </div>
+
+          <div class="ar-form">
+            <div class="ar-form-head"><span class="ar-form-name">12-Bar Blues</span><span class="ar-form-meta">12 bars · blues · rock &amp; roll · jams</span></div>
+            <div class="ar-table-wrap"><div class="ar-form-strip">
+              <div class="ar-blk b-verse"  style="flex:4"><span class="nm">I</span><span class="ct">4</span></div>
+              <div class="ar-blk b-pre"    style="flex:2"><span class="nm">IV</span><span class="ct">2</span></div>
+              <div class="ar-blk b-verse"  style="flex:2"><span class="nm">I</span><span class="ct">2</span></div>
+              <div class="ar-blk b-chorus" style="flex:1"><span class="nm">V</span><span class="ct">1</span></div>
+              <div class="ar-blk b-pre"    style="flex:1"><span class="nm">IV</span><span class="ct">1</span></div>
+              <div class="ar-blk b-verse"  style="flex:1"><span class="nm">I</span><span class="ct">1</span></div>
+              <div class="ar-blk b-chorus" style="flex:1"><span class="nm">V</span><span class="ct">1</span></div>
+            </div></div>
+          </div>
+
+          <div class="ar-form">
+            <div class="ar-form-head"><span class="ar-form-name">Dance / EDM</span><span class="ar-form-meta">all 8s &amp; 16s · house · techno · trance</span></div>
+            <div class="ar-table-wrap"><div class="ar-form-strip">
+              <div class="ar-blk b-intro"  style="flex:16"><span class="nm">Intro</span><span class="ct">16</span></div>
+              <div class="ar-blk b-pre"    style="flex:16"><span class="nm">Build</span><span class="ct">16</span></div>
+              <div class="ar-blk b-chorus" style="flex:32"><span class="nm">Drop</span><span class="ct">32</span></div>
+              <div class="ar-blk b-break"  style="flex:16"><span class="nm">Breakdown</span><span class="ct">16</span></div>
+              <div class="ar-blk b-pre"    style="flex:16"><span class="nm">Build</span><span class="ct">16</span></div>
+              <div class="ar-blk b-chorus" style="flex:32"><span class="nm">Drop</span><span class="ct">32</span></div>
+              <div class="ar-blk b-intro"  style="flex:16"><span class="nm">Outro</span><span class="ct">16</span></div>
+            </div></div>
+          </div>
+
+          <div class="ar-form">
+            <div class="ar-form-head"><span class="ar-form-name">Hip-Hop</span><span class="ar-form-meta">16-bar verses · 8-bar hooks</span></div>
+            <div class="ar-table-wrap"><div class="ar-form-strip">
+              <div class="ar-blk b-intro"  style="flex:4"><span class="nm">Intro</span><span class="ct">4</span></div>
+              <div class="ar-blk b-chorus" style="flex:8"><span class="nm">Hook</span><span class="ct">8</span></div>
+              <div class="ar-blk b-verse"  style="flex:16"><span class="nm">Verse</span><span class="ct">16</span></div>
+              <div class="ar-blk b-chorus" style="flex:8"><span class="nm">Hook</span><span class="ct">8</span></div>
+              <div class="ar-blk b-verse"  style="flex:16"><span class="nm">Verse</span><span class="ct">16</span></div>
+              <div class="ar-blk b-chorus" style="flex:8"><span class="nm">Hook</span><span class="ct">8</span></div>
+              <div class="ar-blk b-intro"  style="flex:8"><span class="nm">Outro</span><span class="ct">8</span></div>
+            </div></div>
+          </div>
+
+          <div class="ar-form">
+            <div class="ar-form-head"><span class="ar-form-name">Strophic (AAA)</span><span class="ar-form-meta">16 bars × N · folk · ballads · hymns</span></div>
+            <div class="ar-table-wrap"><div class="ar-form-strip">
+              <div class="ar-blk b-verse" style="flex:16"><span class="nm">Verse 1</span><span class="ct">16</span></div>
+              <div class="ar-blk b-verse" style="flex:16"><span class="nm">Verse 2</span><span class="ct">16</span></div>
+              <div class="ar-blk b-verse" style="flex:16"><span class="nm">Verse 3</span><span class="ct">16</span></div>
+              <div class="ar-blk b-intro" style="flex:5"><span class="nm">…</span><span class="ct">→</span></div>
+            </div></div>
+          </div>
+
+        </div>
+
+        <p class="ar-note">
+          The <strong>phrase</strong> is the atom — almost always 4 or 8 bars — and a section is just phrases stacked into
+          8, 16 or 32. That regularity is why your ear can <em>predict</em> a song and feel satisfied, or surprised, by
+          what lands on the next downbeat. The 12-bar blues is the famous exception that proves the rule. And
+          <strong>through-composed</strong> music — much ambient, prog and cinematic writing — refuses repetition
+          outright: the structure <em>is</em> the journey, with no section ever returning.
+        </p>
+        <div class="ar-logic" data-l="FOR THE ATMOSPHERIC / POST-PUNK LANE">
+          Darkwave, 4AD and post-punk forms often stretch the <strong>intro</strong> and build by slow accretion —
+          layering one part at a time over a long runway rather than cutting hard between sections — so the seams blur.
+          The bar math underneath is still 8s and 16s; you're just crossfading the energy instead of switching it. Map
+          it the same way, then <em>automate</em> the layers in rather than muting them in and out.
+        </div>
+        <p class="ar-lead" style="margin-top:0.9rem;">
+          Pick a form, program its beat on the <a href="drum-theory.html" style="color:var(--glow-warm)">Drum Theory</a>
+          tool, then block the sections out with the <a href="#block" style="color:var(--glow)">Arrangement track</a> below.
+        </p>
+      </section>
+
+      <!-- ═══ 3. BLOCK IT OUT ═══ -->
       <section class="ar-section" id="block">
-        <div class="ar-section-label">② Structure Before Sound</div>
+        <div class="ar-section-label">③ Structure Before Sound</div>
         <h2 class="ar-section-title">Blocking It Out in Logic Pro X</h2>
         <p class="ar-lead">
           Before you fuss over sounds, map the <em>form</em>. Logic gives you two "global tracks" for this — a
@@ -372,7 +508,7 @@
 
       <!-- ═══ 3. REARRANGE ═══ -->
       <section class="ar-section" id="rearrange">
-        <div class="ar-section-label">③ Move Whole Sections at Once</div>
+        <div class="ar-section-label">④ Move Whole Sections at Once</div>
         <h2 class="ar-section-title">Rearranging by the Block</h2>
         <p class="ar-lead">
           This is where the Arrangement track earns its keep. Because each marker owns the regions under it, you can
@@ -416,7 +552,7 @@
 
       <!-- ═══ 4. ENERGY ═══ -->
       <section class="ar-section" id="energy">
-        <div class="ar-section-label">④ What Plays When</div>
+        <div class="ar-section-label">⑤ What Plays When</div>
         <h2 class="ar-section-title">Arranging Energy Over Time</h2>
         <p class="ar-lead">
           A great arrangement is mostly about <em>subtraction</em>. The same four-chord loop feels like a different
@@ -461,7 +597,7 @@
 
       <!-- ═══ 5. TRANSITIONS ═══ -->
       <section class="ar-section" id="transitions">
-        <div class="ar-section-label">⑤ Gluing Sections Together</div>
+        <div class="ar-section-label">⑥ Gluing Sections Together</div>
         <h2 class="ar-section-title">Transitions</h2>
         <p class="ar-lead">
           Sections that just <em>stop and start</em> feel like separate loops bolted together. <strong>Transitions</strong>
@@ -511,7 +647,7 @@
 
       <!-- ═══ 6. WORKFLOW ═══ -->
       <section class="ar-section" id="workflow">
-        <div class="ar-section-label">⑥ Ways of Working</div>
+        <div class="ar-section-label">⑦ Ways of Working</div>
         <h2 class="ar-section-title">Arrangement Workflow &amp; Habits</h2>
         <p class="ar-lead">
           A few habits keep arranging fast and keep you from getting lost in a forty-track project. Most are one key
@@ -556,7 +692,7 @@
 
       <!-- ═══ 7. REGISTER ═══ -->
       <section class="ar-section" id="register">
-        <div class="ar-section-label">⑦ Arranging in the Vertical</div>
+        <div class="ar-section-label">⑧ Arranging in the Vertical</div>
         <h2 class="ar-section-title">Register — Why Your Mix Is Muddy</h2>
         <p class="ar-lead">
           Everything above arranges the song <em>horizontally</em> — what happens when. There's a second dimension that
