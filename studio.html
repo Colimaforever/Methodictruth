@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0e1a">
   <title>The Studio · Methodic Truth</title>
-  <meta name="description" content="Analog hardware studio setup: SSL SiX mixer, Focusrite Clarett+ 8Pre, Korg MS-20 Mini, Roland Juno DS, Behringer VC340, RD-8, Gibson Les Paul, Boss RE-202 Space Echo, and more. Full signal chain and MIDI routing.">
+  <meta name="description" content="Analog hardware studio setup: SSL SiX mixer, Focusrite Clarett+ 8Pre, Korg MS-2000B, Korg Minilogue, Korg MS-20 Mini, Roland Juno DS, Behringer VC340, RD-8, Alesis 12R, Gibson Les Paul, Boss RE-202 Space Echo, and more. Full signal chain and MIDI routing.">
   <link rel="canonical" href="https://methodictruth.com/studio.html">
-  <meta name="keywords" content="analog studio, SSL SiX, Focusrite Clarett, Korg MS-20, Korg Minilogue, Roland Juno DS, Behringer VC340, RD-8, Gibson Les Paul, Boss RE-202 Space Echo, hardware synth, MIDI setup, music production">
+  <meta name="keywords" content="analog studio, SSL SiX, Focusrite Clarett, Korg MS-2000B, Korg MS-20, Korg Minilogue, Roland Juno DS, Behringer VC340, RD-8, Alesis 12R, Fostex 3180, Gibson Les Paul, Boss RE-202 Space Echo, hardware synth, MIDI setup, music production">
   <meta property="og:title" content="The Studio — Analog Hardware Synth Setup · Methodic Truth">
-  <meta property="og:description" content="SSL SiX, Focusrite Clarett, Korg MS-20, Roland, Behringer, Gibson Les Paul, Boss pedals — full analog signal chain with MIDI routing.">
+  <meta property="og:description" content="SSL SiX, Focusrite Clarett, Korg MS-2000B, MS-20, Roland, Behringer, Alesis 12R, Gibson Les Paul, Boss pedals — full analog signal chain with MIDI routing.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://methodictruth.com/studio.html">
   <meta property="og:image" content="https://methodictruth.com/og-image.png">
@@ -202,10 +202,13 @@
 
     <!-- Signal Chain -->
     <div class="signal-chain">
-      Hardware Synths <span class="arrow">→</span> Patchbay <span class="arrow">→</span> SSL SiX <span class="arrow">→</span> Main Out <span class="arrow">→</span> Focusrite Clarett+ 8Pre (inputs 1/2) <span class="arrow">→</span> Computer<br>
-      Hardware Synths <span class="arrow">→</span> Patchbay <span class="arrow">→</span> Focusrite Clarett+ 8Pre (inputs 3-8) <span class="arrow">→</span> Computer <span class="arrow">→</span> Web
-      <br>Logic stems <span class="arrow">→</span> Clarett outs <span class="arrow">→</span> 424 mkIII <span class="arrow">→</span> <strong>cassette</strong>
-      <br>Cassette <span class="arrow">→</span> 424 TAPE OUT 1-4 <span class="arrow">→</span> Clarett 1-4 <span class="arrow">→</span> Logic (four tracks back)
+      Bay instruments <span class="arrow">→</span> Bay B <span class="arrow">→</span> <strong>SSL SiX</strong> <span class="arrow">→</span> the analog hub — it sums, and it's where I listen<br>
+      Record a channel: <strong>mute it</strong> <span class="arrow">→</span> Bus B <span class="arrow">→</span> Clarett+ 8Pre IN 7-8 <span class="arrow">→</span> Computer <span class="arrow">→</span> Web
+      <br>Raw copy <span class="arrow">→</span> Clarett IN 3-6 <span class="arrow">→</span> Computer
+      <br>Guitar / bass <span class="arrow">→</span> Clarett <strong>front</strong> inputs 1-2 (DI, kept free)
+      <br>Logic stems <span class="arrow">→</span> Clarett outs 3-6 <span class="arrow">→</span> 424 mkIII <span class="arrow">→</span> <strong>cassette</strong>
+      <br>Cassette <span class="arrow">→</span> 424 TAPE OUT 1-4 <span class="arrow">→</span> Clarett IN 3-6 <span class="arrow">→</span> Logic (four tracks back)
+      <br>MIDI <span class="arrow">→</span> Logic <span class="arrow">→</span> MOTU MIDI Express 128 <span class="arrow">→</span> synths &amp; drums
     </div>
 
     <!-- Mixing & Interface -->
@@ -235,12 +238,17 @@
         <div class="gear-card">
           <h3>Beyerdynamic DT 770 PRO</h3>
           <div class="gear-type">Closed-Back Headphones · 80Ω</div>
-          <p>Main monitoring reference for tracking, overdubbing and working with the Portastudio.</p>
+          <p>The <strong>only</strong> monitoring here — no speakers. Tracking, overdubbing and working the Portastudio all happen on these.</p>
         </div>
         <div class="gear-card">
           <h3>Patchbay</h3>
-          <div class="gear-type">Signal Routing</div>
-          <p>24-in, 2-row. All audio and MIDI routed through a centralized patchbay. Normalled for standard chains, repatchable on the fly. No cable crawling.</p>
+          <div class="gear-type">2× Neutrik NYS-SPP-L1 · 48 Points</div>
+          <p>Two bays, 48 points, half-normalled. <strong>Bay A</strong> is the spine — Logic (Clarett) ⇄ SSL ⇄ 424 ⇄ effect sends. <strong>Bay B</strong> is the sources — the bay instruments, the guitar chain, the effect returns. Audio only; MIDI runs through the MOTU. Take from a top jack, give to a bottom.</p>
+        </div>
+        <div class="gear-card">
+          <h3>Alesis 12R</h3>
+          <div class="gear-type">Rackmount Drum Submixer</div>
+          <p>The RD-8's and R-8's individual outs sum here before the patchbay and SSL, so the kit arrives as one balanced stereo pair instead of eating console channels.</p>
         </div>
       </div>
     </div>
@@ -271,6 +279,11 @@
           <h3>Korg MS-20 Mini</h3>
           <div class="gear-type">Semi-Modular Analog Monosynth</div>
           <p>Miniature reissue of the legendary MS-20. Dual oscillators, resonant filters that scream, and a patch panel for modular routing. Aggressive, raw, alive. The filter alone is worth the price of admission.</p>
+        </div>
+        <div class="gear-card">
+          <h3>Korg MS-2000B</h3>
+          <div class="gear-type">Virtual-Analog Synth · Vocoder</div>
+          <p>Virtual-analog polysynth with a built-in vocoder and gooseneck mic. Shares the across-the-room stand with the MS-20 Mini and Minilogue — cabled into a Clarett front input when it's wanted.</p>
         </div>
         <div class="gear-card">
           <h3>Akai Timbre Wolf</h3>
@@ -392,9 +405,9 @@
           <p>80s rack reverb. Warm, distinctive character. Routed through patchbay for any source.</p>
         </div>
         <div class="gear-card">
-          <h3>Fostex 3510</h3>
-          <div class="gear-type">Spring Reverb</div>
-          <p>Hardware spring reverb unit. The kind of character that no plugin replicates. Physical springs, real resonance.</p>
+          <h3>Fostex 3180</h3>
+          <div class="gear-type">Spring Reverb · Mono In/Out</div>
+          <p>Hardware spring reverb unit, mono in and out. The kind of character no plugin replicates. Physical springs, real resonance.</p>
         </div>
       </div>
     </div>
@@ -442,18 +455,20 @@
       <h2>𒊕 Routing</h2>
       <table class="routing-table">
         <tr><th>Source</th><th>Destination</th><th>MIDI Port</th></tr>
-        <tr><td>SSL SiX Main Out</td><td>Clarett Inputs 1/2</td><td>—</td></tr>
-        <tr><td>Juno DS L/R</td><td>SSL SiX / Clarett 3/4</td><td>4</td></tr>
-        <tr><td>VC340 L/R</td><td>Clarett Inputs 5/6</td><td>5</td></tr>
-        <tr><td>JV-1010 L/R</td><td>Clarett Inputs 7/8</td><td>3</td></tr>
-        <tr><td>RD-8 L/R</td><td>Patchbay → SSL SiX</td><td>2</td></tr>
-        <tr><td>SR-16 L/R</td><td>Patchbay → SSL SiX</td><td>6</td></tr>
-        <tr><td>Korg Minilogue</td><td>Patchbay → SSL SiX</td><td>7</td></tr>
-        <tr><td>Logic Stems (Clarett outs)</td><td>424 mkIII Inputs → cassette</td><td>—</td></tr>
-        <tr><td>424 TAPE OUT 1–4 (RCA, −10 dBV)</td><td>Clarett Inputs 1–4 → Logic</td><td>—</td></tr>
-        <tr><td>424 Line Out L/R</td><td>Patchbay → SSL SiX</td><td>—</td></tr>
-        <tr><td>Yamaha R1000</td><td>Patchbay (aux return)</td><td>—</td></tr>
-        <tr><td>Fostex 3510</td><td>Patchbay (aux return)</td><td>—</td></tr>
+        <tr><td>Juno DS L/R</td><td>Bay B → SSL SiX</td><td>4</td></tr>
+        <tr><td>VC-340 L/R</td><td>Bay B → SSL SiX</td><td>5</td></tr>
+        <tr><td>JV-1010 L/R</td><td>SSL EXT 2 (on the mix bus)</td><td>3</td></tr>
+        <tr><td>RD-8 / R-8 outs</td><td>Alesis 12R → Bay B → SSL SiX</td><td>2 / 1</td></tr>
+        <tr><td>SR-16 L/R</td><td>Bay B → SSL SiX</td><td>6</td></tr>
+        <tr><td>Minilogue · MS-2000B · MS-20 Mini</td><td>Clarett front input (cabled in)</td><td>7</td></tr>
+        <tr><td>Guitar / Bass (DI)</td><td>Clarett front inputs 1–2</td><td>—</td></tr>
+        <tr><td>Muted SSL channel → Bus B</td><td>Clarett IN 7–8 → Logic (record send)</td><td>—</td></tr>
+        <tr><td>Instrument raw copy</td><td>Clarett IN 3–6 → Logic</td><td>—</td></tr>
+        <tr><td>Logic stems (Clarett outs 3–6)</td><td>424 mkIII inputs → cassette</td><td>—</td></tr>
+        <tr><td>424 TAPE OUT 1–4 (RCA, −10 dBV)</td><td>Clarett IN 3–6 → Logic</td><td>—</td></tr>
+        <tr><td>SSL SiX Main Out</td><td>Clarett (print final mix only)</td><td>—</td></tr>
+        <tr><td>RE-202 · Yamaha R-1000 · Fostex 3180</td><td>Patchbay sends / returns</td><td>—</td></tr>
+        <tr><td>Logic (SSL EXT 1)</td><td>Monitor only — off the mix bus</td><td>—</td></tr>
       </table>
     </div>
 
