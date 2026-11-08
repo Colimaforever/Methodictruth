@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Drum Theory — Build a Beat, Read the Theory</title>
+  <meta name="keywords" content="drum theory, beat maker, step sequencer, groove analyzer, backbeat, four on the floor, boom bap, breakbeat, trap, half-time, swing, syncopation, rhythm theory, drum machine online, free beat maker">
+  <meta name="description" content="Program a drum pattern on a step sequencer, hear it, and read the theory behind it — backbeat, subdivision, groove family, swing and syncopation. Free, instant, no signup.">
+  <link rel="canonical" href="https://methodictruth.com/drum-theory.html">
+  <meta property="og:title" content="Drum Theory — Build a Beat, Read the Theory">
+  <meta property="og:description" content="Build a drum pattern and the tool explains the theory of what you made: backbeat, groove family, swing, syncopation.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://methodictruth.com/drum-theory.html">
+  <meta property="og:image" content="https://methodictruth.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebApplication","name":"Drum Theory","url":"https://methodictruth.com/drum-theory.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript and the Web Audio API","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Build a drum pattern on a step sequencer, hear it, and read the theory behind it: backbeat, subdivision, groove family, swing and syncopation."}
+  </script>
+  <link rel="stylesheet" href="styles.css?v=77">
+  <style>
+    .dt-wrap { max-width: min(800px, 95vw); margin: 1.5rem auto 0; padding: 0 clamp(0.5rem, 2vw, 1rem); position: relative; z-index: 2; }
+    .dt-transport {
+      display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center;
+      gap: 0.9rem 1.3rem; margin-bottom: 1.3rem;
+    }
+    .dt-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em;
+      text-transform: uppercase; background: rgba(26,18,10,0.6);
+      border: 1px solid rgba(138,126,107,0.2); color: var(--stone-dark);
+      padding: 0.6rem 1.1rem; border-radius: 3px; cursor: pointer; transition: all 0.25s;
+    }
+    .dt-btn:hover { color: var(--parchment); border-color: rgba(138,126,107,0.4); }
+    .dt-btn.play { color: var(--glow); border-color: rgba(0,229,255,0.4); }
+    .dt-field { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+    .dt-field label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--stone-dark);
+    }
+    .dt-num {
+      width: 4em; text-align: center; background: rgba(26,18,10,0.6);
+      border: 1px solid rgba(138,126,107,0.3); color: var(--parchment);
+      border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; padding: 0.35rem;
+    }
+    .dt-select {
+      background: rgba(26,18,10,0.6); border: 1px solid rgba(138,126,107,0.3);
+      color: var(--parchment); border-radius: 3px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem; padding: 0.4rem;
+    }
+    .dt-swing { width: 120px; accent-color: #00e5ff; }
+
+    .dt-grid {
+      display: flex; flex-direction: column; gap: 4px;
+      background: rgba(18,14,10,0.6); border: 1px solid rgba(0,229,255,0.08);
+      border-radius: 6px; padding: 0.8rem; overflow-x: auto;
+    }
+    .dt-lane {
+      display: grid; grid-template-columns: 74px repeat(16, 1fr);
+      align-items: center; gap: 3px; min-width: 460px;
+    }
+    .dt-lane-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--stone-dark); white-space: nowrap;
+    }
+    .dt-cell {
+      aspect-ratio: 1 / 1; min-height: 20px; border-radius: 3px;
+      background: rgba(138,126,107,0.08); border: 1px solid rgba(138,126,107,0.12);
+      cursor: pointer; transition: background 0.1s, box-shadow 0.1s, border-color 0.1s;
+    }
+    .dt-cell.beat { border-left: 2px solid rgba(0,229,255,0.22); }
+    .dt-cell.on { background: var(--lc, var(--glow)); box-shadow: 0 0 9px var(--lg, rgba(0,229,255,0.4)); border-color: transparent; }
+    .dt-cell.playhead { outline: 1px solid rgba(240,230,210,0.7); outline-offset: -1px; }
+    .dt-cell:hover { border-color: rgba(138,126,107,0.4); }
+
+    .dt-theory {
+      margin-top: 1.4rem; background: rgba(18,14,10,0.55);
+      border: 1px solid rgba(138,126,107,0.12); border-radius: 6px; padding: 1.2rem 1.3rem;
+    }
+    .dt-theory h2 {
+      font-family: 'Cinzel', serif; color: var(--warm); font-size: clamp(0.9rem, 2vw, 1.05rem);
+      letter-spacing: 0.08em; border-bottom: 1px solid rgba(138,126,107,0.15);
+      padding-bottom: 0.5rem; margin: 0 0 1rem;
+    }
+    .dt-family { font-family: 'Cinzel', serif; color: var(--glow); font-size: clamp(1.1rem, 3vw, 1.4rem); letter-spacing: 0.04em; }
+    .dt-genres { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--stone-dark); letter-spacing: 0.12em; margin: 0.25rem 0 1rem; text-transform: uppercase; }
+    .dt-row { display: flex; justify-content: space-between; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid rgba(138,126,107,0.06); }
+    .dt-row .k { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--stone-dark); white-space: nowrap; }
+    .dt-row .v { font-family: 'EB Garamond', serif; font-size: 0.92rem; color: var(--parchment); text-align: right; }
+    .dt-meter { height: 8px; border-radius: 5px; background: rgba(138,126,107,0.15); overflow: hidden; margin-top: 0.5rem; }
+    .dt-meter > div { height: 100%; background: linear-gradient(90deg, var(--glow), var(--glow-warm)); transition: width 0.25s; }
+    .dt-why { font-family: 'EB Garamond', serif; font-size: 0.95rem; color: var(--stone); line-height: 1.65; margin-top: 1rem; }
+    .dt-why a, .dt-links a { color: var(--glow); text-decoration: none; border-bottom: 1px solid rgba(0,229,255,0.25); }
+    .dt-links { margin-top: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; color: var(--stone-dark); }
+    .dt-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--stone-dark); text-align: center; margin: 0.8rem 0 0; }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
+  <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="favicon.ico?v=3">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
+</head>
+<body>
+  <div class="starfield"><canvas id="stars" aria-hidden="true" role="presentation"></canvas></div>
+  <div class="nebula"></div>
+  <div class="ground"></div>
+
+  <nav class="site-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Music Tools ▾</button>
+        <div class="nav-drop-menu">
+          <a href="synth">Synth</a>
+          <a href="song-analyzer.html">Song Analyzer</a>
+          <a href="tuner.html">Tuner</a>
+          <a href="tapbpm.html">Tap BPM</a>
+          <a href="drum-theory.html" class="active">Drum Theory</a>
+          <a href="guitar.html">Fretboard</a>
+          <a href="chord-voicings.html">Chord Voicings</a>
+          <a href="songwriter.html">Songwriter</a>
+          <a href="harmony.html">Harmony</a>
+          <div class="nav-drop-label">Trainers</div>
+          <a href="ear-training.html">Ear Training</a>
+          <a href="chord-trainer.html">Chord-Tone Trainer</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Learn ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">The Path</div>
+          <a href="production.html">Learn Production</a>
+          <a href="recording.html">Recording</a>
+          <a href="arrangement.html">Arrangement</a>
+          <a href="effects.html">Effects</a>
+          <a href="mixing.html">Mixing</a>
+          <a href="mastering.html">Mastering</a>
+          <div class="nav-drop-label">Craft</div>
+          <a href="sound-selection.html">Sound Selection</a>
+          <a href="rhythm.html">Rhythm &amp; Beats</a>
+          <a href="groove.html">Groove &amp; Timing</a>
+          <a href="minimalism.html">Space &amp; Restraint</a>
+          <a href="finishing.html">Finishing</a>
+          <a href="jam-guide.html">Jam Guide</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Reference ▾</button>
+        <div class="nav-drop-menu">
+          <div class="nav-drop-label">Theory &amp; Harmony</div>
+          <a href="theory.html">Theory</a>
+          <a href="melody.html">Writing Melody</a>
+          <a href="prosody.html">Words &amp; Music</a>
+          <a href="harmony-guide.html">Writing Harmony</a>
+          <a href="breaking-the-loop.html">Breaking the Loop</a>
+          <a href="4ad.html">The 4AD Sound</a>
+          <div class="nav-drop-label">Instruments &amp; Gear</div>
+          <a href="fretboard.html">Seeing the Fretboard</a>
+          <a href="multimeter.html">Reading the Meter</a>
+          <a href="portastudio.html">Four Tracks</a>
+          <a href="logic.html">Logic Pro</a>
+          <a href="djing.html">Denon Prime GO+</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <button class="nav-drop-btn">Systems ▾</button>
+        <div class="nav-drop-menu">
+          <a href="architecture">Architecture</a>
+          <a href="stack.html">Stack</a>
+        </div>
+      </div>
+      <a href="changelog.html">Changelog</a>
+      <a href="chronicles">Chronicles</a>
+      <a href="about.html">About</a>
+      <a href="feedback.html">Feedback</a>
+      <a href="privacy.html">Privacy</a>
+    </div>
+  </nav>
+
+  <div class="page-header" style="padding:5.5rem 2rem 1.2rem;">
+    <h1>Drum Theory</h1>
+    <div class="subtitle">Build a Beat · Read the Theory</div>
+  </div>
+
+  <div class="dt-wrap">
+    <div class="dt-transport">
+      <button class="dt-btn play" id="dtPlay">▶ Play</button>
+      <div class="dt-field"><input type="number" class="dt-num" id="dtBpm" value="120" min="40" max="240"><label>BPM</label></div>
+      <div class="dt-field"><input type="range" class="dt-swing" id="dtSwing" min="0" max="60" value="0"><label>Swing <span id="dtSwingVal">0%</span></label></div>
+      <div class="dt-field">
+        <select class="dt-select" id="dtPreset">
+          <option value="four-on-the-floor">Four-on-the-floor</option>
+          <option value="rock">Rock backbeat</option>
+          <option value="boom-bap">Boom-bap</option>
+          <option value="breakbeat">Breakbeat</option>
+          <option value="trap">Trap</option>
+          <option value="half-time">Half-time</option>
+          <option value="dembow">Dembow / reggaeton</option>
+          <option value="bossa">Bossa / son clave</option>
+          <option value="afrobeat">Afrobeat</option>
+        </select>
+        <label>Preset</label>
+      </div>
+      <button class="dt-btn" id="dtClear">Clear</button>
+    </div>
+
+    <div class="dt-grid" id="dtGrid"></div>
+    <p class="dt-hint">click the squares to build a beat · press <strong>space</strong> to play/stop</p>
+
+    <div class="dt-theory">
+      <h2>𒀭 The Theory of What You Made</h2>
+      <div id="dtReadout"></div>
+    </div>
+  </div>
+
+  <!-- Educational Content -->
+  <div class="page-content" style="position:relative; z-index:1; max-width:640px; margin:2.5rem auto; padding:1.5rem clamp(1rem, 3vw, 2rem);">
+    <h2 style="font-family:'Cinzel',serif; font-size:clamp(1rem,2vw,1.3rem); color:var(--glow); letter-spacing:0.08em; margin-bottom:1rem; border-bottom:1px solid rgba(0,229,255,0.1); padding-bottom:0.5rem;">How to Read a Drum Pattern</h2>
+
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      A bar of 4/4 is divided into <strong>16 steps</strong> — four beats, each split into four sixteenth-notes. The four <span style="color:var(--glow-warm);">downbeats</span> (steps 1, 5, 9, 13) are the strongest; everything else is weaker to the ear. <em>Where</em> you place hits against that grid is what produces feel.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">The Backbeat</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      Snare on beats <strong>2 and 4</strong> is the backbeat — the single most important convention in Western popular music. It's the head-nod. Move the snare to beat 3 only and the tempo appears to halve (<em>half-time</em>); that's the weight behind trap and doom.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">The Kick's Job</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      A kick on every quarter (<strong>four-on-the-floor</strong>) is the relentless pulse of house and techno — physical, hypnotic, impossible to sit still to. Kick on 1 and 3 is the rock/pop anchor. Push the kick onto the "ands" and the "e"s and it starts to <strong>syncopate</strong> — the hip-hop and funk approach, where the groove lives in the spaces between the beats.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">Hats &amp; Subdivision</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      The hi-hat sets the <strong>resolution</strong> of the groove. Eighth-notes feel steady; sixteenths drive and hurry; an open hat on the offbeat "and" is the disco/house signature. Trap's fluttering rolls are just the hat running at sixteenths and faster.
+    </p>
+
+    <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--glow-warm); letter-spacing:0.06em; margin:1rem 0 0.5rem;">Swing &amp; Syncopation</h3>
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      <strong>Swing</strong> drags every second sixteenth slightly late, turning a stiff grid into a loping, human shuffle — the difference between a drum machine and a drummer. <strong>Syncopation</strong> is accent on the weak positions; a little is groove, a lot is tension. The readout above scores both for whatever you program.
+    </p>
+
+    <p style="font-family:'EB Garamond',serif; font-size:0.95rem; color:var(--stone); line-height:1.65; margin-bottom:0.8rem;">
+      Go deeper in <a href="rhythm.html" style="color:var(--glow);">Rhythm &amp; Beats</a> and <a href="groove.html" style="color:var(--glow);">Groove &amp; Timing</a>, or find a song's tempo with <a href="tapbpm.html" style="color:var(--glow);">Tap BPM</a>.
+    </p>
+  </div>
+
+  <footer>
+    <div class="roots">⌇ ⌇ ⌇ ⌇ ⌇</div>
+    <p>Methodic Truth · a logical pursuit of music, AI, and knowledge · 2026</p>
+    <a href="https://paypal.me/weknowdatruthh" class="donate-link" target="_blank" rel="noopener">☽ support this work ☾</a>
+  </footer>
+
+  <div class="music-player" id="musicPlayer">
+    <button class="music-btn" id="prevBtn" title="Previous">◁</button>
+    <button class="music-btn" id="playBtn" title="Play">▷</button>
+    <button class="music-btn" id="nextBtn" title="Next">▷▷</button>
+    <div class="player-info">
+      <div class="player-track" id="trackName">No tracks loaded</div>
+      <div class="player-status" id="playerStatus">◇ idle</div>
+    </div>
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="40" title="Volume">
+  </div>
+
+  <script src="scripts.js?v=69"></script>
+  <script src="audio-core.js?v=2"></script>
+  <script>
+  (function() {
+    const STEPS = 16;
+    const LANES = [
+      { id:'kick',  label:'Kick',       lc:'#ff6b4a', lg:'rgba(255,107,74,0.55)' },
+      { id:'snare', label:'Snare',      lc:'#00e5ff', lg:'rgba(0,229,255,0.55)' },
+      { id:'chat',  label:'Closed Hat', lc:'#ffd24a', lg:'rgba(255,210,74,0.55)' },
+      { id:'ohat',  label:'Open Hat',   lc:'#ff9a3c', lg:'rgba(255,154,60,0.55)' },
+      { id:'clap',  label:'Clap',       lc:'#c084fc', lg:'rgba(192,132,252,0.55)' },
+      { id:'tom',   label:'Tom',        lc:'#4ade80', lg:'rgba(74,222,128,0.55)' },
+      { id:'perc',  label:'Perc',       lc:'#5ad1c4', lg:'rgba(90,209,196,0.55)' },
+    ];
+    const pattern = {};
+    LANES.forEach(l => pattern[l.id] = new Array(STEPS).fill(0));
+
+    // ── Build the grid ──
+    const gridEl = document.getElementById('dtGrid');
+    const cells = {};
+    LANES.forEach(lane => {
+      cells[lane.id] = [];
+      const row = document.createElement('div');
+      row.className = 'dt-lane';
+      const label = document.createElement('div');
+      label.className = 'dt-lane-label';
+      label.textContent = lane.label;
+      label.style.color = lane.lc;
+      row.appendChild(label);
+      for (let s = 0; s < STEPS; s++) {
+        const cell = document.createElement('div');
+        cell.className = 'dt-cell' + (s % 4 === 0 ? ' beat' : '');
+        cell.style.setProperty('--lc', lane.lc);
+        cell.style.setProperty('--lg', lane.lg);
+        cell.addEventListener('click', () => toggle(lane.id, s));
+        row.appendChild(cell);
+        cells[lane.id].push(cell);
+      }
+      gridEl.appendChild(row);
+    });
+
+    function toggle(laneId, s) {
+      pattern[laneId][s] ^= 1;
+      cells[laneId][s].classList.toggle('on', !!pattern[laneId][s]);
+      analyze();
+    }
+    function render() {
+      LANES.forEach(l => l && pattern[l.id].forEach((v, s) => cells[l.id][s].classList.toggle('on', !!v)));
+    }
+    function clearAll() {
+      LANES.forEach(l => pattern[l.id].fill(0));
+      render(); analyze();
+    }
+
+    // ── Audio: synthesized drum voices (no samples) ──
+    let ctx = null, noiseBuf = null, master = null;
+    function ensureCtx() {
+      if (!ctx) {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        master = ctx.createGain(); master.gain.value = 0.85; master.connect(ctx.destination);
+        const n = (ctx.sampleRate * 0.5) | 0;
+        noiseBuf = ctx.createBuffer(1, n, ctx.sampleRate);
+        const d = noiseBuf.getChannelData(0);
+        for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      }
+      return ctx;
+    }
+    async function resumeCtx() {
+      try {
+        if (window.AudioCore && AudioCore.resume) await AudioCore.resume(ctx);
+        else if (ctx.state === 'suspended') await ctx.resume();
+      } catch (e) {}
+    }
+    function env(g, t, peak, dur) {
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + 0.003);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    }
+    function noise() { const n = ctx.createBufferSource(); n.buffer = noiseBuf; return n; }
+
+    function vKick(t) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(150, t);
+      o.frequency.exponentialRampToValueAtTime(48, t + 0.11);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.95, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+      o.connect(g).connect(master); o.start(t); o.stop(t + 0.45);
+    }
+    function vSnare(t) {
+      const n = noise(), hp = ctx.createBiquadFilter(), ng = ctx.createGain();
+      hp.type = 'highpass'; hp.frequency.value = 1500;
+      env(ng, t, 0.5, 0.18);
+      n.connect(hp).connect(ng).connect(master); n.start(t); n.stop(t + 0.2);
+      const o = ctx.createOscillator(), og = ctx.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(190, t); o.frequency.exponentialRampToValueAtTime(140, t + 0.1);
+      env(og, t, 0.35, 0.11);
+      o.connect(og).connect(master); o.start(t); o.stop(t + 0.13);
+    }
+    function vHat(t, open) {
+      const n = noise(), hp = ctx.createBiquadFilter(), g = ctx.createGain();
+      hp.type = 'highpass'; hp.frequency.value = 7000;
+      const dur = open ? 0.3 : 0.045;
+      env(g, t, 0.26, dur);
+      n.connect(hp).connect(g).connect(master); n.start(t); n.stop(t + dur + 0.02);
+    }
+    function vClap(t) {
+      const bp = ctx.createBiquadFilter(), g = ctx.createGain();
+      bp.type = 'bandpass'; bp.frequency.value = 1200; bp.Q.value = 1.3;
+      g.gain.setValueAtTime(0.0001, t);
+      [0, 0.011, 0.022, 0.035].forEach((o, i, a) => {
+        g.gain.exponentialRampToValueAtTime(i === a.length - 1 ? 0.4 : 0.26, t + o + 0.002);
+        g.gain.exponentialRampToValueAtTime(0.05, t + o + 0.009);
+      });
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+      const n = noise(); n.connect(bp).connect(g).connect(master); n.start(t); n.stop(t + 0.2);
+    }
+    function vTom(t) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(210, t); o.frequency.exponentialRampToValueAtTime(95, t + 0.14);
+      env(g, t, 0.6, 0.3);
+      o.connect(g).connect(master); o.start(t); o.stop(t + 0.32);
+    }
+    function vPerc(t) {
+      const o = ctx.createOscillator(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+      o.type = 'square'; o.frequency.setValueAtTime(1700, t);
+      bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = 2;
+      env(g, t, 0.18, 0.035);
+      o.connect(bp).connect(g).connect(master); o.start(t); o.stop(t + 0.05);
+    }
+    function trigger(id, t) {
+      if (id === 'kick') vKick(t);
+      else if (id === 'snare') vSnare(t);
+      else if (id === 'chat') vHat(t, false);
+      else if (id === 'ohat') vHat(t, true);
+      else if (id === 'clap') vClap(t);
+      else if (id === 'tom') vTom(t);
+      else if (id === 'perc') vPerc(t);
+    }
+
+    // ── Lookahead scheduler on the audio clock (pattern after tapbpm) ──
+    let playing = false, bpm = 120, swing = 0;
+    let nextStepTime = 0, stepIdx = 0, schedTimer = null, raf = null;
+    const AHEAD = 0.12, LOOKAHEAD = 25;
+    const pending = [];
+    const playBtn = document.getElementById('dtPlay');
+
+    function stepDur() { return (60 / bpm) / 4; }
+    function swingOffset(s) { return (s % 2 === 1) ? (swing / 100) * stepDur() : 0; }
+
+    async function play() {
+      ensureCtx(); await resumeCtx();
+      playing = true; playBtn.textContent = '■ Stop';
+      stepIdx = 0; pending.length = 0;
+      nextStepTime = ctx.currentTime + 0.1;
+      scheduler();
+      raf = requestAnimationFrame(drawPlayhead);
+    }
+    function scheduler() {
+      while (nextStepTime < ctx.currentTime + AHEAD) {
+        const s = stepIdx % STEPS;
+        const t = nextStepTime + swingOffset(s);
+        LANES.forEach(l => { if (pattern[l.id][s]) trigger(l.id, t); });
+        pending.push({ time: t, step: s });
+        nextStepTime += stepDur();
+        stepIdx++;
+      }
+      schedTimer = setTimeout(scheduler, LOOKAHEAD);
+    }
+    function drawPlayhead() {
+      if (!playing) return;
+      const now = ctx.currentTime;
+      while (pending.length && pending[0].time <= now) {
+        highlightColumn(pending.shift().step);
+      }
+      raf = requestAnimationFrame(drawPlayhead);
+    }
+    let lastCol = -1;
+    function highlightColumn(s) {
+      if (lastCol >= 0) LANES.forEach(l => cells[l.id][lastCol].classList.remove('playhead'));
+      LANES.forEach(l => cells[l.id][s].classList.add('playhead'));
+      lastCol = s;
+    }
+    function clearPlayhead() {
+      LANES.forEach(l => cells[l.id].forEach(c => c.classList.remove('playhead')));
+      lastCol = -1;
+    }
+    function stop() {
+      playing = false; playBtn.textContent = '▶ Play';
+      if (schedTimer) { clearTimeout(schedTimer); schedTimer = null; }
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      pending.length = 0; clearPlayhead();
+    }
+
+    // ── The theory engine ──
+    const BEATS = [0, 4, 8, 12], OFF8 = [2, 6, 10, 14];
+    const sum = a => a.reduce((x, y) => x + y, 0);
+    const cap = str => str.charAt(0).toUpperCase() + str.slice(1);
+
+    function analyzeBeat(p) {
+      const k = p.kick, s = p.snare, hc = p.chat, ho = p.ohat;
+      const idx = v => v.map((x, i) => x ? i : -1).filter(i => i >= 0);
+      const totalHits = LANES.reduce((a, l) => a + sum(p[l.id]), 0);
+
+      const backbeat = !!(s[4] && s[12]);
+      const snare3only = !!(s[8] && !s[4] && !s[12]);
+      const fourFloor = !!(k[0] && k[4] && k[8] && k[12]);
+      const kick13 = !!(k[0] && k[8]);
+      const kickHits = sum(k);
+      const kickOff = idx(k).filter(i => BEATS.indexOf(i) < 0).length;
+
+      // hat subdivision
+      const hcHits = sum(hc), hcCells = idx(hc);
+      let hatSub;
+      if (hcHits === 0 && sum(ho) > 0) hatSub = 'open hats, offbeat';
+      else if (hcHits === 0) hatSub = 'none';
+      else if (hcHits >= 14) hatSub = '16ths — driving';
+      else if (hcCells.every(i => i % 2 === 0) && hcHits >= 4) hatSub = '8ths — steady';
+      else if (hcCells.every(i => i % 4 === 0)) hatSub = 'quarters — sparse';
+      else hatSub = 'syncopated';
+      if (OFF8.some(i => ho[i])) hatSub += ' + offbeat open hat';
+
+      // syncopation of the kick+snare skeleton
+      const ks = k.map((v, i) => (v || s[i]) ? 1 : 0);
+      const ksHits = sum(ks);
+      const ksOff = idx(ks).filter(i => BEATS.indexOf(i) < 0).length;
+      const sync = ksHits ? Math.round(ksOff / ksHits * 100) : 0;
+
+      // tresillo (3+3+2) and the dembow snare — the Latin backbone
+      const tresillo = a => !!(a[0] && a[3] && a[6]);
+      const hasTresillo = tresillo(k) || tresillo(p.perc) || tresillo(s);
+      const dembowSnare = !!(s[3] && (s[6] || s[7]) && (s[10] || s[11]) && (s[13] || s[14]));
+      const snareGhosts = idx(s).filter(i => i !== 4 && i !== 12).length;
+
+      // kick role text
+      let kickRole;
+      if (fourFloor) kickRole = 'four-on-the-floor (every quarter)';
+      else if (kick13 && kickOff === 0) kickRole = 'on 1 & 3 (steady anchor)';
+      else if (k[0] && kickOff > 0) kickRole = 'syncopated (anchored on 1, pushing the "ands")';
+      else if (kickHits === 0) kickRole = 'silent';
+      else kickRole = 'off-grid / syncopated';
+
+      // classify the family
+      let family = 'Custom groove', genres = 'your own thing';
+      if (fourFloor) { family = 'Four-on-the-floor'; genres = 'house · techno · disco · trance'; }
+      else if (snare3only && hcHits >= 14) { family = 'Trap'; genres = 'trap · drill · modern hip-hop'; }
+      else if (snare3only) { family = 'Half-time'; genres = 'dubstep · doom · cinematic'; }
+      else if (dembowSnare) { family = 'Dembow / reggaeton'; genres = 'reggaeton · dancehall · afro-latin'; }
+      else if (idx(p.perc).length >= 4 && (p.perc[3] || p.perc[6] || p.perc[10])) { family = 'Clave / cross-rhythm'; genres = 'bossa · son · latin jazz'; }
+      else if (hasTresillo && !backbeat && (s[3] || p.perc[3])) { family = 'Dembow / tresillo'; genres = 'reggaeton · dancehall · afro-latin'; }
+      else if (backbeat && kick13 && sync < 30 && kickHits <= 4 && snareGhosts === 0) { family = 'Backbeat (rock / pop)'; genres = 'rock · pop · funk'; }
+      else if (backbeat && idx(p.perc).length >= 4) { family = 'Afro / polyrhythm'; genres = 'afrobeat · highlife · afro-house'; }
+      else if (backbeat && (snareGhosts >= 1 || totalHits > 18)) { family = 'Breakbeat'; genres = 'jungle · drum & bass · breaks'; }
+      else if (backbeat && sync >= 30) { family = 'Boom-bap'; genres = 'hip-hop · lo-fi · trip-hop'; }
+      else if (backbeat) { family = 'Backbeat groove'; genres = 'rock · pop · soul'; }
+      else if (totalHits > 0 && totalHits <= 4) { family = 'Sparse / minimal'; genres = 'ambient · dub · downtempo'; }
+      else if (totalHits > 0) { family = 'Syncopated / hybrid'; genres = 'afrobeat · experimental · fusion'; }
+      else { family = '—'; genres = 'nothing yet'; }
+
+      // "why it grooves"
+      const bits = [];
+      if (fourFloor) bits.push('a kick on every quarter gives it a relentless, body-moving pulse');
+      else if (kick13 && kickOff === 0) bits.push('the kick anchors beats 1 and 3');
+      else if (k[0] && kickOff > 0) bits.push('the kick holds beat 1 and then slips onto the off-beats');
+      if (backbeat) bits.push('the snare cracks on 2 and 4 — the head-nod backbeat');
+      if (snare3only) bits.push('the snare lands only on beat 3, so the tempo feels halved');
+      if (hasTresillo) bits.push('a 3+3+2 tresillo gives it that leaning Latin pull');
+      if (hatSub.indexOf('16ths') >= 0) bits.push('busy 16th hats add forward drive');
+      else if (hatSub.indexOf('offbeat') >= 0) bits.push('an open hat on the "and" is the dance-floor signature');
+      if (sync >= 45) bits.push('much of the kick/snare energy sits off the grid, so it pushes and pulls');
+      if (swing > 5) bits.push('~' + swing + '% swing drags the off-16ths late for a loping, human feel');
+      const why = totalHits === 0
+        ? 'Click some squares — or pick a preset — and the theory of your pattern appears here.'
+        : cap(bits.join('; ')) + '.';
+
+      return { family, genres, backbeat, snare3only, kickRole, hatSub, sync, density: totalHits, why };
+    }
+
+    function analyze() {
+      const a = analyzeBeat(pattern);
+      const row = (k, v) => '<div class="dt-row"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>';
+      const snareText = a.snare3only ? 'on beat 3 only (half-time)' : (a.backbeat ? 'on 2 &amp; 4 (backbeat)' : 'off the backbeat');
+      let html = '';
+      html += '<div class="dt-family">' + a.family + '</div>';
+      html += '<div class="dt-genres">' + a.genres + '</div>';
+      html += row('Subdivision', '16 steps · 4/4');
+      html += row('Snare', snareText);
+      html += row('Kick', a.kickRole);
+      html += row('Hi-hats', a.hatSub);
+      html += row('Density', a.density + ' hits / bar');
+      html += row('Swing', swing + '%');
+      html += '<div class="dt-row" style="border-bottom:none;"><span class="k">Syncopation</span><span class="v">' + a.sync + '%</span></div>';
+      html += '<div class="dt-meter"><div style="width:' + Math.min(100, a.sync) + '%"></div></div>';
+      html += '<p class="dt-why">' + a.why + '</p>';
+      html += '<div class="dt-links">more: <a href="rhythm.html">rhythm &amp; beats</a> · <a href="groove.html">groove &amp; timing</a> · <a href="tapbpm.html">tap bpm</a></div>';
+      document.getElementById('dtReadout').innerHTML = html;
+    }
+
+    // ── Presets (step-index lists) ──
+    const PRESETS = {
+      'four-on-the-floor': { kick:[0,4,8,12], clap:[4,12], ohat:[2,6,10,14], chat:[0,2,4,6,8,10,12,14] },
+      'rock':             { kick:[0,8,10], snare:[4,12], chat:[0,2,4,6,8,10,12,14] },
+      'boom-bap':         { kick:[0,6,10], snare:[4,12], chat:[0,2,4,6,8,10,12,14] },
+      'breakbeat':        { kick:[0,10], snare:[4,7,12,14], chat:[0,2,4,6,8,10,12,14] },
+      'trap':             { kick:[0,7,10], snare:[8], chat:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] },
+      'half-time':        { kick:[0], snare:[8], chat:[0,2,4,6,8,10,12,14] },
+      'dembow':           { kick:[0,8], snare:[3,6,11,14], chat:[0,2,4,6,8,10,12,14] },
+      'bossa':            { kick:[0,8], perc:[0,3,6,10,12], chat:[0,2,4,6,8,10,12,14] },
+      'afrobeat':         { kick:[0,6,10], snare:[4,12], perc:[2,5,8,11,14], chat:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] },
+    };
+    function loadPreset(name) {
+      LANES.forEach(l => pattern[l.id].fill(0));
+      const def = PRESETS[name] || {};
+      Object.keys(def).forEach(lane => def[lane].forEach(s => { if (pattern[lane]) pattern[lane][s] = 1; }));
+      render(); analyze();
+    }
+
+    // ── Controls ──
+    playBtn.addEventListener('click', () => { playing ? stop() : play(); });
+    document.getElementById('dtClear').addEventListener('click', clearAll);
+    document.getElementById('dtBpm').addEventListener('input', e => {
+      bpm = Math.max(40, Math.min(240, parseInt(e.target.value, 10) || 120));
+    });
+    const swingVal = document.getElementById('dtSwingVal');
+    document.getElementById('dtSwing').addEventListener('input', e => {
+      swing = parseInt(e.target.value, 10) || 0;
+      swingVal.textContent = swing + '%';
+      analyze();
+    });
+    document.getElementById('dtPreset').addEventListener('change', e => loadPreset(e.target.value));
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      if (e.code === 'Space') { e.preventDefault(); playing ? stop() : play(); }
+    });
+
+    // Start with a recognizable groove so the readout isn't empty.
+    loadPreset('four-on-the-floor');
+  })();
+  </script>
+  <script>(function(){var u='https://methodictruth-default-rtdb.firebaseio.com/analytics/views.json';var id=localStorage.getItem('mt-vid');if(!id){id='v-'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);localStorage.setItem('mt-vid',id)}fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:location.pathname.split('/').pop()||'index.html',visitor:id,ts:Date.now(),ref:document.referrer||'direct',screen:screen.width+'x'+screen.height,ua:navigator.userAgent.substr(0,120)})}).catch(function(){})})()</script>
+</body>
+</html>
