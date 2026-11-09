@@ -719,6 +719,20 @@
       transition: height 0.08s;
     }
     .drum-cell.dragging { border-color: var(--glow); }
+    /* Accent = the step's loudest state (the tap-cycle's third stop). A different
+       colour, not just a taller bar, so a glance tells an accent from a hard hit. */
+    .drum-cell.accent {
+      border-color: var(--glow);
+      box-shadow: inset 0 0 8px rgba(0, 229, 255, 0.28), 0 0 6px rgba(0, 229, 255, 0.25);
+    }
+    .drum-cell.accent::after { background: rgba(0, 229, 255, 0.42); }
+    .drum-cell.accent::before {
+      content: ''; position: absolute; top: 2px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0; z-index: 1; pointer-events: none;
+      border-left: 3px solid transparent; border-right: 3px solid transparent;
+      border-bottom: 4px solid var(--glow);
+      filter: drop-shadow(0 0 2px rgba(0, 229, 255, 0.7));
+    }
     .drum-cell.playing {
       box-shadow: 0 0 10px rgba(232, 168, 124, 0.65);
       border-color: var(--glow-warm);
@@ -5943,6 +5957,8 @@
   ];
 
   const SEQ_DEFAULT_VEL = 100;   // of 127
+  const ACCENT_VEL = 127;        // tap-cycle accent: the full-force hit
+  const ACCENT_THRESH = 118;     // a step at/above this velocity reads as accented
   const SEQ_MIN_STEP_W = 32;     // px — a step narrower than this is untappable
 
   const seqState = {
@@ -6338,13 +6354,21 @@
         cell.setAttribute('role', 'button');
         cell.tabIndex = 0;
 
+        cell.title = 'Tap to cycle: off → on → accent → off · drag ↕ for fine velocity';
+        // off → on → accent → off. Accent is just the loudest velocity, so it
+        // rides the same per-step storage as a hand-dragged hit; paint reads it back.
+        const cycle = () => {
+          row[i] = row[i] === 0 ? SEQ_DEFAULT_VEL : (row[i] < ACCENT_THRESH ? ACCENT_VEL : 0);
+        };
         const paint = () => {
           const v = row[i];
+          const accented = v >= ACCENT_THRESH;
           cell.classList.toggle('on', v > 0);
+          cell.classList.toggle('accent', accented);
           cell.style.setProperty('--vel', (Math.max(v, 1) / 127 * 100).toFixed(0) + '%');
           cell.setAttribute('aria-pressed', String(v > 0));
           cell.setAttribute('aria-label',
-            `${r.label} step ${i + 1}, ${v > 0 ? 'on, velocity ' + v : 'off'}`);
+            `${r.label} step ${i + 1}, ${v > 0 ? (accented ? 'accented, velocity ' + v : 'on, velocity ' + v) : 'off'}`);
         };
         const audition = () => {
           if (!seqPlaying && row[i] > 0) { Tone.start().catch(()=>{}); triggerDrum(r.id, undefined, row[i]); }
@@ -6357,7 +6381,7 @@
         let velAtStart = 0;
         seqDragger(cell, {
           onTap: () => {
-            row[i] = row[i] > 0 ? 0 : SEQ_DEFAULT_VEL;
+            cycle();
             paint(); audition(); seqSave();
           },
           onDrag: (dx, dy) => {
@@ -6372,7 +6396,7 @@
         cell.addEventListener('keydown', (e) => {
           const k = e.key;
           if (k === 'Enter' || k === ' ') {
-            e.preventDefault(); row[i] = row[i] > 0 ? 0 : SEQ_DEFAULT_VEL; paint(); audition(); seqSave();
+            e.preventDefault(); cycle(); paint(); audition(); seqSave();
           } else if (k === 'ArrowUp' || k === 'ArrowDown') {
             e.preventDefault();
             row[i] = seqClampVel((row[i] || SEQ_DEFAULT_VEL) + (k === 'ArrowUp' ? 8 : -8));
