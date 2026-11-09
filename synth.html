@@ -1352,6 +1352,7 @@
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
       <select class="piano-layout-select" id="kbLayoutSelect" aria-label="Keyboard layout"
               title="How your computer keyboard maps to the piano">
+        <option value="Octave rows">Octave rows</option>
         <option value="Chromatic rows">Chromatic rows</option>
         <option value="Full keyboard">Piano shape</option>
         <option value="Two rows">Two rows</option>
@@ -1699,7 +1700,11 @@
 
     <h3>Musical Typing</h3>
     <dl>
-      <dt>Chromatic rows — the default</dt>
+      <dt>Octave rows — the default</dt>
+      <dd>Every row is <strong>one octave, starting on C</strong>, and each row sits an octave above the one below — so the <strong>same key is always the same note</strong>: <code>Z</code>, <code>A</code>, <code>Q</code> and <code>1</code> all play C, each an octave higher. Learn one row and you've learned them all.
+        <div class="kb-layout-map"><span>+3</span><code>1 2 3 4 5 6 7 8 9 0 - =</code><span>+2</span><code>q w e r t y u i o p [ ]</code><span>+1</span><code>a s d f g h j k l ; '</code><span>C</span><code>z x c v b n m , . /</code></div>
+        Four rows, four octaves, and the octave buttons slide all four up or down the full range. The two shorter rows don't quite finish their octave — <code>z</code>–<code>/</code> reaches C up to A, the home row C up to A♯ — and those last few notes wait on the row above. Want one unbroken ladder with the widest reach instead? Switch to <strong>Chromatic rows</strong>.</dd>
+      <dt>Chromatic rows — one unbroken ladder</dt>
       <dd>The simplest rule a keyboard can have: <strong>one long chromatic run, left to right, bottom row upwards.</strong> Every key on the four rows plays, every note appears exactly once, and <strong>neighbouring keys are neighbouring notes</strong> with no exceptions — no skips, no repeats, nothing to remember.
         <div class="kb-layout-map"><span>high</span><code>1 2 3 4 5 6 7 8 9 0 - =</code><span>&nbsp;</span><code>q w e r t y u i o p [ ]</code><span>&nbsp;</span><code>a s d f g h j k l ; '</code><span>low</span><code>z x c v b n m , . /</code></div>
         45 keys, 45 semitones — <strong>three octaves and a major third</strong>, more than double what a two-row layout reaches. The rows join up seamlessly too: <code>/</code> to <code>a</code>, <code>'</code> to <code>q</code> and <code>]</code> to <code>1</code> are each one semitone, so the whole keyboard is a single ladder. Because no note is bound twice, every key on screen shows exactly one letter.</dd>
@@ -4125,7 +4130,7 @@
   //
   // KEY_SPAN is the widest semitone any layout or remap may reach, and it is
   // also how many keys the on-screen piano draws. Keep them in step.
-  const KEY_SPAN = 45; // widest any layout reaches: 3 octaves and a major third
+  const KEY_SPAN = 48; // four octaves — the widest any layout reaches (Octave rows '='=47)
 
   // "Full keyboard" — the tracker/FL layout. The keyboard is read as TWO
   // piano manuals, one per pair of rows, an octave apart:
@@ -4197,12 +4202,28 @@
     return map;
   })();
 
+  // "Octave rows" — like Chromatic rows, but every row RESTARTS at C instead of
+  // running on from the row below. Each row is one octave (as far as its keys
+  // reach) and sits exactly an octave above the row beneath it, so the SAME key
+  // is always the same note name: z, a, q and 1 all play C, rising octave by
+  // octave. The two short rows don't finish their octave — the bottom row
+  // "z..." reaches C up to A, the home row C up to A# — and those last notes
+  // live on the row above. Predictable to play (you always know where C is), at
+  // the cost of the single seamless ladder that Chromatic rows gives you.
+  const LAYOUT_OCTAVE = (() => {
+    const rows = ['zxcvbnm,./', "asdfghjkl;'", 'qwertyuiop[]', '1234567890-='];
+    const map = {};
+    rows.forEach((r, ri) => { for (let i = 0; i < r.length; i++) map[r[i]] = ri * 12 + i; });
+    return map;
+  })();
+
   const KEY_LAYOUTS = {
+    'Octave rows': LAYOUT_OCTAVE,
     'Chromatic rows': LAYOUT_CHROMATIC,
     'Full keyboard': LAYOUT_FULL,
     'Two rows': LAYOUT_TWO_ROW
   };
-  const DEFAULT_LAYOUT = 'Chromatic rows';
+  const DEFAULT_LAYOUT = 'Octave rows';
   const CUSTOM_LAYOUT = 'Custom';
   const DEFAULT_KEY_MAP = LAYOUT_CHROMATIC;
 
@@ -4868,6 +4889,8 @@
       document.getElementById('pianoHint').textContent =
         keyLayout === 'Full keyboard'
           ? 'Two manuals — Z row and Q row, an octave apart · ' + CTRL_HINT
+          : keyLayout === 'Octave rows'
+          ? 'Each row is one octave — Z A Q 1 all play C · ' + CTRL_HINT
           : keyLayout + ' · ' + CTRL_HINT;
     }
   }
