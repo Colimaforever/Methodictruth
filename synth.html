@@ -2173,6 +2173,18 @@
   };
 
   // ─── MODULE DEFINITIONS ───
+  // Final safety stage between the whole mix and the hardware output: a
+  // brick-wall limiter so no patch, chord, or uncabled oscillator can send a
+  // clipping signal to the speakers. Transparent below the ceiling — it only
+  // acts on peaks that would clip, so a mix the user already has under control is
+  // unchanged, and every module/level still does exactly what they set. Not a
+  // rack module: it's the invisible last link, created lazily on first use.
+  let _masterLimiter = null;
+  function masterOut() {
+    if (!_masterLimiter) _masterLimiter = new Tone.Limiter(-0.5).toDestination();
+    return _masterLimiter;
+  }
+
   const MODULE_DEFS = {
     oscillator: {
       title: 'Oscillator',
@@ -2545,7 +2557,7 @@
         { id: 'gain', type: 'range', min: 0, max: 1, default: 0.5, step: 0.01, label: 'Master', unit: '' },
       ],
       create(params) {
-        const g = new Tone.Gain(params.gain).toDestination();
+        const g = new Tone.Gain(params.gain).connect(masterOut());
         const meter = new Tone.Meter({ smoothing: 0.8 });
         g.connect(meter);
         return { node: g, in: g, meter };
@@ -4413,7 +4425,7 @@
           }
         }
       } else {
-        voiceOut.toDestination();
+        voiceOut.connect(masterOut());
       }
 
       // Start at precise time (no delay)
@@ -6013,7 +6025,7 @@
       // Each voice gets its own fader into a kit bus, so a hat can be tucked
       // under a kick the way it would be on any drum machine, and the whole
       // kit can then be balanced against the synth in one move.
-      const out = new Tone.Gain(seqState.drumLevel).toDestination();
+      const out = new Tone.Gain(seqState.drumLevel).connect(masterOut());
       const ch = {};
       DRUM_ROWS.forEach(r => { ch[r.id] = new Tone.Gain(seqState.drumMix[r.id]).connect(out); });
       drumVoices = {
