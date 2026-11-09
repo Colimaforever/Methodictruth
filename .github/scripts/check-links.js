@@ -9,8 +9,14 @@ const problems = [];
 
 for (const file of files) {
   const content = fs.readFileSync(path.join(root, file), 'utf8');
+  // Don't scan inside <script> bodies or HTML comments: an href="..." there is JS
+  // source or documentation, not real markup. Keep the opening <script> tag so a
+  // genuine <script src="…"> is still verified.
+  const scanned = content
+    .replace(/(<script\b[^>]*>)[\s\S]*?<\/script>/gi, '$1</script>')
+    .replace(/<!--[\s\S]*?-->/g, '');
   let m;
-  while ((m = linkRe.exec(content))) {
+  while ((m = linkRe.exec(scanned))) {
     const url = m[1];
     if (url.includes('${')) continue; // JS template literal inside <script>, not real markup
     if (/^(https?:|mailto:|tel:|javascript:|data:|#)/.test(url)) continue;
