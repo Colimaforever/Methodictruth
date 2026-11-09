@@ -4418,6 +4418,20 @@
 
       // Start at precise time (no delay)
       tempOsc.start(startTime2);
+      // De-click the attack — the counterpart to the release ramp in voiceOff.
+      // With no envelope in the path the voice gain was set to full instantly, so
+      // the oscillator started on a hard edge: an audible click, and a chord
+      // stacks several of those edges at the same instant, which is exactly the
+      // "click when I play several notes at once" being reported. A ~5 ms fade-in
+      // up to the velocity level removes the edge without softening the attack to
+      // the ear. A patched Envelope already ramps from zero, so that case is left
+      // untouched — the same condition the release de-click uses.
+      if (!(envRelease > 0)) {
+        const gp = tempGain.gain;
+        gp.cancelScheduledValues(startTime2);
+        gp.setValueAtTime(0, startTime2);
+        gp.linearRampToValueAtTime(gain, startTime2 + 0.005);
+      }
       synthNodes.push({ osc: tempOsc, gain: tempGain, pan: tempPan, fmGain: tempFmGain, voiceMods, release, envRelease });
     }
 
