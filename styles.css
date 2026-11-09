@@ -77,7 +77,43 @@ body {
   font-size: clamp(16px, 1.125vw, 20px);
   line-height: 1.7;
   overflow-x: hidden;
+  /* Type craft: let the serifs use their ligatures and kerning, rendered
+     smoothly on the dark background — the difference between text that is set
+     and text merely shown. */
+  font-feature-settings: "liga" 1, "clig" 1, "calt" 1, "kern" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
+
+/* ─── CRAFT POLISH (global, identity-preserving) ─── */
+
+/* Headlines balance so a title never drops one orphan word to its own line;
+   body copy wraps "pretty" to avoid a lonely last word. Progressive: engines
+   without these simply wrap as before. */
+h1, h2, h3, h4 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* Text selection in the house cyan instead of browser blue. */
+::selection { background: rgba(0, 229, 255, 0.22); color: var(--parchment); text-shadow: none; }
+
+/* One focus ring for the whole site, shown only for keyboard focus — Tab always
+   reveals where you are, a mouse click never leaves a ring. */
+:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; border-radius: 2px; }
+a:focus:not(:focus-visible), button:focus:not(:focus-visible),
+input:focus:not(:focus-visible), select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible), [tabindex]:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) { outline: none; }
+
+/* Scrollbar dressed for the dark room; a cyan thumb on hover. */
+html { scrollbar-color: rgba(138, 126, 107, 0.4) transparent; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: rgba(10, 14, 26, 0.5); }
+::-webkit-scrollbar-thumb {
+  background: rgba(138, 126, 107, 0.35); border: 3px solid transparent;
+  border-radius: 8px; background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.4); background-clip: content-box; }
 
 /* ─── STARFIELD ─── */
 .starfield {
@@ -270,6 +306,7 @@ body::after {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(138, 126, 107, 0.08);
+  box-shadow: inset 0 1px 0 rgba(0, 229, 255, 0.05), 0 10px 30px -18px rgba(0, 0, 0, 0.85);
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(0.55rem, 0.7vw, 0.7rem);
   letter-spacing: 0.35em;
@@ -305,7 +342,9 @@ body::after {
   color: var(--stone-dark);
   text-decoration: none;
   padding: 0.3em 0;
-  transition: color 0.3s, border-color 0.3s;
+  transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              text-shadow 0.35s ease;
   border-bottom: 1px solid transparent;
 }
 
@@ -313,12 +352,14 @@ body::after {
 .site-nav a:active {
   color: var(--parchment);
   border-bottom-color: var(--moss);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.22);
 }
 
 .site-nav a.active {
   color: var(--glow);
   border-bottom-color: var(--glow);
-  opacity: 0.8;
+  opacity: 0.9;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
 }
 
 /* Nav dropdowns */
@@ -353,12 +394,12 @@ body::after {
   background: rgba(10, 14, 26, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(138, 126, 107, 0.15);
+  border: 1px solid rgba(0, 229, 255, 0.1);
   border-radius: 4px;
   padding: 0.5rem 0;
   min-width: 140px;
   z-index: 600;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 30px rgba(0, 0, 0, 0.5);
   /* The nav is position:fixed, so a dropdown taller than the viewport runs off
      the bottom of the screen and the items down there cannot be reached — the
      page behind scrolls, a fixed element does not. Bounding the height and
@@ -643,11 +684,15 @@ h1 {
   font-weight: 400;
   letter-spacing: 0.04em;
   text-transform: none;
-  background: linear-gradient(180deg, var(--parchment) 0%, var(--oracle) 100%);
+  /* A hair of warm light held at the very top, falling into the oracle purple —
+     the wordmark reads as lit from above rather than flatly filled, and a
+     layered glow gives it a little more depth. Kept static (no animation) so the
+     grain filter never has to re-run per frame. */
+  background: linear-gradient(180deg, #fff4e0 0%, var(--parchment) 24%, var(--oracle) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 16px rgba(123, 104, 238, 0.25);
+  text-shadow: 0 0 18px rgba(123, 104, 238, 0.28), 0 0 46px rgba(123, 104, 238, 0.12);
   filter: url(#structureGrain);
 }
 
@@ -662,11 +707,13 @@ h1 {
 }
 
 .epigraph {
-  margin-top: 1.5rem;
+  margin-top: 1.6rem;
   font-style: italic;
   color: var(--stone-dark);
   font-size: clamp(0.85rem, 1.1vw, 1rem);
-  max-width: min(500px, 90vw);
+  line-height: 1.65;
+  max-width: min(520px, 90vw);
+  text-wrap: balance;
 }
 
 .scroll-hint {
