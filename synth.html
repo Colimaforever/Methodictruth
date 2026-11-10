@@ -1352,6 +1352,7 @@
       <span class="piano-info-item" id="pianoVelocity">Vel: 100</span>
       <select class="piano-layout-select" id="kbLayoutSelect" aria-label="Keyboard layout"
               title="How your computer keyboard maps to the piano">
+        <option value="Scale run">Scale run</option>
         <option value="Octave rows">Octave rows</option>
         <option value="Chromatic rows">Chromatic rows</option>
         <option value="Full keyboard">Piano shape</option>
@@ -1700,7 +1701,11 @@
 
     <h3>Musical Typing</h3>
     <dl>
-      <dt>Octave rows — the default</dt>
+      <dt>Scale run — the default</dt>
+      <dd>The computer keyboard plays the <strong>scale you pick in ♪ Scales &amp; Chords</strong>, in order: <strong>neighbouring keys are neighbouring scale notes</strong>, so you run up and down and hit the tonic every octave. In C major the bottom row alone is a full octave, <strong>tonic to tonic</strong>:
+        <div class="kb-layout-map"><span>C maj</span><code>z=C  x=D  c=E  v=F  b=G  n=A  m=B  ,=C</code></div>
+        Change the key or scale and the keyboard follows — C major, A minor, Dorian, the blues scale, a maqam, whatever you set. Because only in-scale notes are bound there are <strong>no wrong notes and no sharps to dodge</strong>. Want every semitone instead? Switch to <strong>Chromatic rows</strong>; want a fixed chromatic octave on each row? <strong>Octave rows</strong>.</dd>
+      <dt>Octave rows — a fixed chromatic octave per row</dt>
       <dd>Every row is <strong>one octave, starting on C</strong>, and each row sits an octave above the one below — so the <strong>same key is always the same note</strong>: <code>Z</code>, <code>A</code>, <code>Q</code> and <code>1</code> all play C, each an octave higher. Learn one row and you've learned them all.
         <div class="kb-layout-map"><span>+3</span><code>1 2 3 4 5 6 7 8 9 0 - =</code><span>+2</span><code>q w e r t y u i o p [ ]</code><span>+1</span><code>a s d f g h j k l ; '</code><span>C</span><code>z x c v b n m , . /</code></div>
         Four rows, four octaves, and the octave buttons slide all four up or down the full range. The two shorter rows don't quite finish their octave — <code>z</code>–<code>/</code> reaches C up to A, the home row C up to A♯ — and those last few notes wait on the row above. Want one unbroken ladder with the widest reach instead? Switch to <strong>Chromatic rows</strong>.</dd>
@@ -4217,13 +4222,39 @@
     return map;
   })();
 
+  // "Scale run" — the computer keyboard follows the Scales & Chords key and
+  // scale. Consecutive keys are consecutive scale degrees, so playing left to
+  // right walks UP the scale and right to left walks back DOWN, passing the
+  // tonic every octave. In C major the bottom row alone is a full octave, tonic
+  // to tonic: z x c v b n m , = C D E F G A B C. Unlike the fixed layouts this
+  // map is COMPUTED from guide.root / guide.scale and re-derived whenever the
+  // key or scale changes. Maqam microtones (the `cents` on some GUIDE_SCALES)
+  // are not applied here — the typing keyboard plays the nearest semitone.
+  const SCALE_LAYOUT = 'Scale run';
+  function computeScaleMap() {
+    const rows = ['zxcvbnm,./', "asdfghjkl;'", 'qwertyuiop[]', '1234567890-='];
+    // guideReady is a hoisted `var`; guide / GUIDE_SCALES are `const` declared
+    // further down, so they must not be touched until the guide has initialised
+    // (loadKeyMap runs this before then). Fall back to C Major until it has.
+    let iv = [0, 2, 4, 5, 7, 9, 11], root = 0;
+    if (guideReady) {
+      const sc = GUIDE_SCALES[guide.scale];
+      if (sc && sc.iv) iv = sc.iv;
+      if (Number.isInteger(guide.root)) root = guide.root;
+    }
+    const n = iv.length, map = {};
+    let d = 0;
+    rows.forEach(r => { for (const k of r) { map[k] = root + iv[d % n] + 12 * Math.floor(d / n); d++; } });
+    return map;
+  }
+
   const KEY_LAYOUTS = {
     'Octave rows': LAYOUT_OCTAVE,
     'Chromatic rows': LAYOUT_CHROMATIC,
     'Full keyboard': LAYOUT_FULL,
     'Two rows': LAYOUT_TWO_ROW
   };
-  const DEFAULT_LAYOUT = 'Octave rows';
+  const DEFAULT_LAYOUT = 'Scale run';
   const CUSTOM_LAYOUT = 'Custom';
   const DEFAULT_KEY_MAP = LAYOUT_CHROMATIC;
 
@@ -4249,13 +4280,14 @@
   function loadLayoutName() {
     try {
       const name = localStorage.getItem(LAYOUT_STORAGE);
-      if (name && (KEY_LAYOUTS[name] || name === CUSTOM_LAYOUT)) return name;
+      if (name && (KEY_LAYOUTS[name] || name === CUSTOM_LAYOUT || name === SCALE_LAYOUT)) return name;
     } catch (e) {}
     // No layout recorded. Anyone with a saved map remapped it before layouts
     // existed, so honour that as Custom rather than overwriting their work.
     return readStoredMap() ? CUSTOM_LAYOUT : DEFAULT_LAYOUT;
   }
   function loadKeyMap() {
+    if (keyLayout === SCALE_LAYOUT) return computeScaleMap();
     if (KEY_LAYOUTS[keyLayout]) return { ...KEY_LAYOUTS[keyLayout] };
     // A Custom map is the default with the user's own bindings laid over it,
     // not a frozen snapshot. Returning the snapshot alone meant that anyone
@@ -4877,6 +4909,9 @@
       if (!saved) return;               // nothing to go back to; leave as-is
       keyLayout = CUSTOM_LAYOUT;
       keyMap = { ...DEFAULT_KEY_MAP, ...saved };   // same overlay as on load
+    } else if (name === SCALE_LAYOUT) {
+      keyLayout = SCALE_LAYOUT;
+      keyMap = computeScaleMap();
     } else if (KEY_LAYOUTS[name]) {
       keyLayout = name;
       keyMap = { ...KEY_LAYOUTS[name] };
@@ -4891,8 +4926,25 @@
           ? 'Two manuals — Z row and Q row, an octave apart · ' + CTRL_HINT
           : keyLayout === 'Octave rows'
           ? 'Each row is one octave — Z A Q 1 all play C · ' + CTRL_HINT
+          : keyLayout === SCALE_LAYOUT
+          ? scaleHint()
           : keyLayout + ' · ' + CTRL_HINT;
     }
+  }
+  // The hint for Scale run names the key and scale it is following right now.
+  function scaleHint() {
+    let r = 'C', s = 'Major';
+    if (guideReady) { r = guideNoteName(guide.root); s = guide.scale; }
+    return 'Scale run — ' + r + ' ' + s + ' · one row is a full octave, tonic to tonic · ' + CTRL_HINT;
+  }
+  // The key or scale changed. A Scale-run keyboard must re-derive its map and
+  // redraw the on-screen letters; every fixed layout is a no-op.
+  function onScaleContextChanged() {
+    if (keyLayout !== SCALE_LAYOUT) return;
+    keyMap = computeScaleMap();
+    buildPiano();
+    const hint = document.getElementById('pianoHint');
+    if (hint) hint.textContent = scaleHint();
   }
   function syncLayoutSelect() {
     const sel = document.getElementById('kbLayoutSelect');
@@ -5938,8 +5990,8 @@
     scaleSel.value = guide.scale;
     document.getElementById('guideLabels').textContent = guide.labels === 'names' ? 'Names' : 'Degrees';
 
-    rootSel.addEventListener('change', () => { guide.root = parseInt(rootSel.value, 10); guideRenderChips(); guideApply(); guideSave(); rootSel.blur(); });
-    scaleSel.addEventListener('change', () => { guide.scale = scaleSel.value; guide.degree = 0; guideRenderChips(); guideApply(); guideSave(); scaleSel.blur(); });
+    rootSel.addEventListener('change', () => { guide.root = parseInt(rootSel.value, 10); guideRenderChips(); guideApply(); guideSave(); onScaleContextChanged(); rootSel.blur(); });
+    scaleSel.addEventListener('change', () => { guide.scale = scaleSel.value; guide.degree = 0; guideRenderChips(); guideApply(); guideSave(); onScaleContextChanged(); scaleSel.blur(); });
     document.querySelectorAll('.tg-tab').forEach(t => tapHandler(t, () => guideSetView(t.dataset.view)));
     tapHandler(document.getElementById('guideBtn'), () => { guideNudgeSeen(); guideSetOpen(!guide.on); });
     tapHandler(document.getElementById('guideClose'), () => guideSetOpen(false));
@@ -5972,6 +6024,11 @@
     guideSetView(guide.view);
     guideSetOpen(guide.on);
   })();
+
+  // A Scale-run keyboard was first built with a C-major fallback, before the
+  // guide restored its key/scale just above. Re-derive it now that guide is
+  // ready so it matches. No-op for every fixed layout.
+  onScaleContextChanged();
 
   // Remap: click toggles the mode; right-click resets to the default layout
   tapHandler(document.getElementById('remapBtn'), () => setRemapMode(!remapMode));
