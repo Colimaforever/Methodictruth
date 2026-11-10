@@ -1702,9 +1702,9 @@
     <h3>Musical Typing</h3>
     <dl>
       <dt>Scale run — the default</dt>
-      <dd>The computer keyboard plays the <strong>scale you pick in ♪ Scales &amp; Chords</strong>, in order: <strong>neighbouring keys are neighbouring scale notes</strong>, so you run up and down and hit the tonic every octave. In C major the bottom row alone is a full octave, <strong>tonic to tonic</strong>:
-        <div class="kb-layout-map"><span>C maj</span><code>z=C  x=D  c=E  v=F  b=G  n=A  m=B  ,=C</code></div>
-        Change the key or scale and the keyboard follows — C major, A minor, Dorian, the blues scale, a maqam, whatever you set. Because only in-scale notes are bound there are <strong>no wrong notes and no sharps to dodge</strong>. Want every semitone instead? Switch to <strong>Chromatic rows</strong>; want a fixed chromatic octave on each row? <strong>Octave rows</strong>.</dd>
+      <dd>The computer keyboard plays the <strong>scale you pick in ♪ Scales &amp; Chords</strong>, and <strong>every row is one octave of it, tonic to tonic</strong> — so the row your fingers rest on plays a whole octave you can run up and back down. In C major the home row is C D E F G A B C:
+        <div class="kb-layout-map"><span>home</span><code>a=C  s=D  d=E  f=F  g=G  h=A  j=B  k=C</code></div>
+        Neighbouring keys are neighbouring scale notes, and each row sits an octave above the one below — <code>z</code>, <code>a</code>, <code>q</code> and <code>1</code> are the tonic in rising octaves. Change the key or scale and the keyboard follows — C major, A minor, Dorian, the blues scale, a maqam, whatever you set. Because only in-scale notes are bound there are <strong>no wrong notes and no sharps to dodge</strong>. Want every semitone instead? Switch to <strong>Chromatic rows</strong>; want a fixed chromatic octave on each row? <strong>Octave rows</strong>.</dd>
       <dt>Octave rows — a fixed chromatic octave per row</dt>
       <dd>Every row is <strong>one octave, starting on C</strong>, and each row sits an octave above the one below — so the <strong>same key is always the same note</strong>: <code>Z</code>, <code>A</code>, <code>Q</code> and <code>1</code> all play C, each an octave higher. Learn one row and you've learned them all.
         <div class="kb-layout-map"><span>+3</span><code>1 2 3 4 5 6 7 8 9 0 - =</code><span>+2</span><code>q w e r t y u i o p [ ]</code><span>+1</span><code>a s d f g h j k l ; '</code><span>C</span><code>z x c v b n m , . /</code></div>
@@ -4223,13 +4223,15 @@
   })();
 
   // "Scale run" — the computer keyboard follows the Scales & Chords key and
-  // scale. Consecutive keys are consecutive scale degrees, so playing left to
-  // right walks UP the scale and right to left walks back DOWN, passing the
-  // tonic every octave. In C major the bottom row alone is a full octave, tonic
-  // to tonic: z x c v b n m , = C D E F G A B C. Unlike the fixed layouts this
-  // map is COMPUTED from guide.root / guide.scale and re-derived whenever the
-  // key or scale changes. Maqam microtones (the `cents` on some GUIDE_SCALES)
-  // are not applied here — the typing keyboard plays the nearest semitone.
+  // scale, and EVERY ROW is one octave of that scale, tonic to tonic. Each row
+  // restarts on the tonic one octave above the row below, so the row your
+  // fingers rest on plays a whole octave you can run up and back down: in C
+  // major the home row a s d f g h j k = C D E F G A B C. Within a row the keys
+  // climb the scale; keys past the octave carry on into the next octave (so the
+  // rows overlap at the tonic rather than leaving dead keys). Unlike the fixed
+  // layouts this map is COMPUTED from guide.root / guide.scale and re-derived
+  // whenever the key or scale changes. Maqam microtones (the `cents` on some
+  // GUIDE_SCALES) are not applied here — the keyboard plays the nearest semitone.
   const SCALE_LAYOUT = 'Scale run';
   function computeScaleMap() {
     const rows = ['zxcvbnm,./', "asdfghjkl;'", 'qwertyuiop[]', '1234567890-='];
@@ -4243,8 +4245,12 @@
       if (Number.isInteger(guide.root)) root = guide.root;
     }
     const n = iv.length, map = {};
-    let d = 0;
-    rows.forEach(r => { for (const k of r) { map[k] = root + iv[d % n] + 12 * Math.floor(d / n); d++; } });
+    rows.forEach((r, ri) => {
+      for (let i = 0; i < r.length; i++) {
+        // tonic of this row (root + ri octaves) + the i-th scale step up
+        map[r[i]] = root + 12 * ri + iv[i % n] + 12 * Math.floor(i / n);
+      }
+    });
     return map;
   }
 
