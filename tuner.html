@@ -108,6 +108,21 @@
       text-align: center; margin-bottom: 1.5rem; min-height: 1.2em;
     }
 
+    /* Debug readout — raw detector output, off by default */
+    .tn-debug-row { display: flex; align-items: center; gap: 0.6rem; margin: 0.5rem 0 0; flex-wrap: wrap; justify-content: center; }
+    .tn-debug-toggle {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--stone-dark); background: transparent;
+      border: 1px solid rgba(138,126,107,0.25); border-radius: 4px; padding: 0.22rem 0.5rem;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .tn-debug-toggle:hover { border-color: rgba(0,229,255,0.4); color: var(--stone); }
+    .tn-debug-toggle.active { border-color: var(--glow); color: var(--glow); background: rgba(0,229,255,0.07); }
+    .tn-debug { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--stone); letter-spacing: 0.02em; }
+    .tn-dbg-k { color: var(--stone-dark); }
+    .tn-dbg-ok { color: rgba(74,222,128,0.9); }
+    .tn-dbg-no { color: rgba(232,168,124,0.85); }
+
     /* String quick-select */
     .tn-strings {
       display: flex; gap: clamp(0.25rem, 0.5vw, 0.4rem); justify-content: center;
@@ -300,6 +315,13 @@
       <!-- Waveform -->
       <div class="tn-waveform">
         <canvas id="tnWaveform"></canvas>
+      </div>
+
+      <!-- Debug readout — off by default; toggle with ⚙ Debug or ?debug -->
+      <div class="tn-debug-row">
+        <button type="button" class="tn-debug-toggle" id="tnDebugToggle"
+                title="Show the raw detector output — frequency, clarity and signal level — so you can see why a string isn't registering. Shortcut: D">⚙ Debug</button>
+        <div class="tn-debug" id="tnDebug" hidden></div>
       </div>
     </div>
 
@@ -516,6 +538,20 @@
     // ─── ENGINE (shared audio-core.js) ───
     let detector = null;                       // AudioCore.PitchDetector — FFT/NSDF, O(n log n)
     const smoother = new AudioCore.MedianFilter(5);   // rejects octave blips → steady needle
+    // Higher/plain strings (G, B, e) are quieter and decay faster than the wound
+    // E, A, D, so they slipped under the old 0.008 RMS gate within a beat and the
+    // readout went dead — "not responsive" on exactly those strings. The clarity
+    // gate (0.5) is the real noise discriminator: it stays ~0 on noise and ~1 on
+    // a real string, so the RMS gate can sit this low (verified: 0% false detects
+    // on white noise) and the high strings keep tracking as they ring out.
+    const RMS_GATE = 0.004;
+    let debugOn = new URLSearchParams(location.search).has('debug');
+    document.getElementById('tnDebugToggle').addEventListener('click', () => setDebug(!debugOn));
+    document.addEventListener('keydown', (e) => {
+      const tag = (document.activeElement && document.activeElement.tagName) || '';
+      if ((e.key === 'd' || e.key === 'D') && !/INPUT|SELECT|TEXTAREA/.test(tag)) setDebug(!debugOn);
+    });
+    setDebug(debugOn);   // reflect ?debug on load
     let detectTimer = null;                    // pitch detection, decoupled from the paint loop
     const timeBuf = new Float32Array(4096);
     let waveNeedsSize = true;                  // resize the canvas only when it changes, not per frame
@@ -542,7 +578,7 @@
         analyser.fftSize = 4096;
         const source = audioCtx.createMediaStreamSource(micStream);
         source.connect(analyser);
-        detector = new AudioCore.PitchDetector(2048, audioCtx.sampleRate);
+        detector = new AudioCore.PitchDetector(2048, audioCtx.sampleRate, { rmsThreshold: RMS_GATE });
         smoother.reset();
         isRunning = true;
         waveNeedsSize = true;
@@ -589,6 +625,7 @@
       analyser.getFloatTimeDomainData(timeBuf);
       const r = detector.detect(timeBuf.subarray(0, 2048));
       if (r.freq > 0 && r.clarity > 0.5) updateReadout(smoother.push(r.freq));
+      if (debugOn) updateDebug(r);
       detectTimer = setTimeout(detectLoop, 45);
     }
 
@@ -599,6 +636,31 @@
       analyser.getFloatTimeDomainData(timeBuf);
       drawWaveform(timeBuf);
       rafId = requestAnimationFrame(drawLoop);
+    }
+
+    // ─── DEBUG READOUT ───
+    // Shows the raw detector output every frame — including rejected frames — so
+    // you can see WHY a string isn't registering: a quiet/decaying high string
+    // reads "too quiet" (rms under the gate); a real note reads "locked".
+    function updateDebug(r) {
+      const el = document.getElementById('tnDebug');
+      if (!el) return;
+      const locked = r.freq > 0 && r.clarity > 0.5;
+      const why = r.rms < RMS_GATE ? 'too quiet (rms gate)'
+                : !(r.clarity > 0.5) ? 'unclear (clarity gate)'
+                : 'locked';
+      el.innerHTML =
+        '<span class="tn-dbg-k">raw</span> ' + (r.freq > 0 ? r.freq.toFixed(1) + ' Hz' : '—') +
+        ' · <span class="tn-dbg-k">clarity</span> ' + r.clarity.toFixed(2) +
+        ' · <span class="tn-dbg-k">rms</span> ' + r.rms.toFixed(4) +
+        ' · <span class="' + (locked ? 'tn-dbg-ok' : 'tn-dbg-no') + '">' + (locked ? '● ' : '○ ') + why + '</span>';
+    }
+    function setDebug(on) {
+      debugOn = on;
+      const el = document.getElementById('tnDebug');
+      const btn = document.getElementById('tnDebugToggle');
+      if (el) { el.hidden = !on; if (!on) el.textContent = ''; }
+      if (btn) btn.classList.toggle('active', on);
     }
 
     // ─── READOUT (only rewrites text when the note actually changes) ───
