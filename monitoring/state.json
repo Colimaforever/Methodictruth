@@ -1,7 +1,7 @@
 {
- "state": "ok",
- "since": "2026-11-14T22:57:09.012Z",
- "lastChecked": "2026-11-14T22:57:09.012Z",
- "lastDetail": "all subsystems reporting",
- "responseMs": 270
+ "state": "down",
+ "since": "2026-11-16T08:00:35.626Z",
+ "lastChecked": "2026-11-16T08:00:35.626Z",
+ "lastDetail": "HTTP 530 from /health",
+ "responseMs": 165
 }
