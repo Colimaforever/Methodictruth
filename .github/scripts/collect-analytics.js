@@ -136,10 +136,36 @@ function trend(days) {
   return { half, recent, prior, pct: ((recent - prior) / prior) * 100 };
 }
 
+// Bots vs humans, estimated from the gap between the two counters. Cloudflare
+// sees every request; the on-site beacon only fires for clients that run JS,
+// which most crawlers and simple bots do not. So (Cloudflare pageviews − beacon
+// pageviews) over the same window is, near enough, the non-JS bot traffic. Needs
+// both sources, so returns null unless both came back ok.
+function botEstimate(cf, fb) {
+  if (!cf.ok || !fb.ok || !cf.days.length) return null;
+  const windows = [7, 30].map((n) => {
+    const cfViews = sumOver(cf.days, n, 'pageViews');
+    const cfUniques = sumOver(cf.days, n, 'uniques');
+    // Beacon pageviews over the same last-n-days window. ISO date strings sort
+    // lexically, so a string compare is a date compare.
+    const cutoff = day(new Date(today.getTime() - n * 864e5));
+    const beaconViews = Object.entries(fb.daily || {})
+      .filter(([d]) => d >= cutoff)
+      .reduce((a, [, v]) => a + v, 0);
+    const botViews = Math.max(0, cfViews - beaconViews);
+    return { days: n, cfViews, cfUniques, beaconViews, botViews,
+             botPct: cfViews ? botViews / cfViews : null };
+  });
+  // The beacon pull is limitToLast=20000; at that cap the longer window's beacon
+  // count is truncated, which inflates its apparent bot share.
+  return { windows, sampleCapped: (fb.total || 0) >= 20000 };
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const [cf, fb] = await Promise.all([cloudflare(), firebase()]);
   const stamp = new Date().toISOString();
+  const bot = botEstimate(cf, fb);
 
   // ---- append-only history -------------------------------------------
   const histPath = path.join(OUT, 'history.json');
@@ -161,7 +187,7 @@ function trend(days) {
 
   // ---- machine-readable snapshot --------------------------------------
   fs.writeFileSync(path.join(OUT, 'latest.json'),
-    JSON.stringify({ collected: stamp, cloudflare: cf, firebase: fb }, null, 1) + '\n');
+    JSON.stringify({ collected: stamp, cloudflare: cf, firebase: fb, botEstimate: bot }, null, 1) + '\n');
 
   // ---- human report ----------------------------------------------------
   const L = [];
@@ -241,6 +267,34 @@ function trend(days) {
     L.push('## Cloudflare');
     L.push('');
     L.push(`Unavailable — ${cf.error}.`);
+  }
+  L.push('');
+
+  // ---- bots vs humans (estimated) -------------------------------------
+  L.push('## Bots vs humans (estimated)');
+  L.push('');
+  if (bot) {
+    L.push('Cloudflare counts **every** request; the on-site beacon only fires for ' +
+           'clients that run JavaScript — which most crawlers and simple bots do not. ' +
+           'So the gap between the two is, near enough, non-human traffic.');
+    L.push('');
+    L.push('| Window | All pageviews (Cloudflare) | Human pageviews (JS beacon) | Est. bot share |');
+    L.push('| --- | --- | --- | --- |');
+    for (const w of bot.windows) {
+      const pct = w.botPct == null ? '—' : (w.botPct * 100).toFixed(0) + '%';
+      L.push(`| ${w.days}d | ${w.cfViews.toLocaleString()} | ${w.beaconViews.toLocaleString()} | ${pct} |`);
+    }
+    L.push('');
+    L.push('Read it as a **rough lower bound**, because:');
+    L.push('- headless / JS-running bots run the beacon too, so they count as human here;');
+    L.push('- humans who block the beacon (adblock, privacy) count as bot here.');
+    if (bot.sampleCapped) {
+      L.push('- the beacon sample hit its 20,000-row cap, so the **30-day** human count is ' +
+             'truncated and its bot share is overstated — trust the **7-day** figure.');
+    }
+  } else {
+    L.push('Needs **both** Cloudflare and the beacon to be readable — set the Cloudflare ' +
+           'secrets above and this fills in on the next run.');
   }
   L.push('');
 
